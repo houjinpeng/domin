@@ -16,7 +16,18 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var Controller = {
 
         index: function () {
-
+            // 验证输入是否是数字
+            layui.form.verify({
+                number: function (val) {
+                    if (val === "" || val == null) {
+                        return false;
+                    }
+                    if (!isNaN(val)) {
+                    } else {
+                        return '请填写数字'
+                    }
+                }
+            })
             ea.table.render({
                 init: init,
                 height: 'full-40',
