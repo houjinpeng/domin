@@ -90,9 +90,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 done:function (res) {
 
                     $.each(res.data,function (k,v){
-                        if (v.getSalesData.is_like === 1){
-                            // 复用按钮是否可用
-                            $('div[lay-id="'+init.table_render_id+'"]').find('tr[data-index="' + k + '"]').find('a[data-title="关注"]').addClass('layui-btn-disabled').attr('disabled',true).css('pointer-events','none');
+                        if (v.getSalesData){
+                            if (v.getSalesData.is_like === 1){
+                                // 复用按钮是否可用
+                                $('div[lay-id="'+init.table_render_id+'"]').find('tr[data-index="' + k + '"]').find('a[data-title="关注"]').addClass('layui-btn-disabled').attr('disabled',true).css('pointer-events','none');
+                            }
                         }
                     })
 
