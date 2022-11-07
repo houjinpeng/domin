@@ -83,7 +83,7 @@ class Store extends AdminController
             $data = Excel::import($file_path,$startRow = 2);
             $insert_data = [];
             foreach ($data as $index=>$item){
-                if ($item[0] == 'id')continue;
+                if ($item[0] == 'id'|| $item[0] == 'ID')continue;
                 if (in_array($item[0],$all_store))continue;
 
                 $d = [
