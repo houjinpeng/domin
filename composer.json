@@ -1,0 +1,71 @@
+{
+    "name": "topthink/think",
+    "description": "the new thinkphp framework",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "topthink/framework": "^6.0.0",
+        "topthink/think-orm": "^2.0",
+        "topthink/think-multi-app": "^1.0",
+        "topthink/think-view": "^1.0",
+        "doctrine/annotations": "^1.8",
+        "topthink/think-captcha": "^3.0",
+        "aliyuncs/oss-sdk-php": "^2.3",
+        "qcloud/cos-sdk-v5": "^2.0",
+        "qiniu/php-sdk": "^7.2",
+        "alibabacloud/client": "^1.5",
+        "jianyan74/php-excel": "^1.0",
+        "ramsey/uuid": "^4.2",
+        "basalt/core": "dev-master",
+        "basalt/pms": "dev-master",
+        "jaeger/querylist": "^4.2",
+        "basalt/framework": "dev-master",
+        "basalt/feishu": "dev-master"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^4.2",
+        "eaglewu/swoole-ide-helper": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "app",
+            "addons\\": "addons",
+            "EasyAdmin\\":"vendor/zhongshaofa/easy-admin/src",
+            "ServiceSwoole\\":"vendor/zhongshaofa/service-swoole/src"
+        },
+        "psr-0": {
+            "": "extend/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "secure-http": false
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php think service:discover",
+            "@php think vendor:publish"
+        ]
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "ssh://git@git.maiyuan.online:20022/basalt/pms.git",
+            "reference": "master"
+        },
+        {
+            "type": "git",
+            "url": "ssh://git@git.maiyuan.online:20022/basalt/core.git",
+            "reference": "master"
+        },     {
+            "type": "git",
+            "url": "ssh://git@git.maiyuan.online:20022/basalt/feishu.git",
+            "reference": "master"
+        },
+        {
+            "type": "git",
+            "url": "ssh://git@git.maiyuan.online:20022/basalt/framework.git",
+            "reference": "master"
+        }
+    ]
+}

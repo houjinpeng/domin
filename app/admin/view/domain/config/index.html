@@ -1,0 +1,53 @@
+<div class="layuimini-container">
+
+
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-block">
+                <input type="text" name="username" value="{$row.username | default=''}" required  lay-verify="required" placeholder="请输入拉取成交记录间隔" autocomplete="off" class="layui-input">
+                <div class="layui-form-mid layui-word-aux">聚名用户名</div>
+
+            </div>
+
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-block">
+                <input type="password" name="password" value="{$row.password | default=''}" required  lay-verify="required" placeholder="请输入拉取成交记录间隔" autocomplete="off" class="layui-input">
+                <div class="layui-form-mid layui-word-aux">聚名密码 如果错误将不能抓取数据</div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">抓取时间1</label>
+            <div class="layui-input-block">
+                <input type="text" name="crawl_jc_time" value="{$row.crawl_jc_time | default='600'}" required  lay-verify="required" placeholder="请输入拉取成交记录间隔" autocomplete="off" class="layui-input">
+                <div class="layui-form-mid layui-word-aux">拉取成交记录间隔（秒）默认600秒</div>
+
+            </div>
+
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">抓取时间2</label>
+            <div class="layui-input-block">
+                <input type="text" name="crawl_store_time" value="{$row.crawl_store_time | default='600'}" required  lay-verify="required" placeholder="请输入拉取成交记录间隔" autocomplete="off" class="layui-input">
+                <div class="layui-form-mid layui-word-aux">监控店铺ID间隔时间（秒）默认600秒</div>
+
+            </div>
+
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+
+</div>

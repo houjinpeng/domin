@@ -1,0 +1,20 @@
+stages:
+   - master
+
+before_script:
+    - echo "每个job前运行"
+
+
+master:
+    stage: master
+    only:
+     - master
+    script:
+     - gitpath="/var/lib/docker/volumes/spider/_data/wwwroot/spider-manager/thinkphp"
+     - cd $gitpath
+     - pwd
+     - git pull origin master
+     - echo "git success"
+     - curl 'https://open.feishu.cn/open-apis/bot/v2/hook/a15616d0-6cbc-4438-a8b7-b862cdea94f0' -H 'Content-Type:application/json' -d '{"msg_type":"text","content":{"text":"beta分支构建完毕\n提交人：'"$GITLAB_USER_NAME"'\n提交ID：'"$CI_COMMIT_SHORT_SHA"'\n提交详情：'"$COMMIT_M"'\n提交日期：'"$(date)"'"}}'
+    tags:
+     - zhizhuxia-japan

@@ -1,0 +1,81 @@
+
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset id="searchFieldset_currentTableRenderId" class="table-search-fieldset">
+            <legend>条件统计</legend>
+            <form class="layui-form" action="" lay-filter="searchForm">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">统计时间段</label>
+                        <div class="layui-input-inline">
+                            <input autocomplete="off" type="text" id="test1" name="fixture_date" required lay-verify="required"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">价格间隔</label>
+                        <div class="layui-input-inline">
+                            <textarea  type="text" name="jg" class="layui-input" placeholder="请输入价格段位间隔多个请换行 如：100-200"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">属性</label>
+                        <div class="layui-input-inline">
+                            <div id="sx" class="xm-select-demo"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <div class="layui-input-block">
+                        <button type="button" class="layui-btn layui-btn-sm" id="search_btn">统计</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" id="reset_btn">重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+
+
+    <div class="layuimini-main">
+        <div class="layui-tab" lay-filter="test1">
+            <ul class="layui-tab-title">
+                <li class="layui-this" lay-id="sales1">销量排名</li>
+                <li lay-id="sales2">价格段位的销量排名</li>
+                <li lay-id="sales3">每日销量走势图</li>
+                <li lay-id="sales4">属性占比</li>
+            </ul>
+            <div class="layui-tab-content"  style="width: auto;height: 400px">
+
+                <div class="layui-tab-item layui-show">
+                    <div id="sales1" style="width: auto;height: 400px">
+
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div id="sales2" style="width: auto;height: 400px">
+
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div id="sales3" style="width: auto;height: 400px">
+                    </div>
+                </div>
+
+                <div class="layui-tab-item">
+                    <div id="sales4" style="width: auto;height: 400px">
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+

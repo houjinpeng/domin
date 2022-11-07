@@ -1,0 +1,29 @@
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <table id="currentTable" class="layui-table layui-hide"
+               data-auth-add_like="{:auth('domain.store/add_like')}"
+               data-auth-delete="{:auth('domain.store/delete')}"
+               data-auth-add="{:auth('domain.store/add')}"
+               data-auth-export="{:auth('domain.store/export')}"
+               data-auth-edit="{:auth('domain.store/edit')}"
+               data-auth-show="{:auth('domain.jk/show')}"
+
+               lay-filter="currentTable">
+        </table>
+    </div>
+</div>
+
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs {if !auth('domain.jk/show')}layui-hide{/if}" data-open="domain.jk/show?id={{d.id}}" data-full="true" >查看</a>
+    <a class="layui-btn layui-btn-xs {if !auth('domain.store/edit')}layui-hide{/if}" data-open="domain.store/edit?id={{d.id}}">编辑</a>
+    <!-- 这里同样支持 laytpl 语法，如： -->
+    {{#  if(d.is_like == 0){ }}
+    <a class="layui-btn layui-btn-warm layui-btn-xs {if !auth('domain.store/add_like')}layui-hide{/if}" data-request="domain.store/add_like?id={{d.id}}&type=1" text="确定要关注此店铺么？">关注店铺</a>
+    {{# }else{ }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs {if !auth('domain.store/add_like')}layui-hide{/if}" data-request="domain.store/add_like?id={{d.id}}&type=0">取消关注</a>
+    {{#  }}}
+    <a class="layui-btn layui-btn-danger layui-btn-xs  {if !auth('domain.store/delete')}layui-hide{/if}" data-request="domain.store/delete?id={{d.id}}">删除</a>
+
+
+</script>
