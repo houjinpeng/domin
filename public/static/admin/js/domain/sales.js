@@ -91,35 +91,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.listen();
         },
 
-        add: function () {
-            var upload = layui.upload;
-
-
-            //执行实例
-            var uploadInst = upload.render({
-                elem: '#upload_store' //绑定元素
-                , url: '/admin/ajax/upload' //上传接口
-                , accept: 'file' //允许上传的文件类型
-                , exts: 'xlsx' //允许上传的文件类型
-                , done: function (res) {
-                    console.log(res)
-                    let file_path = 'upload'+res['data']['url'].split('upload')[1]
-                    ea.request.post({
-                        url: '/admin/domain.store/add',
-                        data:{'file_path':file_path}
-                    },function (res) {
-                        layer.msg('导入成功',{icon:1})
-                    })
-
-                }
-                , error: function () {
-                    //请求异常回调
-                }
-            });
-            ea.listen()
-        },
-
-
+        
         edit:function (){
             ea.listen()
         }

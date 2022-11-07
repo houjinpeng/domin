@@ -25,7 +25,7 @@ require.config({
         "vue": ["plugs/vue-2.6.10/vue.min"],
         "ckeditor": ["plugs/ckeditor4/ckeditor"],
         "step": ["plugs/step-lay/step"],
-        "random_name": ['plugs/name'],
+        // "random_name": ['plugs/name'],
     },
     waitSeconds: 0
 });
