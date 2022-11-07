@@ -110,7 +110,12 @@ class Store extends AdminController
                 }
 
             }
-            $this->model->insertAll($insert_data);
+            try {
+                $this->model->insertAll($insert_data);
+            }catch (\Exception $e){
+                $this->error($e->getMessage());
+            }
+
             $this->success('导入成功');
 
         }
