@@ -1,5 +1,4 @@
-define(["jquery", "tableSelect", "ckeditor","random_name"], function ($, tableSelect, undefined,random_name) {
-// define(["jquery", "tableSelect", "ckeditor"], function ($, tableSelect, undefined) {
+define(["jquery", "tableSelect", "ckeditor"], function ($, tableSelect, undefined) {
     var form = layui.form,
         layer = layui.layer,
         table = layui.table,
