@@ -100,12 +100,13 @@ class Store extends AdminController
                     'team'=>$item[10],
                     'individual_opinion'=>$item[11],
                 ];
-                $insert_data[] = $d;
                 $is_have = $this->model->where('store_id',$item[0])->find();
                 if ($is_have){
                     //覆盖
                     $is_have->save($d);
                 }else{
+                    $insert_data[] = $d;
+
 //                    $this->model->insert($d);
                 }
 
