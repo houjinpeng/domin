@@ -10,12 +10,23 @@
             </div>
         </div>
 
-
         <div class="layui-form-item">
-            <label class="layui-form-label">主条件</label>
+            <label class="layui-form-label required">聚名来源列表</label>
             <div class="layui-input-block">
 
-                <select name="main_filter_id" lay-search>
+                <select name="search_id" lay-search lay-verify="required">
+                    {foreach $searchs as $item}
+                    <option value="{$item['id']}">{$item['title']}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">主条件</label>
+            <div class="layui-input-block">
+
+                <select name="main_filter_id" lay-search lay-verify="required">
                     {foreach $filters as $item}
                     <option value="{$item['id']}">{$item['title']}</option>
                     {/foreach}

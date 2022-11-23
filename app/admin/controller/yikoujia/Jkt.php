@@ -53,6 +53,7 @@ class Jkt extends AdminController
             foreach ($list as $index=>&$item){
                 foreach (explode(',',$item['fu_filter_id']) as $idx=>&$fu_id){
                     $fu = $this->filter_model->where('id',$fu_id)->find();
+                    if (empty($fu)) continue;
                     $item['fu_title_'.$idx+1] = $fu['title'];
                     $item['fu_id_'.$idx+1] = $fu_id;
                     $item['fu_is_buy_'.$idx+1] = $fu['is_buy'];
@@ -78,11 +79,17 @@ class Jkt extends AdminController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
+            if ($post['search_id']==''||$post['main_filter_id'] == ''){
+                $this->error('聚名来源列表和主条件不能为空');
+            }
+
             $save = $this->jkt_model->save($post);
             $save ?$this->success('保存成功'):$this->error('保存失败');
         }
         $filters = $this->filter_model->field('id,title')->select()->toArray();
+        $searchs = $this->model->field('id,title')->select()->toArray();
         $this->assign('filters',$filters);
+        $this->assign('searchs',$searchs);
         return $this->fetch();
     }
 
@@ -133,6 +140,19 @@ class Jkt extends AdminController
         return $this->fetch();
     }
 
-    
+    /**
+     * @NodeAnotation(title="删除")
+     */
+    public function delete($id)
+    {
+        $row = $this->jkt_model->whereIn('id', $id)->select();
+        $row->isEmpty() && $this->error('数据不存在');
+        try {
+            $save = $row->delete();
+        } catch (\Exception $e) {
+            $this->error('删除失败');
+        }
+        $save ? $this->success('删除成功') : $this->error('删除失败');
+    }
 
 }
