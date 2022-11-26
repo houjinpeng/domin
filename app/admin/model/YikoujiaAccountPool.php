@@ -15,10 +15,10 @@ namespace app\admin\model;
 
 use app\common\model\TimeModel;
 
-class YikoujiaJkt extends TimeModel
+class YikoujiaAccountPool extends TimeModel
 {
 
-    protected $name = "yikoujia_jkt";
+    protected $name = "yikoujia_account_pool";
 
 
 }

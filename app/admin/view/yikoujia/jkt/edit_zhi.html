@@ -17,10 +17,22 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">是否购买</label>
-            <div class="layui-input-block">
-                <input type="radio" name="is_buy" value="0" title="否" {if $row.is_buy === 0}checked{/if}>
-                <input type="radio" name="is_buy" value="1" title="是" {if $row.is_buy === 1}checked{/if}>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">是否购买</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="is_buy" value="0" title="否" {if $row.is_buy == 0}checked{/if}>
+                    <input type="radio" name="is_buy" value="1" title="是" {if $row.is_buy == 1}checked{/if}>
+                </div>
+
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">购买可赎回域名</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="is_buy_sh" value="0" title="否" {if $row.is_buy_sh == 0}checked{/if}>
+                    <input type="radio" name="is_buy_sh" value="1" title="是" {if $row.is_buy_sh == 1}checked{/if}>
+                </div>
             </div>
         </div>
 

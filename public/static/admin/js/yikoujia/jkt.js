@@ -8,6 +8,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
         edit_url: 'yikoujia.jkt/edit',
         add_url: 'yikoujia.jkt/add',
         add_zhi_url: 'yikoujia.jkt/add_zhi',
+        stop_task_url: 'yikoujia.jkt/stop_task',
+        show_buy_ym_url: 'yikoujia.jkt/show_buy_ym',
     };
 
     var Controller = {
@@ -17,101 +19,149 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.table.render({
                 init: init,
                 height: 'full-40',
-                limit:50,
-                limits:[50,100,200,500],
-                search:false,
-                toolbar:['refresh',[{
-                    text:'添加',
+                limit: 50,
+                limits: [50, 100, 200, 500],
+                search: false,
+                toolbar: ['refresh', [{
+                    text: '添加',
                     url: init.add_url,
                     method: 'open',
                     auth: 'add',
                     icon: 'fa fa-plus ',
                     class: 'layui-btn  layui-btn-sm',
                     extend: 'data-full="true"',
-                }],'delete'],
+                }], 'delete'],
                 cols: [[
                     {type: "checkbox"},
-                    {field: 'title', title: '筛选条件'},
-                    {field: 'getMainFilter.title', title: '购买主条件'},
-                    {field: 'fenzhi1', title: '分支配置',templet:function (d){
-                            if (d.fu_id_1 !== undefined){
-                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.buy_filter/edit?id='+ d.fu_id_1+'">修改</button>'
+                    {field: 'title', title: '名称'},
+                    {field: 'title', title: '筛选条件',width:160,templet:function (d) {
+                        return d.filter_count.toString() +' 条 <button data-full="true" class="layui-btn layui-btn-xs" data-open="">修改</button>'
+                        }},
+                    {field: 'main_filter', title: '主条件'},
+                    {field: 'fenzhi1', title: '分支配置', templet: function (d) {
+                            if (d.zhixian[0]) {
+                                return '<button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/edit_zhi?id=' + d.zhixian[0].id + '">修改</button>'
                             }
                             return ''
-                        }},
-                    {field: 'list1', title: '查看列表',templet:function (d){
-                        if (d.fu_id_1 !== undefined){
-                            return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.buy_filter/edit?id='+ d.fu_id_1+'">查看</button>'
                         }
+                    },
+                    {field: 'list1', title: '列表', templet: function (d) {
+                            if (d.zhixian[0]) {
+                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="'+init.show_buy_ym_url+'?id=' + d.zhixian[0].id + '">查看</button>'
+                            }
                             return ''
-                        }},
-                    {field: 'fu_is_buy_1', title: '是否购买',templet: function (d){
-                        if (d.fu_is_buy_1 !== undefined){
-                            if (d.fu_is_buy_1 ===0) return '否'
-                            if (d.fu_is_buy_1 ===1) return '是'
+                        }
+                    },
+                    {field: 'fu_is_buy_1', title: '是否购买', templet: function (d) {
+                            if (d.zhixian[0]) {
+                                if (d.zhixian[0].is_buy === 0) return '否'
+                                if (d.zhixian[0].is_buy === 1) return '是'
+                            }
+                            return ''
+                        }
+                    },
+                    {field: 'status_1', title: '状态', templet: function (d) {
+                            if (d.zhixian[0]) {
+                                if (d.zhixian[0].spider_status === null || d.zhixian[0].spider_status === 0) return '待运行'
+                                if (d.zhixian[0].spider_status === 1) return '进行中'
+                                if (d.zhixian[0].spider_status === 2) return '已完成'
+                                if (d.zhixian[0].spider_status === 3) return '停止'
+                            }
+                            return ''
+                        }
+                    },
+
+                    {field: 'fenzhi2', title: '分支配置', templet: function (d) {
+                            if (d.zhixian[1]) {
+                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/edit_zhi?id=' + d.zhixian[1].id + '">修改</button>'
+                            }
+                            return ''
+                        }
+                    },
+                    {field: 'list2', title: '列表', templet: function (d) {
+                            if (d.zhixian[1]) {
+                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="'+init.show_buy_ym_url+'?id=' + d.zhixian[1].id + '">查看</button>'
+                            }
+                            return ''
+                        }
+                    },
+                    {field: 'fu_is_buy_2', title: '是否购买', templet: function (d) {
+                            if (d.zhixian[1]) {
+                                if (d.zhixian[1].is_buy === 0) return '否'
+                                if (d.zhixian[1].is_buy === 1) return '是'
+                            }
+                            return ''
+                        }
+
+                    },
+                    {field: 'status_2', title: '状态', templet: function (d) {
+                            if (d.zhixian[1]) {
+                                if (d.zhixian[1].spider_status === null || d.zhixian[1].spider_status === 0) return '待运行'
+                                if (d.zhixian[1].spider_status === 1) return '进行中'
+                                if (d.zhixian[1].spider_status === 2) return '已完成'
+                            }
+                            return ''
 
                         }
-                        return ''
-                        }},
-                    {field: 'status_1', title: '状态'},
+                    },
 
-
-                    {field: 'fenzhi2', title: '分支配置',templet:function (d){
-                            if (d.fu_id_2 !== undefined){
-                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.buy_filter/edit?id='+ d.fu_id_2+'">修改</button>'
-                            }
-                            return ''
-                        }},
-                    {field: 'list2', title: '查看列表',templet:function (d){
-                            if (d.fu_id_2 !== undefined){
-                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.buy_filter/edit?id='+ d.fu_id_2+'">查看</button>'
-                            }
-                            return ''
-                        }},
-                    {field: 'fu_is_buy_2', title: '是否购买',templet: function (d){
-                            if (d.fu_is_buy_2 !== undefined){
-                                if (d.fu_is_buy_2 ===0) return '否'
-                                if (d.fu_is_buy_2 ===1) return '是'
-
-                            }
-                            return ''
-                        }},
-                    {field: 'status_2', title: '状态'},
-
-                    {field: 'fenzhi3', title: '分支配置',templet:function (d){
-                            if (d.fu_id_3 !== undefined){
-                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.buy_filter/edit?id='+ d.fu_id_3+'">修改</button>'
-                            }
-                            return ''
-                        }},
-                    {field: 'list3', title: '查看列表',templet:function (d){
-                            if (d.fu_id_3 !== undefined){
-                                return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.buy_filter/edit?id='+ d.fu_id_3+'">查看</button>'
-                            }
-                            return ''
-                        }},
-                    {field: 'fu_is_buy_3', title: '是否购买',templet: function (d){
-                            if (d.fu_is_buy_3 !== undefined){
-                                if (d.fu_is_buy_3 ===0) return '否'
-                                if (d.fu_is_buy_3 ===1) return '是'
-                            }
-                            return ''
-                        }},
-                    {field: 'status_3', title: '状态'},
+                    // {
+                    //     field: 'fenzhi3', title: '分支配置', templet: function (d) {
+                    //         if (d.zhixian[2]) {
+                    //             return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/edit_zhi?id=' + d.zhixian[2].id + '">修改</button>'
+                    //         }
+                    //         return ''
+                    //     }
+                    // },
+                    // {
+                    //     field: 'list3', title: '列表', templet: function (d) {
+                    //         if (d.zhixian[2]) {
+                    //             return ' <button data-full="true" class="layui-btn layui-btn-xs" data-open="'+init.show_buy_ym_url+'?id=' + d.zhixian[2].id + '">查看</button>'
+                    //         }
+                    //         return ''
+                    //     }
+                    // },
+                    // {
+                    //     field: 'fu_is_buy_3', title: '是否购买', templet: function (d) {
+                    //         if (d.zhixian[2]) {
+                    //             if (d.zhixian[2].is_buy === 0) return '否'
+                    //             if (d.zhixian[2].is_buy === 1) return '是'
+                    //         }
+                    //         return ''
+                    //     }
+                    //
+                    // },
+                    // {
+                    //     field: 'status_3', title: '状态', templet: function (d) {
+                    //         if (d.zhixian[2]) {
+                    //             if (d.zhixian[2].spider_status === null || d.zhixian[2].spider_status === 0) return '待运行'
+                    //             if (d.zhixian[2].spider_status === 1) return '进行中'
+                    //             if (d.zhixian[2].spider_status === 2) return '已完成'
+                    //         }
+                    //         return ''
+                    //
+                    //     }
+                    // },
 
                     {
                         fixed: 'right',
-                        width: 150,
+                        width: 200,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [[{
-                            text:'新增分支',
+                            text: '新增分支',
                             url: init.add_zhi_url,
                             method: 'open',
                             auth: 'edit',
                             class: 'layui-btn  layui-btn-xs',
                             extend: 'data-full="true"',
-                        }],'delete']
+                        }, {
+                            text: '全部停止',
+                            url: init.stop_task_url,
+                            method: 'request',
+                            auth: 'stop_task',
+                            class: 'layui-btn  layui-btn-xs layui-btn-normal',
+                        }], 'delete']
                     }
                 ]],
 
@@ -119,29 +169,25 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.listen();
         },
-        
-        add:function (){
-          
-            
-            ea.listen()
-        },
 
-        add_zhi:function (){
-            var demo1 = xmSelect.render({
-                el: '#demo1',
-                max: 2,
-                layVerify: 'required',
-                name:'fu_filter_id',
-                data: JSON.parse($('#z').val())
-            })
+        add: function () {
+
 
             ea.listen()
         },
-        
-        edit:function (){
+
+        add_zhi: function () {
+
+            ea.listen()
+        },
+
+        edit_zhi: function () {
+            ea.listen()
+        },
+
+        edit: function () {
             ea.listen()
         }
-
 
 
     };

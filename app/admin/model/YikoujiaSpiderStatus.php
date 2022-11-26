@@ -15,10 +15,10 @@ namespace app\admin\model;
 
 use app\common\model\TimeModel;
 
-class YikoujiaSearchConfig extends TimeModel
+class YikoujiaSpiderStatus extends TimeModel
 {
 
-    protected $name = "yikoujia_search_config";
+    protected $name = "yikoujia_spider_status";
 
 
 }

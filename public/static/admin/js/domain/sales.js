@@ -42,7 +42,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 }]],
                 cols: [[
                     {type: "checkbox"},
-                    {field: 'ym', width: 180, title: '域名',search:'batch'},
+                    {field: 'ym', width: 180, title: '域名',search:'batch',templet:function (d) {
+                            if (d.count > 1){
+                                return '<font color="red">'+d.ym+'</font>'
+                            }
+                            return d.ym
+                        }},
                     {field: 'len', minWidth: 80, title: '长度',sort:true},
                     {field: 'hz', minWidth: 80, title: '后缀',hide:true,search: 'xmSelect',xm_data:[{'name':'.com','value':'com'},{'name':'.net','value':'.net'},{'name':'.cc','value':'.cc'}
                             ,{'name':'.top','value':'.top'},{'name':'.vip','value':'.vip'},{'name':'.cn','value':'.cn'},{'name':'.com.cn','value':'.com.cn'},{'name':'.net.cn','value':'.net.cn'},{'name':'.org.cn','value':'.prg.cn'}]},

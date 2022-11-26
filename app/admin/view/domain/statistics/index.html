@@ -1,7 +1,7 @@
 
 <div class="layuimini-container">
     <div class="layuimini-main">
-        <fieldset id="searchFieldset_currentTableRenderId" class="table-search-fieldset">
+        <fieldset id="" class="table-search-fieldset">
             <legend>条件统计</legend>
             <form class="layui-form" action="" lay-filter="searchForm">
                 <div class="layui-form-item">
@@ -47,6 +47,7 @@
                 <li lay-id="sales2">价格段位的销量排名</li>
                 <li lay-id="sales3">每日销量走势图</li>
                 <li lay-id="sales4">属性占比</li>
+                <li lay-id="sales5">域名排行</li>
             </ul>
             <div class="layui-tab-content"  style="width: auto;height: 400px">
 
@@ -70,6 +71,10 @@
                     </div>
                 </div>
 
+                <div class="layui-tab-item">
+                    <table id="ym_rank" lay-filter="test"></table>
+
+                </div>
 
             </div>
         </div>

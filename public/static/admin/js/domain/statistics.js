@@ -10,9 +10,10 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
     var Controller = {
 
         index: function () {
+            var table = layui.table;
+
             var laydate = layui.laydate,
                 form = layui.form,
-
                 element = layui.element,
                 sales1 = echarts.init(document.getElementById('sales1')),
                 sales2 = echarts.init(document.getElementById('sales2')),
@@ -295,6 +296,16 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                     set_attr_proportion_charts(resp)
                 })
 
+                ea.table.render({
+                    toolbar:[],
+                    elem: '#ym_rank'
+                    ,url: 'get_ym_rank?fixture_date='+fixture_date //数据接口
+                    ,page: true //开启分页
+                    ,cols: [[ //表头
+                        {field: 'ym', title: '域名'}
+                        ,{field: 'count', title: '出现次数',search:false}
+                    ]]
+                });
 
             })
 

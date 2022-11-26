@@ -83,6 +83,10 @@ class Sales extends AdminController
                 ->page($page, $limit)
                 ->order($this->sort)
                 ->select();
+            foreach ($list as $index=>&$item){
+                $item['count'] = $this->model->where('ym','=',$item['ym'])->count();
+            }
+
             $data = [
                 'code'  => 0,
                 'msg'   => '',
@@ -264,5 +268,7 @@ class Sales extends AdminController
             ->where('fixture_date','<=',$lastDay)->update(['is_get_store'=>0]);
         $this->success('重置成功');
     }
+
+
 
 }

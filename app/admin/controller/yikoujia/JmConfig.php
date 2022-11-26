@@ -7,7 +7,6 @@ namespace app\admin\controller\yikoujia;
 
 use app\admin\controller\Tool;
 use app\admin\model\SystemAdmin;
-use app\admin\model\YikoujiaSearchConfig;
 
 use app\admin\service\TriggerService;
 use app\common\constants\AdminConstant;
@@ -32,7 +31,6 @@ class JmConfig extends AdminController
     public function __construct(App $app)
     {
         parent::__construct($app);
-        $this->model = new YikoujiaSearchConfig();
 
     }
 

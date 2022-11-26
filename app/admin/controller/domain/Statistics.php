@@ -186,4 +186,36 @@ class Statistics extends AdminController
 
     }
 
+
+    /**
+     * @NodeAnotation(title="获取域名排行")
+     */
+    public function get_ym_rank(){
+
+        $get = $this->request->get();
+        $page = isset($get['page'])?$get['page']:1;
+        $limit = isset($get['limit'])?$get['limit']:20;
+        $get = $this->request->get();
+        list($page, $limit, $where) = $this->buildTableParames();
+        $t = explode(' ~ ',$get['fixture_date']);
+        $where[] = ['fixture_date','>=',$t[0]];
+        $where[] = ['fixture_date','<=',$t[1]];
+        $list = $this->model->field('ym,count(*) as count')
+            ->where($where)
+            ->page($page,$limit)
+            ->order('count','desc')
+            ->group('ym')->select()->toArray();
+        $count = $this->model->field('ym,count(*) as count')
+            ->where($where)
+            ->group('ym')->count();
+
+
+        $data = ['code'=>0,
+            'count'=>$count,
+            'data'=>$list,
+        ];
+        return json($data);
+    }
+
+
 }
