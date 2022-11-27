@@ -35,7 +35,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'title', title: '名称'},
                     {field: 'title', title: '筛选条件',width:160,templet:function (d) {
-                        return d.filter_count.toString() +' 条 <button data-full="true" class="layui-btn layui-btn-xs" data-open="">修改</button>'
+                        if (d.filter_count){
+                            return d.filter_count.toString() +' 条 <button data-full="true" class="layui-btn layui-btn-xs" data-open="">修改</button>'
+                        }
+                        return '0 条 <button data-full="true" class="layui-btn layui-btn-xs" data-open="">修改</button>'
                         }},
                     {field: 'main_filter', title: '主条件'},
                     {field: 'fenzhi1', title: '分支配置', templet: function (d) {

@@ -146,8 +146,56 @@
             </div>
         </div>
 
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">搜狗PR</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_pr_1" autocomplete="off" class="layui-input" value="0" lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_pr_2" autocomplete="off" class="layui-input" value="0" lay-verify="number">
+                </div>
+
+
+                <label class="layui-form-label">Bd反链</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdfl_1" autocomplete="off" class="layui-input" value="0"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdfl_2" autocomplete="off" class="layui-input" value="0"
+                           lay-verify="number">
+                </div>
+
+                <label class="layui-form-label">网站外链</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_wzwl_1" autocomplete="off" class="layui-input" value="0"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_wzwl_2" autocomplete="off" class="layui-input" value="0"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+        </div>
+
 
         <div class="layui-form-item">
+            <div class="layui-inline">
+            <label class="layui-form-label">百度认证</label>
+            <div class="layui-input-block">
+                <select name="jm_bdrz">
+                    <option value="0">不限</option>
+                    <option value="1">已认证</option>
+                    <option value="2">未认证</option>
+                </select>
+            </div>
+        </div>
 
             <div class="layui-inline">
                 <label class="layui-form-label">微信检测</label>
@@ -195,6 +243,18 @@
 
 
         <div class="layui-form-item">
+            <div class="layui-inline">
+            <label class="layui-form-label">建站历史</label>
+            <div class="layui-input-block">
+                <select name="jm_jzls" lay-verify="required">
+                    <option value="0">不限</option>
+                    <option value="1">存在</option>
+                    <option value="99">不存在</option>
+
+                </select>
+            </div>
+            </div>
+
             <div class="layui-inline">
                 <label class="layui-form-label">建站历史-年龄</label>
                 <div class="layui-input-inline" style="width: 100px;">

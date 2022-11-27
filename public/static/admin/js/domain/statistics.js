@@ -65,9 +65,11 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
             function set_sales_id_charts(resp){
                 let x= []
                 let y = []
+                let total = 0
                 for (let i in resp['data']){
                     x.push(resp['data'][i]['store_id'])
                     y.push(resp['data'][i]['count'])
+                    total += parseInt(resp['data'][i]['count'])
                 }
 
                 let option = {
@@ -75,6 +77,9 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         left: 'right',
                         orient: 'vertical',
                         show: true
+                    },
+                    title: {
+                        text: '当前统计总数量'+total.toString()
                     },
                     tooltip: {
                         confine: true,
