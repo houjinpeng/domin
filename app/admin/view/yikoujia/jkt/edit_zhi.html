@@ -3,6 +3,15 @@
     <form class="layui-form layuimini-form">
         <div class="layui-form-item">
             <div class="layui-inline">
+
+                <div class="layui-form-item" >
+                    <label class="layui-form-label required">名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" value="{$row.title}" name="title" lay-verify="required" placeholder="请输入监控名称" autocomplete="off" class="layui-input">
+                        <tip>为了方便查找 起个名字吧~</tip>
+                    </div>
+                </div>
+
                 <label class="layui-form-label">下单金额</label>
                 <div class="layui-input-inline" style="width: 100px;">
                     <input type="text" name="place_1" autocomplete="off" class="layui-input" value="{$row.place_1}"
@@ -34,7 +43,18 @@
                     <input type="radio" name="is_buy_sh" value="1" title="是" {if $row.is_buy_sh == 1}checked{/if}>
                 </div>
             </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">排序</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$row.sort}" name="sort" lay-verify="number" placeholder="请输入备案尾号"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
         </div>
+
+
 
         <div class="layui-form-item" style="text-align: left">
             <h3 style="color: red">备案</h3>
@@ -64,7 +84,7 @@
             <div class="layui-inline">
                 <label class="layui-form-label">排除天数</label>
                 <div class="layui-input-block">
-                    <input type="text" value="{$data['beian']['beian_pcts']|default=''}" name="beian_pcts"
+                    <input type="text" value="{$data['beian']['beian_pcts']|default='0'}" name="beian_pcts"
                            lay-verify="number" placeholder="请输入排除天数"
                            autocomplete="off" class="layui-input">
                     <tip>排除天数大于设置的天数</tip>

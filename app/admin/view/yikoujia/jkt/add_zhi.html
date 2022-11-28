@@ -2,6 +2,13 @@
 <div class="layuimini-container">
 
     <form class="layui-form layuimini-form">
+        <div class="layui-form-item" >
+            <label class="layui-form-label required">名称</label>
+            <div class="layui-input-block">
+                <input type="text" value="" name="title" lay-verify="required" placeholder="请输入监控名称" autocomplete="off" class="layui-input">
+                <tip>为了方便查找 起个名字吧~</tip>
+            </div>
+        </div>
         <div class="layui-form-item" style="text-align: center">
             <h3>支线设置</h3>
         </div>
@@ -35,6 +42,14 @@
                 <div class="layui-input-block">
                     <input type="radio" name="is_buy_sh" value="0" title="否" checked>
                     <input type="radio" name="is_buy_sh" value="1" title="是">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">排序</label>
+                <div class="layui-input-block">
+                    <input type="text" value="0" name="sort" lay-verify="number" placeholder="请输入备案尾号"
+                           autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>

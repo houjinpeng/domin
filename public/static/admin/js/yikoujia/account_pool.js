@@ -38,7 +38,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         if (d.is_daili === 0) return '普通用户'
                         }},
                     {field: 'remark', title: '备注'},
-                    {field: 'cookie', title: 'Cookie'},
+                    // {field: 'cookie', title: 'Cookie'},
                     {
                         fixed: 'right',
                         width: 200,

@@ -59,108 +59,14 @@ return [
             'schema_cache_path' => app()->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR,
         ],
 
-        'product' => [
-            // 数据库类型
-            'type' => Env::get('product.type', 'mysql'),
+        // redis
+        'redis'   =>  [
+            // 驱动方式
+            'type'   => 'redis',
             // 服务器地址
-            'hostname' => Env::get('product.hostname', '127.0.0.1'),
-            // 数据库名
-            'database' => Env::get('product.database', 'easyadmin'),
-            // 用户名
-            'username' => Env::get('product.username', 'root'),
-            // 密码
-            'password' => Env::get('product.password', '123456'),
-            // 端口
-            'hostport' => Env::get('product.hostport', '3306'),
-            // 数据库连接参数
-            'params' => [],
-            // 数据库编码默认采用utf8
-            'charset' => Env::get('product.charset', 'uft8mb4'),
-            // 数据库表前缀
-            'prefix' => Env::get('product.prefix', 'ea_'),
-
-            // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-            'deploy' => 0,
-            // 数据库读写是否分离 主从式有效
-            'rw_separate' => false,
-            // 读写分离后 主服务器数量
-            'master_num' => 1,
-            // 指定从服务器序号
-            'slave_no' => '',
-            // 是否严格检查字段是否存在
-            'fields_strict' => true,
-            // 是否需要断线重连
-            'break_reconnect' => false,
-            // 监听SQL
-            'trigger_sql' => true,
-            // 开启字段缓存
-            'fields_cache' => false,
-            // 字段缓存路径
-            'schema_cache_path' => app()->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR,
+            'host'       => '127.0.0.1',
         ],
 
-//        'proudct' => [
-//            // 数据库类型
-//            'type'              => 'mysql',
-//            // 服务器地址
-//            'hostname'          => 'maiyuan.rwlb.rds.aliyuncs.com',
-//            // 数据库名
-//            'database'          => 'pms',
-//            // 用户名
-//            'username'          => 'pms_sel',
-//            // 密码
-//            'password'          => 'MPLddRJfLzhQ3OVt',
-//            // 端口
-//            'hostport'          => '3306',
-//            // 数据库连接参数
-//            'params'            => [],
-//            // 数据库编码默认采用utf8
-//            'charset'           => 'utf8mb4',
-//            // 数据库表前缀
-//            'prefix'            => 'ps_',
-//
-//            // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-//            'deploy'            => 0,
-//            // 数据库读写是否分离 主从式有效
-//            'rw_separate'       => false,
-//            // 读写分离后 主服务器数量
-//            'master_num'        => 1,
-//            // 指定从服务器序号
-//            'slave_no'          => '',
-//            // 是否严格检查字段是否存在
-//            'fields_strict'     => true,
-//            // 是否需要断线重连
-//            'break_reconnect'   => false,
-//            // 监听SQL
-//            'trigger_sql'       => true,
-//            // 开启字段缓存
-//            'fields_cache'      => false,
-//            // 字段缓存路径
-//            'schema_cache_path' => app()->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR,
-//        ],
 
-
-        'mongo' => [
-            // 数据库类型
-            'type' => Env::get('mongo.type', 'mysql'),
-            // 服务器地址
-            'hostname' => Env::get('mongo.hostname', '127.0.0.1'),
-            // 数据库名
-            'database' => Env::get('mongo.database', 'easyadmin'),
-            // 用户名
-            'username' => Env::get('mongo.username', 'root'),
-            // 密码
-            'password' => Env::get('mongo.password', '123456'),
-            // 端口
-            'hostport' => Env::get('mongo.hostport', '3306'),
-            // 数据库连接参数
-            'params' => [],
-            // 数据库编码默认采用utf8
-            'charset' => Env::get('mongo.charset', 'uft8mb4'),
-            // 数据库表前缀
-            'prefix' => Env::get('mongo.prefix', '')
-        ],
-
-        // 更多的数据库配置信息
     ],
 ];
