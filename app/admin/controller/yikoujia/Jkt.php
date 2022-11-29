@@ -107,6 +107,7 @@ class Jkt extends AdminController
                 foreach ($zhi as $item){
                     exec('taskkill -f -pid ' . $item['pid']);
                 }
+                $this->redis->delete('ym_data_'.$row['id']);//存在列表中域名
                 $save ? $this->success('保存完毕~成功停止所有程序') : $this->error('保存失败');
             }
 
@@ -335,8 +336,6 @@ class Jkt extends AdminController
     }
 
 
-
-
     /**
      * @NodeAnotation(title="删除")
      */
@@ -430,8 +429,9 @@ class Jkt extends AdminController
         //查询进程号
         $row = $this->model->find($id);
         empty($row) && $this->error('没有该数据 无法停止~');
-        $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select()->toArray();
+        $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
         foreach ($zhi as $item){
+            $item->save(['spider_status'=>0]);
             exec('taskkill -f -pid ' . $item['pid']);
         }
 
