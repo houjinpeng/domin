@@ -321,7 +321,11 @@ class Jkt extends AdminController
             //判断是否修改了参数 如果修改直接停止修改为待抓取
             if (json_encode($d) != json_encode($data) || $row['place_1'] != intval($post['place_1']) || $row['place_2'] != intval($post['place_2'])|| $row['is_buy']!= intval($post['is_buy']) || $row['is_buy_sh']!= intval($post['is_buy_sh'])){
                 $save_data['spider_status'] = 0;
-                $this->redis->delete('out_ym_data_'.$row['id']);//删除以判断过的域名
+
+                //删除已过滤的数据//删除以判断过的域名
+                $this->redis->delete('out_ym_data_'.$row['id']);
+                //删除订单数据
+                $this->buy_model->where('buy_filter_id')->delete();
                 //停止程序
                 exec('taskkill -f -pid ' . $row['pid']);
             }
