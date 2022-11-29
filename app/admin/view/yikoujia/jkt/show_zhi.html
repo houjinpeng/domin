@@ -2,45 +2,18 @@
 <input value="{$row}" id="filter_data" hidden="hidden">
 <div class="layuimini-container">
     <div class="layuimini-main">
-        <table id="currentTable" class="layui-table layui-hide"
-
-{/*               data-auth-password="{:auth('system.admin/password')}"*/}
-               lay-filter="currentTable">
+        <table id="show_zhi" class="layui-table layui-hide"
+               lay-filter="show_zhi">
         </table>
     </div>
 </div>
 
 
-<script type="text/html" id="barDemo1">
-    <div class="layui-btn-container">
-        <button class="layui-btn layui-btn-sm" title="修改分支" data-full="true"  data-open="yikoujia.jkt/edit_zhi?id={{d.id}}">修改</button>
-    </div>
-</script>
-<script type="text/html" id="barDemo2">
-    <div class="layui-btn-container">
-        <button class="layui-btn layui-btn-success layui-btn-sm" data-open="yikoujia.jkt/show_buy_ym?id={{d.id}}">查看</button>
-    </div>
-</script>
 
-<script type="text/html" id="barDemo3">
+<script type="text/html" id="barDemo7">
     <div class="layui-btn-container">
-        {{# if(d.spider_status == 0){ }}
-        <button class="layui-btn layui-btn-danger layui-btn-sm">否</button>
-        {{# }else{ }}
-        <button class="layui-btn layui-btn-sm">是</button>
-        {{# }}}
-
-    </div>
-</script>
-
-<script type="text/html" id="barDemo4">
-    <div class="layui-btn-container">
-        {{# if(d.spider_status == 0){ }}
-        <button class="layui-btn  layui-btn-sm">待运行</button>
-        {{# }else if(d.spider_status == 1){ }}
-        <button class="layui-btn layui-btn-warm layui-btn-sm" >运行中</button>
-        {{# }else{ }}
-        <button class="layui-btn layui-btn-danger layui-btn-sm">已停止</button>
-        {{# }}}
+        <button class="layui-btn layui-btn-danger layui-btn-sm"  lay-event="del">删除</button>
+        <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="stop_task">停止</button>
+        <button class="layui-btn layui-btn-sm"  lay-event="start_task">重启</button>
     </div>
 </script>

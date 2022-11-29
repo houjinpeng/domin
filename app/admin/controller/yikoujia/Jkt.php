@@ -244,7 +244,6 @@ class Jkt extends AdminController
             $save_data['place_2'] = $post['place_2'];
             $save_data['is_buy'] = $post['is_buy'];
             $save_data['is_buy_sh'] = $post['is_buy_sh'];
-            $save_data['main_filter_id'] = $id;
             $save_data['title'] = $post['title'];
             $save_data['sort'] = $post['sort'];
             $data = [];
@@ -277,9 +276,9 @@ class Jkt extends AdminController
                 if ($post['sogou_sl_1'] == '0' && !$post['sogou_sl_2'] == '0') {
                     $this->error('请完善搜狗收录信息~');
                 }
-                $data['sogou']['sogou_sl_1'] = $post['so_sl_1'];
-                $data['sogou']['sogou_sl_2'] = $post['so_sl_2'];
-                $data['sogou']['sogou_kz'] = $post['so_fxts'];
+                $data['sogou']['sogou_sl_1'] = $post['sogou_sl_1'];
+                $data['sogou']['sogou_sl_2'] = $post['sogou_sl_2'];
+                $data['sogou']['sogou_kz'] = $post['sogou_kz'];
 
             }
             //360
@@ -325,8 +324,7 @@ class Jkt extends AdminController
                 //停止程序
                 exec('taskkill -f -pid ' . $row['pid']);
             }
-
-            $save = $this->filter_model->json(['data'])->save($save_data);
+            $save = $this->filter_model->json(['data'])->where('id',$id)->update($save_data);
             $save ? $this->success('保存成功') : $this->error('保存失败');
 
         }
@@ -349,8 +347,8 @@ class Jkt extends AdminController
         try {
             $save = $row->delete();
             //删除支线任务
-            $this->filter_model->where('main_filter_id', '=', $row['id'])->delete();
-
+            $this->filter_model->where('main_filter_id', '=', $id)->delete();
+            //也要停止所有任务
         } catch (\Exception $e) {
             $this->error('删除失败');
         }
@@ -366,6 +364,49 @@ class Jkt extends AdminController
        $row = $this->filter_model->find($id);
        $this->assign('row',json_encode($row));
        return $this->fetch();
+    }
+
+    /**
+     * @NodeAnotation(title="删除支线")
+     */
+    public function delete_zhi($id)
+    {
+        $row = $this->filter_model->whereIn('id', $id)->select();
+        $row->isEmpty() && $this->error('数据不存在');
+        try {
+            $save = $row->delete();
+            //也要停止所有任务
+        } catch (\Exception $e) {
+            $this->error('删除失败');
+        }
+        $save ? $this->success('删除成功') : $this->error('删除失败');
+    }
+
+    /**
+     * @NodeAnotation(title="停止支线任务")
+     */
+    public function stop_zhi_task($id)
+    {
+        //查询进程号
+        $row = $this->filter_model->find($id);
+        empty($row) && $this->error('没有该数据 无法停止~');
+        exec('taskkill -f -pid ' . $row['pid']);
+        $row ->save(['spider_status'=>3]);
+        $this->success('成功停止');
+
+    }
+
+    /**
+     * @NodeAnotation(title="重启支线任务")
+     */
+    public function start_zhi_task($id)
+    {
+        //查询进程号
+        $row = $this->filter_model->find($id);
+        empty($row) && $this->error('没有该数据 无法重启~');
+        $row ->save(['spider_status'=>0,'pid'=>null]);
+        $this->success('成功停止');
+
     }
 
     /**

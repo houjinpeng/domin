@@ -2,10 +2,11 @@
 
     <form class="layui-form layuimini-form">
 
-        <div class="layui-form-item" >
+        <div class="layui-form-item">
             <label class="layui-form-label required">名称</label>
             <div class="layui-input-block">
-                <input type="text" value="{$row.title}" name="title" lay-verify="required" placeholder="请输入设置名称" autocomplete="off" class="layui-input">
+                <input type="text" value="{$row.title}" name="title" lay-verify="required" placeholder="请输入设置名称"
+                       autocomplete="off" class="layui-input">
                 <tip>为了方便查找 起个名字吧~</tip>
             </div>
         </div>
@@ -18,7 +19,8 @@
             <div class="layui-inline">
                 <label class="layui-form-label required">线程数</label>
                 <div class="layui-input-block">
-                    <input type="text" value="{$row.task_num}" name="task_num" lay-verify="required" placeholder="请输入抓取线程数"
+                    <input type="text" value="{$row.task_num}" name="task_num" lay-verify="required"
+                           placeholder="请输入抓取线程数"
                            autocomplete="off" class="layui-input">
                 </div>
             </div>
@@ -26,7 +28,8 @@
             <div class="layui-inline">
                 <label class="layui-form-label required">刷新时间（秒）</label>
                 <div class="layui-input-block">
-                    <input type="text" value="{$row.refresh_time}" name="refresh_time" lay-verify="required|number" placeholder="请输入刷新域名列表时间"
+                    <input type="text" value="{$row.refresh_time}" name="refresh_time" lay-verify="required|number"
+                           placeholder="请输入刷新域名列表时间"
                            autocomplete="off" class="layui-input">
                 </div>
             </div>
@@ -48,7 +51,8 @@
         <div class="layui-form-item">
             <label class="layui-form-label">域名后缀</label>
             <div class="layui-input-block">
-                <input type="text" value="{$row.jm_ymhz}" name="jm_ymhz" required lay-verify="required" placeholder="请输入域名后缀"
+                <input type="text" value="{$row.jm_ymhz}" name="jm_ymhz" required lay-verify="required"
+                       placeholder="请输入域名后缀"
                        autocomplete="off" class="layui-input">
                 <tip>多个逗号分割</tip>
             </div>
@@ -98,11 +102,13 @@
             <div class="layui-inline">
                 <label class="layui-form-label">百度收录</label>
                 <div class="layui-input-inline" style="width: 100px;">
-                    <input type="text" name="jm_bdsl_1" autocomplete="off" class="layui-input" value="{$row.jm_bdsl_1}" lay-verify="number">
+                    <input type="text" name="jm_bdsl_1" autocomplete="off" class="layui-input" value="{$row.jm_bdsl_1}"
+                           lay-verify="number">
                 </div>
                 <div class="layui-form-mid">-</div>
                 <div class="layui-input-inline" style="width: 100px;">
-                    <input type="text" name="jm_bdsl_2" autocomplete="off" class="layui-input" value="{$row.jm_bdsl_2}" lay-verify="number">
+                    <input type="text" name="jm_bdsl_2" autocomplete="off" class="layui-input" value="{$row.jm_bdsl_2}"
+                           lay-verify="number">
                 </div>
 
 
@@ -136,11 +142,13 @@
             <div class="layui-inline">
                 <label class="layui-form-label">搜狗PR</label>
                 <div class="layui-input-inline" style="width: 100px;">
-                    <input type="text" name="jm_pr_1" autocomplete="off" class="layui-input" value="{$row.jm_pr_1}" lay-verify="number">
+                    <input type="text" name="jm_pr_1" autocomplete="off" class="layui-input" value="{$row.jm_pr_1}"
+                           lay-verify="number">
                 </div>
                 <div class="layui-form-mid">-</div>
                 <div class="layui-input-inline" style="width: 100px;">
-                    <input type="text" name="jm_pr_2" autocomplete="off" class="layui-input" value="{$row.jm_pr_2}" lay-verify="number">
+                    <input type="text" name="jm_pr_2" autocomplete="off" class="layui-input" value="{$row.jm_pr_2}"
+                           lay-verify="number">
                 </div>
 
 
@@ -268,16 +276,48 @@
 
 
         <div class="layui-form-item">
-            <label class="layui-form-label">建站记录</label>
-            <div class="layui-input-block">
-                <select name="jm_sfba_1" lay-verify="required">
-                    <option value="0" {if $row['jm_sfba_1'] =='0' }selected{/if}>不限</option>
-                    <option value="99" {if $row['jm_sfba_1'] =='99' }selected{/if}>不存在</option>
-                    <option value="2&baxz=个人" {if $row['jm_sfba_1'] =="2&amp;baxz=个人" }selected{/if}>个人</option>
-                    <option value="2&baxz=企业" {if $row['jm_sfba_1'] =='2&amp;baxz=企业' }selected{/if}>企业</option>
-                    <option value="4&baxz=其他" {if $row['jm_sfba_1'] =='4&amp;baxz=其他' }selected{/if}>其他</option>
-                </select>
+            <div class="layui-inline">
+                <label class="layui-form-label">建站记录</label>
+                <div class="layui-input-block">
+                    <select name="jm_sfba_1" lay-verify="required">
+                        <option value="0" {if $row['jm_sfba_1'] =='0' }selected{/if}>不限</option>
+                        <option value="99" {if $row['jm_sfba_1'] =='99' }selected{/if}>不存在</option>
+                        <option value="2&baxz=个人" {if $row['jm_sfba_1'] =="2&amp;baxz=个人" }selected{/if}>个人</option>
+                        <option value="2&baxz=企业" {if $row['jm_sfba_1'] =='2&amp;baxz=企业' }selected{/if}>企业</option>
+                        <option value="4&baxz=其他" {if $row['jm_sfba_1'] =='4&amp;baxz=其他' }selected{/if}>其他</option>
+                    </select>
+                </div>
             </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">结果排序</label>
+                <div class="layui-input-block">
+                    <select name="jm_jgpx" lay-verify="required">
+                        <option value="0" {if $row['jm_jgpx'] =='0' }selected{/if}>默认</option>
+                        <option value="3" {if $row['jm_jgpx'] =='3' }selected{/if}>域名价格</option>
+                        <option value="5" {if $row['jm_jgpx'] =='5' }selected{/if}>上架时间</option>
+                        <option value="41" {if $row['jm_jgpx'] =='41' }selected{/if}>今日上架</option>
+                        <option value="35" {if $row['jm_jgpx'] =='35' }selected{/if}>浏览热门</option>
+                        <option value="7" {if $row['jm_jgpx'] =='7' }selected{/if}>注册时间</option>
+                        <option value="37" {if $row['jm_jgpx'] =='37' }selected{/if}>到期时间</option>
+                        <option value="1" {if $row['jm_jgpx'] =='1' }selected{/if}>域名长度</option>
+                        <option value="19" {if $row['jm_jgpx'] =='19' }selected{/if}>域名排序</option>
+                        <option value="11" {if $row['jm_jgpx'] =='11' }selected{/if}>百度权重</option>
+                        <option value="13" {if $row['jm_jgpx'] =='13' }selected{/if}>百度收录</option>
+                        <option value="27" {if $row['jm_jgpx'] =='27' }selected{/if}>百度反链</option>
+                        <option value="9" {if $row['jm_jgpx'] =='9' }selected{/if}>搜狗PR</option>
+                        <option value="25" {if $row['jm_jgpx'] =='25' }selected{/if}>搜狗收录</option>
+                        <option value="15" {if $row['jm_jgpx'] =='15' }selected{/if}>搜狗反链</option>
+                        <option value="21" {if $row['jm_jgpx'] =='21' }selected{/if}>网站外链</option>
+                        <option value="17" {if $row['jm_jgpx'] =='17' }selected{/if}>域名估价</option>
+                        <option value="23" {if $row['jm_jgpx'] =='23' }selected{/if}>建站历史记录数</option>
+                        <option value="29" {if $row['jm_jgpx'] =='29' }selected{/if}>建站历史年龄</option>
+                        <option value="31" {if $row['jm_jgpx'] =='31' }selected{/if}>360收录</option>
+                        <option value="33" {if $row['jm_jgpx'] =='33' }selected{/if}>神马收录</option>
+                        <option value="39" {if $row['jm_jgpx'] =='39' }selected{/if}>终端数量</option>
+                    </select>
+                </div>
+            </div>
+
         </div>
 
         <div class="layui-form-item" style="text-align: center">
@@ -288,12 +328,18 @@
         <div class="layui-form-item">
             <label class="layui-form-label">主条件</label>
             <div class="layui-input-block">
-                <input type="radio" name="main_filter" value="备案" title="备案" {if $row['main_filter'] =="备案" }checked{/if}>
-                <input type="radio" name="main_filter" value="百度" title="百度" {if $row['main_filter'] =="百度" }checked{/if}>
-                <input type="radio" name="main_filter" value="历史" title="历史" {if $row['main_filter'] =="历史" }checked{/if}>
-                <input type="radio" name="main_filter" value="注册商" title="注册商" {if $row['main_filter'] =="注册商" }checked{/if}>
-                <input type="radio" name="main_filter" value="搜狗" title="搜狗" {if $row['main_filter'] =="搜狗" }checked{/if}>
-                <input type="radio" name="main_filter" value="360" title="360" {if $row['main_filter'] =="360" }checked{/if}>
+                <input type="radio" name="main_filter" value="备案" title="备案"
+                       {if $row['main_filter'] =="备案" }checked{/if}>
+                <input type="radio" name="main_filter" value="百度" title="百度"
+                       {if $row['main_filter'] =="百度" }checked{/if}>
+                <input type="radio" name="main_filter" value="历史" title="历史"
+                       {if $row['main_filter'] =="历史" }checked{/if}>
+                <input type="radio" name="main_filter" value="注册商" title="注册商"
+                       {if $row['main_filter'] =="注册商" }checked{/if}>
+                <input type="radio" name="main_filter" value="搜狗" title="搜狗"
+                       {if $row['main_filter'] =="搜狗" }checked{/if}>
+                <input type="radio" name="main_filter" value="360" title="360"
+                       {if $row['main_filter'] =="360" }checked{/if}>
                 <input type="radio" name="main_filter" value="无" title="无" {if $row['main_filter'] =="无" }checked{/if}>
             </div>
         </div>
