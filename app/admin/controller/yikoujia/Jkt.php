@@ -67,6 +67,7 @@ class Jkt extends AdminController
             ];
             return json($data);
         }
+
         return $this->fetch();
     }
 
@@ -78,7 +79,11 @@ class Jkt extends AdminController
         if ($this->request->isPost()) {
             $post = $this->request->post();
             //保存控制台数据   关联
-            $save = $this->model->save($post);
+            $save = $this->model->insertGetId($post);
+            //启动任务
+            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$save);
+//            exec('start /min "" ./python_script/yikoujia/filter_buy_ym.py '.$save);
+//            $out = exec('nohup python3 ./python_script/yikoujia/search_ym_list_and_filter.py '.$save.' > ./python_script/nohup.log 2>&1 &');
             $save ? $this->success('保存成功') : $this->error('保存失败');
 
         }
@@ -100,25 +105,25 @@ class Jkt extends AdminController
 
         if ($this->request->isPost()) {
             $post = $this->request->post();
+            $post['spider_status'] = 0;//爬虫状态修改为0  重新抓取
             //保存控制台数据   关联
             $save = $this->model->save($post);
             if ($save){
-                $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select()->toArray();
+                //如果修改主线条件  直接停止支线数据
+                $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
                 foreach ($zhi as $item){
-                    exec('taskkill -f -pid ' . $item['pid']);
+                    $item->update(['spider_status'=>3]);
+                    kill_task($item['pid']);
                 }
                 $this->redis->delete('ym_data_'.$row['id']);//存在列表中域名
                 $save ? $this->success('保存完毕~成功停止所有程序') : $this->error('保存失败');
             }
-
-            $save ? $this->success('保存成功') : $this->error('保存失败');
-
+            $this->error('没有修改任何数据~');
 
         }
         $this->assign('row', $row);
         return $this->fetch();
     }
-
 
 
     /**
@@ -221,9 +226,14 @@ class Jkt extends AdminController
 
             $save_data['data'] = $data;
 
+            $filter_insert_id = $this->filter_model->json(['data'])->insertGetId($save_data);
+            //win 启动
+            // exec('start /min "" ./python_script/yikoujia/filter_buy_ym.py '.$filter_insert_id);
+            //启动任务
+//            $out = exec('nohup python3 ./python_script/yikoujia/filter_buy_ym.py '.$filter_insert_id.' > ./python_script/nohup.log 2>&1 &');
+            start_task('./python_script/yikoujia/filter_buy_ym.py',$filter_insert_id);
 
-            $save = $this->filter_model->json(['data'])->save($save_data);
-            $save ? $this->success('保存成功') : $this->error('保存失败');
+            $filter_insert_id ? $this->success('保存成功 任务已启动') : $this->error('保存失败');
 
         }
 
@@ -233,7 +243,7 @@ class Jkt extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="增加支线")
+     * @NodeAnotation(title="修改支线")
      */
     public function edit_zhi($id)
     {
@@ -318,16 +328,15 @@ class Jkt extends AdminController
 
             $save_data['data'] = $data;
             $d =$row['data'] ?json_decode($row['data'],true):null;
-            //判断是否修改了参数 如果修改直接停止修改为待抓取
+            //判断是否修改了参数 如果修改直接停止
             if (json_encode($d) != json_encode($data) || $row['place_1'] != intval($post['place_1']) || $row['place_2'] != intval($post['place_2'])|| $row['is_buy']!= intval($post['is_buy']) || $row['is_buy_sh']!= intval($post['is_buy_sh'])){
-                $save_data['spider_status'] = 0;
-
+                $save_data['spider_status'] = 3;
                 //删除已过滤的数据//删除以判断过的域名
                 $this->redis->delete('out_ym_data_'.$row['id']);
                 //删除订单数据
                 $this->buy_model->where('buy_filter_id')->delete();
                 //停止程序
-                exec('taskkill -f -pid ' . $row['pid']);
+                $this->stop_task($row['pid']);
             }
             $save = $this->filter_model->json(['data'])->where('id',$id)->update($save_data);
             $save ? $this->success('保存成功') : $this->error('保存失败');
@@ -348,14 +357,24 @@ class Jkt extends AdminController
         $row = $this->model->whereIn('id', $id)->select();
         $row->isEmpty() && $this->error('数据不存在');
         try {
-            $save = $row->delete();
+            foreach ($row as $v){
+                $v->delete();
+                //删除数据库数据 停止任务
+                $this->redis->delete('ym_data_'.$v['id']);
+                kill_task($v['p_id']);
+            }
+
             //删除支线任务
-            $this->filter_model->where('main_filter_id', '=', $id)->delete();
-            //也要停止所有任务
+            $zhi_list  = $this->filter_model->where('main_filter_id', '=', $id)->select()->toArray();
+            foreach ($zhi_list as $index=>$item){
+                //删除支线数据
+                $this->filter_model->where('id', '=', $item['id'])->delete();
+                kill_task($item['pid']);
+            }
         } catch (\Exception $e) {
-            $this->error('删除失败');
+            $this->error('删除失败 '.$e->getMessage());
         }
-        $save ? $this->success('删除成功') : $this->error('删除失败');
+        $this->success('删除成功');
     }
 
 
@@ -393,7 +412,8 @@ class Jkt extends AdminController
         //查询进程号
         $row = $this->filter_model->find($id);
         empty($row) && $this->error('没有该数据 无法停止~');
-        exec('taskkill -f -pid ' . $row['pid']);
+//        exec('taskkill -f -pid ' . $row['pid']);
+        kill_task($row['pid']);
         $row ->save(['spider_status'=>3]);
         $this->success('成功停止');
 
@@ -408,6 +428,8 @@ class Jkt extends AdminController
         $row = $this->filter_model->find($id);
         empty($row) && $this->error('没有该数据 无法重启~');
         $row ->save(['spider_status'=>0,'pid'=>null]);
+
+        start_task('./python_script/yikoujia/filter_buy_ym.py',$row['id']);
         $this->success('成功停止');
 
     }
@@ -436,10 +458,12 @@ class Jkt extends AdminController
         $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
         foreach ($zhi as $item){
             $item->save(['spider_status'=>0]);
-            exec('taskkill -f -pid ' . $item['pid']);
+//            exec('taskkill -f -pid ' . $item['pid']);
+            kill_task($item['pid']);
         }
-
-        exec('taskkill -f -pid ' . $row['p_id']);
+        //停止主线程
+        kill_task($row['p_id']);
+//        exec('taskkill -f -pid ' . $row['p_id']);
         $this->success('成功停止');
 
 

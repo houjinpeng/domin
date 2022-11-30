@@ -15,6 +15,35 @@ if (!function_exists('uuid')) {
         return (string)Uuid::uuid4();
     }
 }
+if (!function_exists('kill_task')) {
+    /**
+     * 生成UUID
+     * @return string
+     */
+    function kill_task($id): string
+    {
+        //liunx
+//        exec('kill -9 '.$id);
+//        win
+        exec('taskkill -f -pid ' . $id);
+        return 1;
+    }
+}
+
+if (!function_exists('start_task')) {
+    /**
+     * 生成UUID
+     * @return string
+     */
+    function start_task($path,$id): string
+    {
+        //liunx
+//        exec('nohup python3 '.$path.' '.$id.' > ./python_script/nohup.log 2>&1 &');
+        //win
+        exec('start /min "" '.$path.' '.$id);
+        return 1;
+    }
+}
 
 if (!function_exists('__url')) {
 

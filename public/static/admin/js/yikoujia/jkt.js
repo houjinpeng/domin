@@ -151,11 +151,19 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             extend: 'data-full="true"',
                         }, {
                             text: '全部停止',
+                            title:'是否要停止全部任务？',
                             url: init.stop_task_url,
                             method: 'request',
                             auth: 'stop_task',
                             class: 'layui-btn  layui-btn-xs layui-btn-normal',
-                        }], 'delete']
+                        },{
+                            text: '删除',
+                            title:'删除前请确认所有任务已停止！！！<br>不可逆谨慎操作！',
+                            url: init.delete_url,
+                            method: 'request',
+                            auth: 'delete',
+                            class: 'layui-btn  layui-btn-xs layui-btn-danger',
+                        }]]
                     }
                 ]],
 
