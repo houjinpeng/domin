@@ -40,7 +40,7 @@ if (!function_exists('start_task')) {
         //liunx
 //        exec('nohup python3 '.$path.' '.$id.' > ./python_script/nohup.log 2>&1 &');
         //win
-        exec('start /min "" '.$path.' '.$id);
+        exec('start /min "" python'.$path.' '.$id);
         return 1;
     }
 }
