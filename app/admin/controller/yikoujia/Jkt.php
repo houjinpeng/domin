@@ -365,7 +365,7 @@ class Jkt extends AdminController
             }
 
             //删除支线任务
-            $zhi_list  = $this->filter_model->where('main_filter_id', '=', $id)->select()->toArray();
+            $zhi_list  = $this->filter_model->where('main_filter_id', 'in', $id)->select()->toArray();
             foreach ($zhi_list as $index=>$item){
                 //删除支线数据
                 $this->filter_model->where('id', '=', $item['id'])->delete();

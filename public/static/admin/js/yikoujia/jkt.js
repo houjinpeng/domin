@@ -233,10 +233,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         ea.request.post({
                             url: '/admin/yikoujia.jkt/delete_zhi?id=' +data['id'],
                             ok:function (resp) {
-                                layer.close(index);
+
+
                             }
                         })
-                        setTimeout(function (){ location.reload()},500)
+                        setTimeout(function (){
+                                parent.layer.closeAll()
+                                parent.layui.table.reload('currentTableRenderId')},500,
+                            )
                     });
                 } else if (obj.event === 'stop_task') {
                     layer.confirm('确定要停止任务么？重新开始任务会继续哦~ ', function (index) {
