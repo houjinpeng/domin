@@ -34,7 +34,7 @@ class FilterYm():
     def __init__(self, filter_id):
         # print(filter_id)
         self.filter_data = self.get_filter_data(filter_id)
-        self.log = Logger(f'./python_script/yikoujia/logs/支线_{self.filter_data["title"]}.log').logger
+        self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
         # self.log = Logger(f'./python_script/yikoujia/logs/主线程_{self.filter_data["title"]}').logger
 
         self.filter_data['place_2'] = 9999999999 if self.filter_data['place_2'] == 0 else self.filter_data['place_2']

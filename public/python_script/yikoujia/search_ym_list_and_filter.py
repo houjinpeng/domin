@@ -25,7 +25,7 @@ class SearchYmAndFilter():
         self.p_id = None
         self.data = self.build_search_data()
         self.ym_list = []
-        self.log = Logger(f'/www/wwwroot/mydomain/public/python_script/yikoujia/logs/主线_{self.filter["title"]}.log').logger
+        self.log = Logger(f'/logs/主线_{self.filter["title"]}.log').logger
 
     #获取id的那条数据
     def get_filter_data(self,id):
