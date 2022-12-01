@@ -23,9 +23,9 @@ if (!function_exists('kill_task')) {
     function kill_task($id): string
     {
         //liunx
-//        exec('kill -9 '.$id);
+        exec('kill -9 '.$id);
 //        win
-        exec('taskkill -f -pid ' . $id);
+//        exec('taskkill -f -pid ' . $id);
         return 1;
     }
 }
@@ -38,9 +38,9 @@ if (!function_exists('start_task')) {
     function start_task($path,$id): string
     {
         //liunx
-//        exec('nohup python3 '.$path.' '.$id.' > ./python_script/nohup.log 2>&1 &');
+        exec('nohup python3 '.$path.' '.$id.' > ./python_script/nohup.log 2>&1 &');
         //win
-        exec('start /min "" python '.$path.' '.$id);
+//        exec('start /min "" python '.$path.' '.$id);
         return 1;
     }
 }
