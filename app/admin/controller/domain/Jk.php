@@ -131,7 +131,7 @@ class Jk extends AdminController
         $ids = [];
 
         foreach ($store_ids as $index=>$item){ $ids[] = $item['store_id'];}
-        $out = shell_exec('python ./python_script/refresh_store_data.py '.join(',',$ids) .'  2>&1');
+        $out = shell_exec('python3 ./python_script/refresh_store_data.py '.join(',',$ids) .'  2>&1');
 
         strstr($out,'success')?$this->success('更新完成'):$this->error('更新失败 ');
 
