@@ -50,7 +50,7 @@ class Sales extends AdminController
     {
         if ($this->request->isAjax()) {
             list($page, $limit, $where) = $this->buildTableParames();
-
+            $start_time =time();
             $get = $this->request->get();
             if (isset($get['field'])){
                 $this->sort = [$get['field']=>$get['order']];
@@ -92,6 +92,7 @@ class Sales extends AdminController
                 'msg'   => '',
                 'count' => $count,
                 'data'  => $list,
+                'time'=>time()-$start_time
             ];
             return json($data);
         }

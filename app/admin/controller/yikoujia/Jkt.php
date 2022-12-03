@@ -53,6 +53,7 @@ class Jkt extends AdminController
     {
         if ($this->request->isAjax()) {
             list($page, $limit, $where) = $this->buildTableParames();
+            $start_time = time();
             $list = $this->model
                 ->where($where)->page($page, $limit)->select()->toArray();
             foreach ($list as $index => &$item) {
@@ -64,6 +65,7 @@ class Jkt extends AdminController
                 'msg' => '',
                 'count' => $count,
                 'data' => $list,
+                'time'=>time()-$start_time
             ];
             return json($data);
         }

@@ -262,6 +262,7 @@ class SearchYmAndFilter():
     def index(self):
         self.p_id = os.getpid()
         self.log.info(f'任务进程号：{self.p_id}')
+        self.log.info(f'查询表单：{self.data}')
 
         #修改状态 进行中
         self.update_spider_status('ym_yikoujia_jkt',self.filter['id'],1)
