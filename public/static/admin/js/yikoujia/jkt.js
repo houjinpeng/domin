@@ -42,7 +42,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 cols: [[
                     {type: "checkbox"},
                     {field: 'title', title: '名称'},
-
+                    {field: 'spider_status', title: '状态',templet:function (d) {
+                            if (d.spider_status === 1){
+                                return '运行中'
+                            }else if(d.spider_status === 2){
+                                return '停止'
+                            }
+                        }},
                     {
                         field: 'title', title: '筛选条件', width: 160, templet: function (d) {
                             if (d.filter_count) {
@@ -139,10 +145,17 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     },
                     {
                         fixed: 'right',
-                        width: 200,
+                        width: 300,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [[{
+                            text: '运行主线',
+                            url: 'yikoujia.jkt/restart_task?type=zhu',
+                            method: 'request',
+                            auth: 'edit',
+                            class: 'layui-btn  layui-btn-xs',
+
+                        },{
                             text: '新增分支',
                             url: init.add_zhi_url,
                             method: 'open',
@@ -212,6 +225,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 return '运行中'
                             } else if (d.spider_status === 0) {
                                 return '待运行'
+                            } else if (d.spider_status === 2) {
+                                return '完成'
                             } else if (d.spider_status === 3) {
                                 return '停止'
                             }
@@ -258,7 +273,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     layer.confirm('确定要重新启动任务么 ', function (index) {
                         //do something
                         ea.request.get({
-                            url: '/admin/yikoujia.jkt/start_zhi_task?id=' +data['id'],
+                            url: '/admin/yikoujia.jkt/restart_task?type=zhi&id=' +data['id'],
                             ok:function (resp) {
                                 layer.close(index);
                             }

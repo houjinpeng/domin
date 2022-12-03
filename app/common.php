@@ -36,7 +36,7 @@ if (!function_exists('start_task')) {
     function start_task($path,$id): string
     {
         //liunx
-        exec('nohup python3 '.$path.' '.$id.' > ./python_script/yikoujia/nohup.log 2>&1 &');
+        $out = exec('nohup python3 '.$path.' '.$id.' > ./python_script/yikoujia/ccc.log 2>&1 &');
         return 1;
     }
 }

@@ -301,9 +301,12 @@ class SearchYmAndFilter():
 
         for t in thread_list:
             t.start()
+        for t in thread_list:
+            t.join()
 
 
 if __name__ == '__main__':
-    jkt_id = sys.argv[1]
-    filter = SearchYmAndFilter(jkt_id)
-    filter.index()
+    # jkt_id = sys.argv[1]
+    jkt_id = 34
+    filter = SearchYmAndFilter(jkt_id).index()
+    # filter = SearchYmAndFilter(40).index()

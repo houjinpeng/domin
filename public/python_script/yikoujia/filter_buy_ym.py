@@ -21,10 +21,17 @@ redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 work_queue = queue.Queue()
 history_obj = GetHistory()
 
+
+#获取敏感词
 mg_word = []
-with open('./python_script/yikoujia/conf/敏感词.txt', 'r', encoding='utf-8') as fr:
-    data = fr.readlines()
-[mg_word.append(d.strip()) for d in data]
+c = db_pool.connection()
+cur = c.cursor()
+sql = "select `value` from ym_system_config where name='min_gan_word'"
+cur.execute(sql)
+data = cur.fetchone()
+cur.close()
+c.close()
+[mg_word.append(d.strip()) for d in data['value'].split('\n')]
 
 
 
@@ -32,11 +39,10 @@ with open('./python_script/yikoujia/conf/敏感词.txt', 'r', encoding='utf-8') 
 
 class FilterYm():
     def __init__(self, filter_id):
-        # print(filter_id)
+        print(filter_id)
+        self.filter_id = filter_id
         self.filter_data = self.get_filter_data(filter_id)
         self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
-        # self.log = Logger(f'./python_script/yikoujia/logs/主线程_{self.filter_data["title"]}').logger
-
         self.filter_data['place_2'] = 9999999999 if self.filter_data['place_2'] == 0 else self.filter_data['place_2']
         self.filter_dict = json.loads(self.filter_data['data'])
         self.ym_list= []
@@ -85,6 +91,13 @@ class FilterYm():
     #h获取数据
     def get_work_data(self):
         while True:
+            #p判断是有有任务 如果有任务修改为运行中  没有任务为完成
+            if work_queue.empty():
+                self.update_spider_status('ym_yikoujia_buy_filter', self.filter_id, 2)
+            else:
+                self.update_spider_status('ym_yikoujia_buy_filter',  self.filter_id, 1)
+
+
             #redis去重
             all_data = redis_cli.sdiff(f'ym_data_{self.filter_data["main_filter_id"]}',f'out_ym_data_{self.filter_data["id"]}')
             if len(all_data) == 0:
@@ -242,7 +255,6 @@ class FilterYm():
         return '没有包含的注册商'
 
 
-
     def work(self, beian=None, baidu=None,sogou=None,so=None):
         global work_queue
         while True:
@@ -364,6 +376,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     jkt_id = sys.argv[1]
-    print(jkt_id)
-    filter = FilterYm(jkt_id)
-    filter.index()
+    # jkt_id = 34
+    filter = FilterYm(jkt_id).index()

@@ -84,7 +84,6 @@ class Jkt extends AdminController
             $save = $this->model->insertGetId($post);
             //启动任务
             start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$save);
-//            exec('start /min "" ./python_script/yikoujia/filter_buy_ym.py '.$save);
 //            $out = exec('nohup python3 ./python_script/yikoujia/search_ym_list_and_filter.py '.$save.' > ./python_script/nohup.log 2>&1 &');
             $save ? $this->success('保存成功') : $this->error('保存失败');
 
@@ -109,7 +108,7 @@ class Jkt extends AdminController
             $post = $this->request->post();
             $post['spider_status'] = 0;//爬虫状态修改为0  重新抓取
             //保存控制台数据   关联
-            $save = $this->model->save($post);
+            $save = $this->model->where('id',$id)->update($post);
             if ($save){
                 //如果修改主线条件  直接停止支线数据
                 $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
@@ -422,17 +421,27 @@ class Jkt extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="重启支线任务")
+     * @NodeAnotation(title="重启任务")
      */
-    public function start_zhi_task($id)
+    public function restart_task($id,$type)
     {
-        //查询进程号
-        $row = $this->filter_model->find($id);
-        empty($row) && $this->error('没有该数据 无法重启~');
-        $row ->save(['spider_status'=>0,'pid'=>null]);
+        if ($type=='zhu'){
+            //查询进程号
+            $row = $this->model->find($id);
+            empty($row) && $this->error('没有该数据 无法重启~');
+            $row ->save(['spider_status'=>0,'pid'=>null]);
+            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
+            $this->success('主线成功运行');
+        }else{
+            //查询进程号
+            $row = $this->filter_model->find($id);
+            empty($row) && $this->error('没有该数据 无法重启~');
+            $row ->save(['spider_status'=>0,'pid'=>null]);
 
-        start_task('./python_script/yikoujia/filter_buy_ym.py',$row['id']);
-        $this->success('成功停止');
+            start_task('./python_script/yikoujia/filter_buy_ym.py',$id);
+            $this->success('成功运行');
+        }
+
 
     }
 
@@ -460,15 +469,12 @@ class Jkt extends AdminController
         $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
         foreach ($zhi as $item){
             $item->save(['spider_status'=>0]);
-//            exec('taskkill -f -pid ' . $item['pid']);
             kill_task($item['pid']);
         }
         //停止主线程
         kill_task($row['p_id']);
-//        exec('taskkill -f -pid ' . $row['p_id']);
-        $this->success('成功停止');
-
-
+        $row->save(['spider_status'=>2]);
+        $this->success('成功停止全部任务');
     }
 
 }
