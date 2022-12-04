@@ -12,6 +12,7 @@ use app\admin\model\YikoujiaBuyFilter;
 use app\admin\model\YikoujiaJkt;
 
 use app\admin\model\YikoujiaSpiderStatus;
+use app\admin\model\YikouLogs;
 use app\admin\service\TriggerService;
 use app\common\constants\AdminConstant;
 use app\common\controller\AdminController;
@@ -41,6 +42,7 @@ class Jkt extends AdminController
         $this->spider_status_model = new YikoujiaSpiderStatus();
         $this->account_pool_model = new YikoujiaAccountPool();
         $this->buy_model = new YikoujiaBuy();
+        $this->logs_model = new YikouLogs();
         $this->redis = new Redis();
         $this->redis->connect('127.0.0.1',6379,15);
         $this->redis->select(15);
@@ -526,6 +528,18 @@ class Jkt extends AdminController
             }
             $this->success('程序正在运行中~');
         }
+    }
+
+    /**
+     *@NodeAnotation(title="日志")
+     */
+    public function logs($id,$type){
+        $where[] = ['type','=',$type];
+        $where[] = ['filter_id','=',$id];
+        $logs = $this->logs_model->where($where)->order('id','desc')->limit(500)->select()->order('id','asc');
+        $this->assign('logs',$logs);
+        return $this->fetch();
+
     }
 
 }

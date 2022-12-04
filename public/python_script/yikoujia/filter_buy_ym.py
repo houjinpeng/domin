@@ -14,12 +14,14 @@ import redis
 from dbutils.pooled_db import PooledDB
 from conf.config import *
 from tool.jmApi import JmApi
+from pymysql.converters import escape_string
 
 jm_api = JmApi()
 db_pool = PooledDB(**mysql_pool_conf)
 
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
-work_queue = queue.Queue()
+work_queue = queue.Queue()#工作队列
+log_queue = queue.Queue()#日志队列
 history_obj = GetHistory()
 
 # 获取敏感词
@@ -33,13 +35,16 @@ cur.close()
 c.close()
 [mg_word.append(d.strip()) for d in data['value'].split('\n')]
 
+#启动插入日志队列
 
 class FilterYm():
     def __init__(self, filter_id):
         print(filter_id)
         self.filter_id = filter_id
         self.filter_data = self.get_filter_data(filter_id)
-        self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
+        #启动日志队列
+        threading.Thread(target=self.save_logs).start()
+        # self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
         self.filter_data['place_2'] = 9999999999 if self.filter_data['place_2'] == 0 else self.filter_data['place_2']
         self.filter_dict = json.loads(self.filter_data['data'])
         if self.filter_dict == []:
@@ -146,32 +151,46 @@ class FilterYm():
         conn.close()
         cur.close()
 
+
+    def save_logs(self):
+        conn = db_pool.connection()
+        cur = conn.cursor()
+        while True:
+            if log_queue.empty():
+                time.sleep(2)
+                continue
+            msg = log_queue.get()
+            insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')"%(2,self.filter_id,escape_string(str(msg)))
+            cur.execute(insert_sql)
+            conn.commit()
+
+
     # 购买域名的线程
     def buy_ym(self, domain_data):
 
         resp = jm_api.buy_ykj(domain_data['ym'],domain_data['jg'])
-        self.log.info(resp)
+        log_queue.put(resp)
         if resp['code'] == 1:
-            self.log.info('购买成功')
+            log_queue.put('购买成功')
             self.save_buy_ym(domain_data)
 
         elif resp['code'] == -11:
             if resp['msg'] == '该域名已被GFW(国家防火墙)拦截,是否确认购买？' or resp['msg'] == '该域名购买后无法解析，需将域名续费或转出至其他注册商才能解析，比较麻烦，是否确认购买？':
-                self.log.info('域名被拦截 或者无法解析 不购买')
+                log_queue.put('域名被拦截 或者无法解析 不购买')
             else:
                 # 判断是否购买可赎回域名
                 if self.filter_data['is_buy_sh'] == 1:
                     resp = jm_api.buy_ykj(domain_data['ym'], domain_data['jg'],ty=3)
                     if resp['code'] == 1:
-                        self.log.info(f'{domain_data["ym"]} 可赎回域名 购买成功')
+                        log_queue.put(f'{domain_data["ym"]} 可赎回域名 购买成功')
                         self.save_buy_ym(domain_data)
                     else:
-                        self.log.info(f'购买失败 {resp}')
+                        log_queue.put(f'购买失败 {resp}')
                 else:
-                    self.log.info(f'{domain_data["ym"]} 可赎回域名不购买')
+                    log_queue.put(f'{domain_data["ym"]} 可赎回域名不购买')
 
         else:
-            self.log.info(f'购买失败 {resp}')
+            log_queue.put(f'购买失败 {resp}')
 
     # 备案对比
     def comp_beian(self, domain, beian):
@@ -225,7 +244,7 @@ class FilterYm():
     def check_mingan(self, history_data):
         try:
             if history_data['data'] == None:
-                self.log.info(f'剩余任务：{work_queue.qsize()}   历史对比完毕 没有历史')
+                log_queue.put(f'剩余任务：{work_queue.qsize()}   历史对比完毕 没有历史')
                 return True
         except Exception as e:
             return '没有历史'
@@ -291,34 +310,34 @@ class FilterYm():
             # 先判断价格是否合适
             try:
                 if self.filter_data['place_1'] > int(domain_data['jg']) or int(domain_data['jg']) > self.filter_data['place_2']:
-                    self.log.info(f'购买金额不付 域名价格{domain_data["jg"]}')
+                    log_queue.put(f'购买金额不付 域名价格{domain_data["jg"]}')
                     self.save_out_data(domain_data)
                     continue
                 # 是否购买被墙的域名
                 if self.filter_data['is_buy_qiang'] == 0:
                     if domain_data['qiang'] == 3:
-                        self.log.info(f'{domain_data["ym"]} 被墙不购买 ')
+                        log_queue.put(f'{domain_data["ym"]} 被墙不购买 ')
                         self.save_out_data(domain_data)
                         continue
                 if self.filter_data['is_buy_wx'] == 0:
                     if domain_data['wxjc'] == 2:
-                        self.log.info(f'{domain_data["ym"]} 微信已拦截不购买 ')
+                        log_queue.put(f'{domain_data["ym"]} 微信已拦截不购买 ')
                         self.save_out_data(domain_data)
                         continue
                 if self.filter_data['is_buy_qq'] == 0:
                     if domain_data['wxjc'] == 2:
-                        self.log.info(f'{domain_data["ym"]} QQ已拦截不购买 ')
+                        log_queue.put(f'{domain_data["ym"]} QQ已拦截不购买 ')
                         self.save_out_data(domain_data)
                         continue
 
 
-                self.log.info(f'剩余任务:{work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
+                log_queue.put(f'剩余任务:{work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
 
                 # 对比历史
                 if self.filter_dict.get('history'):
                     is_ok = self.get_history_comp(domain_data)  # 返回失败信息
                     if is_ok != True:
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
                         self.save_out_data(domain_data)
                         continue
 
@@ -327,21 +346,21 @@ class FilterYm():
                     is_ok = self.comp_beian(domain_data, beian)
                     if is_ok != True:
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
                         continue
 
                 # 搜狗
                 if self.filter_dict.get('sogou'):
                     is_ok = sogou.check_sogou(domain_data['ym'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'])
                     if is_ok != True:
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
                         continue
 
                 # 注册商
                 if self.filter_dict.get('zcs'):
                     if self.ckeck_zhuceshang(domain_data) != True:
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '注册商包含非法字符串'})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '注册商包含非法字符串'})
                         continue
 
                 # # 360
@@ -352,7 +371,7 @@ class FilterYm():
                         continue
                     if is_ok != True:
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
                         continue
 
                 # 百度
@@ -366,7 +385,7 @@ class FilterYm():
                         continue
                     if is_ok != True:
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
                         continue
 
                 # 最后判断是否被墙 如果被墙不买
@@ -377,7 +396,7 @@ class FilterYm():
                         continue
                     if r['msg'] == '被墙':
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '域名被墙'})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '域名被墙'})
                         continue
 
                 if self.filter_data['is_buy_wx'] == 0:
@@ -387,7 +406,7 @@ class FilterYm():
                         continue
                     if r['msg'] == '微信拦截':
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '微信拦截'})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '微信拦截'})
                         continue
                 if self.filter_data['is_buy_qq'] == 0:
                     r = qiang.get_qq_data(domain_data['ym'])
@@ -396,7 +415,7 @@ class FilterYm():
                         continue
                     if '拦截' in r['msg'] :
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': 'QQ拦截'})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': 'QQ拦截'})
                         continue
 
                 if self.filter_data['is_buy_beian'] == 0:
@@ -406,11 +425,11 @@ class FilterYm():
                         continue
                     if r['msg'] != '正常':
                         self.save_out_data(domain_data)
-                        self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '备案'+r['msg']})
+                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '备案'+r['msg']})
                         continue
 
 
-                self.log.info({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '需要购买'})
+                log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '需要购买'})
 
                 #判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
                 if self.filter_data['is_buy'] == 1:
@@ -423,7 +442,7 @@ class FilterYm():
 
     def index(self):
         # 启动获取数据线程
-        self.log.info(f'任务进程号：{os.getpid()}')
+        log_queue.put(f'任务进程号：{os.getpid()}')
         # 修改状态 进行中
         self.update_spider_status('ym_yikoujia_buy_filter', self.filter_data['id'], 1)
         threading.Thread(target=self.get_work_data).start()

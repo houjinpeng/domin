@@ -15,17 +15,34 @@ from tool.jmApi import JmApi
 
 jm_api = JmApi()
 db_pool = PooledDB(**mysql_pool_conf)
+log_queue = queue.Queue()#日志队列
 
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 task_queue = queue.Queue()
 
 class SearchYmAndFilter():
     def __init__(self,filter_id):
+        self.filter_id = filter_id
         self.filter = self.get_filter_data(filter_id)
         self.p_id = None
         self.data = self.build_search_data()
         self.ym_list = []
-        self.log = Logger(f'/logs/主线_{self.filter["title"]}.log').logger
+        # 启动日志队列
+        threading.Thread(target=self.save_logs).start()
+        # 保存过滤完毕的数据
+
+    #日志任务
+    def save_logs(self):
+        conn = db_pool.connection()
+        cur = conn.cursor()
+        while True:
+            if log_queue.empty():
+                time.sleep(2)
+                continue
+            msg = log_queue.get()
+            insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')" % (1, self.filter_id, escape_string(str(msg)))
+            cur.execute(insert_sql)
+            conn.commit()
 
     #获取id的那条数据
     def get_filter_data(self,id):
@@ -96,7 +113,7 @@ class SearchYmAndFilter():
         ggg = False
         while True:
             for i in range(1, 1000000):
-                self.log.info(f'开始过滤列表第{i}页')
+                log_queue.put(f'开始过滤列表第{i}页')
                 self.data['page'] = i
                 info = jm_api.get_ykj_list(self.data)
                 #修改总数
@@ -109,7 +126,7 @@ class SearchYmAndFilter():
                     cur.close()
                     conn.close()
                     ggg = True
-                    self.log.info(f'查询总数：{info["count"]}')
+                    log_queue.put(f'查询总数：{info["count"]}')
 
                 self.parse_info(info)
                 if info['data'] == []:
@@ -126,7 +143,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            self.log.info(f'备案查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            log_queue.put(f'备案查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
 
             info = beian.beian_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
@@ -137,7 +154,7 @@ class SearchYmAndFilter():
             # 判断是否有备案  如果有备案放入redis数据库中
             if info['params']['total'] != 0:
                 redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                self.log.info(f'插入购买查询队列中 {ym_data}')
+                log_queue.put(f'插入购买查询队列中 {ym_data}')
             # update_sql = "update ym_domain_detail set beian='%s' where id=%s" % (json.dumps(info), is_have['id'])
             # cur.execute(update_sql)
             # conn.commit()
@@ -192,11 +209,11 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            self.log.info(f'百度 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            log_queue.put(f'百度 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             if ym_data['bdsl'] > 0:
                 # 有直接放入redis 没有过滤
                 redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # self.log.info(f'插入购买查询队列中 {ym_data}')
+                # log_queue.put(f'插入购买查询队列中 {ym_data}')
 
     # 过滤搜狗
     def sogou_worker(self):
@@ -205,11 +222,11 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            self.log.info(f'搜狗 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            log_queue.put(f'搜狗 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             if ym_data['sgsl'] > 0:
                 # 有备案直接放入redis 没有过滤
                 redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # self.log.info(f'插入购买查询队列中 {ym_data["ym"]}')
+                # log_queue.put(f'插入购买查询队列中 {ym_data["ym"]}')
 
     # 过滤360
     def so_worker(self):
@@ -218,11 +235,11 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            self.log.info(f'360 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            log_queue.put(f'360 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             if ym_data['sosl'] > 0:
                 # 有备案直接放入redis 没有过滤
                 redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # self.log.info(f'插入购买查询队列中 {ym_data}')
+                # log_queue.put(f'插入购买查询队列中 {ym_data}')
 
     # 过滤历史
     def history_worker(self):
@@ -231,10 +248,10 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            self.log.info(f'历史 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            log_queue.put(f'历史 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             if ym_data['jzls'] > 0:
                 redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # self.log.info(f'插入购买查询队列中 {ym_data}')
+                # log_queue.put(f'插入购买查询队列中 {ym_data}')
 
     #直接放入查询队列中
     def wu_work(self):
@@ -243,9 +260,9 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            self.log.info(f'查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            log_queue.put(f'查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-            # self.log.info(f'插入购买查询队列中 {ym_data}')
+            # log_queue.put(f'插入购买查询队列中 {ym_data}')
 
     #注册商
     def zcs_worker(self):
@@ -256,13 +273,13 @@ class SearchYmAndFilter():
             ym_data = task_queue.get()
             if ym_data['jj'] != '':
                 redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # self.log.info(f'插入购买查询队列中 {ym_data}')
+                # log_queue.put(f'插入购买查询队列中 {ym_data}')
 
     #主程序
     def index(self):
         self.p_id = os.getpid()
-        self.log.info(f'任务进程号：{self.p_id}')
-        self.log.info(f'查询表单：{self.data}')
+        log_queue.put(f'任务进程号：{self.p_id}')
+        log_queue.put(f'查询表单：{self.data}')
 
         #修改状态 进行中
         self.update_spider_status('ym_yikoujia_jkt',self.filter['id'],1)

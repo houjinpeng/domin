@@ -82,7 +82,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务2', templet: function (d) {
                             if (d.zhixian[1]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[1].id + '">' + d.zhixian[1]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[1].id + '">' + d.zhixian[1]['title'] + '</button>'
                             }
                             return ''
                         }
@@ -90,7 +90,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务3', templet: function (d) {
                             if (d.zhixian[2]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[2].id + '">' + d.zhixian[2]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[2].id + '">' + d.zhixian[2]['title'] + '</button>'
                             }
                             return ''
                         }
@@ -98,7 +98,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务4', templet: function (d) {
                             if (d.zhixian[3]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[3].id + '">' + d.zhixian[3]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[3].id + '">' + d.zhixian[3]['title'] + '</button>'
 
                             }
                             return ''
@@ -107,7 +107,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务5', templet: function (d) {
                             if (d.zhixian[4]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[4].id + '">' + d.zhixian[4]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[4].id + '">' + d.zhixian[4]['title'] + '</button>'
 
                             }
                             return ''
@@ -116,7 +116,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务6', templet: function (d) {
                             if (d.zhixian[5]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[5].id + '">' + d.zhixian[5]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[5].id + '">' + d.zhixian[5]['title'] + '</button>'
 
                             }
                             return ''
@@ -125,7 +125,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务7', templet: function (d) {
                             if (d.zhixian[6]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[6].id + '">' + d.zhixian[6]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[6].id + '">' + d.zhixian[6]['title'] + '</button>'
 
                             }
                             return ''
@@ -134,7 +134,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务8', templet: function (d) {
                             if (d.zhixian[7]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[7].id + '">' + d.zhixian[7]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[7].id + '">' + d.zhixian[7]['title'] + '</button>'
 
                             }
                             return ''
@@ -143,7 +143,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务9', templet: function (d) {
                             if (d.zhixian[8]) {
-                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[8].id + '">' + d.zhixian[8]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[8].id + '">' + d.zhixian[8]['title'] + '</button>'
 
                             }
                             return ''
@@ -151,10 +151,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     },
                     {
                         fixed: 'right',
-                        width: 330,
+                        width: 380,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [[{
+                            text: '日志',
+                            url: 'yikoujia.jkt/logs?type=1',
+                            method: 'open',
+                            auth: 'edit',
+                            class: 'layui-btn  layui-btn-xs layui-btn-primary',
+                        },{
                             text: '检测',
                             title:'检测程序是否在运行中',
                             url: 'yikoujia.jkt/check_status?type=zhu',
@@ -337,6 +343,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
         },
 
         edit: function () {
+            ea.listen()
+        },
+        logs: function () {
             ea.listen()
         }
 
