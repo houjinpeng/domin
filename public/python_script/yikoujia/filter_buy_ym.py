@@ -254,7 +254,7 @@ class FilterYm():
                 return True
         return '没有包含的注册商'
 
-
+    #对比worker
     def work(self, beian=None, baidu=None,sogou=None,so=None):
         global work_queue
         while True:

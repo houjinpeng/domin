@@ -114,7 +114,7 @@ class SearchYmAndFilter():
                 self.parse_info(info)
                 if info['data'] == []:
                     break
-            time.sleep(self.filter['refresh_time'])
+            time.sleep(3)
 
     #过滤备案
     def beian_worker(self):
