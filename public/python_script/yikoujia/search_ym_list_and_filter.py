@@ -296,7 +296,7 @@ class SearchYmAndFilter():
                 thread_list.append(threading.Thread(target=self.history_worker))
 
             elif self.filter['main_filter'] == '无':
-                thread_list.append(threading.Thread(target=self.baidu_worker))
+                thread_list.append(threading.Thread(target=self.wu_work))
 
 
         for t in thread_list:
@@ -307,6 +307,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     jkt_id = sys.argv[1]
-    # jkt_id = 34
+    # jkt_id = 43
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()
