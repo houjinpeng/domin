@@ -51,6 +51,7 @@ class Jkt extends AdminController
      */
     public function index()
     {
+
         if ($this->request->isAjax()) {
             list($page, $limit, $where) = $this->buildTableParames();
             $start_time = time();
@@ -468,13 +469,50 @@ class Jkt extends AdminController
         empty($row) && $this->error('没有该数据 无法停止~');
         $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
         foreach ($zhi as $item){
-            $item->save(['spider_status'=>0]);
+            $item->save(['spider_status'=>3]);
             kill_task($item['pid']);
         }
         //停止主线程
         kill_task($row['p_id']);
-        $row->save(['spider_status'=>2]);
+        $row->save(['spider_status'=>3]);
         $this->success('成功停止全部任务');
+    }
+
+    /**
+     * @NodeAnotation(title="检测运行状态")
+     */
+    public function check_status($id,$type){
+
+        if ($type =='zhu'){
+            $row = $this->model->find($id);
+            empty($row)&& $this->error('没有要找的任务呀~');
+            $pid = $row['p_id'];
+            $out = exec('ps -p '.$pid);
+
+            //如果程序不存在  爬虫程序为进行中  报错程序异常
+            if (!strstr($out,$pid)){
+                if ($row['spider_status'] == 1){
+                    $row->save(['spider_status'=>4]);
+                    $this->error('程序异常~');
+                }
+                $this->error('程序未运行');
+            }
+            $this->success('程序正在运行中~');
+        }else{
+            $row = $this->filter_model->find($id);
+            empty($row)&& $this->error('没有要找的任务呀~');
+            $pid = $row['pid'];
+            $out = exec('ps -p '.$pid);
+            //如果程序不存在  爬虫程序为进行中  报错程序异常
+            if (!strstr($out,$pid)){
+                if ($row['spider_status'] == 1){
+                    $row->save(['spider_status'=>4]);
+                    $this->error('程序异常~');
+                }
+                $this->error('程序未运行');
+            }
+            $this->success('程序正在运行中~');
+        }
     }
 
 }

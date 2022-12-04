@@ -306,7 +306,7 @@ class SearchYmAndFilter():
 
 
 if __name__ == '__main__':
-    # jkt_id = sys.argv[1]
-    jkt_id = 34
+    jkt_id = sys.argv[1]
+    # jkt_id = 34
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

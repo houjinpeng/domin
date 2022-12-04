@@ -41,12 +41,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 }], 'delete'],
                 cols: [[
                     {type: "checkbox"},
-                    {field: 'title', title: '名称'},
-                    {field: 'spider_status', title: '状态',templet:function (d) {
+                    {field: 'title',width:100, title: '名称'},
+                    {field: 'spider_status',width: 90, title: '状态',templet:function (d) {
                             if (d.spider_status === 1){
-                                return '运行中'
+                                return '<i style="color: #d0544c;" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop" style="display: inline-block"></i>进行中'
                             }else if(d.spider_status === 2){
-                                return '停止'
+                                return '<i style="color: #1029a1;" class="layui-icon layui-icon-ok-circle" style="display: inline-block"></i>完成'
+                            }else if(d.spider_status === 3){
+                                return '<i style="color: #bbb2b2;" class="layui-icon layui-icon-close-fill " style="display: inline-block"></i>停止'
+                            }else if(d.spider_status === 4){
+                                return '<i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常'
                             }
                         }},
                     {
@@ -58,14 +62,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'show', title: '查看', templet: function (d) {
+                        field: 'show', width:80,title: '查看', templet: function (d) {
                             return '<button data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_fuhe_list?id=' + d.id + '">列表</button>'
                         }
                     },
                     {field: 'main_filter', title: '主条件'},
 
                     {
-                        field: 'zhi', title: '支线任务1', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务1', templet: function (d) {
                             if (d.zhixian[0]) {
                                 return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[0].id + '">' + d.zhixian[0]['title'] + '</button>'
                             }
@@ -74,7 +78,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     },
 
                     {
-                        field: 'zhi', title: '支线任务2', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务2', templet: function (d) {
                             if (d.zhixian[1]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[1].id + '">' + d.zhixian[1]['title'] + '</button>'
                             }
@@ -82,7 +86,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'zhi', title: '支线任务3', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务3', templet: function (d) {
                             if (d.zhixian[2]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[2].id + '">' + d.zhixian[2]['title'] + '</button>'
                             }
@@ -90,7 +94,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'zhi', title: '支线任务4', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务4', templet: function (d) {
                             if (d.zhixian[3]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[3].id + '">' + d.zhixian[3]['title'] + '</button>'
 
@@ -99,7 +103,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'zhi', title: '支线任务5', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务5', templet: function (d) {
                             if (d.zhixian[4]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[4].id + '">' + d.zhixian[4]['title'] + '</button>'
 
@@ -108,7 +112,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'zhi', title: '支线任务6', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务6', templet: function (d) {
                             if (d.zhixian[5]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[5].id + '">' + d.zhixian[5]['title'] + '</button>'
 
@@ -117,7 +121,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'zhi', title: '支线任务7', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务7', templet: function (d) {
                             if (d.zhixian[6]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[6].id + '">' + d.zhixian[6]['title'] + '</button>'
 
@@ -126,7 +130,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'zhi', title: '支线任务8', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务8', templet: function (d) {
                             if (d.zhixian[7]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[7].id + '">' + d.zhixian[7]['title'] + '</button>'
 
@@ -135,7 +139,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'zhi', title: '支线任务9', templet: function (d) {
+                        field: 'zhi',width:100, title: '支线任务9', templet: function (d) {
                             if (d.zhixian[8]) {
                                 return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[8].id + '">' + d.zhixian[8]['title'] + '</button>'
 
@@ -145,11 +149,20 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     },
                     {
                         fixed: 'right',
-                        width: 300,
+                        width: 330,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [[{
+                            text: '检测',
+                            title:'检测程序是否在运行中',
+                            url: 'yikoujia.jkt/check_status?type=zhu',
+                            method: 'request',
+                            auth: 'edit',
+                            class: 'layui-btn  layui-btn-xs layui-btn-warm',
+
+                        },{
                             text: '运行主线',
+                            title:'是否在开一个主线运行程序?如果主线正在运行还是会重新开一个哦~',
                             url: 'yikoujia.jkt/restart_task?type=zhu',
                             method: 'request',
                             auth: 'edit',
@@ -168,7 +181,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             url: init.stop_task_url,
                             method: 'request',
                             auth: 'stop_task',
-                            class: 'layui-btn  layui-btn-xs layui-btn-normal',
+                            class: 'layui-btn  layui-btn-xs layui-btn-danger',
                         },{
                             text: '删除',
                             title:'删除前请确认所有任务已停止！！！<br>不可逆谨慎操作！',
@@ -221,19 +234,21 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     // {align:'center', toolbar: '#barDemo3',title:'是否购买'},
                     {
                         field: 'spider_status', title: '运行状态', templet: function (d) {
-                            if (d.spider_status === 1) {
-                                return '运行中'
-                            } else if (d.spider_status === 0) {
-                                return '待运行'
-                            } else if (d.spider_status === 2) {
-                                return '完成'
-                            } else if (d.spider_status === 3) {
-                                return '停止'
+                            if (d.spider_status === 1){
+                                return '<i style="color: #d0544c;" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop" style="display: inline-block"></i>进行中'
+                            }else if(d.spider_status === 2){
+                                return '<i style="color: #1029a1;" class="layui-icon layui-icon-ok-circle" style="display: inline-block"></i>完成'
+                            }else if(d.spider_status === 3){
+                                return '<i style="color: #bbb2b2;" class="layui-icon layui-icon-close-fill " style="display: inline-block"></i>停止'
+                            }else if (d.spider_status === 0) {
+                                return '<i class="layui-icon layui-icon-time" style="display: inline-block"></i>待运行'
+                            }else if(d.spider_status === 4){
+                                return '<i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常'
                             }
                         }
                     },
 
-                    {align: 'center', toolbar: '#barDemo7', title: '操作'},
+                    {align: 'center', toolbar: '#barDemo7', title: '操作',width:240},
                 ]],
                 data: [JSON.parse($('#filter_data').val())]
             });
@@ -280,6 +295,18 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         })
                         setTimeout(function (){ location.reload()},500)
                     });
+
+                }else if (obj.event === 'check_task') {
+                    layer.confirm('是否要检测程序运行状态~ ', function (index) {
+                        ea.request.get({
+                            url:'check_status?type=zhi&id='+data['id']
+                        },function (resp) {
+                            if (resp.code===1){
+                                layer.msg('正在运行中~',{icon: 1})
+                            }
+                        })
+                    });
+
 
                 }
 
