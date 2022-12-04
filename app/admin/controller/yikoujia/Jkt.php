@@ -536,7 +536,7 @@ class Jkt extends AdminController
     public function logs($id,$type){
         $where[] = ['type','=',$type];
         $where[] = ['filter_id','=',$id];
-        $logs = $this->logs_model->where($where)->order('id','desc')->limit(500)->select()->order('id','asc');
+        $logs = $this->logs_model->where($where)->order('id','desc')->limit(500)->select();
         $this->assign('logs',$logs);
         return $this->fetch();
 
