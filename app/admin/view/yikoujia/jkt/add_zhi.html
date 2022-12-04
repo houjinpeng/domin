@@ -26,8 +26,16 @@
                            lay-verify="number|required">
                 </div>
             </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">排序</label>
+                <div class="layui-input-block">
+                    <input type="text" value="0" name="sort" lay-verify="number" placeholder="请输入备案尾号"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
 
-
+        <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label">被墙是否购买</label>
                 <div class="layui-input-block"  style="width: 100px;">
@@ -38,8 +46,38 @@
                 </div>
             </div>
 
+            <div class="layui-inline">
+                <label class="layui-form-label">微信被墙是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_wx" lay-verify="required">
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">QQ被墙是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_qq" lay-verify="required">
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">备案黑名单是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_beian" lay-verify="required">
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                    </select>
+                </div>
+            </div>
 
         </div>
+
 
         <div class="layui-form-item">
             <div class="layui-inline">
@@ -58,13 +96,7 @@
                 </div>
             </div>
 
-            <div class="layui-inline">
-                <label class="layui-form-label">排序</label>
-                <div class="layui-input-block">
-                    <input type="text" value="0" name="sort" lay-verify="number" placeholder="请输入备案尾号"
-                           autocomplete="off" class="layui-input">
-                </div>
-            </div>
+
         </div>
 
 

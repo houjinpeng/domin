@@ -158,7 +158,12 @@ class Jkt extends AdminController
             $save_data['is_buy'] = $post['is_buy'];
             $save_data['is_buy_sh'] = $post['is_buy_sh'];
             $save_data['main_filter_id'] = $id;
+            $save_data['sort'] = $post['sort'];
             $save_data['title'] = $post['title'];
+            $save_data['is_buy_qiang'] = $post['is_buy_qiang'];
+            $save_data['is_buy_wx'] = $post['is_buy_wx'];
+            $save_data['is_buy_qq'] = $post['is_buy_qq'];
+            $save_data['is_buy_beian'] = $post['is_buy_beian'];
             $data = [];
             //备案
             if ($post['is_com_beian'] == '1') {
@@ -261,6 +266,10 @@ class Jkt extends AdminController
             $save_data['is_buy_sh'] = $post['is_buy_sh'];
             $save_data['title'] = $post['title'];
             $save_data['sort'] = $post['sort'];
+            $save_data['is_buy_qiang'] = $post['is_buy_qiang'];
+            $save_data['is_buy_wx'] = $post['is_buy_wx'];
+            $save_data['is_buy_qq'] = $post['is_buy_qq'];
+            $save_data['is_buy_beian'] = $post['is_buy_beian'];
             $data = [];
             //备案
             if ($post['is_com_beian'] == '1') {

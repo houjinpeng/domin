@@ -70,6 +70,7 @@ class JmApi():
             # 增加公共参数
             data = self.build_data({'id': store_id})
             response = requests.post(f'{self.domain}/newapi/ykj_dp', data=data, timeout=4).json()
+
             if response['code'] != 1:
                 time.sleep(2)
                 print(response)

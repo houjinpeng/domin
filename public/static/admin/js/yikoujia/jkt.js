@@ -41,6 +41,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 }], 'delete'],
                 cols: [[
                     {type: "checkbox"},
+                    {field: 'id', title: 'ID'},
                     {field: 'title',width:100, title: '名称'},
                     {field: 'spider_status',width: 95, title: '状态',templet:function (d) {
                             if (d.spider_status === 1){

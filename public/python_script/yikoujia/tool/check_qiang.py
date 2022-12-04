@@ -7,6 +7,7 @@ class Qiang():
     def __init__(self):
         self.url = 'https://www.juming.com/hao/'
         self.cookie = ''
+        self.key = ''
 
     def request_handler(self, url,count=0):
         try:
@@ -60,24 +61,71 @@ class Qiang():
             print(f'解除验证码失败：{e}')
             return self.verify_code(domain)
 
-    def get_qiang_data(self, domain):
+
+    def get_token(self,domain):
         url = 'https://www.juming.com/hao/' + domain
         resp = self.request_handler(url)
-        if resp == None:
-            return None
+
         if '抱歉，此次操作需要完成下方验证后方可继续' in resp.text:
             r = self.verify_code(domain)
-            return self.get_qiang_data(domain)
+            return self.get_token(domain)
+        self.key = re.findall("key='(.*?)'", resp.text)[0]
 
-        key = re.findall("key='(.*?)'",resp.text)[0]
+    def get_qiang_data(self, domain):
 
-        qiang_url = f'https://www.juming.com/hao/cha_d?do=qiang&ym={domain}&key={key}'
+        qiang_url = f'https://www.juming.com/hao/cha_d?do=qiang&ym={domain}&key={self.key}'
         resp_data = self.request_handler(qiang_url)
+
         if resp_data == None:
             return None
+        elif resp_data.json()['code'] == -1:
+            self.get_token(domain)
+            return self.get_qiang_data(domain)
+
+        return resp_data.json()
+
+    #微信检测
+    def get_wx_data(self, domain):
+        qiang_url = f'https://www.juming.com/hao/cha_d?do=weixin&ym={domain}&key={self.key}'
+        resp_data = self.request_handler(qiang_url)
+
+        if resp_data == None:
+            return None
+        elif resp_data.json()['code'] == -1:
+            self.get_token(domain)
+            return self.get_qiang_data(domain)
+
+        return resp_data.json()
+
+    #qq检查
+    def get_qq_data(self, domain):
+        qiang_url = f'https://www.juming.com/hao/cha_d?do=qqjc&ym={domain}&key={self.key}'
+        resp_data = self.request_handler(qiang_url)
+
+        if resp_data == None:
+            return None
+        elif resp_data.json()['code'] == -1:
+            self.get_token(domain)
+            return self.get_qiang_data(domain)
+
+        return resp_data.json()
+
+    #备案黑名单
+    def get_beian_hmd_data(self, domain):
+        qiang_url = f'https://www.juming.com/hao/cha_d?do=beian_hmd&ym={domain}&key={self.key}'
+        resp_data = self.request_handler(qiang_url)
+
+        if resp_data == None:
+            return None
+        elif resp_data.json()['code'] == -1:
+            self.get_token(domain)
+            return self.get_qiang_data(domain)
 
         return resp_data.json()
 
 if __name__ == '__main__':
     q = Qiang()
-    q.get_qiang_data('baidu.com')
+    print(q.get_qiang_data('baidu.com'))
+    print(q.get_wx_data('baidu.com'))
+    print(q.get_qq_data('baidu.com'))
+    print(q.get_beian_hmd_data('baidu.com'))
