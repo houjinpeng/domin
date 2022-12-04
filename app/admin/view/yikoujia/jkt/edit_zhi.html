@@ -23,6 +23,16 @@
                            lay-verify="number|required">
                 </div>
             </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">被墙是否购买</label>
+                <div class="layui-input-block"  style="width: 100px;">
+                    <select name="is_buy_qiang" lay-verify="required">
+                        <option value="0" {if $row['is_buy_qiang'] == 0} selected {/if}>否</option>
+                        <option value="1" {if $row['is_buy_qiang'] == 1} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="layui-form-item">

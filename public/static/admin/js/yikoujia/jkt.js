@@ -42,15 +42,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 cols: [[
                     {type: "checkbox"},
                     {field: 'title',width:100, title: '名称'},
-                    {field: 'spider_status',width: 90, title: '状态',templet:function (d) {
+                    {field: 'spider_status',width: 95, title: '状态',templet:function (d) {
                             if (d.spider_status === 1){
-                                return '<i style="color: #d0544c;" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop" style="display: inline-block"></i>进行中'
+                                return '<button class="layui-btn layui-btn-xs layui-btn-primary"><i style="color: #d0544c;" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop" style="display: inline-block"></i>进行中</button>'
                             }else if(d.spider_status === 2){
-                                return '<i style="color: #1029a1;" class="layui-icon layui-icon-ok-circle" style="display: inline-block"></i>完成'
+                                return '<button class="layui-btn layui-btn-xs layui-btn-primary"><i style="color: #1029a1;" class="layui-icon layui-icon-ok-circle" style="display: inline-block"></i>完成</button>'
                             }else if(d.spider_status === 3){
-                                return '<i style="color: #bbb2b2;" class="layui-icon layui-icon-close-fill " style="display: inline-block"></i>停止'
+                                return '<button class="layui-btn layui-btn-xs layui-btn-primary"><i style="color: #bbb2b2;" class="layui-icon layui-icon-close-fill " style="display: inline-block"></i>停止</button>'
                             }else if(d.spider_status === 4){
-                                return '<i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常'
+                                // return '<i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常'
+                                return '<button class="layui-btn layui-btn-xs layui-btn-primary layui-border-red"><i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常</button>'
                             }
                         }},
                     {
@@ -221,6 +222,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 search: false,
                 toolbar: [],
                 cols: [[
+                    {field: 'title', title: '分支名称'},
                     {
                         field: 'fff', title: '分支配置', templet: function (d) {
                            return' <button class="layui-btn layui-btn-sm" title="修改分支" data-full="true"  data-open="yikoujia.jkt/edit_zhi?id='+d.id+'">修改</button>'
@@ -235,15 +237,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'spider_status', title: '运行状态', templet: function (d) {
                             if (d.spider_status === 1){
-                                return '<i style="color: #d0544c;" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop" style="display: inline-block"></i>进行中'
+                                return '<button class="layui-btn layui-btn-sm layui-btn-primary"><i style="color: #d0544c;" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop" style="display: inline-block"></i>进行中</button>'
                             }else if(d.spider_status === 2){
-                                return '<i style="color: #1029a1;" class="layui-icon layui-icon-ok-circle" style="display: inline-block"></i>完成'
+                                return '<button class="layui-btn layui-btn-sm layui-btn-primary"><i style="color: #1029a1;" class="layui-icon layui-icon-ok-circle" style="display: inline-block"></i>完成</button>'
                             }else if(d.spider_status === 3){
-                                return '<i style="color: #bbb2b2;" class="layui-icon layui-icon-close-fill " style="display: inline-block"></i>停止'
+                                return '<button class="layui-btn layui-btn-sm layui-btn-primary"><i style="color: #bbb2b2;" class="layui-icon layui-icon-close-fill " style="display: inline-block"></i>停止</button>'
                             }else if (d.spider_status === 0) {
-                                return '<i class="layui-icon layui-icon-time" style="display: inline-block"></i>待运行'
+                                return '<button class="layui-btn layui-btn-sm layui-btn-primary"><i class="layui-icon layui-icon-time" style="display: inline-block"></i>待运行</button>'
                             }else if(d.spider_status === 4){
-                                return '<i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常'
+                                return '<button class="layui-btn layui-btn-sm layui-btn-primary layui-border-red"><i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常</button>'
                             }
                         }
                     },

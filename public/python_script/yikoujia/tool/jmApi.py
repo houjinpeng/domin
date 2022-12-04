@@ -81,6 +81,24 @@ class JmApi():
             print(e)
             return self.get_store_info(store_id)
 
+    #一口价下单
+    def buy_ykj(self,ym,jg,ty=None,yz=None):
+        try:
+            # 增加公共参数
+            data = {
+                'ym':ym,
+                'jg':jg,
+                'ty':ty,
+                'yz':yz,
+            }
+            data = self.build_data(data)
+            response = requests.post(f'{self.domain}/newapi/ykj_buy', data=data, timeout=4).json()
+            return response
+        except Exception as e:
+            time.sleep(2)
+            print(e)
+            return self.buy_ykj(ym,jg,ty=ty,yz=yz)
+
 
 if __name__ == '__main__':
     # appid = '3198'

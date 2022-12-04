@@ -58,7 +58,9 @@ class Jkt extends AdminController
             $list = $this->model
                 ->where($where)->page($page, $limit)->select()->toArray();
             foreach ($list as $index => &$item) {
-                $item['zhixian'] = $this->filter_model->where('main_filter_id', $item['id'])->select()->toArray();
+                $item['zhixian'] = $this->filter_model->where('main_filter_id', $item['id'])
+                    ->order('sort','desc')
+                    ->select()->toArray();
             }
             $count = $this->model->where($where)->count();
             $data = [
