@@ -4,10 +4,26 @@ import requests
 import json
 import redis
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
+
+from dbutils.pooled_db import PooledDB
+from conf.config import *
+
+db_pool = PooledDB(**mysql_pool_conf)
+conn = db_pool.connection()
+cur = conn.cursor()
+
+cur.execute("select * from ym_system_config where `name`='ip'")
+ip_data = cur.fetchone()
+ip = ip_data['value']
+cur.close()
+conn.close()
+
+
+
 class GetHistory():
     def get_token(self, domain_list):
         domain_token = []
-        url = 'http://127.0.0.1:5001/get_token'
+        url = f'http://{ip}:5001/get_token'
         r = requests.get(url)
         token = json.loads(r.text)
         headers = {

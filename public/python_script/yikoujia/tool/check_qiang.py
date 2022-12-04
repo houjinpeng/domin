@@ -1,7 +1,18 @@
 import time
 import re
 import requests
+from dbutils.pooled_db import PooledDB
+from conf.config import *
 
+db_pool = PooledDB(**mysql_pool_conf)
+conn = db_pool.connection()
+cur = conn.cursor()
+
+cur.execute("select * from ym_system_config where `name`='ip'")
+ip_data = cur.fetchone()
+ip = ip_data['value']
+cur.close()
+conn.close()
 
 class Qiang():
     def __init__(self):
@@ -42,7 +53,7 @@ class Qiang():
         try:
             url = 'https://www.juming.com/hao/'+domain
 
-            token = requests.get('http://127.0.0.1:5001/get_token').json()
+            token = requests.get(f'http://{ip}:5001/get_token').json()
 
             data = {
                 'token':token['token'],
