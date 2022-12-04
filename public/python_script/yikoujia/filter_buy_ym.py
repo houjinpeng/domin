@@ -41,6 +41,7 @@ class FilterYm():
     def __init__(self, filter_id):
         print(filter_id)
         self.filter_id = filter_id
+        self.main_filter = None
         self.filter_data = self.get_filter_data(filter_id)
         #启动日志队列
         threading.Thread(target=self.save_logs).start()
@@ -50,7 +51,6 @@ class FilterYm():
         if self.filter_dict == []:
             self.filter_dict = {}
         self.ym_list = []
-        self.main_filter = None
 
     # 获取id的那条数据
     def get_filter_data(self, id):
