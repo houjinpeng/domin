@@ -42,7 +42,10 @@ class FilterYm():
         self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
         self.filter_data['place_2'] = 9999999999 if self.filter_data['place_2'] == 0 else self.filter_data['place_2']
         self.filter_dict = json.loads(self.filter_data['data'])
+        if self.filter_dict == []:
+            self.filter_dict = {}
         self.ym_list = []
+        self.main_filter = None
 
     # 获取id的那条数据
     def get_filter_data(self, id):
@@ -51,6 +54,12 @@ class FilterYm():
         select_sql = "select * from ym_yikoujia_buy_filter where  id=%s" % id
         cur.execute(select_sql)
         data = cur.fetchone()
+        #主线的设置   用线程数
+        main_filter = "select * from ym_yikoujia_jkt where id='%s'"%(data['main_filter_id'])
+        cur.execute(main_filter)
+        self.main_filter = cur.fetchone()
+        cur.close()
+        conn.close()
         return data
 
     def get_history_token(self, data_list):
@@ -88,12 +97,6 @@ class FilterYm():
     # h获取数据
     def get_work_data(self):
         while True:
-            # p判断是有有任务 如果有任务修改为运行中  没有任务为完成
-            if work_queue.empty():
-                self.update_spider_status('ym_yikoujia_buy_filter', self.filter_id, 2)
-            else:
-                self.update_spider_status('ym_yikoujia_buy_filter', self.filter_id, 1)
-
             # redis去重
             all_data = redis_cli.sdiff(f'ym_data_{self.filter_data["main_filter_id"]}',f'out_ym_data_{self.filter_data["id"]}')
             if len(all_data) == 0:
@@ -120,9 +123,8 @@ class FilterYm():
     def update_spider_status(self, table, spider_id, update_status):
         conn = db_pool.connection()
         cur = conn.cursor()
-        up_date_sql = "update %s set spider_status= %s ,pid=%s where id=%s" % (
-        table, update_status, os.getpid(), spider_id)
-        cur.execute(up_date_sql)
+        update_sql = "update %s set spider_status= %s ,pid=%s where id=%s" % (table, update_status, os.getpid(), spider_id)
+        cur.execute(update_sql)
         conn.commit()
         conn.close()
         cur.close()
@@ -170,11 +172,6 @@ class FilterYm():
 
         else:
             self.log.info(f'购买失败 {resp}')
-
-
-
-
-
 
     # 备案对比
     def comp_beian(self, domain, beian):
@@ -386,36 +383,46 @@ class FilterYm():
         # 修改状态 进行中
         self.update_spider_status('ym_yikoujia_buy_filter', self.filter_data['id'], 1)
         threading.Thread(target=self.get_work_data).start()
-        for i in range(200):
-            baidu = None
-            beian = None
-            sogou = None
-            so = None
-            if self.filter_dict.get('beian'):
-                beian = BeiAn()
-            if self.filter_dict.get('baidu'):
-                baidu_record = [self.filter_dict['baidu']['baidu_sl_1'], self.filter_dict['baidu']['baidu_sl_2']]
-                kuaizhao_time = self.filter_dict['baidu']['baidu_jg']
-                lang_chinese = self.filter_dict['baidu']['baidu_is_com_chinese']
-                min_gan_word = self.filter_dict['baidu']['baidu_is_com_word']
+        thread_list = []
 
-                baidu = BaiDu(baidu_record, kuaizhao_time, lang_chinese, min_gan_word)
+        baidu = None
+        beian = None
+        sogou = None
+        so = None
+        if self.filter_dict.get('beian'):
+            beian = BeiAn()
+        if self.filter_dict.get('baidu'):
+            baidu_record = [self.filter_dict['baidu']['baidu_sl_1'], self.filter_dict['baidu']['baidu_sl_2']]
+            kuaizhao_time = self.filter_dict['baidu']['baidu_jg']
+            lang_chinese = self.filter_dict['baidu']['baidu_is_com_chinese']
+            min_gan_word = self.filter_dict['baidu']['baidu_is_com_word']
 
-            if self.filter_dict.get('sogou'):
-                sogou = GetSougouRecord()
+            baidu = BaiDu(baidu_record, kuaizhao_time, lang_chinese, min_gan_word)
 
-            if self.filter_dict.get('so'):
-                so_record1 = self.filter_dict['so']['so_sl_1']
-                so_record2 = self.filter_dict['so']['so_sl_2']
-                fengxian = self.filter_dict['so']['so_fxts']
-                kuaizhao_time = self.filter_dict['so']['so_jg']
-                so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
+        if self.filter_dict.get('sogou'):
+            sogou = GetSougouRecord()
 
+        if self.filter_dict.get('so'):
+            so_record1 = self.filter_dict['so']['so_sl_1']
+            so_record2 = self.filter_dict['so']['so_sl_2']
+            fengxian = self.filter_dict['so']['so_fxts']
+            kuaizhao_time = self.filter_dict['so']['so_jg']
+            so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
+
+
+        # for i in range(self.main_filter['task_num']):
+        for i in range(1):
             # 启动任务线程程
-            threading.Thread(target=self.work, args=(beian, baidu, sogou, so)).start()
+            thread_list.append( threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
+        for t in thread_list:
+            t.start()
+        for t in thread_list:
+            t.join()
+        #修改状态已完成
+        self.update_spider_status('ym_yikoujia_buy_filter',spider_id=self.filter_id,update_status=2)
 
 
 if __name__ == '__main__':
     jkt_id = sys.argv[1]
-    # jkt_id = 34
+    # jkt_id = 35
     filter = FilterYm(jkt_id).index()
