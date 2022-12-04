@@ -442,6 +442,8 @@ class Jkt extends AdminController
             $row = $this->model->find($id);
             empty($row) && $this->error('没有该数据 无法重启~');
             $row ->save(['spider_status'=>0,'pid'=>null]);
+            //删除之前数据 重新运行
+            $this->redis->delete('ym_data_'.$id);
             start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
             $this->success('主线成功运行');
         }else{
