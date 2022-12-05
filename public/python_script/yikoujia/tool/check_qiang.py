@@ -2,7 +2,16 @@ import time
 import re
 import requests
 from dbutils.pooled_db import PooledDB
-from conf.config import *
+import pymysql
+mysql_pool_conf = {
+    'host': 'localhost',
+    'port': 3306,
+    'user': 'root',
+    'password': '123456',
+    'db': 'domain',
+    'creator': pymysql,
+    'cursorclass': pymysql.cursors.DictCursor,
+}
 
 db_pool = PooledDB(**mysql_pool_conf)
 conn = db_pool.connection()
