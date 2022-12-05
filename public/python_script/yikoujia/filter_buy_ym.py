@@ -123,7 +123,7 @@ class FilterYm():
             # 存入任务队列
             for data in new_data:
                 work_queue.put(data)
-            log_queue.put(f'本次插入队列数据:{len(new_data)}')
+            # log_queue.put(f'本次插入队列数据:{len(new_data)}')
             time.sleep(3)
 
     # 修改爬虫状态
@@ -325,7 +325,7 @@ class FilterYm():
                 if self.filter_dict.get('history'):
                     is_ok = self.get_history_comp(domain_data)  # 返回失败信息
                     if is_ok != True:
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
                         self.save_out_data(domain_data)
                         continue
 
@@ -334,7 +334,7 @@ class FilterYm():
                     is_ok = self.comp_beian(domain_data, beian)
                     if is_ok != True:
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
                         continue
 
                 # 搜狗
@@ -346,14 +346,14 @@ class FilterYm():
 
                     is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'])
                     if is_ok != True:
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
 
                 # 注册商
                 if self.filter_dict.get('zcs'):
                     if self.ckeck_zhuceshang(domain_data) != True:
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '注册商包含非法字符串'})
+                        log_queue.put({'ym': domain_data['ym'], 'cause': '注册商包含非法字符串'})
                         continue
 
                 # # 360
@@ -369,7 +369,7 @@ class FilterYm():
                         continue
                     if is_ok != True:
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
 
                 # 百度
@@ -385,7 +385,7 @@ class FilterYm():
                         continue
                     if is_ok != True:
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
+                        log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
 
                 # 最后判断是否被墙 如果被墙不买
@@ -396,7 +396,7 @@ class FilterYm():
                         continue
                     if r['msg'] == '被墙':
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '域名被墙'})
+                        log_queue.put({'ym': domain_data['ym'],  'cause': '域名被墙'})
                         continue
 
                 if self.filter_data['is_buy_wx'] == 0:
@@ -406,8 +406,9 @@ class FilterYm():
                         continue
                     if r['msg'] == '微信拦截':
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '微信拦截'})
+                        log_queue.put({'ym': domain_data['ym'],  'cause': '微信拦截'})
                         continue
+
                 if self.filter_data['is_buy_qq'] == 0:
                     r = qiang.get_qq_data(domain_data['ym'])
                     if r == None:
@@ -415,7 +416,7 @@ class FilterYm():
                         continue
                     if '拦截' in r['msg'] :
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': 'QQ拦截'})
+                        log_queue.put({'ym': domain_data['ym'], 'cause': 'QQ拦截'})
                         continue
 
                 if self.filter_data['is_buy_beian'] == 0:
@@ -425,7 +426,7 @@ class FilterYm():
                         continue
                     if r['msg'] != '正常':
                         self.save_out_data(domain_data)
-                        log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '备案'+r['msg']})
+                        log_queue.put({'ym': domain_data['ym'],  'cause': '备案'+r['msg']})
                         continue
 
 
@@ -438,7 +439,7 @@ class FilterYm():
                     self.save_buy_ym(domain_data)
             except Exception as error:
                 time.sleep(2)
-                log_queue.put(error)
+                log_queue.put(f'错误信息：{error}')
 
     def index(self):
         # 启动获取数据线程
@@ -485,6 +486,6 @@ class FilterYm():
 
 
 if __name__ == '__main__':
-    # jkt_id = sys.argv[1]
-    jkt_id = 39
+    jkt_id = sys.argv[1]
+    # jkt_id = 39
     filter = FilterYm(jkt_id).index()
