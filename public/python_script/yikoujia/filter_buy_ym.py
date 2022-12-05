@@ -41,6 +41,7 @@ class FilterYm():
     def __init__(self, filter_id):
         self.filter_id = filter_id
         self.main_filter = None
+        self.qiang = Qiang()
         self.filter_data = self.get_filter_data(filter_id)
         #启动日志队列
         threading.Thread(target=self.save_logs).start()
@@ -305,7 +306,7 @@ class FilterYm():
     # 对比worker
     def work(self, beian=None, baidu=None, sogou=None, so=None):
         global work_queue
-        qiang = Qiang()
+
         while True:
             if work_queue.empty():
                 time.sleep(3)
@@ -390,7 +391,7 @@ class FilterYm():
 
                 # 最后判断是否被墙 如果被墙不买
                 if self.filter_data['is_buy_qiang'] == 0:
-                    r = qiang.get_qiang_data(domain_data['ym'])
+                    r = self.qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
@@ -400,7 +401,7 @@ class FilterYm():
                         continue
 
                 if self.filter_data['is_buy_wx'] == 0:
-                    r = qiang.get_wx_data(domain_data['ym'])
+                    r = self.qiang.get_wx_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
@@ -410,7 +411,7 @@ class FilterYm():
                         continue
 
                 if self.filter_data['is_buy_qq'] == 0:
-                    r = qiang.get_qq_data(domain_data['ym'])
+                    r = self.qiang.get_qq_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
@@ -420,7 +421,7 @@ class FilterYm():
                         continue
 
                 if self.filter_data['is_buy_beian'] == 0:
-                    r = qiang.get_qiang_data(domain_data['ym'])
+                    r = self.qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue

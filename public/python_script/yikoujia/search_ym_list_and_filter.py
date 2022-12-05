@@ -207,8 +207,6 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            log_queue.put(f'备案查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
-
             info = beian.beian_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
             if info == None:
@@ -218,10 +216,9 @@ class SearchYmAndFilter():
             # 判断是否有备案  如果有备案放入redis数据库中
             if info['params']['total'] != 0:
                 self.save_reids(ym_data,'beian',info)
-                # redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                log_queue.put(f'插入购买查询队列中 {ym_data}')
-
-
+                log_queue.put(f'备案查询剩余任务：{task_queue.qsize()}  插入购买查询队列中 {ym_data}')
+            else:
+                log_queue.put(f'备案查询剩余任务：{task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
     #过滤百度
     def baidu_worker(self):
         baidu = BaiDu()
