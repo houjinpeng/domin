@@ -53,7 +53,8 @@ class Qiang():
                 "upgrade-insecure-requests": "1",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
-            resp = requests.get(url,headers=headers,timeout=7,proxies=dt_proxies)
+            # resp = requests.get(url,headers=headers,timeout=7,proxies=dt_proxies)
+            resp = requests.get(url,headers=headers,timeout=7)
             return resp
         except Exception as e:
             if count >5:
@@ -92,7 +93,8 @@ class Qiang():
                 "referer":url,
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
-            r = requests.post(url,data=data,headers=headers,timeout=3,proxies=dt_proxies)
+            # r = requests.post(url,data=data,headers=headers,timeout=3,proxies=dt_proxies)
+            r = requests.post(url,data=data,headers=headers,timeout=3)
             if r.json()['code'] == 1:
                 ct = r.cookies._cookies['www.juming.com']['/']['ct'].value
                 self.cookie = f'{self.cookie.split(";")[0]};ct={ct}'

@@ -429,7 +429,7 @@ class FilterYm():
                         continue
 
 
-                log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': '需要购买'})
+                log_queue.put({'ym': domain_data['ym'], 'cause': '需要购买'})
 
                 #判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
                 if self.filter_data['is_buy'] == 1:
@@ -473,8 +473,8 @@ class FilterYm():
             so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
 
 
-        # for i in range(self.main_filter['task_num']):
-        for i in range(1):
+        for i in range(self.main_filter['task_num']):
+        # for i in range(1):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
 
@@ -485,6 +485,6 @@ class FilterYm():
 
 
 if __name__ == '__main__':
-    jkt_id = sys.argv[1]
-    # jkt_id = 39
+    # jkt_id = sys.argv[1]
+    jkt_id = 39
     filter = FilterYm(jkt_id).index()
