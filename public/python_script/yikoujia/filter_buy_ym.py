@@ -39,7 +39,6 @@ c.close()
 
 class FilterYm():
     def __init__(self, filter_id):
-        print(filter_id)
         self.filter_id = filter_id
         self.main_filter = None
         self.filter_data = self.get_filter_data(filter_id)
@@ -117,11 +116,14 @@ class FilterYm():
 
             # 判断是否检测历史
             if self.filter_dict.get('history'):
-                new_data = self.get_history_token(new_data)
+                if new_data != []:
+                    if new_data[0].get('history') == None:
+                        new_data = self.get_history_token(new_data)
 
             # 存入任务队列
             for data in new_data:
                 work_queue.put(data)
+            log_queue.put(f'本次插入队列数据:{len(new_data)}')
             time.sleep(3)
 
     # 修改爬虫状态
@@ -194,12 +196,14 @@ class FilterYm():
 
     # 备案对比
     def comp_beian(self, domain, beian):
-
-        beian_info = beian.beian_info(domain['ym'])
+        if domain.get('beian'):
+            beian_info = domain.get('beian')
+        else:
+            beian_info = beian.beian_info(domain['ym'])
         if beian_info == None:
             # domain['cause'] = '没有备案'
             # out_ym_quque.put(domain)
-            # log.logger.debug(f'查询备案失败，重新放入列表重新查询  {domain["domain"]}')
+            log_queue.put(f'查询备案失败，重新放入列表重新查询  {domain["domain"]}')
             # work_queue.put(domain)
             return self.comp_beian(domain, beian)
 
@@ -207,13 +211,13 @@ class FilterYm():
             # 没有备案的过滤
             if len(beian_info['params']['list']) == 0:
                 domain['cause'] = '没有备案'
-                self.log.debug(f' 域名为：{domain["ym"]} 备案 {domain["cause"]}')
+                # log_queue.put(f' 域名为：{domain["ym"]} 备案 {domain["cause"]}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
             xingzhi = beian_info['params']['list'][0]['natureName']
             if xingzhi in self.filter_dict['beian']['beian_xz'].split(','):
                 domain['cause'] = f'备案 域名性质为：{xingzhi}'
-                self.log.debug(f'域名为：{domain["ym"]} 备案 域名性质为：{xingzhi}')
+                # log_queue.put(f'域名为：{domain["ym"]} 备案 域名性质为：{xingzhi}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
 
@@ -221,7 +225,7 @@ class FilterYm():
             # 判断备案号 大于自定义号码的过滤
             if int(self.filter_dict['beian']['beian_suffix']) < int(beiai_num.split('-')[1]):
                 domain['cause'] = f"备案号为：{beiai_num.split('-')[1]} 您设置的备案号为：{self.filter_dict['beian']['beian_suffix']}"
-                # self.log.logger.debug(f'域名为：{domain["ym"]} 备案 {domain["cause"]}')
+                # log_queue.put(f'域名为：{domain["ym"]} 备案 {domain["cause"]}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
 
@@ -230,14 +234,13 @@ class FilterYm():
             day = (datetime.datetime.now() - datetime.datetime.strptime(up_time, '%Y-%m-%d %H:%M:%S')).days
             if day <= int(self.filter_dict['beian']['beian_pcts']):
                 domain['cause'] = f"备案历史审核时间为：{day}天  您设置的审核时间为：{self.filter_dict['beian']['beian_pcts']}天"
-                self.log.logger.debug(f'域名为：{domain["ym"]} 备案 {domain["cause"]}')
+                # log_queue.put(f'域名为：{domain["ym"]} 备案 {domain["cause"]}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
-
             return True
         except Exception as e:
             domain['cause'] = str(e)
-            self.log.error(e)
+            log_queue.put(e)
             return False
 
     # 对比敏感词
@@ -259,7 +262,10 @@ class FilterYm():
     # 获取历史数据进行对比
     def get_history_comp(self, domain):
         # 保存到完成域名中
-        history_data = history_obj.get_history({'ym': domain['ym'], 'token': domain['token']})
+        if domain.get('history'):
+            history_data = domain.get('history')
+        else:
+            history_data = history_obj.get_history({'ym': domain['ym'], 'token': domain['token']})
         # 判断是否对比关键词
         if self.filter_dict['history']['history_is_com_word'] == '1':
             is_mingan = self.check_mingan(history_data)
@@ -313,24 +319,6 @@ class FilterYm():
                     log_queue.put(f'购买金额不付 域名价格{domain_data["jg"]}')
                     self.save_out_data(domain_data)
                     continue
-                # 是否购买被墙的域名
-                if self.filter_data['is_buy_qiang'] == 0:
-                    if domain_data['qiang'] == 3:
-                        log_queue.put(f'{domain_data["ym"]} 被墙不购买 ')
-                        self.save_out_data(domain_data)
-                        continue
-                if self.filter_data['is_buy_wx'] == 0:
-                    if domain_data['wxjc'] == 2:
-                        log_queue.put(f'{domain_data["ym"]} 微信已拦截不购买 ')
-                        self.save_out_data(domain_data)
-                        continue
-                if self.filter_data['is_buy_qq'] == 0:
-                    if domain_data['wxjc'] == 2:
-                        log_queue.put(f'{domain_data["ym"]} QQ已拦截不购买 ')
-                        self.save_out_data(domain_data)
-                        continue
-
-
                 log_queue.put(f'剩余任务:{work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
 
                 # 对比历史
@@ -351,7 +339,12 @@ class FilterYm():
 
                 # 搜狗
                 if self.filter_dict.get('sogou'):
-                    is_ok = sogou.check_sogou(domain_data['ym'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'])
+                    if domain_data.get('sogou'):
+                        data = domain_data.get('sogou')
+                    else:
+                        data = sogou.get_info(domain_data['ym'])
+
+                    is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'])
                     if is_ok != True:
                         log_queue.put({'ym': domain_data['ym'], 'id': domain_data['id'], 'cause': is_ok})
                         continue
@@ -365,7 +358,12 @@ class FilterYm():
 
                 # # 360
                 if self.filter_dict.get('so'):
-                    is_ok = so.check_360(domain_data['ym'])
+                    if domain_data.get('so'):
+                        data = domain_data.get('so')
+                    else:
+                        data = so.get_info(domain_data['ym'])
+
+                    is_ok = so.check_360(data['html'],domain_data['ym'])
                     if is_ok == '请求失败':
                         work_queue.put(domain_data)
                         continue
@@ -376,10 +374,12 @@ class FilterYm():
 
                 # 百度
                 if self.filter_dict.get('baidu'):
-                    if domain_data['ym'] == None:
-                        continue
-                    baidu_info_resp = baidu.get_info(domain_data['ym'])
-                    is_ok = baidu.check_baidu(baidu_info_resp, domain_data['ym'])
+                    if domain_data.get('baidu'):
+                        data = domain_data.get('baidu')
+                    else:
+                        data = baidu.get_info(domain_data['ym'])
+
+                    is_ok = baidu.check_baidu(data, domain_data['ym'])
                     if is_ok == '请求失败':
                         work_queue.put(domain_data)
                         continue
@@ -438,7 +438,7 @@ class FilterYm():
                     self.save_buy_ym(domain_data)
             except Exception as error:
                 time.sleep(2)
-                self.log.error(error)
+                log_queue.put(error)
 
     def index(self):
         # 启动获取数据线程
@@ -473,7 +473,8 @@ class FilterYm():
             so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
 
 
-        for i in range(self.main_filter['task_num']):
+        # for i in range(self.main_filter['task_num']):
+        for i in range(1):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
 
@@ -485,5 +486,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     jkt_id = sys.argv[1]
-    # jkt_id = 35
+    # jkt_id = 39
     filter = FilterYm(jkt_id).index()

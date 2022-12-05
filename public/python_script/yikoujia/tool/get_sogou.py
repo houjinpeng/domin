@@ -51,24 +51,23 @@ class GetSougouRecord():
             # self.set_proxies()
             return self.request_hearders(url)
 
-    def check_sogou(self, domain, record_count, time_str):
+    def check_sogou(self, html, record_count, time_str,domain):
         '''
-        :param domain: 域名
+        :param html: 网页html
         :param record_count: 收录数 [min,max]
         :param time_str: 快照时间
+        :param time_str: 域名
         :return:
         '''
-        url = f'https://www.sogou.com/web?query=site%3A{domain}'
-        r = self.request_hearders(url)
-        e = etree.HTML(r.text)
+
+        e = etree.HTML(html)
         if time_str == '':
             is_kuaizhao = True
         else:
             is_kuaizhao = False
         try:
-
             # 查询收录数
-            record = re.findall('搜狗已为您找到约(.*?)条相关结果', r.text)[0].replace(',', '')
+            record = re.findall('搜狗已为您找到约(.*?)条相关结果',data['html'])[0].replace(',', '')
             if record == '0':
                 return '搜狗没有收录'
             # 查询
@@ -95,14 +94,26 @@ class GetSougouRecord():
                 return f'搜狗 收录不符合 实际收录 {record}'
 
             return True
-        except:
-            return '搜狗检测错误'
+        except Exception as error:
+            return f'搜狗检测错误 {error}'
 
+    def get_info(self,domain):
+        url = f'https://www.sogou.com/web?query=site%3A{domain}'
+        r = self.request_hearders(url)
+        try:
+            # 查询收录数
+            record = re.findall('搜狗已为您找到约(.*?)条相关结果', r.text)[0].replace(',', '')
+            return {'sl':int(record),'html':r.text}
+        except Exception as error:
+            print(error)
+            return self.get_info(domain)
 
 if __name__ == '__main__':
-    s = '>=50'
+    s = [0,50]
     tim_str = '小时,1天,2天'
-    r = GetSougouRecord().check_sogou('aksqamu.com', s, tim_str)
+    o = GetSougouRecord()
+
+    data = o.get_info('aksqamu.com')
+    r = o.check_sogou(data['html'],s,tim_str,domain='aksqamu.com')
     print(r)
-    r = GetSougouRecord().check_sogou('worrywater.com', s, tim_str)
-    print(r)
+

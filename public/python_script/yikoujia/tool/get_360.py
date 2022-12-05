@@ -38,6 +38,11 @@ redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
 class SoCom():
     def __init__(self,record_num,fengxian,kuaizhao_time):
+        '''
+        :param record_num:[0,0]
+        :param fengxian: 是 否
+        :param kuaizhao_time: 泛 首页
+        '''
         self.record_num_min = int(record_num[0])
         self.record_num_max = 999999999 if int(record_num[1]) == 0 else int(record_num[1])
         self.fengxian = fengxian
@@ -84,7 +89,7 @@ class SoCom():
             return None
 
     #发送请求
-    def requests_handler(self, url1,is_yz=False,count=0):
+    def requests_handler(self, url1,count=0):
         url = f"https://www.so.com/s?q=site%3A{url1}"
 
         headers = {
@@ -108,26 +113,36 @@ class SoCom():
                 if count > 10:
                     return None
                 proxies = self.get_proxy()
-                return self.requests_handler(url1, is_yz=True, count=count + 1)
+                return self.requests_handler(url1, count=count + 1)
             elif response.status_code > 200:
                 if count > 10:
                     return None
                 proxies = self.get_proxy()
-                return self.requests_handler(url1, is_yz=True, count=count + 1)
+                return self.requests_handler(url1, count=count + 1)
             return response
         except Exception as e:
             if count > 10 :
                 return None
             proxies = self.get_proxy()
-            return self.requests_handler(url1,is_yz=True,count=count+1)
+            return self.requests_handler(url1,count=count+1)
 
-    def check_360(self,domain):
-        r = self.requests_handler(domain)
-        if r == None:
-            return '请求失败'
-        html = etree.HTML(r.text)
+    def get_info(self,domain):
         try:
-            count = re.findall('找到相关结果约(.*?)个', r.text)[0].replace(',', '')
+            r = self.requests_handler(domain)
+            html = etree.HTML(r.text)
+            try:
+                count = re.findall('找到相关结果约(.*?)个', r.text)[0].replace(',', '')
+            except Exception:
+                count = '0'
+            return {'sl':int(count),'html':html}
+        except Exception as error:
+            return self.get_info(domain)
+
+    def check_360(self,html,domain):
+
+        html = etree.HTML(html)
+        try:
+            count = re.findall('找到相关结果约(.*?)个', html)[0].replace(',', '')
         except Exception:
             count = '0'
         try:
@@ -138,7 +153,7 @@ class SoCom():
             pass
         #判断是否有风险
         if self.fengxian == '否':
-            if '因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏' in r.text:
+            if '因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏' in html:
                 return '360 因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏'
 
         # 判断url结构   1首页     2泛   3内页 0不判断

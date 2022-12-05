@@ -1,12 +1,6 @@
 import hashlib
-import requests
 import time
-
 import requests
-
-headers = {
-    'User-Agent': 'Apipost client Runtime/+https://www.apipost.cn/',
-}
 
 
 class JmApi():
@@ -32,7 +26,7 @@ class JmApi():
         try:
             # 增加公共参数
             data = self.build_data(data)
-            response = requests.post(f'{self.domain}/newapi/ykj_get_list', data=data, timeout=4).json()
+            response = requests.post(f'{self.domain}/newapi/ykj_get_list', data=data, timeout=10).json()
             if response['code'] != 1:
                 time.sleep(2)
                 return self.get_ykj_list(data)
@@ -123,8 +117,10 @@ if __name__ == '__main__':
 
     # store_info = jm_api.get_store_info('41000')
     data = {
+        'psize': '50',
             # 'bqjc': 99,#被墙检测
             # 'jgpx': 41,#排序结果
-            'gjz_cha':'thecircLeofit.com'
+            # 'gjz_cha':'thecircLeofit.com'
             }
     data_info = jm_api.get_ykj_list(data)
+    print(data_info)

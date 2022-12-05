@@ -275,7 +275,7 @@ class Jkt extends AdminController
             $data = [];
             //备案
             if ($post['is_com_beian'] == '1') {
-                if (!$post['beian_suffix'] || !$post['beian_pcts'] || !$post['beian_xz']) {
+                if (!$post['beian_suffix'] || !$post['beian_pcts']) {
                     $this->error('请完善备案信息~');
                 }
 
@@ -536,7 +536,7 @@ class Jkt extends AdminController
     public function logs($id,$type){
         $where[] = ['type','=',$type];
         $where[] = ['filter_id','=',$id];
-        $logs = $this->logs_model->where($where)->order('id','desc')->limit(500)->select();
+        $logs = $this->logs_model->where($where)->order('id','desc')->limit(300)->select();
         $this->assign('logs',$logs);
         return $this->fetch();
 

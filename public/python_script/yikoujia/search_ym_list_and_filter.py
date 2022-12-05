@@ -12,7 +12,10 @@ from tool.get_beian import BeiAn
 from houhou.sql_handler import *
 import redis
 from tool.jmApi import JmApi
-
+from tool.get_baidu import BaiDu
+from tool.get_sogou import GetSougouRecord
+from tool.get_360 import SoCom
+from tool.get_history import GetHistory
 jm_api = JmApi()
 db_pool = PooledDB(**mysql_pool_conf)
 log_queue = queue.Queue()#日志队列
@@ -95,49 +98,110 @@ class SearchYmAndFilter():
             data['jzls'] = 1
         return data
 
+    def get_history_token(self, data_list):
+        ls = []
+        new_data_list = []
+        ym_dict = {}
+        history_obj = GetHistory()
+        for data in list(data_list):
+            ym_dict[data['ym']] = ''
+            if len(ls) < 2000:
+                ls.append(data['ym'])
+                continue
+
+            # 2000个获取一次token
+            if len(ls) == 2000:
+                token_list = history_obj.get_token(ls)
+                ls = []
+                # 放入域名列表中
+                for d in token_list:
+                    # data['token'] = d['token']
+                    ym_dict[d['ym']] = d['token']
+                continue
+
+        if len(ls) != 0:
+            token_list = history_obj.get_token(ls)
+            # 放入域名列表中
+            for d in token_list:
+                ym_dict[d['ym']] = d['token']
+
+        for data in list(data_list):
+            data['token'] = ym_dict[data['ym']]
+            new_data_list.append(data)
+
+        return new_data_list
+
     #解析数据
     def parse_info(self,resp):
 
+
         all_data = resp['data']
-        # 解析列表
+        # 内存去重
+        new_data = []
         for data in all_data:
-            try:
-                if data['ym'] not in self.ym_list:
-                    task_queue.put(data)
-                    self.ym_list.append(data['ym'])
-            except Exception as e:
-                continue
+            if data['ym'] not in self.ym_list:
+                self.ym_list.append(data['ym'])
+                new_data.append(data)
+
+        # 判断是否检测历史
+        if self.filter['main_filter'] == '历史':
+            new_data = self.get_history_token(new_data)
+
+
+        # 解析列表
+        for data in new_data:
+            task_queue.put(data)
+
 
     #线程获取列表
     def get_list(self):
         ggg = False
+        onece = True
         while True:
-            for i in range(1, 1000000):
-                log_queue.put(f'开始过滤列表第{i}页')
-                self.data['page'] = i
-                info = jm_api.get_ykj_list(self.data)
-                #修改总数
-                if ggg == False:
-                    conn = db_pool.connection()
-                    cur = conn.cursor()
-                    update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (info['count'],self.filter['id'])
-                    cur.execute(update_sql)
-                    conn.commit()
-                    cur.close()
-                    conn.close()
-                    ggg = True
-                    log_queue.put(f'查询总数：{info["count"]}')
+            if onece:
+                onece = False
+                for i in range(1, 1000000):
+                    log_queue.put(f'开始查询列表第{i}页')
+                    self.data['page'] = i
+                    info = jm_api.get_ykj_list(self.data)
+                    #修改总数
+                    if ggg == False:
+                        conn = db_pool.connection()
+                        cur = conn.cursor()
+                        update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (info['count'],self.filter['id'])
+                        cur.execute(update_sql)
+                        conn.commit()
+                        cur.close()
+                        conn.close()
+                        ggg = True
+                        log_queue.put(f'查询总数：{info["count"]}')
 
+                    self.parse_info(info)
+                    if info['data'] == []:
+                        break
+            else:
+                self.data['page'] = 1
+                info = jm_api.get_ykj_list(self.data)
                 self.parse_info(info)
-                if info['data'] == []:
-                    break
+
+            log_queue.put('本次查询任务结束')
             time.sleep(3)
+
+    #保存到对应的redis里面
+    def save_reids(self,ym_data,key,value):
+        data = {
+            'ym':ym_data['ym'],
+            'jg':ym_data['jg'],
+            'zcs':ym_data['zcs'],
+            'token':ym_data.get('token'),
+            key:value
+        }
+        redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(data))
 
     #过滤备案
     def beian_worker(self):
         beian = BeiAn()
-        conn = db_pool.connection()
-        cur = conn.cursor()
+
         while True:
             if task_queue.empty():
                 time.sleep(1)
@@ -153,105 +217,98 @@ class SearchYmAndFilter():
 
             # 判断是否有备案  如果有备案放入redis数据库中
             if info['params']['total'] != 0:
-                redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
+                self.save_reids(ym_data,'beian',info)
+                # redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
                 log_queue.put(f'插入购买查询队列中 {ym_data}')
-            # update_sql = "update ym_domain_detail set beian='%s' where id=%s" % (json.dumps(info), is_have['id'])
-            # cur.execute(update_sql)
-            # conn.commit()
 
-            # is_have = self.check_domain_is_in_databases(ym_data['ym'])
-            #判断域名是否有备案   有备案直接放入redis 没有过滤
-            # if is_have != False and is_have['beian'] != None:
-            #     pass
-            # if is_have == False:
-            #     info = beian.beian_info(ym_data['ym'])
-            #
-            #     #查询库中是否存在 不存在插入 存在更新
-            #     if info == None:
-            #         task_queue.put(ym_data)
-            #         continue
-            #
-            #     #判断是否有备案  如果有备案放入redis数据库中
-            #     if info['params']['total'] != 0:
-            #         # 有备案直接放入redis 没有过滤
-            #         redis_cli.sadd(f'ym_data_{self.filter["id"]}',json.dumps(ym_data))
-            #         log.info(f'插入购买查询队列中 {ym_data}')
-            #         pass
-            #     ym_dict = {'beian': info, 'ym': ym_data['ym']}
-            #     sql = build_insert_sql(ym_dict,'ym_domain_detail')
-            #     cur.execute(sql)
-            #     conn.commit()
-            #
-            # else:
-            #     if is_have['beian'] == None:
-            #         info = beian.beian_info(ym_data['ym'])
-            #         # 查询库中是否存在 不存在插入 存在更新
-            #         if info == None:
-            #             task_queue.put(ym_data)
-            #             continue
-            #
-            #         # 判断是否有备案  如果有备案放入redis数据库中
-            #         if info['params']['total'] != 0:
-            #             redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-            #             log.info(f'插入购买查询队列中 {ym_data}')
-            #         update_sql = "update ym_domain_detail set beian='%s' where id=%s"%(json.dumps(info),is_have['id'])
-            #         cur.execute(update_sql)
-            #         conn.commit()
-
-
-                # elif is_have['beian']['params']['total']!=0:
-                #     redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
 
     #过滤百度
     def baidu_worker(self):
+        baidu = BaiDu()
         while True:
             if task_queue.empty():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            log_queue.put(f'百度 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
-            if ym_data['bdsl'] > 0:
+
+            info = baidu.get_info(ym_data['ym'])
+            # 查询库中是否存在 不存在插入 存在更新
+            if info == None:
+                task_queue.put(ym_data)
+                continue
+
+
+            if info['sl'] > 0:
                 # 有直接放入redis 没有过滤
-                redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # log_queue.put(f'插入购买查询队列中 {ym_data}')
+                self.save_reids(ym_data, 'baidu', info)
+                log_queue.put(f'百度 查询剩余任务：{task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+            else:
+                log_queue.put(f'百度 查询剩余任务：{task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+
 
     # 过滤搜狗
     def sogou_worker(self):
+        sogou_obj = GetSougouRecord()
         while True:
             if task_queue.empty():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            log_queue.put(f'搜狗 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
-            if ym_data['sgsl'] > 0:
-                # 有备案直接放入redis 没有过滤
-                redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # log_queue.put(f'插入购买查询队列中 {ym_data["ym"]}')
+
+            info = sogou_obj.get_info(ym_data['ym'])
+            # 查询库中是否存在 不存在插入 存在更新
+            if info == None:
+                task_queue.put(ym_data)
+                continue
+
+            if info['sl'] > 0:
+                # 有直接放入redis 没有过滤
+                self.save_reids(ym_data, 'sogou', info)
+                log_queue.put(f'搜狗 查询剩余任务：{task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+            else:
+                log_queue.put(f'搜狗 查询剩余任务：{task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
     # 过滤360
     def so_worker(self):
+        so_obj = SoCom([1,2],'是','泛')
         while True:
             if task_queue.empty():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            log_queue.put(f'360 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
-            if ym_data['sosl'] > 0:
-                # 有备案直接放入redis 没有过滤
-                redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # log_queue.put(f'插入购买查询队列中 {ym_data}')
+            info = so_obj.get_info(ym_data['ym'])
+            # 查询库中是否存在 不存在插入 存在更新
+            if info == None:
+                task_queue.put(ym_data)
+                continue
+            if info['sl'] > 0:
+                # 有直接放入redis 没有过滤
+                self.save_reids(ym_data, 'so', info)
+                log_queue.put(f'360 查询剩余任务：{task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+            else:
+                log_queue.put(f'360 查询剩余任务：{task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
     # 过滤历史
     def history_worker(self):
+        history_obj = GetHistory()
         while True:
             if task_queue.empty():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
             log_queue.put(f'历史 查询剩余任务：{task_queue.qsize()} 当前数据:{ym_data["ym"]}')
-            if ym_data['jzls'] > 0:
-                redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # log_queue.put(f'插入购买查询队列中 {ym_data}')
+            history_info = history_obj.get_history(ym_data)
+            try:
+                if int(history_info['count']) > 0 :
+                    # 有直接放入redis 没有过滤
+                    self.save_reids(ym_data, 'history', history_info)
+                    log_queue.put(f'历史 查询剩余任务：{task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                else:
+                    # 有直接放入redis 没有过滤
+                    log_queue.put(f'历史 查询剩余任务：{task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
+            except Exception as e:
+                # 有直接放入redis 没有过滤
+                log_queue.put(f'历史 查询剩余任务：{task_queue.qsize()}  过滤域名 {ym_data["ym"]} 错误:{e}')
 
     #直接放入查询队列中
     def wu_work(self):
@@ -271,9 +328,11 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = task_queue.get()
-            if ym_data['jj'] != '':
-                redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
-                # log_queue.put(f'插入购买查询队列中 {ym_data}')
+            if ym_data['zcs'] != '':
+                self.save_reids(ym_data, 'zcs', ym_data['zcs'])
+                log_queue.put(f'注册商 查询剩余任务：{task_queue.qsize()}  插入购买查询队列中 {ym_data}')
+            else:
+                log_queue.put(f'注册商 查询剩余任务：{task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
     #主程序
     def index(self):
@@ -293,6 +352,7 @@ class SearchYmAndFilter():
         ############################################################################
         thread_list = []
         for i in range(self.filter['task_num']):
+        # for i in range(1):
             if self.filter['main_filter'] == '备案':
                 thread_list.append(threading.Thread(target=self.beian_worker))
 
@@ -324,6 +384,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     jkt_id = sys.argv[1]
-    # jkt_id = 43
+    # jkt_id = 44
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()
