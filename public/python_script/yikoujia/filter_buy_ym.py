@@ -241,8 +241,8 @@ class FilterYm():
             return True
         except Exception as e:
             domain['cause'] = str(e)
-            log_queue.put(e)
-            return False
+            log_queue.put(f'过滤备案错误：{e}')
+            return e
 
     # 对比敏感词
     def check_mingan(self, history_data):
@@ -321,7 +321,10 @@ class FilterYm():
                     self.save_out_data(domain_data)
                     continue
                 log_queue.put(f'剩余任务:{work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
-
+            except Exception as error:
+                log_queue.put(f'对比金额错误： {error}')
+                continue
+            try:
                 # 对比历史
                 if self.filter_dict.get('history'):
                     is_ok = self.get_history_comp(domain_data)  # 返回失败信息
@@ -329,7 +332,10 @@ class FilterYm():
                         log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
                         self.save_out_data(domain_data)
                         continue
-
+            except Exception as error:
+                log_queue.put(f'对比历史错误： {error}')
+                continue
+            try:
                 # 备案
                 if self.filter_dict.get('beian'):
                     is_ok = self.comp_beian(domain_data, beian)
@@ -337,7 +343,10 @@ class FilterYm():
                         self.save_out_data(domain_data)
                         log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
                         continue
-
+            except Exception as error:
+                log_queue.put(f'对比备案错误： {error}')
+                continue
+            try:
                 # 搜狗
                 if self.filter_dict.get('sogou'):
                     if domain_data.get('sogou'):
@@ -349,14 +358,20 @@ class FilterYm():
                     if is_ok != True:
                         log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
-
+            except Exception as error:
+                log_queue.put(f'对比搜狗错误： {error}')
+                continue
+            try:
                 # 注册商
                 if self.filter_dict.get('zcs'):
                     if self.ckeck_zhuceshang(domain_data) != True:
                         self.save_out_data(domain_data)
                         log_queue.put({'ym': domain_data['ym'], 'cause': '注册商包含非法字符串'})
                         continue
-
+            except Exception as error:
+                log_queue.put(f'对比注册商错误： {error}')
+                continue
+            try:
                 # # 360
                 if self.filter_dict.get('so'):
                     if domain_data.get('so'):
@@ -372,7 +387,10 @@ class FilterYm():
                         self.save_out_data(domain_data)
                         log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
-
+            except Exception as error:
+                log_queue.put(f'对比360错误： {error}')
+                continue
+            try:
                 # 百度
                 if self.filter_dict.get('baidu'):
                     if domain_data.get('baidu'):
@@ -388,7 +406,10 @@ class FilterYm():
                         self.save_out_data(domain_data)
                         log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
-
+            except Exception as error:
+                log_queue.put(f'对比360百度错误： {error}')
+                continue
+            try:
                 # 最后判断是否被墙 如果被墙不买
                 if self.filter_data['is_buy_qiang'] == 0:
                     r = self.qiang.get_qiang_data(domain_data['ym'])
@@ -440,7 +461,7 @@ class FilterYm():
                     self.save_buy_ym(domain_data)
             except Exception as error:
                 time.sleep(2)
-                log_queue.put(f'错误信息：{error}')
+                log_queue.put(f'判断被墙错误：{error}')
 
     def index(self):
         # 启动获取数据线程
