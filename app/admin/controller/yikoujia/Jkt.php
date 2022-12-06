@@ -453,12 +453,6 @@ class Jkt extends AdminController
             $row ->save(['spider_status'=>0,'p_id'=>null]);
             //删除之前数据 重新运行
             $this->redis->delete('ym_data_'.$id);
-            //删除支线购买的数据
-            $all_zhi = $this->filter_model->where('main_filter_id','=',$id)->select()->toArray();
-            foreach ($all_zhi as $item){
-                $this->buy_model->where('buy_filter_id','=',$item['id'])->delete();
-            }
-
             start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
             $this->success('主线成功运行');
         }else{
@@ -555,4 +549,13 @@ class Jkt extends AdminController
 
     }
 
+    /**
+     *@NodeAnotation(title="日志")
+     */
+    public function delete_buy_list($id,$type){
+        $this->buy_model->where('id','=',$id)->delete();
+        $this->success('清除成功');
+
+
+    }
 }

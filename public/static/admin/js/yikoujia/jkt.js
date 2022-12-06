@@ -73,7 +73,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务1', templet: function (d) {
                             if (d.zhixian[0]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[0].id + '">' + d.zhixian[0]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[0].id + '">' + d.zhixian[0]['title'] + '</button>'
                             }
                             return ''
                         }
@@ -82,7 +82,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务2', templet: function (d) {
                             if (d.zhixian[1]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[1].id + '">' + d.zhixian[1]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[1].id + '">' + d.zhixian[1]['title'] + '</button>'
                             }
                             return ''
                         }
@@ -90,7 +90,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务3', templet: function (d) {
                             if (d.zhixian[2]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[2].id + '">' + d.zhixian[2]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[2].id + '">' + d.zhixian[2]['title'] + '</button>'
                             }
                             return ''
                         }
@@ -98,7 +98,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务4', templet: function (d) {
                             if (d.zhixian[3]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[3].id + '">' + d.zhixian[3]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[3].id + '">' + d.zhixian[3]['title'] + '</button>'
 
                             }
                             return ''
@@ -107,7 +107,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务5', templet: function (d) {
                             if (d.zhixian[4]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[4].id + '">' + d.zhixian[4]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[4].id + '">' + d.zhixian[4]['title'] + '</button>'
 
                             }
                             return ''
@@ -116,7 +116,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务6', templet: function (d) {
                             if (d.zhixian[5]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[5].id + '">' + d.zhixian[5]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[5].id + '">' + d.zhixian[5]['title'] + '</button>'
 
                             }
                             return ''
@@ -125,7 +125,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务7', templet: function (d) {
                             if (d.zhixian[6]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[6].id + '">' + d.zhixian[6]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[6].id + '">' + d.zhixian[6]['title'] + '</button>'
 
                             }
                             return ''
@@ -134,7 +134,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务8', templet: function (d) {
                             if (d.zhixian[7]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[7].id + '">' + d.zhixian[7]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[7].id + '">' + d.zhixian[7]['title'] + '</button>'
 
                             }
                             return ''
@@ -143,7 +143,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {
                         field: 'zhi',width:100, title: '支线任务9', templet: function (d) {
                             if (d.zhixian[8]) {
-                                return '<button style="width: 70px" data-full="false" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[8].id + '">' + d.zhixian[8]['title'] + '</button>'
+                                return '<button style="width: 70px" data-full="true" class="layui-btn layui-btn-xs" data-open="yikoujia.jkt/show_zhi?id=' + d.zhixian[8].id + '">' + d.zhixian[8]['title'] + '</button>'
 
                             }
                             return ''
@@ -257,7 +257,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
 
-                    {align: 'center', toolbar: '#barDemo7', title: '操作',width:240},
+                    {align: 'center', toolbar: '#barDemo7', title: '操作',width:380},
                 ]],
                 data: [JSON.parse($('#filter_data').val())]
             });
@@ -315,8 +315,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }
                         })
                     });
+                }else if (obj.event === 'del_list') {
+                    layer.confirm('是否要清空列表中数据~ ', function (index) {
+                        ea.request.get({
+                            url:'delete_buy_list?type=zhi&id='+data['id']
+                        },function (resp) {
+                            layer.msg('清除成功~',{icon: 1})
 
-
+                        })
+                    });
                 }
 
             });
