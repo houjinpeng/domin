@@ -164,17 +164,15 @@ class SearchYmAndFilter():
                     log_queue.put(f'开始查询列表第{i}页')
                     self.data['page'] = i
                     info = jm_api.get_ykj_list(self.data)
-                    #修改总数
-                    if ggg == False:
-                        conn = db_pool.connection()
-                        cur = conn.cursor()
-                        update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (info['count'],self.filter['id'])
-                        cur.execute(update_sql)
-                        conn.commit()
-                        cur.close()
-                        conn.close()
-                        ggg = True
-                        log_queue.put(f'查询总数：{info["count"]}')
+                    # 修改总数
+                    conn = db_pool.connection()
+                    cur = conn.cursor()
+                    update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (info['count'],self.filter['id'])
+                    cur.execute(update_sql)
+                    conn.commit()
+                    cur.close()
+                    conn.close()
+                    # log_queue.put(f'查询总数：{info["count"]}')
 
                     self.parse_info(info)
                     if info['data'] == []:
@@ -182,6 +180,17 @@ class SearchYmAndFilter():
             else:
                 self.data['page'] = 1
                 info = jm_api.get_ykj_list(self.data)
+
+                # 修改总数
+                conn = db_pool.connection()
+                cur = conn.cursor()
+                update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (
+                info['count'], self.filter['id'])
+                cur.execute(update_sql)
+                conn.commit()
+                cur.close()
+                conn.close()
+
                 self.parse_info(info)
 
             log_queue.put('本次查询任务结束')
