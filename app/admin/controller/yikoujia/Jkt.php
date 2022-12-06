@@ -553,7 +553,7 @@ class Jkt extends AdminController
      *@NodeAnotation(title="日志")
      */
     public function delete_buy_list($id,$type){
-        $this->buy_model->where('id','=',$id)->delete();
+        $this->buy_model->where('buy_filter_id','=',$id)->delete();
         $this->success('清除成功');
 
 
