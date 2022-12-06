@@ -169,7 +169,7 @@ class Jkt extends AdminController
             $data = [];
             //备案
             if ($post['is_com_beian'] == '1') {
-                if (!$post['beian_suffix'] || !$post['beian_pcts'] || !$post['beian_xz']) {
+                if (!$post['beian_suffix'] || !$post['beian_pcts']) {
                     $this->error('请完善备案信息~');
                 }
 
