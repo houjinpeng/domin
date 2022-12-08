@@ -1,4 +1,5 @@
-
+import faulthandler
+faulthandler.enable()
 import time
 import base64
 from io import BytesIO
@@ -21,6 +22,7 @@ class BeiAn():
         self.set_proxies()
         self.token = ''
 
+
     def set_proxies(self):
 
         ip = redis_cli.rpop('beian_ip')
@@ -29,7 +31,6 @@ class BeiAn():
             time.sleep(5)
             return self.set_proxies()
 
-        self.s = requests.session()
         self.proxies = {
             'http': f'http://{ip.decode()}',
             'https': f'http://{ip.decode()}',
@@ -65,7 +66,7 @@ class BeiAn():
     def get_cookie(self):
         url = "https://beian.miit.gov.cn/"
         headers = {
-            'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
+            # 'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
         }
         try:
             response = self.s.get(url, proxies=self.proxies,headers=headers,timeout=8)
@@ -204,15 +205,15 @@ class BeiAn():
 
     def beian_info(self,domain):
         self.s = requests.session()
-        cookie_r = self.get_cookie()
+        self.get_cookie()
         r = self.get_token()
-        self.token = json.loads(r.text)['params']['bussiness']
-        fg, bg, uuid = self.get_img(self.token)
+        token = json.loads(r.text)['params']['bussiness']
+        fg, bg, uuid = self.get_img(token)
         distance = self.get_distance(fg, bg)
-        param = self.check_img(self.token, uuid, distance)
+        param = self.check_img(token, uuid, distance)
         if param == None:
             return None
-        result = self.get_detail_data(param, self.token, uuid,domain)
+        result = self.get_detail_data(param, token, uuid,domain)
         return result
 
 

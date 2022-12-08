@@ -268,7 +268,14 @@ class BaiDu():
 
 if __name__ == '__main__':
 
-    d = BaiDu('>=1','0','是','0')
-    data = d.get_info('avensupercar.com')
-    result = d.check_baidu(data,'avensupercar.com')
+    d = BaiDu([0,0],kuaizhao_time='0',lang_chinese='是',min_gan_word='0')
+    data1 = d.get_info('maiyuan.online')
+    result1 = d.check_baidu(data1,'maiyuan.online')
+    print('=='*10)
+    print(result1)
+    data = d.get_info('nihao.com')
+    result = d.check_baidu(data,'nihao.com')
     print(result)
+    data2 = d.get_info('baidu.com')
+    result2 = d.check_baidu(data2, 'baidu.com')
+    print(result2)

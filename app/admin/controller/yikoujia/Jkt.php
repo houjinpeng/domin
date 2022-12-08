@@ -454,16 +454,16 @@ class Jkt extends AdminController
             $row ->save(['spider_status'=>0,'p_id'=>null]);
             //删除之前数据 重新运行
             $this->redis->delete('ym_data_'.$id);
-            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
-            $this->success('主线成功运行');
+//            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
+            $this->success('主线等待运行中~');
         }else{
             //查询进程号
             $row = $this->filter_model->find($id);
             empty($row) && $this->error('没有该数据 无法重启~');
             $row ->save(['spider_status'=>0,'pid'=>null]);
 
-            start_task('./python_script/yikoujia/filter_buy_ym.py',$id);
-            $this->success('成功运行');
+//            start_task('./python_script/yikoujia/filter_buy_ym.py',$id);
+            $this->success('支线等待运行中~');
         }
 
 

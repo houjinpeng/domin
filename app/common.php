@@ -23,7 +23,9 @@ if (!function_exists('kill_task')) {
     function kill_task($id): string
     {
         //liunx
-        exec('kill -9 '.$id);
+        //exec('kill -9 '.$id);
+        //        win
+        exec('taskkill -f -pid ' . $id);
         return 1;
     }
 }
