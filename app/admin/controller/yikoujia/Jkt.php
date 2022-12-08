@@ -399,6 +399,7 @@ class Jkt extends AdminController
     public function show_zhi($id)
     {
        $row = $this->filter_model->find($id);
+       $row = $this->filter_model->where('main_filter_id','=',$row['main_filter_id'])->select()->toArray();
        $this->assign('row',json_encode($row));
        return $this->fetch();
     }

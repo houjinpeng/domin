@@ -259,7 +259,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                     {align: 'center', toolbar: '#barDemo7', title: '操作',width:380},
                 ]],
-                data: [JSON.parse($('#filter_data').val())]
+                data: JSON.parse($('#filter_data').val())
             });
 
 

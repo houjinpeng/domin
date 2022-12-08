@@ -18,10 +18,8 @@ redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 class BeiAn():
     def __init__(self):
         self.url = 'https://hlwicpfwc.miit.gov.cn/icpproject_query/api/icpAbbreviateInfo/queryByCondition'
-        self.domain = ''
         self.set_proxies()
         self.token = ''
-
 
     def set_proxies(self):
 
@@ -72,7 +70,8 @@ class BeiAn():
         try:
             response = self.s.get(url, proxies=self.proxies,headers=headers,timeout=8)
         except Exception as e:
-            return None
+            self.set_proxies()
+            return self.get_cookie()
         return response
 
     def get_token(self):
@@ -100,10 +99,9 @@ class BeiAn():
         data = f'authKey={m.hexdigest()}&timeStamp={int((time.time() * 1000))}'
         r = self.request_handler(auth_url,data,headers)
         if r == None:
-            # self.set_proxies()
+            self.set_proxies()
             # return self.beian_info(self.domain)
-            # return self.get_token()
-            return None
+            return self.get_token()
         # logger.info('获取token成功  获取验证码图片 ')
         return r
 
@@ -132,8 +130,7 @@ class BeiAn():
         img_resp = self.request_handler(img_url,data='',headers=headers)
         if img_resp == None:
             self.set_proxies()
-            self.token = ''
-            return None,None,None
+            return self.get_img(token)
         # logger.info("验证码获取成功  破解中···")
         img_data = json.loads(img_resp.text)
         big_img = img_data['params']['bigImage']
@@ -167,7 +164,7 @@ class BeiAn():
 
         data = {"key": uuid, "value": f"{distance}"}
         r = self.request_handler(check_url,data,headers,type='json')
-        if r ==None:
+        if r == None:
             return None
         # logger.info('破解成功')
         result = json.loads(r.text)
@@ -206,38 +203,18 @@ class BeiAn():
         return data
 
     def beian_info(self,domain):
-        for i in range(20):
-            if self.token == '':
-                self.domain = domain
-                cookie_r = self.get_cookie()
+        self.s = requests.session()
+        cookie_r = self.get_cookie()
+        r = self.get_token()
+        self.token = json.loads(r.text)['params']['bussiness']
+        fg, bg, uuid = self.get_img(self.token)
+        distance = self.get_distance(fg, bg)
+        param = self.check_img(self.token, uuid, distance)
+        if param == None:
+            return None
+        result = self.get_detail_data(param, self.token, uuid,domain)
+        return result
 
-                if cookie_r == None:
-                    self.token = ''
-                    self.set_proxies()
-                    continue
-
-                r = self.get_token()
-                if r == None:
-                    self.set_proxies()
-                    self.token = ''
-                    continue
-
-                self.token = json.loads(r.text)['params']['bussiness']
-
-            fg, bg, uuid = self.get_img(self.token)
-            if fg == None:
-                self.set_proxies()
-                self.token = ''
-                continue
-            distance = self.get_distance(fg, bg)
-            param = self.check_img(self.token, uuid, distance)
-            if param == None:
-                self.set_proxies()
-                self.token = ''
-                continue
-            return self.get_detail_data(param, self.token, uuid,domain)
-
-        return None
 
 if __name__ == '__main__':
     data = BeiAn().beian_info('sdfs123adssdsda.com')
