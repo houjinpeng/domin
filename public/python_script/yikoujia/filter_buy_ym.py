@@ -495,8 +495,8 @@ class FilterYm():
             so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
 
 
-        # for i in range(self.main_filter['task_num']):
-        for i in range(1):
+        for i in range(self.main_filter['task_num']):
+        # for i in range(1):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
 
