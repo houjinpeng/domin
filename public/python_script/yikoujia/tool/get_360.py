@@ -152,7 +152,7 @@ class SoCom():
         except Exception as e:
             pass
         #判断是否有风险
-        if self.fengxian == '否':
+        if self.fengxian == '0':
             if '因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏' in html:
                 return '360 因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏'
 

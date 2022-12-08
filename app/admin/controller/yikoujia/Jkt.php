@@ -88,7 +88,7 @@ class Jkt extends AdminController
             //保存控制台数据   关联
             $save = $this->model->insertGetId($post);
             //启动任务
-            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$save);
+//            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$save);
 //            $out = exec('nohup python3 ./python_script/yikoujia/search_ym_list_and_filter.py '.$save.' > ./python_script/nohup.log 2>&1 &');
             $save ? $this->success('保存成功') : $this->error('保存失败');
 

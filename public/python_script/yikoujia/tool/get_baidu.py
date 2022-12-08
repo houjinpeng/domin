@@ -184,7 +184,7 @@ class BaiDu():
 
 
         #判断是否有敏感词
-        if self.min_gan_word == '是':
+        if self.min_gan_word == '1':
             title_list = []
             for d in h3_list:
                 try:
@@ -209,7 +209,7 @@ class BaiDu():
                 pass
 
         #判断url中是否包含中文
-        if self.lang_chinese == '是':
+        if self.lang_chinese == '1':
             # if check_contain_chinese(''.join(url_list)) != '中文':
             if check_contain_chinese(url_list) == False:
                 return '百度 url中没有中文'
@@ -269,13 +269,15 @@ class BaiDu():
 if __name__ == '__main__':
 
     d = BaiDu([0,0],kuaizhao_time='0',lang_chinese='是',min_gan_word='0')
-    data1 = d.get_info('maiyuan.online')
-    result1 = d.check_baidu(data1,'maiyuan.online')
-    print('=='*10)
+    data1 = d.get_info('aishangiu.cn')
+    result1 = d.check_baidu(data1,'aishangiu.cn')
     print(result1)
-    data = d.get_info('nihao.com')
-    result = d.check_baidu(data,'nihao.com')
-    print(result)
-    data2 = d.get_info('baidu.com')
-    result2 = d.check_baidu(data2, 'baidu.com')
-    print(result2)
+    print('=='*10)
+
+
+    # data = d.get_info('nihao.com')
+    # result = d.check_baidu(data,'nihao.com')
+    # print(result)
+    # data2 = d.get_info('baidu.com')
+    # result2 = d.check_baidu(data2, 'baidu.com')
+    # print(result2)
