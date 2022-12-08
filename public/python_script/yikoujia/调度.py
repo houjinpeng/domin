@@ -36,7 +36,7 @@ def scheduler():
         #启动进程
         for filter in all_filter:
             #修改为进行中
-            search_obj = SearchYmAndFilter(filter)
+            search_obj = SearchYmAndFilter(filter['id'])
             process_task = Process(target=search_obj.index,args=())
             #设置安全进程   主线退出后 子线程也退出
             process_task.daemon = True
@@ -47,7 +47,7 @@ def scheduler():
         cur.execute(zhi_sql)
         all_zhi = cur.fetchall()
         for zhi in all_zhi:
-            filter_obj = FilterYm(zhi)
+            filter_obj = FilterYm(zhi['id'])
             process_task = Process(target=filter_obj.index)
             # 设置安全进程   主线退出后 子线程也退出
             process_task.daemon = True
