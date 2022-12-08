@@ -446,7 +446,8 @@ class Jkt extends AdminController
             empty($row) && $this->error('没有该数据 无法重启~');
             //查询主线是否在运行
 
-            $out = exec('ps -p '.$row['p_id']);
+//            $out = exec('ps -p '.$row['p_id']);
+            $out = exec('tasklist | findstr '.$row['p_id']);
             //如果程序不存在  爬虫程序为进行中  报错程序异常
             if (strstr($out,$row['p_id'])){
                 $this->error('请先停止主线任务后重启~');
@@ -510,7 +511,8 @@ class Jkt extends AdminController
             $row = $this->model->find($id);
             empty($row)&& $this->error('没有要找的任务呀~');
             $pid = $row['p_id'];
-            $out = exec('ps -p '.$pid);
+//            $out = exec('ps -p '.$pid);
+            $out = exec('tasklist | findstr '.$pid);
 
             //如果程序不存在  爬虫程序为进行中  报错程序异常
             if (!strstr($out,$pid)){

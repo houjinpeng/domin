@@ -40,7 +40,7 @@ def scheduler():
             process_task = Process(target=search_obj.index,args=())
             #设置安全进程   主线退出后 子线程也退出
             process_task.daemon = True
-            process_task.start()
+            process_task.run()
 
         #监控子条件 并购买
         zhi_sql = 'select * from ym_yikoujia_buy_filter where spider_status=0'
@@ -51,7 +51,7 @@ def scheduler():
             process_task = Process(target=filter_obj.index)
             # 设置安全进程   主线退出后 子线程也退出
             process_task.daemon = True
-            process_task.start()
+            process_task.run()
 
 
         time.sleep(3)

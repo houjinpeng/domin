@@ -20,8 +20,10 @@ class BeiAn():
     def __init__(self):
         self.url = 'https://hlwicpfwc.miit.gov.cn/icpproject_query/api/icpAbbreviateInfo/queryByCondition'
         self.set_proxies()
+        self.can = False
         self.token = ''
-
+        self.param = ''
+        self.uuid = ''
 
     def set_proxies(self):
 
@@ -204,18 +206,30 @@ class BeiAn():
         return data
 
     def beian_info(self,domain):
-        self.s = requests.session()
-        self.get_cookie()
-        r = self.get_token()
-        token = json.loads(r.text)['params']['bussiness']
-        fg, bg, uuid = self.get_img(token)
-        distance = self.get_distance(fg, bg)
-        param = self.check_img(token, uuid, distance)
-        if param == None:
-            return None
-        result = self.get_detail_data(param, token, uuid,domain)
-        return result
-
+        if self.can == False:
+            self.s = requests.session()
+            self.get_cookie()
+            r = self.get_token()
+            token = json.loads(r.text)['params']['bussiness']
+            fg, bg, uuid = self.get_img(token)
+            distance = self.get_distance(fg, bg)
+            param = self.check_img(token, uuid, distance)
+            if param == None:
+                return None
+            result = self.get_detail_data(param, token, uuid,domain)
+            self.can =True
+            self.token=token
+            self.uuid = uuid
+            self.param = param
+            return result
+        else:
+            result = self.get_detail_data(self.param, self.token, self.uuid, domain)
+            if result == None:
+                self.can = False
+                self.token = ''
+                self.uuid = ''
+                self.param = ''
+            return result
 
 if __name__ == '__main__':
     data = BeiAn().beian_info('sdfs123adssdsda.com')
