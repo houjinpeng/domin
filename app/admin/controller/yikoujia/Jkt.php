@@ -136,6 +136,8 @@ class Jkt extends AdminController
      * @NodeAnotation(title="查看符合列表")
      */
     public function show_fuhe_list($id){
+        ini_set ("memory_limit","-1");
+        ini_set('max_execution_time', '0');//执行时间
         $row = $this->redis->sMembers('ym_data_'.$id);
         foreach($row as &$tiem){
             $tiem =json_decode($tiem,true);
