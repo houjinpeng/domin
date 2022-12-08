@@ -231,6 +231,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 search: false,
                 toolbar: [],
                 cols: [[
+                    {field: 'id', title: 'ID'},
                     {field: 'title', title: '分支名称'},
                     {
                         field: 'fff', title: '分支配置', templet: function (d) {
