@@ -66,7 +66,26 @@ return [
             // 服务器地址
             'host'       => '127.0.0.1',
         ],
-
+        'mongo' => [
+            // 数据库类型
+            'type' => Env::get('mongo.type', 'mysql'),
+            // 服务器地址
+            'hostname' => Env::get('mongo.hostname', '127.0.0.1'),
+            // 数据库名
+            'database' => Env::get('mongo.database', 'easyadmin'),
+            // 用户名
+            'username' => Env::get('mongo.username', ''),
+            // 密码
+            'password' => Env::get('mongo.password', ''),
+            // 端口
+            'hostport' => Env::get('mongo.hostport', '27017'),
+            // 数据库连接参数
+            'params' => [],
+            // 数据库编码默认采用utf8
+            'charset' => Env::get('mongo.charset', 'uft8mb4'),
+            // 数据库表前缀
+            'prefix' => Env::get('mongo.prefix', '')
+        ],
 
     ],
 ];

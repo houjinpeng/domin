@@ -54,7 +54,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 // return '<i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常'
                                 return '<button class="layui-btn layui-btn-xs layui-btn-primary layui-border-red"><i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常</button>'
                             }else if (d.spider_status === 0) {
-                                return '<button class="layui-btn layui-btn-sm layui-btn-primary"><i class="layui-icon layui-icon-time" style="display: inline-block"></i>待运行</button>'
+                                return '<button class="layui-btn layui-btn-xs layui-btn-primary"><i class="layui-icon layui-icon-time" style="display: inline-block"></i>待运行</button>'
                             }
                         }},
                     {

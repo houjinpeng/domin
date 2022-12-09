@@ -37,10 +37,11 @@ def scheduler():
         for filter in all_filter:
             #修改为进行中
             search_obj = SearchYmAndFilter(filter['id'])
-            process_task = Process(target=search_obj.index,args=())
+            process_task = Process(target=search_obj.index)
             #设置安全进程   主线退出后 子线程也退出
-            process_task.daemon = True
-            process_task.run()
+            # process_task.daemon = True
+            print(f'主线  {filter["title"]} 开始运行')
+            process_task.start()
 
         #监控子条件 并购买
         zhi_sql = 'select * from ym_yikoujia_buy_filter where spider_status=0'
@@ -50,11 +51,11 @@ def scheduler():
             filter_obj = FilterYm(zhi['id'])
             process_task = Process(target=filter_obj.index)
             # 设置安全进程   主线退出后 子线程也退出
-            process_task.daemon = True
-            process_task.run()
+            # process_task.daemon = True
+            process_task.start()
+            print(f'支线  {zhi["title"]} 开始运行')
 
-
-        time.sleep(3)
+        time.sleep(10)
 
 
 if __name__ == '__main__':

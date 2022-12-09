@@ -43,9 +43,6 @@ class Jkt extends AdminController
         $this->account_pool_model = new YikoujiaAccountPool();
         $this->buy_model = new YikoujiaBuy();
         $this->logs_model = new YikouLogs();
-        $this->redis = new Redis();
-        $this->redis->connect('127.0.0.1',6379,15);
-        $this->redis->select(15);
     }
 
     /**
@@ -121,7 +118,8 @@ class Jkt extends AdminController
                     $item->update(['spider_status'=>3]);
                     kill_task($item['pid']);
                 }
-                $this->redis->delete('ym_data_'.$row['id']);//存在列表中域名
+                $row = Db::connect('mongo')
+                    ->table('ym_data_'.$id)->delete(true);
                 $save ? $this->success('保存完毕~成功停止所有程序') : $this->error('保存失败');
             }
             $this->error('没有修改任何数据~');
@@ -138,11 +136,8 @@ class Jkt extends AdminController
     public function show_fuhe_list($id){
         ini_set ("memory_limit","-1");
         ini_set('max_execution_time', '0');//执行时间
-        $row = $this->redis->sMembers('ym_data_'.$id);
-        foreach($row as &$tiem){
-            $tiem =json_decode($tiem,true);
-        }
-
+        $row = Db::connect('mongo')
+            ->table('ym_data_'.$id)->select()->toArray();
         $this->assign('row',$row);
         return $this->fetch();
 
@@ -348,8 +343,7 @@ class Jkt extends AdminController
             //判断是否修改了参数 如果修改直接停止
             if (json_encode($d) != json_encode($data) || $row['place_1'] != intval($post['place_1']) || $row['place_2'] != intval($post['place_2'])|| $row['is_buy']!= intval($post['is_buy']) || $row['is_buy_sh']!= intval($post['is_buy_sh'])){
                 $save_data['spider_status'] = 3;
-                //删除已过滤的数据//删除以判断过的域名
-                $this->redis->delete('out_ym_data_'.$row['id']);
+
                 //删除订单数据
                 $this->buy_model->where('buy_filter_id')->delete();
                 //停止程序
@@ -377,7 +371,8 @@ class Jkt extends AdminController
             foreach ($row as $v){
                 $v->delete();
                 //删除数据库数据 停止任务
-                $this->redis->delete('ym_data_'.$v['id']);
+                $row = Db::connect('mongo')
+                    ->table('ym_data_'.$id)->delete(true);
                 kill_task($v['p_id']);
             }
 
@@ -385,7 +380,7 @@ class Jkt extends AdminController
             $zhi_list  = $this->filter_model->where('main_filter_id', 'in', $id)->select()->toArray();
             foreach ($zhi_list as $index=>$item){
                 //删除支线数据
-                $this->filter_model->where('id', '=', $item['id'])->delete();
+                $this->filter_model->where('id', '=', $item['id'])->delete(true);
                 kill_task($item['pid']);
             }
         } catch (\Exception $e) {
@@ -449,14 +444,15 @@ class Jkt extends AdminController
             //查询主线是否在运行
 
 //            $out = exec('ps -p '.$row['p_id']);
-            $out = exec('tasklist | findstr '.$row['p_id']);
+            $out = exec('tasklist | findstr '.$row['p_id'],$rep);
             //如果程序不存在  爬虫程序为进行中  报错程序异常
             if (strstr($out,$row['p_id'])){
                 $this->error('请先停止主线任务后重启~');
             }
             $row ->save(['spider_status'=>0,'p_id'=>null]);
             //删除之前数据 重新运行
-            $this->redis->delete('ym_data_'.$id);
+            $row = Db::connect('mongo')
+                ->table('ym_data_'.$id)->delete(true);
 //            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
             $this->success('主线等待运行中~');
         }else{
@@ -514,8 +510,7 @@ class Jkt extends AdminController
             empty($row)&& $this->error('没有要找的任务呀~');
             $pid = $row['p_id'];
 //            $out = exec('ps -p '.$pid);
-            $out = exec('tasklist | findstr '.$pid);
-
+            $out = exec('tasklist | findstr '.$pid,$res);
             //如果程序不存在  爬虫程序为进行中  报错程序异常
             if (!strstr($out,$pid)){
                 if ($row['spider_status'] == 1){

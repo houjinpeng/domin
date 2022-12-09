@@ -3,6 +3,8 @@ import sys
 import time, datetime
 import json
 import threading, queue
+
+import pymongo
 from houhou.logger import Logger
 from tool.get_beian import BeiAn
 from tool.get_history import GetHistory
@@ -38,20 +40,8 @@ c.close()
 
 class FilterYm():
     def __init__(self, filter_id):
-        self.work_queue = queue.Queue()  # 工作队列
-        self.log_queue = queue.Queue()  # 日志队列
         self.filter_id = filter_id
-        self.main_filter = None
-        self.qiang = Qiang()
-        self.filter_data = self.get_filter_data(filter_id)
-        #启动日志队列
-        threading.Thread(target=self.save_logs).start()
-        # self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
-        self.filter_data['place_2'] = 9999999999 if self.filter_data['place_2'] == 0 else self.filter_data['place_2']
-        self.filter_dict = json.loads(self.filter_data['data'])
-        if self.filter_dict == []:
-            self.filter_dict = {}
-        self.ym_list = []
+
 
     # 获取id的那条数据
     def get_filter_data(self, id):
@@ -104,18 +94,17 @@ class FilterYm():
     def get_work_data(self):
         while True:
             # redis去重
-            all_data = redis_cli.sdiff(f'ym_data_{self.filter_data["main_filter_id"]}',f'out_ym_data_{self.filter_data["id"]}')
-            if len(all_data) == 0:
-                time.sleep(3)
-                continue
-            # 内存去重
+            all_data = self.mycol.find()
             new_data = []
             for data in all_data:
-                data = json.loads(data)
-                if data['ym'] not in self.ym_list:
-                    self.ym_list.append(data['ym'])
+                old_len = len(self.ym_set)
+                self.ym_set.add(data['ym'])
+                if old_len != len(self.ym_set):
                     new_data.append(data)
 
+            if new_data == []:
+                time.sleep(3)
+                continue
             # 判断是否检测历史
             if self.filter_dict.get('history'):
                 if new_data != []:
@@ -140,9 +129,10 @@ class FilterYm():
 
     # 保存过滤完毕的数据
     def save_out_data(self, domain_data):
-        if domain_data.get('token'):
-            del domain_data['token']
-        redis_cli.sadd(f'out_ym_data_{self.filter_data["id"]}', json.dumps(domain_data))
+        pass
+        # if domain_data.get('token'):
+        #     del domain_data['token']
+        # redis_cli.sadd(f'out_ym_data_{self.filter_data["id"]}', json.dumps(domain_data))
 
     # 保存需要购买的域名
     def save_buy_ym(self, domain_data):
@@ -463,6 +453,29 @@ class FilterYm():
                 self.log_queue.put(f'判断被墙错误：{error}')
 
     def index(self):
+        #初始化
+        self.myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+        self.mydb = self.myclient["domain"]
+
+        self.work_queue = queue.Queue()  # 工作队列
+        self.log_queue = queue.Queue()  # 日志队列
+
+        self.main_filter = None
+        self.qiang = Qiang()
+        self.filter_data = self.get_filter_data(self.filter_id)
+        # 主线的mongo库
+        self.mycol = self.mydb[f"ym_data_{self.filter_data['main_filter_id']}"]
+        # self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
+        self.filter_data['place_2'] = 9999999999 if self.filter_data['place_2'] == 0 else self.filter_data['place_2']
+        self.filter_dict = json.loads(self.filter_data['data'])
+        if self.filter_dict == []:
+            self.filter_dict = {}
+        self.ym_set = set()
+
+
+
+        # 启动日志队列
+        threading.Thread(target=self.save_logs).start()
         # 启动获取数据线程
         self.log_queue.put(f'任务进程号：{os.getpid()}')
         # 修改状态 进行中

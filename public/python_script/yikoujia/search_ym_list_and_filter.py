@@ -10,34 +10,20 @@ import sys
 import threading,queue
 from tool.get_beian import BeiAn
 from houhou.sql_handler import *
-import redis
 from tool.jmApi import JmApi
 from tool.get_baidu import BaiDu
 from tool.get_sogou import GetSougouRecord
 from tool.get_360 import SoCom
 from tool.get_history import GetHistory
-jm_api = JmApi()
-db_pool = PooledDB(**mysql_pool_conf)
-
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
-
+import pymongo
 
 class SearchYmAndFilter():
     def __init__(self,filter_id):
         self.filter_id = filter_id
-        self.filter = self.get_filter_data(filter_id)
-        self.p_id = None
-        self.data = self.build_search_data()
-        self.ym_list = []
-        self.log_queue = queue.Queue()  # 日志队列
-        self.task_queue = queue.Queue()
-        # 启动日志队列
-        threading.Thread(target=self.save_logs).start()
-        # 保存过滤完毕的数据
 
     #日志任务
     def save_logs(self):
-        conn = db_pool.connection()
+        conn = self.db_pool.connection()
         cur = conn.cursor()
         while True:
             if self.log_queue.empty():
@@ -50,7 +36,7 @@ class SearchYmAndFilter():
 
     #获取id的那条数据
     def get_filter_data(self,id):
-        conn = db_pool.connection()
+        conn =self.db_pool.connection()
         cur = conn.cursor()
         select_sql = "select * from ym_yikoujia_jkt where  id=%s"%id
         cur.execute(select_sql)
@@ -59,7 +45,7 @@ class SearchYmAndFilter():
 
 
     def update_spider_status(self,table, spider_id, update_status):
-        conn = db_pool.connection()
+        conn = self.db_pool.connection()
         cur = conn.cursor()
         up_date_sql = "update %s set spider_status= %s ,p_id=%s where id=%s" % (table, update_status, self.p_id,spider_id)
         cur.execute(up_date_sql)
@@ -67,19 +53,6 @@ class SearchYmAndFilter():
         cur.close()
         conn.close()
 
-    #查询域名是否存在
-    def check_domain_is_in_databases(self,ym):
-        conn = db_pool.connection()
-        cur = conn.cursor()
-        sql = 'select * from ym_domain_detail where ym="%s"'%(ym)
-        cur.execute(sql)
-        data = cur.fetchone()
-        cur.close()
-        conn.close()
-        if data == None:
-            return False
-        else:
-            return data
 
     #构建查询参数
     def build_search_data(self):
@@ -135,13 +108,14 @@ class SearchYmAndFilter():
     #解析数据
     def parse_info(self,resp):
 
-
         all_data = resp['data']
-        # 内存去重
+        # 内存去重 set
         new_data = []
         for data in all_data:
-            if data['ym'] not in self.ym_list:
-                self.ym_list.append(data['ym'])
+
+            lens = len(self.ym_set)
+            self.ym_set.add(data['ym'])
+            if len(self.ym_set) != lens:
                 new_data.append(data)
 
         # 判断是否检测历史
@@ -156,9 +130,8 @@ class SearchYmAndFilter():
 
     #线程获取列表
     def get_list(self):
-        ggg = False
         onece = True
-        conn = db_pool.connection()
+        conn = self.db_pool.connection()
         cur = conn.cursor()
         while True:
             if onece:
@@ -166,7 +139,7 @@ class SearchYmAndFilter():
                 for i in range(1, 1000000):
                     self.log_queue.put(f'开始查询列表第{i}页')
                     self.data['page'] = i
-                    info = jm_api.get_ykj_list(self.data)
+                    info = self.jm_api.get_ykj_list(self.data)
                     # 修改总数
                     update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (info['count'],self.filter['id'])
                     cur.execute(update_sql)
@@ -177,7 +150,7 @@ class SearchYmAndFilter():
                         break
             else:
                 self.data['page'] = 1
-                info = jm_api.get_ykj_list(self.data)
+                info = self.jm_api.get_ykj_list(self.data)
 
                 # 修改总数
                 update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (
@@ -191,16 +164,27 @@ class SearchYmAndFilter():
             self.log_queue.put('本次查询任务结束')
             time.sleep(3)
 
-    #保存到对应的redis里面
-    def save_reids(self,ym_data,key,value):
-        data = {
-            'ym':ym_data['ym'],
-            'jg':ym_data['jg'],
-            'zcs':ym_data['zcs'],
-            'token':ym_data.get('token'),
-            key:value
-        }
-        redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(data))
+
+    def save_mysql(self, ym_data, key, value):
+        # save_conn = self.db_pool.connection()
+        # save_cur = save_conn.cursor()
+        try:
+            data = {
+                'ym': ym_data['ym'],
+                'jg': ym_data['jg'],
+                'zcs': ym_data['zcs'],
+                'token': ym_data.get('token'),
+                key: value
+            }
+
+            self.mycol.insert_one(data)
+            # sql = "insert into ym_domain_detail (ym,`data`,`filter_type`,filter_id) VALUES ('%s','%s','%s','%s')"%(data['ym'],escape_string(json.dumps(data)),0,self.filter_id)
+            # save_cur.execute(sql)
+            # save_conn.commit()
+
+        except Exception as error:
+            print(error)
+
 
     #过滤备案
     def beian_worker(self):
@@ -220,12 +204,13 @@ class SearchYmAndFilter():
 
             # 判断是否有备案  如果有备案放入redis数据库中
             if info['params']['total'] != 0:
-                self.save_reids(ym_data,'beian',info)
+                self.save_mysql(ym_data,'beian',info)
                 # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
                 self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
             else:
                 # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
                 self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
+
     #过滤百度
     def baidu_worker(self):
         baidu = BaiDu()
@@ -241,10 +226,10 @@ class SearchYmAndFilter():
                 self.task_queue.put(ym_data)
                 continue
 
-
-            if info['sl'] > 0:
+            print(f'剩余任务：{self.task_queue.qsize()} 查询完毕：{ym_data["ym"]}')
+            if int(info['sl']) > 0:
                 # 有直接放入redis 没有过滤
-                self.save_reids(ym_data, 'baidu', info)
+                self.save_mysql(ym_data, 'baidu', info)
                 self.log_queue.put(f'百度 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
                 self.log_queue.put(f'百度 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
@@ -267,7 +252,7 @@ class SearchYmAndFilter():
 
             if info['sl'] > 0:
                 # 有直接放入redis 没有过滤
-                self.save_reids(ym_data, 'sogou', info)
+                self.save_mysql(ym_data, 'sogou', info)
                 self.log_queue.put(f'搜狗 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
                 self.log_queue.put(f'搜狗 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
@@ -287,7 +272,7 @@ class SearchYmAndFilter():
                 continue
             if info['sl'] > 0:
                 # 有直接放入redis 没有过滤
-                self.save_reids(ym_data, 'so', info)
+                self.save_mysql(ym_data, 'so', info)
                 self.log_queue.put(f'360 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
                 self.log_queue.put(f'360 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
@@ -305,7 +290,7 @@ class SearchYmAndFilter():
             try:
                 if int(history_info['count']) > 0 :
                     # 有直接放入redis 没有过滤
-                    self.save_reids(ym_data, 'history', history_info)
+                    self.save_mysql(ym_data, 'history', history_info)
                     self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
                 else:
                     # 有直接放入redis 没有过滤
@@ -322,7 +307,7 @@ class SearchYmAndFilter():
                 continue
             ym_data = self.task_queue.get()
             self.log_queue.put(f'查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
-            redis_cli.sadd(f'ym_data_{self.filter["id"]}', json.dumps(ym_data))
+            self.save_mysql(ym_data, 'wu', 'wu')
             # self.log_queue.put(f'插入购买查询队列中 {ym_data}')
 
     #注册商
@@ -333,13 +318,26 @@ class SearchYmAndFilter():
                 continue
             ym_data = self.task_queue.get()
             if ym_data['zcs'] != '':
-                self.save_reids(ym_data, 'zcs', ym_data['zcs'])
+                self.save_mysql(ym_data, 'zcs', ym_data['zcs'])
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
             else:
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
     #主程序
     def index(self):
+        self.db_pool = PooledDB(**mysql_pool_conf)
+        self.myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+        self.mydb = self.myclient["domain"]
+        self.jm_api = JmApi()
+        self.filter = self.get_filter_data(self.filter_id)
+        self.p_id = None
+        self.data = self.build_search_data()
+        self.ym_set = set()
+        self.log_queue = queue.Queue()  # 日志队列
+        self.task_queue = queue.Queue()
+        self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
+        # # 启动日志队列
+        threading.Thread(target=self.save_logs).start()
         self.p_id = os.getpid()
         self.log_queue.put(f'任务进程号：{self.p_id}')
         self.log_queue.put(f'查询表单：{self.data}')
@@ -356,7 +354,7 @@ class SearchYmAndFilter():
         ############################################################################
         thread_list = []
         # for i in range(self.filter['task_num']):
-        for i in range(100):
+        for i in range(1):
             if self.filter['main_filter'] == '备案':
                 thread_list.append(threading.Thread(target=self.beian_worker))
 
@@ -386,6 +384,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 42
+    jkt_id = 45
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

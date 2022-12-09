@@ -1,5 +1,6 @@
 # encoding:utf-8
 import copy
+import re
 import time
 import requests
 from lxml import etree
@@ -7,8 +8,6 @@ from queue import Queue
 import threading
 from urllib.parse import urlparse
 import redis
-
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
 
 #检测是否是中文
@@ -44,9 +43,11 @@ def sensitive():
 
 
 words = sensitive()
-
+redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 class BaiDu():
     def __init__(self,baidu_record=[0,0],kuaizhao_time='',lang_chinese='',min_gan_word=''):
+
+
         self.proxies = self.get_proxy()
         self.s = requests.session()
         self.baidu_record = baidu_record
@@ -131,7 +132,7 @@ class BaiDu():
             response.encoding = 'utf-8'
             if '百度安全验证' in response.text:
                 self.get_proxy()
-                # log.logger.error(f'出现百度安全验证 更换代理 {self.proxies}')
+                print(f'出现百度安全验证 更换代理 {self.proxies}')
                 return self.requests_handler(url1,True)
             elif response.text.strip()=='':
                 return None
@@ -176,7 +177,7 @@ class BaiDu():
         # 数据量
         h3_list = html.xpath('//div[@class="result c-container xpath-log new-pmd"]')
 
-        record_count = len(h3_list)
+        record_count = r['sl']
 
         # 判断收录数 最小值小于 实际过滤
         if self.baidu_record_min > int(record_count) or int(record_count) > self.baidu_record_max:
@@ -203,8 +204,8 @@ class BaiDu():
         for d in h3_list:
             try:
                 source_url = d.xpath('.//span[@class="c-color-gray"]//text()')[0]
-                if source_url.find('/') == -1:
-                    url_list.append(source_url)
+                # if source_url.find('/') == -1:
+                url_list.append(source_url)
             except Exception as error:
                 pass
 
@@ -260,17 +261,21 @@ class BaiDu():
         html = etree.HTML(r.text)
         # 数据量
         h3_list = html.xpath('//div[@class="result c-container xpath-log new-pmd"]')
-        record_count = len(h3_list)
+        try:
+            record_count = int(re.findall('找到相关结果数约(.*?)个',r.text)[0].replace(',',''))
+        except Exception as error:
+            record_count = 0
         if html == None:
             return None
-        data = {'sl':record_count,'html':r.text}
+        html = etree.tostring(html.xpath('//div[@id="container"]')[0],encoding='utf-8')
+        data = {'sl':record_count,'html':html.decode()}
         return data
 
 if __name__ == '__main__':
 
-    d = BaiDu([0,0],kuaizhao_time='0',lang_chinese='是',min_gan_word='0')
-    data1 = d.get_info('aishangiu.cn')
-    result1 = d.check_baidu(data1,'aishangiu.cn')
+    d = BaiDu([0,0],kuaizhao_time='0',lang_chinese='1',min_gan_word='0')
+    data1 = d.get_info('qxngzc.com')
+    result1 = d.check_baidu(data1,'qxngzc.com')
     print(result1)
     print('=='*10)
 

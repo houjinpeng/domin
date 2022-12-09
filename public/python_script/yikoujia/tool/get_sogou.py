@@ -103,6 +103,17 @@ class GetSougouRecord():
         try:
             # 查询收录数
             record = re.findall('搜狗已为您找到约(.*?)条相关结果', r.text)[0].replace(',', '')
+            # 查询
+            e = etree.HTML(r.text)
+            all_domain = e.xpath('//div[contains(@class,"citeurl")]')
+            fuhe_count = 0
+            for domain_obj in all_domain:
+                if domain in ''.join(domain_obj.xpath('.//text()')):
+                    fuhe_count += 1
+
+            if fuhe_count < 5:
+                record = fuhe_count
+
             return {'sl':int(record),'html':r.text}
         except Exception as error:
             print(error)
