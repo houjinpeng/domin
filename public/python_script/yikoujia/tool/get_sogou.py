@@ -67,7 +67,7 @@ class GetSougouRecord():
             is_kuaizhao = False
         try:
             # 查询收录数
-            record = re.findall('搜狗已为您找到约(.*?)条相关结果',data['html'])[0].replace(',', '')
+            record = re.findall('搜狗已为您找到约(.*?)条相关结果',html)[0].replace(',', '')
             if record == '0':
                 return '搜狗没有收录'
             # 查询
@@ -102,7 +102,10 @@ class GetSougouRecord():
         r = self.request_hearders(url)
         try:
             # 查询收录数
-            record = re.findall('搜狗已为您找到约(.*?)条相关结果', r.text)[0].replace(',', '')
+            try:
+                record = re.findall('搜狗已为您找到约(.*?)条相关结果', r.text)[0].replace(',', '')
+            except Exception as error:
+                record = 0
             # 查询
             e = etree.HTML(r.text)
             all_domain = e.xpath('//div[contains(@class,"citeurl")]')

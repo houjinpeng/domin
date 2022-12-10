@@ -73,7 +73,15 @@
                     </select>
                 </div>
             </div>
-
+            <div class="layui-inline">
+                <label class="layui-form-label">没有建站历史是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_history" lay-verify="required">
+                        <option value="0" {if $row['is_buy_history'] == 0} selected {/if} >否</option>
+                        <option value="1" {if $row['is_buy_history'] == 1} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
 

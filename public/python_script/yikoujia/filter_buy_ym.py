@@ -296,6 +296,7 @@ class FilterYm():
 
     # 对比worker
     def work(self, beian=None, baidu=None, sogou=None, so=None):
+        qiang = Qiang()
         while True:
             if self.work_queue.empty():
                 time.sleep(3)
@@ -401,7 +402,7 @@ class FilterYm():
             try:
                 # 最后判断是否被墙 如果被墙不买
                 if self.filter_data['is_buy_qiang'] == 0:
-                    r = self.qiang.get_qiang_data(domain_data['ym'])
+                    r = qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
@@ -411,7 +412,7 @@ class FilterYm():
                         continue
 
                 if self.filter_data['is_buy_wx'] == 0:
-                    r = self.qiang.get_wx_data(domain_data['ym'])
+                    r = qiang.get_wx_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
@@ -421,7 +422,7 @@ class FilterYm():
                         continue
 
                 if self.filter_data['is_buy_qq'] == 0:
-                    r = self.qiang.get_qq_data(domain_data['ym'])
+                    r = qiang.get_qq_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
@@ -431,7 +432,7 @@ class FilterYm():
                         continue
 
                 if self.filter_data['is_buy_beian'] == 0:
-                    r = self.qiang.get_qiang_data(domain_data['ym'])
+                    r = qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
@@ -461,7 +462,7 @@ class FilterYm():
         self.log_queue = queue.Queue()  # 日志队列
 
         self.main_filter = None
-        self.qiang = Qiang()
+
         self.filter_data = self.get_filter_data(self.filter_id)
         # 主线的mongo库
         self.mycol = self.mydb[f"ym_data_{self.filter_data['main_filter_id']}"]
@@ -508,8 +509,8 @@ class FilterYm():
             so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
 
 
-        for i in range(self.main_filter['task_num']):
-        # for i in range(1):
+        # for i in range(self.main_filter['task_num']):
+        for i in range(1):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
 
@@ -521,5 +522,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 40
+    jkt_id = 41
     filter = FilterYm(jkt_id).index()

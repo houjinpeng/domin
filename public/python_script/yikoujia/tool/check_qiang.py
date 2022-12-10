@@ -3,6 +3,8 @@ import re
 import requests
 from dbutils.pooled_db import PooledDB
 import pymysql
+from longin import Login
+
 mysql_pool_conf = {
     'host': 'localhost',
     'port': 3306,
@@ -14,30 +16,45 @@ mysql_pool_conf = {
 }
 
 db_pool = PooledDB(**mysql_pool_conf)
-conn = db_pool.connection()
-cur = conn.cursor()
 
-cur.execute("select * from ym_system_config where `name`='ip'")
-ip_data = cur.fetchone()
-ip = ip_data['value']
-cur.close()
-conn.close()
 
-dt_proxies = {
-            "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-        }
+
 class Qiang():
     def __init__(self):
         self.url = 'https://www.juming.com/hao/'
-        self.cookie = 'PHPSESSID=d48sbdruv2vc1nps8kls7qe152;'
         self.key = ''
+
+    def get_cookie(self):
+        conn = db_pool.connection()
+        cur = conn.cursor()
+        cur.execute("select * from ym_domain_config")
+        data = cur.fetchone()
+        username = data['username']
+        password = data['password']
+        cookie = data['cookie']
+        cur.close()
+        conn.close()
+        #如果cookie为空 重新登陆
+        if cookie == '':
+            session,msg,cookie = Login().login(username,password)
+            self.set_cookie(cookie)
+        return cookie
+
+    def set_cookie(self,cookie):
+        conn = db_pool.connection()
+        cur = conn.cursor()
+        cur.execute("update ym_domain_config set cookie='%s'"%(cookie) )
+        conn.commit()
+        cur.close()
+        conn.close()
+
+
 
     def request_handler(self, url,count=0):
         try:
 
             headers = {
-                "cookie":self.cookie ,
+                "cookie":self.get_cookie() ,
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "accept-encoding": "gzip, deflate, br",
                 "accept-language": "zh-CN,zh;q=0.9",
@@ -67,15 +84,16 @@ class Qiang():
         try:
             url = 'https://www.juming.com/hao/'+domain
 
-            token = requests.get(f'http://{ip}:5001/get_token').json()
+            token = requests.get(f'http://127.0.0.1:5001/get_token').json()
 
             data = {
                 'token':token['token'],
                 'sid':token['session'],
                 'sig':token["auth"],
             }
+            cookie = self.get_cookie()
             headers = {
-                "cookie": self.cookie,
+                "cookie": cookie,
                 "accept": "application/json, text/javascript, */*; q=0.01",
                 "accept-encoding": "gzip, deflate, br",
                 "accept-language": "zh-CN,zh;q=0.9",
@@ -97,7 +115,8 @@ class Qiang():
             r = requests.post(url,data=data,headers=headers,timeout=3)
             if r.json()['code'] == 1:
                 ct = r.cookies._cookies['www.juming.com']['/']['ct'].value
-                self.cookie = f'{self.cookie.split(";")[0]};ct={ct}'
+                cookie = f'{cookie.split(";")[0]};ct={ct}'
+                self.set_cookie(cookie)
             else:
                 return self.verify_code(domain)
 
@@ -144,7 +163,7 @@ class Qiang():
             return None
         elif resp_data.json()['code'] == -1:
             self.get_token(domain)
-            return self.get_qiang_data(domain)
+            return self.get_wx_data(domain)
 
         return resp_data.json()
 
@@ -160,7 +179,7 @@ class Qiang():
             return None
         elif resp_data.json()['code'] == -1:
             self.get_token(domain)
-            return self.get_qiang_data(domain)
+            return self.get_qq_data(domain)
 
         return resp_data.json()
 
@@ -176,19 +195,40 @@ class Qiang():
             return None
         elif resp_data.json()['code'] == -1:
             self.get_token(domain)
-            return self.get_qiang_data(domain)
+            return self.get_beian_hmd_data(domain)
+
+        return resp_data.json()
+
+    #检测是否有建站记录
+    def get_beian_data(self,domain):
+        if self.key == '':
+            self.get_token(domain)
+            return self.get_beian_data(domain)
+        qiang_url = f'https://www.juming.com/hao/cha_d?do=beian&ym={domain}&key={self.key}'
+        resp_data = self.request_handler(qiang_url)
+
+        if resp_data == None:
+            return None
+
+        #请求异常 重新登陆
+        elif resp_data.json()['code'] == -1:
+            self.set_cookie('')
+            self.get_token(domain)
+            return self.get_beian_data(domain)
 
         return resp_data.json()
 
 if __name__ == '__main__':
     q = Qiang()
 
-    ym_list = ['nihao.com','baidu.com','maiyuan.com','jding.com','haha.com']
+    ym_list = ['nihaaaaaaaaaao.com','baidu.com','maiyuan.com','jding.com','haha.com']
     for ym in ym_list:
-        print(ym)
-        print(q.get_qiang_data(ym))
-        print(q.get_wx_data(ym))
-        print(q.get_qq_data(ym))
-        print(q.get_beian_hmd_data(ym))
+        # print(ym)
+        # print(q.get_qiang_data(ym))
+        # print(q.get_wx_data(ym))
+        # print(q.get_qq_data(ym))
+        # print(q.get_beian_hmd_data(ym))
+        print(q.get_beian_data(ym))
+
         print('=='*20)
 

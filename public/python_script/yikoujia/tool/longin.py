@@ -60,7 +60,7 @@ class Login():
             m1.update((m.hexdigest()[0:19]).encode())
             password_md5 = m1.hexdigest()[0:19]
             try:
-                token_dict = requests.get(f'http://{config.get("OTHER","ip")}:5001/get_token').json()
+                token_dict = requests.get(f'http://127.0.0.1:5001/get_token').json()
                 token = token_dict['token']
                 sid = token_dict['session']
                 sig = token_dict['auth']

@@ -229,7 +229,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 elem: '#show_zhi',
 
                 search: false,
-                toolbar: [],
+                toolbar: '#toolbarDemo',
                 cols: [[
                     {field: 'id', title: 'ID'},
                     {field: 'title', title: '分支名称'},
@@ -265,7 +265,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 data: JSON.parse($('#filter_data').val())
             });
 
-
+            //头部触发事件
+            table.on('toolbar(show_zhi)', function(obj){
+                var checkStatus = table.checkStatus(obj.config.id);
+                switch(obj.event){
+                    case 'refresh':
+                        location.reload()
+                };
+            });
             //触发事件
             table.on('tool(show_zhi)', function (obj) {
                 let data = obj.data

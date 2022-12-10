@@ -163,6 +163,8 @@ class Jkt extends AdminController
             $save_data['is_buy_wx'] = $post['is_buy_wx'];
             $save_data['is_buy_qq'] = $post['is_buy_qq'];
             $save_data['is_buy_beian'] = $post['is_buy_beian'];
+            $save_data['is_buy_history'] = $post['is_buy_history'];
+
             $data = [];
             //备案
             if ($post['is_com_beian'] == '1') {
@@ -241,7 +243,7 @@ class Jkt extends AdminController
 //            $out = exec('nohup python3 ./python_script/yikoujia/filter_buy_ym.py '.$filter_insert_id.' > ./python_script/nohup.log 2>&1 &');
             start_task('./python_script/yikoujia/filter_buy_ym.py',$filter_insert_id);
 
-            $filter_insert_id ? $this->success('保存成功 任务已启动') : $this->error('保存失败');
+            $filter_insert_id ? $this->success('保存成功 等待程序启动吧~') : $this->error('保存失败');
 
         }
 
@@ -269,6 +271,7 @@ class Jkt extends AdminController
             $save_data['is_buy_wx'] = $post['is_buy_wx'];
             $save_data['is_buy_qq'] = $post['is_buy_qq'];
             $save_data['is_buy_beian'] = $post['is_buy_beian'];
+            $save_data['is_buy_history'] = $post['is_buy_history'];
             $data = [];
             //备案
             if ($post['is_com_beian'] == '1') {
@@ -345,9 +348,9 @@ class Jkt extends AdminController
                 $save_data['spider_status'] = 3;
 
                 //删除订单数据
-                $this->buy_model->where('buy_filter_id')->delete();
+                $this->buy_model->where('buy_filter_id','=',$id)->delete();
                 //停止程序
-                $this->stop_task($row['pid']);
+                kill_task($row['pid']);
             }
             $save = $this->filter_model->json(['data'])->where('id',$id)->update($save_data);
             $save ? $this->success('保存成功') : $this->error('保存失败');

@@ -177,7 +177,7 @@ class BaiDu():
         # 数据量
         h3_list = html.xpath('//div[@class="result c-container xpath-log new-pmd"]')
 
-        record_count = r['sl']
+        record_count = len(h3_list)
 
         # 判断收录数 最小值小于 实际过滤
         if self.baidu_record_min > int(record_count) or int(record_count) > self.baidu_record_max:

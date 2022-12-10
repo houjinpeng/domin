@@ -68,11 +68,11 @@ return [
         ],
         'mongo' => [
             // 数据库类型
-            'type' => Env::get('mongo.type', 'mysql'),
+            'type' => Env::get('mongo.type', 'mongo'),
             // 服务器地址
             'hostname' => Env::get('mongo.hostname', '127.0.0.1'),
             // 数据库名
-            'database' => Env::get('mongo.database', 'easyadmin'),
+            'database' => Env::get('mongo.database', 'domain'),
             // 用户名
             'username' => Env::get('mongo.username', ''),
             // 密码
