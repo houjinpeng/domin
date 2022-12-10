@@ -31,7 +31,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.table.render({
                 init: init,
                 height: 'full-40',
-                limit:50,
+                limit:500,
                 limits:[50,100,200,500],
                 toolbar:['refresh','export',[{
                     text: '重置本月匹配失败数据',

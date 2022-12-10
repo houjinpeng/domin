@@ -44,7 +44,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">域名包含</label>
             <div class="layui-input-block">
-                <input type="text" value="$row.jm_gjz_cha}" name="jm_gjz_cha" required placeholder="请输入域名"
+                <input type="text" value="{$row.jm_gjz_cha}" name="jm_gjz_cha" required placeholder="请输入域名"
                        autocomplete="off" class="layui-input">
                 <tip>多个逗号分割</tip>
             </div>
@@ -52,7 +52,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">域名后缀</label>
             <div class="layui-input-block">
-                <input type="text" value="{$row.jm_ymhz}" name="jm_ymhz" required lay-verify="required"
+                <input type="text" value="{$row.jm_ymhz}" name="jm_ymhz"
                        placeholder="请输入域名后缀"
                        autocomplete="off" class="layui-input">
                 <tip>多个逗号分割</tip>
