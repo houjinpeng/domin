@@ -454,8 +454,8 @@ class Jkt extends AdminController
             }
             $row ->save(['spider_status'=>0,'p_id'=>null]);
             //删除之前数据 重新运行
-            $row = Db::connect('mongo')
-                ->table('ym_data_'.$id)->delete(true);
+//            $row = Db::connect('mongo')
+//                ->table('ym_data_'.$id)->delete(true);
 //            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
             $this->success('主线等待运行中~');
         }else{
@@ -553,11 +553,17 @@ class Jkt extends AdminController
     }
 
     /**
-     *@NodeAnotation(title="日志")
+     *@NodeAnotation(title="删除购买域名")
      */
     public function delete_buy_list($id,$type){
-        $this->buy_model->where('buy_filter_id','=',$id)->delete();
-        $this->success('清除成功');
+        if($type == 'zhi'){
+            $this->buy_model->where('buy_filter_id','=',$id)->delete();
+            $this->success('清除成功');
+        }else{
+            $row = Db::connect('mongo') ->table('ym_data_'.$id)->delete(true);
+            $this->success('清除成功');
+        }
+
 
 
     }

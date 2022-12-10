@@ -11,6 +11,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         stop_task_url: 'yikoujia.jkt/stop_task',
         show_buy_ym_url: 'yikoujia.jkt/show_buy_ym',
         show_zhi: 'yikoujia.jkt/show_zhi',
+        delete_buy_list_list: 'yikoujia.jkt/delete_buy_list?type=main',
     };
 
     var fuhe_init = {
@@ -153,7 +154,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     },
                     {
                         fixed: 'right',
-                        width: 380,
+                        width: 450,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [[{
@@ -196,6 +197,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             text: '删除',
                             title:'删除前请确认所有任务已停止！！！<br>不可逆谨慎操作！',
                             url: init.delete_url,
+                            method: 'request',
+                            auth: 'delete',
+                            class: 'layui-btn  layui-btn-xs layui-btn-danger',
+                        },{
+                            text: '清空列表',
+                            title:'是否要清除筛选列表~不可逆谨慎操作！',
+                            url: init.delete_buy_list_list,
                             method: 'request',
                             auth: 'delete',
                             class: 'layui-btn  layui-btn-xs layui-btn-danger',

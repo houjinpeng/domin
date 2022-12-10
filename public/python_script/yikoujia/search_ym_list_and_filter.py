@@ -20,6 +20,7 @@ import pymongo
 class SearchYmAndFilter():
     def __init__(self,filter_id):
         self.filter_id = filter_id
+        self.ym_set = set()
 
     #日志任务
     def save_logs(self):
@@ -112,7 +113,6 @@ class SearchYmAndFilter():
         # 内存去重 set
         new_data = []
         for data in all_data:
-
             lens = len(self.ym_set)
             self.ym_set.add(data['ym'])
             if len(self.ym_set) != lens:
@@ -332,10 +332,16 @@ class SearchYmAndFilter():
         self.filter = self.get_filter_data(self.filter_id)
         self.p_id = None
         self.data = self.build_search_data()
-        self.ym_set = set()
         self.log_queue = queue.Queue()  # 日志队列
         self.task_queue = queue.Queue()
         self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
+
+        all_data  = self.mycol.find()
+        for data in all_data:
+            self.ym_set.add(data['ym'])
+        del all_data
+
+
         # # 启动日志队列
         threading.Thread(target=self.save_logs).start()
         self.p_id = os.getpid()
