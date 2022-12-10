@@ -1,3 +1,0 @@
-python ./index.py
-
-pause

@@ -343,7 +343,10 @@ class FilterYm():
                         data = domain_data.get('sogou')
                     else:
                         data = sogou.get_info(domain_data['ym'])
-
+                    if data == None:
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'搜狗获取错误重新获取')
+                        continue
                     is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'])
                     if is_ok != True:
                         self.log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
@@ -368,7 +371,10 @@ class FilterYm():
                         data = domain_data.get('so')
                     else:
                         data = so.get_info(domain_data['ym'])
-
+                    if data == None:
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'360获取错误重新获取')
+                        continue
                     is_ok = so.check_360(data['html'],domain_data['ym'])
                     if is_ok == '请求失败':
                         self.work_queue.put(domain_data)
@@ -387,7 +393,10 @@ class FilterYm():
                         data = domain_data.get('baidu')
                     else:
                         data = baidu.get_info(domain_data['ym'])
-
+                    if data == None:
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'百度获取错误重新获取')
+                        continue
                     is_ok = baidu.check_baidu(data, domain_data['ym'])
                     if is_ok == '请求失败':
                         self.work_queue.put(domain_data)
@@ -518,7 +527,7 @@ class FilterYm():
 
 
         # for i in range(self.main_filter['task_num']):
-        for i in range(1):
+        for i in range(100):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
 
