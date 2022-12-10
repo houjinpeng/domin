@@ -441,7 +441,15 @@ class FilterYm():
                         self.log_queue.put({'ym': domain_data['ym'],  'cause': '备案'+r['msg']})
                         continue
 
-
+                if self.filter_data['is_buy_history'] == 0:
+                    r = qiang.get_beian_data(domain_data['ym'])
+                    if r == None:
+                        self.save_out_data(domain_data)
+                        continue
+                    if r['msg'] == '未备案':
+                        self.save_out_data(domain_data)
+                        self.log_queue.put({'ym': domain_data['ym'], 'cause': '备案:' + r['msg']})
+                        continue
                 self.log_queue.put({'ym': domain_data['ym'], 'cause': '需要购买'})
 
                 #判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
