@@ -1,0 +1,1 @@
+python3 D:\wwwroot\mydomain\public\python_script\yikoujia\text.py

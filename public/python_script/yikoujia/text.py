@@ -1,4 +1,5 @@
 import time
+print(1)
 while True:
     print(1)
     with open('aa.txt','a',encoding='utf-8') as fw:
