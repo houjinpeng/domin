@@ -112,26 +112,28 @@ if __name__ == '__main__':
         # 'gjz_cha': 'qhdxinbei.com'
 
     }
-    params ={
-        # 'ym': ['youyozi.cn'],
-        'do': 'baidufl',
-        'beian_ym':urllib.parse.quote('baidu_com')
-    }
+#     params ={
+#         # 'ym': ['youyozi.cn'],
+#         'do': 'baidufl',
+#         'beian_ym':urllib.parse.quote('baidu_com')
+#     }
 
     # response = requests.post('http://newp.juming.com:9696/newapi/ykj_get_list', data=data)
-    response = requests.post('http://newp.juming.com:9696/hao/cha_d',params=params)
-    print(response.json())
+#     response = requests.post('http://newp.juming.com:9696/hao/cha_d',params=params)
+#     print(response.json())
     #
     # print(data)
 
-    # jm_api = JmApi()
-    #
-    # # store_info = jm_api.get_store_info('41000')
-    # data = {
-    #     'psize': '50',
-    #         # 'bqjc': 99,#被墙检测
-    #         # 'jgpx': 41,#排序结果
-    #         # 'gjz_cha':'thecircLeofit.com'
-    #         }
-    # data_info = jm_api.get_ykj_list(data)
-    # print(data_info)
+    jm_api = JmApi()
+
+    # store_info = jm_api.get_store_info('41000')
+    data = {
+        'psize': '50',
+        'tao':'41000'
+            # 'bqjc': 99,#被墙检测
+            # 'jgpx': 41,#排序结果
+            # 'gjz_cha':'thecircLeofit.com'
+            }
+    data_info = jm_api.get_ykj_list(data)
+    for data in data_info['data']:
+        print(data)
