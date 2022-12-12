@@ -48,6 +48,9 @@ class Admin extends AdminController
      */
     public function index()
     {
+//        $out = shell_exec('python3 ./python_script/refresh_store_data.py '.join(',',$ids) .'  2>&1');
+//        $read= exec('./python_script/yikoujia/start.bat');
+//        dd($read);
         if ($this->request->isAjax()) {
             if (input('selectFields')) {
                 return $this->selectList();

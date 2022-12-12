@@ -307,7 +307,7 @@ class FilterYm():
             # 先判断价格是否合适
             try:
                 if self.filter_data['place_1'] > int(domain_data['jg']) or int(domain_data['jg']) > self.filter_data['place_2']:
-                    self.log_queue.put(f'购买金额不付 域名价格{domain_data["jg"]}')
+                    self.log_queue.put(f'购买金额不符 域名：{domain_data["ym"]}价格：{domain_data["jg"]}')
                     self.save_out_data(domain_data)
                     continue
                 self.log_queue.put(f'剩余任务:{self.work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
