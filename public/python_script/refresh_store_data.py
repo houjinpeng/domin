@@ -5,7 +5,7 @@ import requests
 from lxml import etree
 import json
 from pymysql.converters import escape_string
-from tool.jmApi import JmApi
+from jmApi import JmApi
 MYSQL_CONF = {
     'host': 'localhost',
     'port': 3306,
