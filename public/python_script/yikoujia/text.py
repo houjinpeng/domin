@@ -1,7 +1,9 @@
 import time
+import os
 print(1)
 while True:
     print(1)
     with open('aa.txt','a',encoding='utf-8') as fw:
-        fw.write('aa')
+        fw.write(str(os.getpid()))
+        fw.write('\n')
     time.sleep(2)

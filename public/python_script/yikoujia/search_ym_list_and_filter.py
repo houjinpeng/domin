@@ -1,6 +1,7 @@
 '''
 按条件搜索域名列表 并筛选数据
 '''
+import datetime
 import os
 import time
 from dbutils.pooled_db import PooledDB
@@ -24,16 +25,19 @@ class SearchYmAndFilter():
 
     #日志任务
     def save_logs(self):
-        conn = self.db_pool.connection()
-        cur = conn.cursor()
-        while True:
-            if self.log_queue.empty():
-                time.sleep(2)
-                continue
-            msg = self.log_queue.get()
-            insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')" % (1, self.filter_id, escape_string(str(msg)))
-            cur.execute(insert_sql)
-            conn.commit()
+        # conn = self.db_pool.connection()
+        # cur = conn.cursor()
+        with open(f'./logs/main_{self.filter_id}.log','a',encoding='utf-8') as fw:
+            while True:
+                if self.log_queue.empty():
+                    time.sleep(2)
+                    continue
+                msg = self.log_queue.get()
+                fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+
+                # insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')" % (1, self.filter_id, escape_string(str(msg)))
+                # cur.execute(insert_sql)
+                # conn.commit()
 
     #获取id的那条数据
     def get_filter_data(self,id):
@@ -161,7 +165,7 @@ class SearchYmAndFilter():
 
                 self.parse_info(info)
 
-            self.log_queue.put('本次查询任务结束')
+            # self.log_queue.put('本次查询任务结束')
             time.sleep(3)
 
 
@@ -194,22 +198,24 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
-            print(ym_data['ym'])
+            print(f'备案剩余任务：{self.task_queue.qsize()}')
             info = beian.beian_info(ym_data['ym'])
-            print(ym_data['ym'],'查询完毕')
+
             # 查询库中是否存在 不存在插入 存在更新
             if info == None:
                 self.task_queue.put(ym_data)
                 continue
-
-            # 判断是否有备案  如果有备案放入redis数据库中
-            if info['params']['total'] != 0:
-                self.save_mysql(ym_data,'beian',info)
-                # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-            else:
-                # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
+            try:
+                # 判断是否有备案  如果有备案放入redis数据库中
+                if info['params']['total'] != 0:
+                    self.save_mysql(ym_data,'beian',info)
+                    # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
+                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
+                else:
+                    # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
+                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
+            except Exception as error:
+                self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
 
     #过滤百度
     def baidu_worker(self):
@@ -219,14 +225,13 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
-
+            print(f'百度剩余任务：{self.task_queue.qsize()}')
             info = baidu.get_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
             if info == None:
                 self.task_queue.put(ym_data)
                 continue
 
-            print(f'剩余任务：{self.task_queue.qsize()} 查询完毕：{ym_data["ym"]}')
             if int(info['sl']) > 0:
                 # 有直接放入redis 没有过滤
                 self.save_mysql(ym_data, 'baidu', info)
@@ -243,6 +248,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
+            print(f'搜狗剩余任务：{self.task_queue.qsize()}')
 
             info = sogou_obj.get_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
@@ -265,6 +271,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
+            print(f'360剩余任务：{self.task_queue.qsize()}')
             info = so_obj.get_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
             if info == None:

@@ -147,16 +147,25 @@ class FilterYm():
 
 
     def save_logs(self):
-        conn = db_pool.connection()
-        cur = conn.cursor()
-        while True:
-            if self.log_queue.empty():
-                time.sleep(2)
-                continue
-            msg = self.log_queue.get()
-            insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')"%(2,self.filter_id,escape_string(str(msg)))
-            cur.execute(insert_sql)
-            conn.commit()
+
+        with open(f'./logs/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
+            while True:
+                if self.log_queue.empty():
+                    time.sleep(2)
+                    continue
+                msg = self.log_queue.get()
+                fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+
+        # conn = db_pool.connection()
+        # cur = conn.cursor()
+        # while True:
+        #     if self.log_queue.empty():
+        #         time.sleep(2)
+        #         continue
+        #     msg = self.log_queue.get()
+        #     insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')"%(2,self.filter_id,escape_string(str(msg)))
+        #     cur.execute(insert_sql)
+        #     conn.commit()
 
 
     # 购买域名的线程

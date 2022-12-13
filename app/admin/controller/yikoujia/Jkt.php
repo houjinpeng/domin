@@ -544,10 +544,48 @@ class Jkt extends AdminController
      *@NodeAnotation(title="日志")
      */
     public function logs($id,$type){
-        $where[] = ['type','=',$type];
-        $where[] = ['filter_id','=',$id];
-        $logs = $this->logs_model->where($where)->order('id','desc')->limit(300)->select();
-        $this->assign('logs',$logs);
+        if ($type == 1){
+            $file_name = 'main_'.$id.'.log';
+        }else{
+            $file_name = 'zhi_'.$id.'.log';
+        }
+        try {
+            $fp=fopen('./python_script/yikoujia/logs/'.$file_name,'r');
+
+
+        }catch (\Exception $e){
+            $this->assign('str', ["打开文件失败，请检查文件路径是否正确，路径和文件名不要包含中文"]);
+            return $this->fetch();
+        }
+
+        $pos=-2;
+        $eof="";
+        $str="";
+        $linesArr = array();
+        $n = 1000;
+        while($n>0){
+            while($eof!="\n"){
+                if(!fseek($fp,$pos,SEEK_END)){
+                    $eof=fgetc($fp);
+                    $pos--;
+                } else {
+                    break;
+                }
+            }
+            // $str.=fgets($fp);
+            $linesArr[] = fgets($fp);
+            $eof="";
+            $n--;
+        }
+
+
+        $linesArr = array_reverse($linesArr);
+        foreach ($linesArr as $one) {
+            $str .= $one;
+        }
+
+        $str = array_reverse(explode("\r\n",$str));
+        $this->assign('str',$str);
         return $this->fetch();
 
     }

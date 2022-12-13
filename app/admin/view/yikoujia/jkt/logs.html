@@ -5,11 +5,11 @@
 
         <div style="height: 600px" >
 
-            {foreach logs as $item}
-                {if strstr($item['msg'],'错误')}
-                    <font color="red">{$item['create_time']} - {$item['msg']}</font><br>
+            {foreach str as $item}
+                {if strstr($item,'错误')}
+                    <font color="red">{$item}</font><br>
                 {else}
-                    {$item['create_time']} - {$item['msg']}<br>
+                    {$item}<br>
                 {/if}
 
             {/foreach}
