@@ -421,6 +421,7 @@ class FilterYm():
                         continue
 
                 if self.filter_data['is_buy_wx'] == 0:
+                    self.log_queue.put(f"检测微信是否被墙 检测域名:{domain_data['ym']}")
                     r = qiang.get_wx_data(domain_data['ym'])
                     if r == None:
                         self.save_out_data(domain_data)
@@ -467,8 +468,7 @@ class FilterYm():
                 else:
                     self.save_buy_ym(domain_data)
             except Exception as error:
-                time.sleep(2)
-                self.log_queue.put(f'判断被墙错误：{error}')
+                self.log_queue.put(f'判断被墙错误：{error} 失败域名:{domain_data["ym"]}')
 
     def index(self):
         #初始化
@@ -539,5 +539,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 41
+    jkt_id = 42
     filter = FilterYm(jkt_id).index()
