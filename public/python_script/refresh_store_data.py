@@ -5,6 +5,7 @@ import requests
 from lxml import etree
 import json
 from pymysql.converters import escape_string
+from tool.jmApi import JmApi
 MYSQL_CONF = {
     'host': 'localhost',
     'port': 3306,
@@ -13,77 +14,30 @@ MYSQL_CONF = {
     'db': 'domain',
 }
 
+jm_api = JmApi()
 
-def request_handler(url,method='get',data=''):
-    try:
-        conn = pymysql.connect(**MYSQL_CONF)
-        cur = conn.cursor()
-        sql = 'select cookie from ym_domain_config'
-        cur.execute(sql)
-        cookie = cur.fetchone()
-        cur.close()
-        conn.close()
-        cookie = cookie[0]
-
-
-
-        if method == 'get':
-            headers = {
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                "accept-encoding": "gzip, deflate, br",
-                "accept-language": "zh-CN,zh;q=0.9",
-                "cache-control": "no-cache",
-                "cookie": cookie,
-                "pragma": "no-cache",
-                "referer": "http://domain.test/",
-                "sec-ch-ua-mobile": "?0",
-                "sec-fetch-dest": "document",
-                "sec-fetch-mode": "navigate",
-                "sec-fetch-site": "cross-site",
-                "sec-fetch-user": "?1",
-                "upgrade-insecure-requests": "1",
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-            }
-            resp = requests.get(url,headers=headers,timeout=10)
-            return resp.text
-        else:
-            headers = {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Accept-Encoding': 'gzip, deflate',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Cookie': cookie,
-                'Pragma': 'no-cache',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-            resp = requests.post(url, headers=headers, data=data, timeout=10).json()
-            if resp['code'] == -401:
-                return None
-            if resp['code'] != 1:
-                return None
-            return resp
-    except Exception as e:
-        return request_handler(url)
 
 #获取库存和销量
 def get_store_kc_sales(store_id):
-    url = f'http://{store_id}.jm.cn'
-    #         url = f'https://www.juming.com/{store_id}/'
-    html = request_handler(url)
-    e = etree.HTML(html)
+    #获取店铺详情
+    store_info = jm_api.get_store_info(store_id)
+    # 获取库存
+    search_data = {
+        'ymbhfs': 2,
+        'gjz_cha': store_id
+    }
+    kuncun = jm_api.get_ykj_list(data=search_data)
     try:
-        sales = e.xpath('//p[@class="mai-xy"]/a/text()')[0]
+        sales = store_info['data']['m_xinyong']
+        kuncun = kuncun['count']
     except Exception as error:
         # print(error)
         sales = 0
-    try:  # 库存
-        kucun = e.xpath('//div[@class="cha-list-title"]/strong/text()')[0]
-    except Exception:
-        kucun = 0
-    return sales,kucun
+        kuncun = 0
+
+
+
+    return sales,kuncun
 
 
 #构建数据库
@@ -135,30 +89,35 @@ def check_exits(ym_dict,cur):
 #获取店铺今日销量
 def get_store_today_sales(store_id):
     resp_data = f'zt=1&cjsj=1&ymbhfs=2&gjz_cha={store_id}&psize=500&page=1'
+    search_data = {
+        'zt': 1,
+        'cjsj': 7,  # 今本月数据
+        'psize': 1000,
+        'page': 1,
+        'gjz_cha': store_id,
+        'ymbhfs': 2
+    }
 
-    url = 'http://7a08c112cda6a063.juming.com:9696/ykj/get_list'
+    #获取今日成交数据
+    all_data = jm_api.get_ykj_cj_list(search_data)
 
-    resp = request_handler(url,method='post',data=resp_data)
-    if resp == None:
-        return None
-
-    e = etree.HTML(resp['html'])
-    all_data = e.xpath('//form[@id="listform"]/table//tr')
-
-    if len(all_data) <= 2:
+    if len(all_data) == 0:
         return True
     conn = pymysql.connect(**MYSQL_CONF)
     cur = conn.cursor()
-    for index, data in enumerate(all_data[::-1]):
+    for index, data in enumerate(all_data):
         try:
-            ym_dict = {}
-            ym_dict['ym'] = data.xpath('.//a//text()')[0]
-            ym_dict['len'] = len(ym_dict['ym'].split('.')[0])
-            ym_dict['jj'] = ''.join(data.xpath('.//span[@class="xtjj"]//text()'))
-            ym_dict['mj_jj'] = ''.join(data.xpath('.//span[@class="mrjj gray"]//text()'))
-            ym_dict['store_id_hide'] = ''.join(data.xpath('.//td[@class="gray"]//text()'))
-            ym_dict['fixture_date'] = ''.join(data.xpath('.//td')[4].xpath('.//text()'))
-            ym_dict['price'] = data.xpath('.//td')[5].xpath('.//text()')[0]
+            e = etree.HTML(data['jj'])
+            ym_dict = {
+                'ym': data['ym'],
+                'len': data['cd'],
+                'store_id_hide': data['sid'],
+                'store_id': data['sid'],
+                'fixture_date': data['cjsj'],
+                'price': data['jg'],
+                'jj': ''.join(e.xpath('.//text()')),
+                'mj_jj': data['ms'],
+            }
             # 检查是否存在
             if check_exits(ym_dict,cur) == True:
                 continue
