@@ -198,7 +198,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
-            print(f'备案剩余任务：{self.task_queue.qsize()}')
+            # print(f'备案剩余任务：{self.task_queue.qsize()}')
             info = beian.beian_info(ym_data['ym'])
 
             # 查询库中是否存在 不存在插入 存在更新
@@ -215,6 +215,7 @@ class SearchYmAndFilter():
                     # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
                     self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
             except Exception as error:
+                print(f'备案错误：{error}')
                 self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
 
     #过滤百度
@@ -225,7 +226,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
-            print(f'百度剩余任务：{self.task_queue.qsize()}')
+            # print(f'百度剩余任务：{self.task_queue.qsize()}')
             info = baidu.get_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
             if info == None:
@@ -248,7 +249,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
-            print(f'搜狗剩余任务：{self.task_queue.qsize()}')
+            # print(f'搜狗剩余任务：{self.task_queue.qsize()}')
 
             info = sogou_obj.get_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
@@ -271,7 +272,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
-            print(f'360剩余任务：{self.task_queue.qsize()}')
+            # print(f'360剩余任务：{self.task_queue.qsize()}')
             info = so_obj.get_info(ym_data['ym'])
             # 查询库中是否存在 不存在插入 存在更新
             if info == None:

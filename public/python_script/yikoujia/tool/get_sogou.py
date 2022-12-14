@@ -83,7 +83,9 @@ class GetSougouRecord():
                         for t in time_str.split(','):
                             if t in ''.join(domain_obj.xpath('.//text()')):
                                 is_kuaizhao = True
-
+            #如果小于5 使用页面出现的收录
+            if fuhe_count < 5:
+                record = fuhe_count
             if is_kuaizhao == False:
                 return '搜狗快照不符合'
 
