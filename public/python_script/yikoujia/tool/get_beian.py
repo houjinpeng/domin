@@ -49,10 +49,16 @@ class BeiAn():
                 data = json.loads(r.text)
             except Exception as e:
                 return None
-            if data['success'] == False:
+            if data['success'] == False and '频次过高' in data['msg']:
+                self.set_proxies()
+                return self.request_handler(url, data, headers, type)
+            elif data['success'] == False :
                 return None
             return r
         except Exception as e:
+            if 'timeout' in str(e):
+                self.set_proxies()
+                return self. request_handler(url,data,headers,type)
             return None
 
     def get_distance(self, fg, bg):
@@ -71,7 +77,7 @@ class BeiAn():
             # 'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
         }
         try:
-            response = self.s.get(url, proxies=self.proxies,headers=headers,timeout=8)
+            response = self.s.get(url, proxies=self.proxies,headers=headers,timeout=4)
         except Exception as e:
             self.set_proxies()
             return self.get_cookie()

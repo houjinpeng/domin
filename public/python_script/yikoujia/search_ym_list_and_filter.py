@@ -34,7 +34,7 @@ class SearchYmAndFilter():
                     continue
                 msg = self.log_queue.get()
                 fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
-
+                fw.flush()
                 # insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')" % (1, self.filter_id, escape_string(str(msg)))
                 # cur.execute(insert_sql)
                 # conn.commit()
@@ -398,6 +398,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 48
+    jkt_id = 47
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()
