@@ -520,7 +520,7 @@ class Jkt extends AdminController
                     $row->save(['spider_status'=>4]);
                     $this->error('程序异常~');
                 }
-                $this->error('程序未运行');
+                $this->error('程序未运行 '.$out);
             }
             $this->success('程序正在运行中~');
         }else{
