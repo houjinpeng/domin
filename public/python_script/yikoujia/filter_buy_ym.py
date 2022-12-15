@@ -95,15 +95,18 @@ class FilterYm():
     def get_work_data(self):
         while True:
             # redis去重
-            all_data = self.mycol.find()
+            all_data = self.mycol.find().limit(1000).skip(self.start_step)
+            self.start_step += 1000
             new_data = []
+            is_have = False
             for data in all_data:
-                self.start_step += 1
+                is_have =True
                 old_len = len(self.ym_set)
                 self.ym_set.add(data['ym'])
                 if old_len != len(self.ym_set):
                     new_data.append(data)
-
+            if is_have == False:
+                self.start_step -= 2000
             if new_data == []:
                 time.sleep(3)
                 continue
@@ -542,13 +545,13 @@ class FilterYm():
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
 
-        for t in thread_list:
-            t.start()
+        # for t in thread_list:
+        #     t.start()
 
 
 
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 42
+    jkt_id = 41
     filter = FilterYm(jkt_id).index()
