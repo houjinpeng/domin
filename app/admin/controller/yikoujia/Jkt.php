@@ -513,7 +513,7 @@ class Jkt extends AdminController
             empty($row)&& $this->error('没有要找的任务呀~');
             $pid = $row['p_id'];
 //            $out = exec('ps -p '.$pid);
-            $out = exec('tasklist | findstr '.$pid,$res);
+            $out = exec('tasklist | findstr '.$pid);
             //如果程序不存在  爬虫程序为进行中  报错程序异常
             if (!strstr($out,$pid)){
                 if ($row['spider_status'] == 1){

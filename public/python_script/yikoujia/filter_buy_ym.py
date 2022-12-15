@@ -157,7 +157,7 @@ class FilterYm():
                     continue
                 msg = self.log_queue.get()
                 fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
-
+                fw.flush()
         # conn = db_pool.connection()
         # cur = conn.cursor()
         # while True:
