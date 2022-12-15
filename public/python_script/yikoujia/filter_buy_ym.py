@@ -97,7 +97,7 @@ class FilterYm():
             # redis去重
             all_data = self.mycol.find()
             new_data = []
-            for data in all_data[self.start_step:]:
+            for data in all_data:
                 self.start_step += 1
                 old_len = len(self.ym_set)
                 self.ym_set.add(data['ym'])
