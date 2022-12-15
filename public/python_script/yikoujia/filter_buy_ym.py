@@ -41,6 +41,7 @@ c.close()
 class FilterYm():
     def __init__(self, filter_id):
         self.filter_id = filter_id
+        self.start_step = 0
 
 
     # 获取id的那条数据
@@ -96,7 +97,8 @@ class FilterYm():
             # redis去重
             all_data = self.mycol.find()
             new_data = []
-            for data in all_data:
+            for data in all_data[self.start_step:]:
+                self.start_step += 1
                 old_len = len(self.ym_set)
                 self.ym_set.add(data['ym'])
                 if old_len != len(self.ym_set):
