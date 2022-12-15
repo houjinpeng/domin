@@ -288,6 +288,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     },
                     {
                         field: 'fff', title: '列表', templet: function (d) {
+                            if (d.is_buy===1){
+                                return' <button class="layui-btn layui-btn-warm layui-btn-sm" title="修改分支" data-full="true"  data-open="yikoujia.jkt/show_buy_ym?id='+d.id+'">查看列表</button>'
+                            }
                             return' <button class="layui-btn layui-btn-sm" title="修改分支" data-full="true"  data-open="yikoujia.jkt/show_buy_ym?id='+d.id+'">查看列表</button>'
                         }
                     },
