@@ -545,8 +545,8 @@ class FilterYm():
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
 
-        # for t in thread_list:
-        #     t.start()
+        for t in thread_list:
+            t.start()
 
 
 

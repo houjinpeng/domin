@@ -103,8 +103,8 @@ if __name__ == '__main__':
         'psize': '50',
         # 'tao':'1299,77379'
             # 'bqjc': 99,#被墙检测
-            # 'jgpx': 41,#排序结果
-            'gjz_cha':'1299,77379'
+            'jgpx': 5,#排序结果
+            # 'gjz_cha':'1299,77379'
             }
     data_info = jm_api.get_ykj_list(data)
     for data in data_info['data']:

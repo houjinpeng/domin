@@ -75,6 +75,8 @@ class SearchYmAndFilter():
                     data[k.replace('jm_','')] = v
         if data.get('jznl_2') or data.get('jznl_1') or data.get('jzjl_1') or data.get('jzjl_2'):
             data['jzls'] = 1
+        if data.get('jgpx') == None:
+            data['jgpx'] = 5
         return data
 
     def get_history_token(self, data_list):
