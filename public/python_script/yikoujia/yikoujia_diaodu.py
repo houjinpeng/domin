@@ -56,7 +56,7 @@ def scheduler():
         all_zhi = cur.fetchall()
         for z in all_zhi:
             # 判断进程是否存在 不存在重新启动
-            result = os.system(f'tasklist | findstr {z["p_d"]}')
+            result = os.system(f'tasklist | findstr {z["pid"]}')
             if result == 1:
                 # 重启z
                 filter_obj = FilterYm(z['id'])
