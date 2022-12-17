@@ -71,7 +71,7 @@ class BeiAn():
         _, distance = np.unravel_index(result.argmax(), result.shape)
         return distance
 
-    def get_cookie(self):
+    def get_cookie(self,count=0):
         url = "https://beian.miit.gov.cn/"
         headers = {
             # 'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
@@ -79,11 +79,13 @@ class BeiAn():
         try:
             response = self.s.get(url, proxies=self.proxies,headers=headers,timeout=4)
         except Exception as e:
+            if count >10:
+                return None
             self.set_proxies()
-            return self.get_cookie()
+            return self.get_cookie(count+1)
         return response
 
-    def get_token(self):
+    def get_token(self,count=0):
         m = hashlib.md5()
         m.update(f'testtest{int(time.time() * 1000)}'.encode('utf-8'))
         auth_url = 'https://hlwicpfwc.miit.gov.cn/icpproject_query/api/auth'
@@ -108,13 +110,15 @@ class BeiAn():
         data = f'authKey={m.hexdigest()}&timeStamp={int((time.time() * 1000))}'
         r = self.request_handler(auth_url,data,headers)
         if r == None:
+            if count>10:
+                return None
             self.set_proxies()
             # return self.beian_info(self.domain)
-            return self.get_token()
+            return self.get_token(count+1)
         # logger.info('获取token成功  获取验证码图片 ')
         return r
 
-    def get_img(self, token):
+    def get_img(self, token,count=0):
         # logger.info('获取验证码')
         img_url = 'https://hlwicpfwc.miit.gov.cn/icpproject_query/api/image/getCheckImage'
         headers = {
@@ -138,8 +142,10 @@ class BeiAn():
         # 获取验证码图片 并返回
         img_resp = self.request_handler(img_url,data='',headers=headers)
         if img_resp == None:
+            if count>10:
+                return None,None,None
             self.set_proxies()
-            return self.get_img(token)
+            return self.get_img(token,count+1)
         # logger.info("验证码获取成功  破解中···")
         img_data = json.loads(img_resp.text)
         big_img = img_data['params']['bigImage']
@@ -214,10 +220,15 @@ class BeiAn():
     def beian_info(self,domain):
         if self.can == False:
             self.s = requests.session()
-            self.get_cookie()
+            if self.get_cookie() == None:
+                return None
             r = self.get_token()
+            if r == None:
+                return None
             token = json.loads(r.text)['params']['bussiness']
             fg, bg, uuid = self.get_img(token)
+            if fg == None:
+                return None
             distance = self.get_distance(fg, bg)
             param = self.check_img(token, uuid, distance)
             if param == None:
