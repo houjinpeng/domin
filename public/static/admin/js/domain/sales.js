@@ -63,13 +63,19 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'price', minWidth: 80, title: '价格',search: 'section',sort:true},
                     {field: 'team', minWidth: 80, title: '所属团队',search: false,templet:function (d) {
                             if (d.getSalesData){
-                                return d.getSalesData.team
+                                if ( d.getSalesData.team){
+                                    return d.getSalesData.team
+                                }
+                                return ''
                             }
                             return ''
                         }},
                     {field: 'yj', minWidth: 80, title: '个人意见',search: false,templet:function (d) {
                             if (d.getSalesData){
-                                return d.getSalesData.individual_opinion
+                                if ( d.getSalesData.individual_opinion){
+                                    return d.getSalesData.individual_opinion
+                                }
+                                return ''
                             }
                             return ''
                         }},
