@@ -9,12 +9,23 @@ define(["jquery", "easy-admin"], function ($, ea) {
         add_url: 'domain.store/add',
         export_url: 'domain.store/export',
         add_like_url: 'domain.store/add_like',
+        batch_edit_url: 'domain.store/batch_edit',
 
     };
 
     var Controller = {
 
         index: function () {
+            function copyText(text) {
+                var oInput = document.createElement('textarea');
+                oInput.value = text;
+                document.body.appendChild(oInput);
+                oInput.select();
+                document.execCommand("Copy");
+                oInput.className = 'oInput';
+                oInput.style.display = 'none';
+            }
+
 
             ea.table.render({
                 init: init,
@@ -31,13 +42,27 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         method: 'request',
                         auth: 'add_like',
                         class: 'layui-btn layui-btn-normal layui-btn-sm',
+                    },{
+                        checkbox:true,
+                        text:'批量编辑',
+                        icon: 'fa fa-edit',
+                        url: init.batch_edit_url,
+                        method: 'open',
+                        auth: 'add_like',
+                        class: 'layui-btn  layui-btn-sm',
+                    },{
+                        checkbox:true,
+                        text:'复制选中店铺ID',
+                        method: 'open',
+                        auth: 'add_like',
+                        class: 'layui-btn  layui-btn-sm layui-btn-warm',
                     }
                 ]],
                 cols: [[
                     {type: "checkbox"},
-                    {field: 'store_id', width: 80, title: '店铺ID'},
+                    {field: 'store_id', width: 80, title: '店铺ID', search:'batch'},
                     {
-                        field: 'name', minWidth: 80, title: '店铺名称', templet: function (d) {
+                        field: 'name', minWidth: 80, title: '店铺名称',templet: function (d) {
                             return '<a target="_blank" href="' + d.url + '">' + d.name + '</a>'
                         }
                     },
@@ -70,6 +95,27 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     //     ]
                     // }
                 ]],
+                done:function (data){
+                    $('[data-title=复制选中店铺ID]').click(function () {
+                        var checkStatus = layui.table.checkStatus(init.table_render_id)
+                        var data = checkStatus.data;
+                        if (data.length <= 0) {
+                            ea.msg.error('请勾选要复制的店铺ID');
+                            return false;
+                        }
+                        var ids = [];
+                        var order_num = data.length;//奖券数量
+                        var amount_count = 0;//金额
+                        $.each(data, function (i, v) {
+                            ids.push(v.store_id);
+                        });
+                        copyText(ids.join("\n"))
+
+                        layer.msg('复制成功~',{icon:1})
+                        return false
+                    })
+
+                }
             });
 
 
@@ -111,6 +157,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
 
         edit:function (){
+            ea.listen()
+        },
+        batch_edit:function (){
             ea.listen()
         }
 

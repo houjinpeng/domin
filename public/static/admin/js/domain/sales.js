@@ -31,7 +31,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.table.render({
                 init: init,
                 height: 'full-40',
-                limit:500,
+                limit:100,
                 limits:[50,100,200,500],
                 toolbar:['refresh','export',[{
                     text: '重置本月匹配失败数据',
@@ -44,9 +44,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'ym', width: 180, title: '域名',search:'batch',templet:function (d) {
                             if (d.count > 1){
-                                return '<font color="red">'+d.ym+'</font>'
+                                return '<a target="_blank" href="http://7a08c112cda6a063.juming.com:9696/ykj/'+d.ym_id+'"><font color="red">'+d.ym+'</font></a>'
                             }
-                            return d.ym
+                            return '<a target="_blank" href="http://7a08c112cda6a063.juming.com:9696/ykj/'+d.ym_id+'">'+d.ym+'</a>'
                         }},
                     {field: 'len', minWidth: 80, title: '长度',sort:true},
                     {field: 'hz', minWidth: 80, title: '后缀',hide:true,search: 'xmSelect',xm_data:[{'name':'.com','value':'com'},{'name':'.net','value':'.net'},{'name':'.cc','value':'.cc'}
@@ -94,7 +94,24 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ]],
                 done:function (res) {
 
+
                     $.each(res.data,function (k,v){
+                        try {
+                            // let attr_data = $('[data-index='+v.LAY_TABLE_INDEX+']').find('td[data-field="jj"]').find('a').attr('href')
+                            let all_a = $('[data-index='+v.LAY_TABLE_INDEX+']').find('td[data-field="jj"]').find('a')
+                            for (let i=0;i<all_a.length;i++){
+
+                                let href = all_a[i].getAttribute('href')
+                                all_a[i].setAttribute('href','http://7a08c112cda6a063.juming.com:9696'+href)
+                                console.log(href)
+                            }
+
+                            // console.log(all_a)
+
+                        }catch (e){}
+                        // $('[data-field=jj]').find('a').attr('href','')
+
+
                         if (v.getSalesData){
                             if (v.getSalesData.is_like === 1){
                                 // 复用按钮是否可用
@@ -112,7 +129,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
         
         edit:function (){
             ea.listen()
-        }
+        },
+
 
 
 

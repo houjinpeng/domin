@@ -209,4 +209,15 @@ class Store extends AdminController
     }
 
 
+    public function batch_edit($id){
+        if ($this->request->isAjax()){
+            $post = $this->request->post();
+            $this->model->where('id','in',$id)->update($post);
+            $this->success('批量保存成功~');
+
+        }
+
+        return $this->fetch();
+    }
+
 }

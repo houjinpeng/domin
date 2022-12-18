@@ -81,6 +81,37 @@ class Statistics extends AdminController
     }
 
     /**
+     * @NodeAnotation(title="获取id销售金额排名")
+     */
+    public function get_sales_price_rank(){
+        if ($this->request->isAjax()){
+
+
+            $get = $this->request->get('fixture_date');
+            $t = explode(' ~ ',$get);
+            $where[] = ['fixture_date','>=',$t[0]];
+            $where[] = ['fixture_date','<=',$t[1]];
+
+            $list = $this->model
+                ->where($where)
+                ->field(['sum(price) as price','store_id'])
+                ->group('store_id')
+                ->having('price>10')
+                ->order('price','desc')
+                ->select()->toArray();
+
+            $data = ['code'=>1,
+                'data'=>$list
+            ];
+            return json($data);
+        }
+
+
+        return $this->fetch();
+    }
+
+
+    /**
      * @NodeAnotation(title="获取每日销量走势图")
      */
     public function get_sales_zs(){
@@ -200,14 +231,33 @@ class Statistics extends AdminController
         $t = explode(' ~ ',$get['fixture_date']);
         $where[] = ['fixture_date','>=',$t[0]];
         $where[] = ['fixture_date','<=',$t[1]];
-        $list = $this->model->field('ym,count(*) as count')
+        $list = $this->model->field('ym,count(*) as count,price')
             ->where($where)
-            ->page($page,$limit)
             ->order('count','desc')
-            ->group('ym')->select()->toArray();
-        $count = $this->model->field('ym,count(*) as count')
+            ->group('ym')
+            ->having('count>1')
+            ->page($page,$limit)
+            ->select()->toArray();
+        foreach ($list as &$item){
+            $price_list = [];
+            if ($item['count']>=2){
+                $d = $this->model->where($where)->field('price')->where('ym','=',$item['ym'])
+                    ->order('id','asc')
+                    ->select()->toArray();
+                foreach ($d as $vv){
+                    $price_list[] = $vv['price'];
+                }
+                $item['price'] =$price_list;
+            }else{
+                $item['price'] = [$item['price']];
+            }
+        }
+
+        $count = $this->model->field('ym,count(*) as count,price')
             ->where($where)
-            ->group('ym')->count();
+            ->group('ym')
+            ->having('count>1')
+            ->count();
 
 
         $data = ['code'=>0,

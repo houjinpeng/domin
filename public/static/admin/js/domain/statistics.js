@@ -18,7 +18,8 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                 sales1 = echarts.init(document.getElementById('sales1')),
                 sales2 = echarts.init(document.getElementById('sales2')),
                 sales3 = echarts.init(document.getElementById('sales3')),
-                sales4 = echarts.init(document.getElementById('sales4'))
+                sales4 = echarts.init(document.getElementById('sales4')),
+                sales6 = echarts.init(document.getElementById('sales6'))
 
 
             //初始化日期选项
@@ -79,7 +80,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         show: true
                     },
                     title: {
-                        text: '当前统计总数量'+total.toString()
+                        text: '当前统计总数量：'+total.toString()
                     },
                     tooltip: {
                         confine: true,
@@ -117,6 +118,64 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                 // 使用刚指定的配置项和数据显示图表。
                 sales1.setOption(option, true);
                 sales1.resize();
+            }
+
+            //设置销售金额排名图
+            function set_sales_id_price_charts(resp){
+                let x= []
+                let y = []
+                let total = 0
+                for (let i in resp['data']){
+                    x.push(resp['data'][i]['store_id'])
+                    y.push(resp['data'][i]['price'])
+                    total += parseInt(resp['data'][i]['price'])
+                }
+
+                let option = {
+                    legend: {
+                        left: 'right',
+                        orient: 'vertical',
+                        show: true
+                    },
+                    title: {
+                        text: '当前统计总金额：'+total.toString()
+                    },
+                    tooltip: {
+                        confine: true,
+                        trigger: 'axis',
+                        enterable: true, // 防止tooltip浮层在折线或柱体等上时，触发mouseover事件
+                        backgroundColor: 'rgba(32, 33, 36,0.85)',
+                        borderColor: 'rgba(32, 33, 36,0.20)',
+                        textStyle: { // 文字提示样式
+                            color: '#fff',
+                            fontSize: '12'
+                        },
+                    },
+
+                    yAxis: { minInterval:1,},
+                    xAxis: {
+                        data: x,
+                        // axisLabel: { interval: 0,
+                        //     show:true,
+                        //     margin:20,
+                        //     rotate: -60 }
+                    },
+                    dataZoom:{
+                        type:'inside'
+                    },
+                    series: [
+                        {
+                            stillShowZeroSum: false,
+                            type: 'bar',
+                            data: y,
+                            labelLine: {show: true}
+                        }
+                    ],
+
+                };
+                // 使用刚指定的配置项和数据显示图表。
+                sales6.setOption(option, true);
+                sales6.resize();
             }
 
             //每日销量走势
@@ -270,6 +329,12 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                 },function (resp) {
                     set_sales_id_charts(resp)
                 })
+                //获取销售金额排名
+                ea.request.get({
+                    url:'get_sales_price_rank?fixture_date='+fixture_date
+                },function (resp) {
+                    set_sales_id_price_charts(resp)
+                })
 
                 //获取价格段位销量排名
                 ea.request.post({
@@ -281,6 +346,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                 },function (resp) {
                     set_sales_price_charts(resp)
                 })
+
 
 
                 //获取每日销量走势
@@ -307,7 +373,10 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                     ,url: 'get_ym_rank?fixture_date='+fixture_date //数据接口
                     ,page: true //开启分页
                     ,cols: [[ //表头
-                        {field: 'ym', title: '域名'}
+                        {field: 'ym', title: '域名'},
+                        {field: 'price', title: '价格',templet:function (d) {
+                                return d.price.join(',')
+                            }}
                         ,{field: 'count', title: '出现次数',search:false}
                     ]]
                 });
@@ -328,6 +397,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                 sales2.resize();
                 sales3.resize();
                 sales4.resize();
+                sales6.resize();
             });
 
             ea.listen();

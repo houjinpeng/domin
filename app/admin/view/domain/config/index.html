@@ -3,6 +3,23 @@
 
     <form class="layui-form" action="">
         <div class="layui-form-item">
+            <label class="layui-form-label">appid</label>
+            <div class="layui-input-block">
+                <input type="text" name="appid" value="{$row.appid | default=''}" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                <div class="layui-form-mid layui-word-aux">聚名api appid</div>
+
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">appkey</label>
+            <div class="layui-input-block">
+                <input type="text" name="appkey" value="{$row.appkey | default=''}" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                <div class="layui-form-mid layui-word-aux">聚名api appkey</div>
+
+            </div>
+        </div>
+
+        <div class="layui-form-item">
             <label class="layui-form-label">用户名</label>
             <div class="layui-input-block">
                 <input type="text" name="username" value="{$row.username | default=''}" required  lay-verify="required" placeholder="请输入拉取成交记录间隔" autocomplete="off" class="layui-input">
