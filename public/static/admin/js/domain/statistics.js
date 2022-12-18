@@ -375,7 +375,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                     ,cols: [[ //表头
                         {field: 'ym', title: '域名'},
                         {field: 'price', title: '价格',templet:function (d) {
-                                return d.price.join(',')
+                                return d.price.join('→')
                             }}
                         ,{field: 'count', title: '出现次数',search:false}
                     ]]
