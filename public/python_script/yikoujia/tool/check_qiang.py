@@ -1,5 +1,7 @@
 import time
 import re
+
+import redis
 import requests
 from dbutils.pooled_db import PooledDB
 import pymysql
@@ -17,28 +19,52 @@ mysql_pool_conf = {
 
 db_pool = PooledDB(**mysql_pool_conf)
 
-
+# 连接redis
+redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
 class Qiang():
     def __init__(self):
         self.url = 'https://www.juming.com/hao/'
         self.key = ''
+        self.s = requests.session()
+        self.get_proxy()
 
-    def get_cookie(self):
-        conn = db_pool.connection()
-        cur = conn.cursor()
-        cur.execute("select * from ym_domain_config")
-        data = cur.fetchone()
-        username = data['username']
-        password = data['password']
-        cookie = data['cookie']
-        cur.close()
-        conn.close()
-        #如果cookie为空 重新登陆
-        if cookie == '':
-            session,msg,cookie = Login().login(username,password)
-            self.set_cookie(cookie)
-        return cookie
+    # 设置代理
+    def get_proxy(self):
+        try:
+            ip = redis_cli.rpop('baidu_ip')
+            if ip == None:
+                print('查找墙 没有ip可用啦 快快ip安排~~~~~')
+                time.sleep(5)
+                return self.get_proxy()
+            proxies = {
+                'http': f'http://{ip.decode()}',
+                'https': f'http://{ip.decode()}'
+            }
+            self.s = requests.session()
+            self.proxies = proxies
+            self.s.proxies.update(proxies)
+
+            return proxies
+        except Exception as e:
+            time.sleep(2)
+            return None
+
+    # def get_cookie(self):
+    #     conn = db_pool.connection()
+    #     cur = conn.cursor()
+    #     cur.execute("select * from ym_domain_config")
+    #     data = cur.fetchone()
+    #     username = data['username']
+    #     password = data['password']
+    #     cookie = data['cookie']
+    #     cur.close()
+    #     conn.close()
+    #     #如果cookie为空 重新登陆
+    #     if cookie == '':
+    #         session,msg,cookie = Login().login(username,password)
+    #         self.set_cookie(cookie)
+    #     return cookie
 
     def set_cookie(self,cookie):
         conn = db_pool.connection()
@@ -52,7 +78,7 @@ class Qiang():
         try:
 
             headers = {
-                "cookie":self.get_cookie() ,
+                # "cookie":self.get_cookie() ,
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "accept-encoding": "gzip, deflate, br",
                 "accept-language": "zh-CN,zh;q=0.9",
@@ -69,13 +95,16 @@ class Qiang():
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
             # resp = requests.get(url,headers=headers,timeout=7,proxies=dt_proxies)
-            resp = requests.get(url,headers=headers,timeout=7)
+            # resp = requests.get(url,headers=headers,timeout=7)
+            resp = self.s.get(url,headers=headers,timeout=7)
+
             return resp
         except Exception as e:
-            if count >5:
-                return None
+            self.get_proxy()
+            # if count > 5:
+            #     return None
             print(f'获取被墙信息失败 {e}')
-            time.sleep(2)
+            # time.sleep(2)
             return self.request_handler(url,count+1)
 
     def verify_code(self,domain):
@@ -89,9 +118,7 @@ class Qiang():
                 'sid':token['session'],
                 'sig':token["auth"],
             }
-            cookie = self.get_cookie()
             headers = {
-                "cookie": cookie,
                 "accept": "application/json, text/javascript, */*; q=0.01",
                 "accept-encoding": "gzip, deflate, br",
                 "accept-language": "zh-CN,zh;q=0.9",
@@ -110,12 +137,14 @@ class Qiang():
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
             # r = requests.post(url,data=data,headers=headers,timeout=3,proxies=dt_proxies)
-            r = requests.post(url,data=data,headers=headers,timeout=3)
+            r = self.s.post(url,data=data,headers=headers,timeout=3)
             if r.json()['code'] == 1:
-                ct = r.cookies._cookies['www.juming.com']['/']['ct'].value
-                cookie = f'{cookie.split(";")[0]};ct={ct}'
-                self.set_cookie(cookie)
+                pass
+                # ct = r.cookies._cookies['www.juming.com']['/']['ct'].value
+                # cookie = f'{cookie.split(";")[0]};ct={ct}'
+                # self.set_cookie(cookie)
             else:
+                print('重新验证滑动验证码~')
                 return self.verify_code(domain)
 
         except Exception as e:
@@ -202,6 +231,7 @@ class Qiang():
 
     #检测是否有建站记录
     def get_beian_data(self,domain):
+        return '检测是否有建站历史记录 不可用'
         if self.key == '':
             self.get_token(domain)
             return self.get_beian_data(domain)
@@ -231,10 +261,10 @@ if __name__ == '__main__':
     ym_list = ['cargamescLub.com','nihao.com','baidu.com','maiyuan.com','jding.com','haha.com']
     for ym in ym_list:
         # print(ym)
-        # print(q.get_qiang_data(ym))
+        print(q.get_qiang_data(ym))
         print(q.get_wx_data(ym))
-        # print(q.get_qq_data(ym))
-        # print(q.get_beian_hmd_data(ym))
+        print(q.get_qq_data(ym))
+        print(q.get_beian_hmd_data(ym))
         # print(q.get_beian_data(ym))
 
         print('=='*20)
