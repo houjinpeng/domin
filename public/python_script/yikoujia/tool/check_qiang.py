@@ -26,23 +26,28 @@ class Qiang():
     def __init__(self):
         self.url = 'https://www.juming.com/hao/'
         self.key = ''
+        self.ct = ''
         self.s = requests.session()
         self.get_proxy()
 
     # 设置代理
     def get_proxy(self):
         try:
-            ip = redis_cli.rpop('baidu_ip')
-            if ip == None:
-                print('查找墙 没有ip可用啦 快快ip安排~~~~~')
-                time.sleep(5)
-                return self.get_proxy()
-            proxies = {
-                'http': f'http://{ip.decode()}',
-                'https': f'http://{ip.decode()}'
-            }
+            # ip = redis_cli.rpop('baidu_ip')
+            # if ip == None:
+            #     print('查找墙 没有ip可用啦 快快ip安排~~~~~')
+            #     time.sleep(5)
+            #     return self.get_proxy()
+            # proxies = {
+            #     'http': f'http://{ip.decode()}',
+            #     'https': f'http://{ip.decode()}'
+            # }
             self.s = requests.session()
-            self.proxies = proxies
+            # self.proxies = proxies
+            proxies = {
+                "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+                "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            }
             self.s.proxies.update(proxies)
 
             return proxies
@@ -78,7 +83,7 @@ class Qiang():
         try:
 
             headers = {
-                # "cookie":self.get_cookie() ,
+                "cookie":self.ct ,
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "accept-encoding": "gzip, deflate, br",
                 "accept-language": "zh-CN,zh;q=0.9",
@@ -139,8 +144,8 @@ class Qiang():
             # r = requests.post(url,data=data,headers=headers,timeout=3,proxies=dt_proxies)
             r = self.s.post(url,data=data,headers=headers,timeout=3)
             if r.json()['code'] == 1:
-                pass
-                # ct = r.cookies._cookies['www.juming.com']['/']['ct'].value
+                # pass
+                self.ct = 'ct='+r.cookies._cookies['www.juming.com']['/']['ct'].value
                 # cookie = f'{cookie.split(";")[0]};ct={ct}'
                 # self.set_cookie(cookie)
             else:
