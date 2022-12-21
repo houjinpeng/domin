@@ -16,6 +16,7 @@ from tool.get_baidu import BaiDu
 from tool.get_sogou import GetSougouRecord
 from tool.get_360 import SoCom
 from tool.get_history import GetHistory
+from tool.get_aizhan import AiZhan
 import pymongo
 
 class SearchYmAndFilter():
@@ -332,7 +333,29 @@ class SearchYmAndFilter():
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
             else:
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+    # 爱站
+    def aizhan_worker(self):
+        aizhan_obj = AiZhan()
+        while True:
+            if self.task_queue.empty():
+                time.sleep(1)
+                continue
+            ym_data = self.task_queue.get()
+            info = aizhan_obj.get_info(ym_data['ym'])
+            if info == None:
+                self.task_queue.put(ym_data)
+                continue
+            is_have = False
+            for k,v in info.items():
 
+                if k =='html':continue
+                if v != '0' and v != 'n':
+                    is_have = True
+            if is_have == True:
+                self.save_mysql(ym_data, 'aizhan', ym_data['zcs'])
+                self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+            else:
+                self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
     #主程序
     def index(self):
         self.db_pool = PooledDB(**mysql_pool_conf)
@@ -388,6 +411,8 @@ class SearchYmAndFilter():
 
             elif self.filter['main_filter'] == '历史':
                 thread_list.append(threading.Thread(target=self.history_worker))
+            elif self.filter['main_filter'] == '爱站':
+                thread_list.append(threading.Thread(target=self.aizhan_worker))
 
             elif self.filter['main_filter'] == '无':
                 thread_list.append(threading.Thread(target=self.wu_work))
@@ -400,6 +425,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 47
+    jkt_id = 50
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

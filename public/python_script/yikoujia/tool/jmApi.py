@@ -104,7 +104,7 @@ if __name__ == '__main__':
         # 'tao':'1299,77379'
             # 'bqjc': 99,#被墙检测
             'jgpx': 5,#排序结果
-            # 'gjz_cha':'1299,77379'
+            'gjz_cha':'handofman.com'
             }
     data_info = jm_api.get_ykj_list(data)
     for data in data_info['data']:
