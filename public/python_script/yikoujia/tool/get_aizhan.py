@@ -13,37 +13,25 @@ redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
 
 class AiZhan():
-    def __init__(self):
-        '''
-        :param record_num:[0,0]
-        :param fengxian: 是 否
-        :param kuaizhao_time: 泛 首页
-        '''
-        self.s = requests.session()
-        pass
-        # self.record_num_min = int(record_num[0])
-        # self.record_num_max = 999999999 if int(record_num[1]) == 0 else int(record_num[1])
-        # self.fengxian = fengxian
-        # self.kuaizhao_time = kuaizhao_time
-        # self.s = requests.session()
+    def __init__(self,baidu_pr,yidong_pr,sm_pr,so_pr,sogou_pr):
 
-    #获取url连接
-    def get_domain_url(self, so_url, count=0):
-        try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36',
-            }
-            if 'www.so.com' in so_url:
-                # r = requests.get(baidu_url,headers=headers,verify=False)
-                r = requests.get(so_url, headers=headers, verify=False, allow_redirects=False, timeout=10)
-                url = re.findall('URL=\'(.*?)"', r.text)[0][:-1]
-            else:
-                return so_url
-            return url
-        except Exception as e:
-            if count < 5:
-                return self.get_domain_url(so_url, count + 1)
-            return ''
+        self.s = requests.session()
+        self.baidu_pr = baidu_pr
+        self.yidong_pr = yidong_pr
+        self.sm_pr = sm_pr
+        self.so_pr = so_pr
+        self.sogou_pr = sogou_pr
+        if self.baidu_pr[1] == '0':
+            self.baidu_pr[1] = 999999
+        if self.yidong_pr[1] == '0':
+            self.yidong_pr[1] = 999999
+        if self.sm_pr[1] == '0':
+            self.sm_pr[1] = 999999
+        if self.so_pr[1] == '0':
+            self.so_pr[1] = 999999
+        if self.sogou_pr[1] == '0':
+            self.sogou_pr[1] = 999999
+
 
     #设置代理
     def get_proxy(self):
@@ -108,95 +96,63 @@ class AiZhan():
         data ={}
         try:
            data['baidu_pr'] = str(html.xpath('//a[@id="baidurank_br"]/img/@alt')[0])
+           if data['baidu_pr'] == 'n':
+               data['baidu_pr'] = '0'
         except Exception:
             data['baidu_pr'] = '0'
         try:
             # 移动权重
             data['yidong_pr'] = str(html.xpath('//a[@id="baidurank_mbr"]/img/@alt')[0])
+            if data['yidong_pr'] == 'n':
+                data['yidong_pr'] = '0'
         except Exception:
             data['yidong_pr'] = '0'
         try:
             # 360权重
             data['so_pr'] = str(html.xpath('//a[@id="360_pr"]/img/@alt')[0])
+            if data['so_pr'] == 'n':
+                data['so_pr'] = '0'
         except Exception:
             data['so_pr'] = '0'
         try:
             # 神马权重
             data['shenma_pr'] = str(html.xpath('//a[@id="sm_pr"]/img/@alt')[0])
+            if data['shenma_pr'] == 'n':
+                data['shenma_pr'] = '0'
         except Exception:
            data['shenma_pr'] = '0'
         try:
             # 搜狗权重
             data['sogou_pr'] =str( html.xpath('//a[@id="sogou_pr"]/img/@alt')[0])
+            if data['sogou_pr'] == 'n':
+                data['sogou_pr'] = '0'
         except Exception:
            data['sogou_pr']  = '0'
         # data['html'] = r.text
         return data
 
-    def check_aizhan(self,html,domain):
+    def check_aizhan(self,data):
+        if self.baidu_pr != ['0','0']:
+            if int(self.baidu_pr[0]) > int(data['baidu_pr']) or int(self.baidu_pr[1]) < int(data['baidu_pr']) :
+                return f'爱站百度权重不符合要求 百度权重为:{data["baidu_pr"]}'
 
-        html = etree.HTML(html)
-        try:
-            count = re.findall('找到相关结果约(.*?)个', html)[0].replace(',', '')
-        except Exception:
-            count = '0'
-        try:
-            #判断收录数 最小值小于 实际过滤
-            if self.record_num_min > int(count) or int(count) > self.record_num_max:
-                return f'360 收录数不符合要求: 收录数为{count}'
-        except Exception as e:
-            pass
-        #判断是否有风险
-        if self.fengxian == '0':
-            if '因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏' in html:
-                return '360 因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏'
+        if self.yidong_pr != ['0', '0']:
+            if int(self.yidong_pr[0]) > int(data['yidong_pr']) or int(self.yidong_pr[1]) < int(data['baidu_pr']):
+                return f'爱站百度权重不符合要求 移动权重为:{data["yidong_pr"]}'
+        if self.sm_pr != ['0', '0']:
+            if int(self.sm_pr[0]) > int(data['shenma_pr']) or int(self.sm_pr[1]) < int(data['baidu_pr']):
+                return f'爱站百度权重不符合要求 神马权重为:{data["shenma_pr"]}'
+        if self.so_pr != ['0', '0']:
+            if int(self.so_pr[0]) > int(data['so_pr']) or int(self.so_pr[1]) < int(data['baidu_pr']):
+                return f'爱站百度权重不符合要求 360权重为:{data["so_pr"]}'
+        if self.sogou_pr != ['0', '0']:
+            if int(self.sogou_pr[0]) > int(data['sogou_pr']) or int(self.sogou_pr[1]) < int(data['baidu_pr']):
+                return f'爱站百度权重不符合要求 搜狗权重为:{data["sogou_pr"]}'
+        return True
 
-        # 判断url结构   1首页     2泛   3内页 0不判断
-        all_result = html.xpath('//ul[@class="result"]/li')
-        if self.kuaizhao_time == '0':
-            return True
-
-        elif self.kuaizhao_time == '1':
-            for result in all_result:
-                href = result.xpath('//p[@class="g-linkinfo"]/cite/a/@href')
-                domain_url = self.get_domain_url(href[0])
-                domain_1 = urlparse(domain_url).hostname
-                if domain_1 == None:
-                    continue
-
-                if domain_1.split('.') == 0:
-                    continue
-                elif domain_1.split('.') == 2:
-                    return True
-                elif domain_1.split('.')[0] == 'www':
-                    return True
-            return '360 首页判断未通过'
-
-        elif str(self.kuaizhao_time) == '2':
-            for result in all_result:
-                href = result.xpath('//p[@class="g-linkinfo"]/cite/a/@href')
-                domain_url = self.get_domain_url(href[0])
-                domain_1 = urlparse(domain_url).hostname
-                if domain_1 == None:
-                    continue
-                if len(domain_1.split('.')) == 0:
-                    continue
-                elif domain_1.split('.') == 3 and domain_1.split('.')[0] != 'www':
-                    return True
-                elif domain in domain_1 and 'www' not in domain_1 and len(domain_1.split('.')) != 2 and 'm.' not in domain_1:
-                    return True
-            return '360 泛判断未通过'
-
-        elif self.kuaizhao_time == '3':
-            for result in all_result:
-                href = result.xpath('//p[@class="g-linkinfo"]/cite/a/@href')
-                domain_url = self.get_domain_url(href[0])
-                domain = urlparse(domain_url)
-                if domain.path != '':
-                    return True
-            return '360 内页判断未通过'
 
 if __name__ == '__main__':
-
-    res = AiZhan().get_info('mukherjeeudyog.com')
+    o = AiZhan(['1','0'],['1','0'],['1','0'],['1','0'],['1','0'])
+    res = o.get_info('baidu.com')
     print(res)
+    print(o.check_aizhan(res))

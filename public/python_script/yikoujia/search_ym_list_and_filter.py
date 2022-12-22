@@ -335,7 +335,7 @@ class SearchYmAndFilter():
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
     # 爱站
     def aizhan_worker(self):
-        aizhan_obj = AiZhan()
+        aizhan_obj = AiZhan(['0','0'],['0','0'],['0','0'],['0','0'],['0','0'])
         while True:
             if self.task_queue.empty():
                 time.sleep(1)
@@ -352,7 +352,7 @@ class SearchYmAndFilter():
                 if v != '0' and v != 'n':
                     is_have = True
             if is_have == True:
-                self.save_mysql(ym_data, 'aizhan', ym_data['zcs'])
+                self.save_mysql(ym_data, 'aizhan', info)
                 self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
                 self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')

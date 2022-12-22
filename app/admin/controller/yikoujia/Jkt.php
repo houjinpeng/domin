@@ -232,6 +232,24 @@ class Jkt extends AdminController
                 $data['history']['history_is_com_word'] = $post['history_is_com_word'];
 
             }
+            //爱站
+            if ($post['is_com_aizhan'] == '1') {
+
+                if ($post['aizhan_baidu_pr_1'] == '0' && $post['aizhan_baidu_pr_2'] == '0' && $post['aizhan_yidong_pr_1'] == '0' && $post['aizhan_yidong_pr_2'] == '0' && $post['aizhan_so_pr_1'] == '0' && $post['aizhan_so_pr_2'] == '0'&& $post['aizhan_sm_pr_1'] == '0'  && $post['aizhan_sm_pr_2'] == '0' && $post['aizhan_sogou_pr_1'] == '0'  && $post['aizhan_sogou_pr_2'] == '0') {
+                    $this->error('请完善爱站信息 不能全部是0！');
+                }
+                $data['aizhan']['aizhan_baidu_pr_1'] = $post['aizhan_baidu_pr_1'];
+                $data['aizhan']['aizhan_baidu_pr_2'] = $post['aizhan_baidu_pr_2'];
+                $data['aizhan']['aizhan_yidong_pr_1'] = $post['aizhan_yidong_pr_1'];
+                $data['aizhan']['aizhan_yidong_pr_2'] = $post['aizhan_yidong_pr_2'];
+                $data['aizhan']['aizhan_so_pr_1'] = $post['aizhan_so_pr_1'];
+                $data['aizhan']['aizhan_so_pr_2'] = $post['aizhan_so_pr_2'];
+                $data['aizhan']['aizhan_sm_pr_1'] = $post['aizhan_sm_pr_1'];
+                $data['aizhan']['aizhan_sm_pr_2'] = $post['aizhan_sm_pr_2'];
+                $data['aizhan']['aizhan_sogou_pr_1'] = $post['aizhan_sogou_pr_1'];
+                $data['aizhan']['aizhan_sogou_pr_2'] = $post['aizhan_sogou_pr_2'];
+
+            }
 
 
             $save_data['data'] = $data;
@@ -340,7 +358,24 @@ class Jkt extends AdminController
 
             }
 
+            //爱站
+            if ($post['is_com_aizhan'] == '1') {
 
+                if ($post['aizhan_baidu_pr_1'] == '0' && $post['aizhan_baidu_pr_2'] == '0' && $post['aizhan_yidong_pr_1'] == '0' && $post['aizhan_yidong_pr_2'] == '0' && $post['aizhan_so_pr_1'] == '0' && $post['aizhan_so_pr_2'] == '0'&& $post['aizhan_sm_pr_1'] == '0'  && $post['aizhan_sm_pr_2'] == '0' && $post['aizhan_sogou_pr_1'] == '0'  && $post['aizhan_sogou_pr_2'] == '0') {
+                    $this->error('请完善爱站信息 不能全部是0！');
+                }
+                $data['aizhan']['aizhan_baidu_pr_1'] = $post['aizhan_baidu_pr_1'];
+                $data['aizhan']['aizhan_baidu_pr_2'] = $post['aizhan_baidu_pr_2'];
+                $data['aizhan']['aizhan_yidong_pr_1'] = $post['aizhan_yidong_pr_1'];
+                $data['aizhan']['aizhan_yidong_pr_2'] = $post['aizhan_yidong_pr_2'];
+                $data['aizhan']['aizhan_so_pr_1'] = $post['aizhan_so_pr_1'];
+                $data['aizhan']['aizhan_so_pr_2'] = $post['aizhan_so_pr_2'];
+                $data['aizhan']['aizhan_sm_pr_1'] = $post['aizhan_sm_pr_1'];
+                $data['aizhan']['aizhan_sm_pr_2'] = $post['aizhan_sm_pr_2'];
+                $data['aizhan']['aizhan_sogou_pr_1'] = $post['aizhan_sogou_pr_1'];
+                $data['aizhan']['aizhan_sogou_pr_2'] = $post['aizhan_sogou_pr_2'];
+
+            }
             $save_data['data'] = $data;
             $d =$row['data'] ?json_decode($row['data'],true):null;
             //判断是否修改了参数 如果修改直接停止

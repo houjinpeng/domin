@@ -12,6 +12,7 @@ from tool.get_sogou import GetSougouRecord
 from tool.get_baidu import BaiDu
 from tool.check_qiang import Qiang
 from tool.get_360 import SoCom
+from tool.get_aizhan import AiZhan
 import redis
 from dbutils.pooled_db import PooledDB
 from conf.config import *
@@ -309,8 +310,9 @@ class FilterYm():
         return '没有包含的注册商'
 
     # 对比worker
-    def work(self, beian=None, baidu=None, sogou=None, so=None):
+    def work(self, beian=None, baidu=None, sogou=None, so=None,aizhan_obj=None):
         qiang = Qiang()
+
         while True:
             if self.work_queue.empty():
                 time.sleep(3)
@@ -423,6 +425,26 @@ class FilterYm():
                 self.log_queue.put(f'对比百度错误： {error}')
                 continue
             try:
+                # 爱站
+                if self.filter_dict.get('aizhan'):
+                    if domain_data.get('aizhan'):
+                        data = domain_data.get('aizhan')
+                    else:
+                        data = aizhan_obj.get_info(domain_data['ym'])
+                    if data == None:
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'爱站获取错误重新获取')
+                        continue
+                    is_ok = aizhan_obj.check_aizhan(data)
+
+                    if is_ok != True:
+                        self.save_out_data(domain_data)
+                        self.log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
+                        continue
+            except Exception as error:
+                self.log_queue.put(f'对比爱站错误： {error}')
+                continue
+            try:
                 # 最后判断是否被墙 如果被墙不买
                 if self.filter_data['is_buy_qiang'] == 0:
                     r = qiang.get_qiang_data(domain_data['ym'])
@@ -520,15 +542,25 @@ class FilterYm():
         beian = None
         sogou = None
         so = None
+        aizhan_obj = None
         if self.filter_dict.get('beian'):
             beian = BeiAn()
+        if self.filter_dict.get('aizhan'):
+            baidu_pr = [self.filter_dict['aizhan']['aizhan_baidu_pr_1'], self.filter_dict['aizhan']['aizhan_baidu_pr_1']]
+            yidong_pr = [self.filter_dict['aizhan']['aizhan_yidong_pr_1'], self.filter_dict['aizhan']['aizhan_yidong_pr_2']]
+            sm_pr = [self.filter_dict['aizhan']['aizhan_sm_pr_1'], self.filter_dict['aizhan']['aizhan_sm_pr_2']]
+            so_pr = [self.filter_dict['aizhan']['aizhan_so_pr_1'], self.filter_dict['aizhan']['aizhan_so_pr_2']]
+            sogou_pr = [self.filter_dict['aizhan']['aizhan_sogou_pr_1'], self.filter_dict['aizhan']['aizhan_sogou_pr_2']]
+            aizhan_obj = AiZhan(baidu_pr=baidu_pr,yidong_pr=yidong_pr,sm_pr=sm_pr,so_pr=so_pr,sogou_pr=sogou_pr)
+
+
         if self.filter_dict.get('baidu'):
             baidu_record = [self.filter_dict['baidu']['baidu_sl_1'], self.filter_dict['baidu']['baidu_sl_2']]
             kuaizhao_time = self.filter_dict['baidu']['baidu_jg']
             lang_chinese = self.filter_dict['baidu']['baidu_is_com_chinese']
             min_gan_word = self.filter_dict['baidu']['baidu_is_com_word']
 
-            baidu = BaiDu(baidu_record, kuaizhao_time, lang_chinese, min_gan_word)
+            baidu = BaiDu(baidu_record, kuaizhao_time, lang_chinese, min_gan_word,)
 
         if self.filter_dict.get('sogou'):
             sogou = GetSougouRecord()
@@ -544,7 +576,7 @@ class FilterYm():
         # for i in range(self.main_filter['task_num']):
         for i in range(100):
             # 启动任务线程程
-            thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so)))
+            thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so,aizhan_obj)))
 
         for t in thread_list:
             t.start()

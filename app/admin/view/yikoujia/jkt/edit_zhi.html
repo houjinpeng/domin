@@ -443,6 +443,96 @@
 
 
         </div>
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">爱站</h3>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">对比爱站</label>
+                <div class="layui-input-block">
+                    <select name="is_com_aizhan" lay-verify="required">
+
+                        <option value="0" {if !isset($data['aizhan'])} selected {/if}>否</option>
+                        <option value="1"  {if isset($data['aizhan'])} selected {/if}>是</option>
+
+
+                    </select>
+                </div>
+            </div>
+
+
+
+            <div class="layui-inline">
+                <label class="layui-form-label">百度权重</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_baidu_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_baidu_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_baidu_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_baidu_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">移动权重</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_yidong_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_yidong_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_yidong_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_yidong_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">360权重</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_so_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_so_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_so_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_so_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">神马</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sm_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sm_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sm_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sm_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">搜狗</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sogou_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sogou_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sogou_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sogou_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+
+        </div>
 
 
         <div class="layui-form-item">
