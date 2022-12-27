@@ -55,6 +55,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'mj_jj', minWidth: 80, title: '卖家简介'},
                     {field: 'store_id', minWidth: 80, title: '卖家ID',search:'batch',templet: function (d) {
                             if (d.store_id){
+                                if (d.store_id.indexOf('*') === -1){
+                                    return '<a href="http://7a08c112cda6a063.juming.com:9696/'+d.store_id+'/" target="_blank">'+d.store_id+'</a>'
+                                }
+
                                 return d.store_id
                             }
                             return d.store_id_hide

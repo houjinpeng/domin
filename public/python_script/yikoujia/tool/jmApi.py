@@ -99,13 +99,16 @@ class JmApi():
 
 if __name__ == '__main__':
     jm_api = JmApi()
-    data = {
-        'psize': '50',
-        # 'tao':'1299,77379'
-            # 'bqjc': 99,#被墙检测
-            'jgpx': 5,#排序结果
-            'gjz_cha':'handofman.com'
-            }
+    data = {'psize': 1000, 'bdqz_1': 1, 'qiangjc': 1, 'jgpx': 5,
+            'gjz_cha': 'lfgylongli.cn',
+            'page':1}
+    # data = {
+    #     'psize': '50',
+    #     # 'tao':'1299,77379'
+    #         # 'bqjc': 99,#被墙检测
+    #         'jgpx': 5,#排序结果
+    #         'gjz_cha':'handofman.com'
+    #         }
     data_info = jm_api.get_ykj_list(data)
     for data in data_info['data']:
         print(data)
