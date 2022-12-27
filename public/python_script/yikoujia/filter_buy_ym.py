@@ -546,7 +546,7 @@ class FilterYm():
         if self.filter_dict.get('beian'):
             beian = BeiAn()
         if self.filter_dict.get('aizhan'):
-            baidu_pr = [self.filter_dict['aizhan']['aizhan_baidu_pr_1'], self.filter_dict['aizhan']['aizhan_baidu_pr_1']]
+            baidu_pr = [self.filter_dict['aizhan']['aizhan_baidu_pr_1'], self.filter_dict['aizhan']['aizhan_baidu_pr_2']]
             yidong_pr = [self.filter_dict['aizhan']['aizhan_yidong_pr_1'], self.filter_dict['aizhan']['aizhan_yidong_pr_2']]
             sm_pr = [self.filter_dict['aizhan']['aizhan_sm_pr_1'], self.filter_dict['aizhan']['aizhan_sm_pr_2']]
             so_pr = [self.filter_dict['aizhan']['aizhan_so_pr_1'], self.filter_dict['aizhan']['aizhan_so_pr_2']]
