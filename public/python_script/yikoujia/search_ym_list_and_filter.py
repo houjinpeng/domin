@@ -299,6 +299,9 @@ class SearchYmAndFilter():
             self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             history_info = history_obj.get_history(ym_data)
             try:
+                if history_info['count'] == None:
+                    self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
+                    continue
                 if int(history_info['count']) > 0 :
                     # 有直接放入redis 没有过滤
                     self.save_mysql(ym_data, 'history', history_info)
@@ -425,6 +428,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 50
+    jkt_id = 51
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

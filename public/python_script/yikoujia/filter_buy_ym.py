@@ -267,7 +267,7 @@ class FilterYm():
         return True
 
     # 获取历史数据进行对比
-    def get_history_comp(self, domain):
+    def get_history_comp(self, domain,history_obj):
         # 保存到完成域名中
         if domain.get('history'):
             history_data = domain.get('history')
@@ -277,27 +277,77 @@ class FilterYm():
         if self.filter_dict['history']['history_is_com_word'] == '1':
             is_mingan = self.check_mingan(history_data)
             if is_mingan != True:
-                # out_ym_quque.put({'cause':is_mingan,'ym':domain['domain'],'id':domain['id']})
                 return is_mingan
 
+        age = None
         # 判断是否对比年龄
-        if self.filter_dict['history']['history_age_1'] == '0' and self.filter_dict['history']['history_age_2'] == '0':
-            return True
-
-        else:
+        if self.filter_dict['history']['history_age_1'] != '0' or self.filter_dict['history']['history_age_2'] != '0':
             try:
                 # 如果最大值为0 赋值99999999
-                self.filter_dict['history']['history_age_2'] = 99999999 if int(
-                    self.filter_dict['history']['history_age_2']) == 0 else int(
-                    self.filter_dict['history']['history_age_2'])
+                self.filter_dict['history']['history_age_2'] = 99999999 if int(self.filter_dict['history']['history_age_2']) == 0 else int(self.filter_dict['history']['history_age_2'])
                 age = history_obj.get_age(domain)
-                if int(self.filter_dict['history']['history_age_1']) <= int(age['data']['nl']) <= \
-                        self.filter_dict['history']['history_age_2']:
-                    return True
-                else:
-                    return f"历史小于设置年龄 历史年龄：{age['data']['nl']}"
+
+                if int(self.filter_dict['history']['history_age_1']) > int(age['data']['nl']) or self.filter_dict['history']['history_age_2'] < int(age['data']['nl']):
+                    return f"历史设置年龄不符 历史年龄：{age['data']['nl']}"
             except:
                 return f"历史小于设置年龄"
+
+        #对比评分
+        if self.filter_dict['history']['history_score_1'] !='0' or self.filter_dict['history']['history_score_1'] != '0':
+            #为None 重新获取
+            if age == None:
+                age = history_obj.get_age(domain)
+
+            score_1 = 0 if self.filter_dict['history']['history_score_1'] == '0' else int(self.filter_dict['history']['history_score_1'])
+            score_2 = 9999999 if self.filter_dict['history']['history_score_2'] == '0' else int(self.filter_dict['history']['history_score_2'])
+            if score_1 > int(age['data']['pf']) or score_2 < int(age['data']['pf']):
+                return f"历史 评分不符  评分为：{age['data']['pf']}"
+
+        # 判断中文条数
+        if self.filter_dict['history']['history_chinese_1'] != '0' or self.filter_dict['history']['history_chinese_2'] != '0':
+            chinese_1 = 0 if self.filter_dict['history']['history_chinese_1'] == '0' else int(self.filter_dict['history']['history_chinese_1'])
+            chinese_2 = 9999999 if self.filter_dict['history']['history_chinese_2'] == '0' else int(self.filter_dict['history']['history_chinese_2'])
+            chinese_tiaoshu = history_obj.get_zh_title_num(history_data)
+            if chinese_1 > chinese_tiaoshu or chinese_2 < chinese_tiaoshu:
+                return f"历史 中文条数不符  中文条数为：{age['data']['pf']}"
+
+        # 判断最长连续时间
+        if self.filter_dict['history']['history_lianxu_1'] != '0' or self.filter_dict['history']['history_lianxu_2'] != '0':
+            history_lianxu_1 = 0 if self.filter_dict['history']['history_lianxu_1'] == '0' else int(self.filter_dict['history']['history_lianxu_1'])
+            history_lianxu_2 = 9999999 if self.filter_dict['history']['history_lianxu_2'] == '0' else int(self.filter_dict['history']['history_lianxu_2'])
+
+            lianxu_num = history_obj.get_lianxu_cundang_time(history_data)
+            if history_lianxu_1 > lianxu_num or history_lianxu_2 < lianxu_num:
+                return f"历史 最长连续时间不符  连续时间为：{age['data']['pf']}"
+
+        # 判断5年连续
+        if self.filter_dict['history']['history_five_lianxu_1'] != '0' or self.filter_dict['history']['history_five_lianxu_2'] != '0':
+            history_lianxu_1 = 0 if self.filter_dict['history']['history_five_lianxu_1'] == '0' else int(self.filter_dict['history']['history_five_lianxu_1'])
+            history_lianxu_2 = 9999999 if self.filter_dict['history']['history_five_lianxu_2'] == '0' else int(self.filter_dict['history']['history_five_lianxu_2'])
+
+            lianxu_num = history_obj.get_lianxu_cundang_time(history_data,5)
+            if history_lianxu_1 > lianxu_num or history_lianxu_2 < lianxu_num:
+                return f"历史 5年连续时间不符  连续时间为：{age['data']['pf']}"
+
+
+        #判断近5年历史
+        if self.filter_dict['history']['history_five_1'] != '0' or self.filter_dict['history']['history_five_2'] != '0':
+            history_lianxu_1 = 0 if self.filter_dict['history']['history_five_1'] == '0' else int(self.filter_dict['history']['history_five_1'])
+            history_lianxu_2 = 9999999 if self.filter_dict['history']['history_five_2'] == '0' else int(self.filter_dict['history']['history_five_2'])
+
+            lianxu_num = history_obj.get_five_year_num(history_data)
+            if history_lianxu_1 > lianxu_num or history_lianxu_2 < lianxu_num:
+                return f"历史 5年历史不符  历史年数为：{age['data']['pf']}"
+
+        #判断统一度
+        if self.filter_dict['history']['history_tongyidu_1'] != '0' or self.filter_dict['history']['history_tongyidu_2'] != '0':
+            tongyidu_num1 = 0 if self.filter_dict['history']['history_tongyidu_1'] == '0' else int(self.filter_dict['history']['history_tongyidu_1'])
+            tongyidu_num2 = 9999999 if self.filter_dict['history']['history_tongyidu_2'] == '0' else int(self.filter_dict['history']['history_tongyidu_2'])
+
+            tongyidu_num = history_obj.get_tongyidu(history_data)
+            if tongyidu_num1 > tongyidu_num or tongyidu_num2 < tongyidu_num:
+                return f"历史 统一度不符  统一度为：{tongyidu_num}"
+        return True
 
     # 注册商对比
     def ckeck_zhuceshang(self, domain):
@@ -312,7 +362,7 @@ class FilterYm():
     # 对比worker
     def work(self, beian=None, baidu=None, sogou=None, so=None,aizhan_obj=None):
         qiang = Qiang()
-
+        history_obj = GetHistory()
         while True:
             if self.work_queue.empty():
                 time.sleep(3)
@@ -333,7 +383,7 @@ class FilterYm():
             try:
                 # 对比历史
                 if self.filter_dict.get('history'):
-                    is_ok = self.get_history_comp(domain_data)  # 返回失败信息
+                    is_ok = self.get_history_comp(domain_data,history_obj)  # 返回失败信息
                     if is_ok != True:
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
                         self.save_out_data(domain_data)
@@ -573,8 +623,8 @@ class FilterYm():
             so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
 
 
-        # for i in range(self.main_filter['task_num']):
-        for i in range(100):
+        for i in range(self.main_filter['task_num']):
+        # for i in range(1):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so,aizhan_obj)))
 
@@ -586,5 +636,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 41
+    jkt_id = 50
     filter = FilterYm(jkt_id).index()

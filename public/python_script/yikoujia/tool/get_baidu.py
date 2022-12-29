@@ -202,18 +202,22 @@ class BaiDu():
 
         #获取全部url
         url_list= []
+        #显示的url
+        show_url_list = []
         for d in h3_list:
             try:
-                source_url = d.xpath('.//span[@class="c-color-gray"]//text()')[0]
-                # if source_url.find('/') == -1:
-                url_list.append(source_url)
+                url = self.get_domain_url(d.xpath('.//h3[@class="c-title t t tts-title"]//a/@href')[0])
+                if domain in url:
+                    source_url = d.xpath('.//span[@class="c-color-gray"]//text()')[0]
+                    url_list.append(url)
+                    show_url_list.append(source_url)
             except Exception as error:
                 pass
 
         #判断url中是否包含中文
         if self.lang_chinese == '1':
             # if check_contain_chinese(''.join(url_list)) != '中文':
-            if check_contain_chinese(url_list) == False:
+            if check_contain_chinese(show_url_list) == False:
                 return '百度 url中没有中文'
 
 
@@ -275,8 +279,8 @@ class BaiDu():
 if __name__ == '__main__':
 
     d = BaiDu([0,0],kuaizhao_time='0',lang_chinese='1',min_gan_word='0')
-    data1 = d.get_info('qxngzc.com')
-    result1 = d.check_baidu(data1,'qxngzc.com')
+    data1 = d.get_info('baidu.com')
+    result1 = d.check_baidu(data1,'baidu.com')
     print(result1)
     print('=='*10)
 
