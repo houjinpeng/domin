@@ -224,14 +224,33 @@ class Jkt extends AdminController
             //历史
             if ($post['is_com_history'] == '1') {
 
-                if ($post['history_age_1'] == '0' && $post['history_age_2'] == '0') {
+                if ($post['history_age_1'] == '0' && $post['history_age_2'] == '0' && $post['history_chinese_1'] == '0' && $post['history_chinese_2']== '0'  && $post['history_five_1'] == '0' && $post['history_five_2']== '0'&& $post['history_five_lianxu_1'] == '0' && $post['history_five_lianxu_2']== '0' && $post['history_lianxu_1'] == '0' && $post['history_lianxu_2']== '0' && $post['history_score_1'] == '0' && $post['history_score_2']== '0' && $post['history_tongyidu_1'] == '0' && $post['history_tongyidu_2']== '0' ) {
                     $this->error('请完善历史信息~');
                 }
                 $data['history']['history_age_1'] = $post['history_age_1'];
                 $data['history']['history_age_2'] = $post['history_age_2'];
                 $data['history']['history_is_com_word'] = $post['history_is_com_word'];
 
+                $data['history']['history_chinese_1'] = $post['history_chinese_1'];
+                $data['history']['history_chinese_2'] = $post['history_chinese_2'];
+
+                $data['history']['history_five_1'] = $post['history_five_1'];
+                $data['history']['history_five_2'] = $post['history_five_2'];
+
+                $data['history']['history_five_lianxu_1'] = $post['history_five_lianxu_1'];
+                $data['history']['history_five_lianxu_2'] = $post['history_five_lianxu_2'];
+
+                $data['history']['history_lianxu_1'] = $post['history_lianxu_1'];
+                $data['history']['history_lianxu_2'] = $post['history_lianxu_2'];
+
+                $data['history']['history_score_1'] = $post['history_score_1'];
+                $data['history']['history_score_2'] = $post['history_score_2'];
+
+                $data['history']['history_tongyidu_1'] = $post['history_tongyidu_1'];
+                $data['history']['history_tongyidu_2'] = $post['history_tongyidu_2'];
+
             }
+
             //爱站
             if ($post['is_com_aizhan'] == '1') {
 
@@ -349,12 +368,30 @@ class Jkt extends AdminController
             //历史
             if ($post['is_com_history'] == '1') {
 
-                if ($post['history_age_1'] == '0' && $post['history_age_2'] == '0') {
+                if ($post['history_age_1'] == '0' && $post['history_age_2'] == '0' && $post['history_chinese_1'] == '0' && $post['history_chinese_2']== '0'  && $post['history_five_1'] == '0' && $post['history_five_2']== '0'&& $post['history_five_lianxu_1'] == '0' && $post['history_five_lianxu_2']== '0' && $post['history_lianxu_1'] == '0' && $post['history_lianxu_2']== '0' && $post['history_score_1'] == '0' && $post['history_score_2']== '0' && $post['history_tongyidu_1'] == '0' && $post['history_tongyidu_2']== '0' ) {
                     $this->error('请完善历史信息~');
                 }
                 $data['history']['history_age_1'] = $post['history_age_1'];
                 $data['history']['history_age_2'] = $post['history_age_2'];
                 $data['history']['history_is_com_word'] = $post['history_is_com_word'];
+
+                $data['history']['history_chinese_1'] = $post['history_chinese_1'];
+                $data['history']['history_chinese_2'] = $post['history_chinese_2'];
+
+                $data['history']['history_five_1'] = $post['history_five_1'];
+                $data['history']['history_five_2'] = $post['history_five_2'];
+
+                $data['history']['history_five_lianxu_1'] = $post['history_five_lianxu_1'];
+                $data['history']['history_five_lianxu_2'] = $post['history_five_lianxu_2'];
+
+                $data['history']['history_lianxu_1'] = $post['history_lianxu_1'];
+                $data['history']['history_lianxu_2'] = $post['history_lianxu_2'];
+
+                $data['history']['history_score_1'] = $post['history_score_1'];
+                $data['history']['history_score_2'] = $post['history_score_2'];
+
+                $data['history']['history_tongyidu_1'] = $post['history_tongyidu_1'];
+                $data['history']['history_tongyidu_2'] = $post['history_tongyidu_2'];
 
             }
 
@@ -391,7 +428,7 @@ class Jkt extends AdminController
             $save ? $this->success('保存成功') : $this->error('保存失败');
 
         }
-
+//        dd(json_decode($row['data'],true));
         $this->assign('data', json_decode($row['data'], true));
         $this->assign('row', $row);
         return $this->fetch();

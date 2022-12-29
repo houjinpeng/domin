@@ -174,7 +174,7 @@
                 <label class="layui-form-label">对比敏感词</label>
                 <div class="layui-input-block" style="width: 100px;">
                     <select name="history_is_com_word" lay-verify="required">
-                        {if isset($data['is_com_history'])}
+                        {if isset($data['history']['history_is_com_word'])}
                         <option value="0" {if $data['history']['history_is_com_word'] =='0'} selected {/if}>否</option>
                         <option value="1" {if $data['history']['history_is_com_word'] =='1'} selected {/if}>是</option>
                         {else}
@@ -202,6 +202,79 @@
                 </div>
             </div>
 
+            <div class="layui-inline">
+                <label class="layui-form-label">中文条数</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_chinese_1" autocomplete="off" class="layui-input" value="{$data['history']['history_chinese_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_chinese_2" autocomplete="off" class="layui-input" value="{$data['history']['history_chinese_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年历史</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_1" autocomplete="off" class="layui-input" value="{$data['history']['history_five_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_2" autocomplete="off" class="layui-input" value="{$data['history']['history_five_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_lianxu_1" autocomplete="off" class="layui-input" value="{$data['history']['history_five_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_lianxu_2" autocomplete="off" class="layui-input" value="{$data['history']['history_five_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">最长连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_lianxu_1" autocomplete="off" class="layui-input" value="{$data['history']['history_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_lianxu_2" autocomplete="off" class="layui-input" value="{$data['history']['history_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">评分</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_score_1" autocomplete="off" class="layui-input" value="{$data['history']['history_score_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_score_2" autocomplete="off" class="layui-input" value="{$data['history']['history_score_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">统一度</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_tongyidu_1" autocomplete="off" class="layui-input" value="{$data['history']['history_tongyidu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_tongyidu_2" autocomplete="off" class="layui-input" value="{$data['history']['history_tongyidu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
         </div>
 
 
