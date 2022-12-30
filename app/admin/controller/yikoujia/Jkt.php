@@ -198,6 +198,7 @@ class Jkt extends AdminController
                 $data['sogou']['sogou_sl_1'] = $post['so_sl_1'];
                 $data['sogou']['sogou_sl_2'] = $post['so_sl_2'];
                 $data['sogou']['sogou_kz'] = $post['so_fxts'];
+                $data['sogou']['sogou_is_com_word'] = $post['sogou_is_com_word'];
 
             }
             //360
@@ -209,6 +210,8 @@ class Jkt extends AdminController
                 $data['so']['so_sl_2'] = $post['so_sl_2'];
                 $data['so']['so_fxts'] = $post['so_fxts'];
                 $data['so']['so_jg'] = $post['so_jg'];
+                $data['so']['so_is_com_word'] = $post['so_is_com_word'];
+
 
             }
             //注册商
@@ -342,6 +345,7 @@ class Jkt extends AdminController
                 $data['sogou']['sogou_sl_1'] = $post['sogou_sl_1'];
                 $data['sogou']['sogou_sl_2'] = $post['sogou_sl_2'];
                 $data['sogou']['sogou_kz'] = $post['sogou_kz'];
+                $data['sogou']['sogou_is_com_word'] = $post['sogou_is_com_word'];
 
             }
             //360
@@ -353,6 +357,7 @@ class Jkt extends AdminController
                 $data['so']['so_sl_2'] = $post['so_sl_2'];
                 $data['so']['so_fxts'] = $post['so_fxts'];
                 $data['so']['so_jg'] = $post['so_jg'];
+                $data['so']['so_is_com_word'] = $post['so_is_com_word'];
 
             }
             //注册商

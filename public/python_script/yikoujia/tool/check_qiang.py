@@ -18,9 +18,30 @@ mysql_pool_conf = {
 }
 
 db_pool = PooledDB(**mysql_pool_conf)
-
+proxies = {
+    "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+    "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+}
 # 连接redis
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
+# 初始化敏感词
+def sensitive():
+    try:
+        words = []
+        with open("敏感词.txt", encoding="UTF-8-sig") as f:
+            rows = f.readlines()
+            for row in rows:
+                row = row.replace("\n", "")
+                words.append(row)
+
+        words = [x for x in words if x]
+        return words
+    except Exception:
+        return []
+
+
+words = sensitive()
+
 
 class Qiang():
     def __init__(self):
@@ -28,7 +49,11 @@ class Qiang():
         self.key = ''
         self.ct = ''
         self.s = requests.session()
+        self.chinac_s = requests.session()
         self.get_proxy()
+        self.token = ''
+        self.auth = ''
+        self.session = ''
 
     # 设置代理
     def get_proxy(self):
@@ -54,30 +79,6 @@ class Qiang():
         except Exception as e:
             time.sleep(2)
             return None
-
-    # def get_cookie(self):
-    #     conn = db_pool.connection()
-    #     cur = conn.cursor()
-    #     cur.execute("select * from ym_domain_config")
-    #     data = cur.fetchone()
-    #     username = data['username']
-    #     password = data['password']
-    #     cookie = data['cookie']
-    #     cur.close()
-    #     conn.close()
-    #     #如果cookie为空 重新登陆
-    #     if cookie == '':
-    #         session,msg,cookie = Login().login(username,password)
-    #         self.set_cookie(cookie)
-    #     return cookie
-
-    def set_cookie(self,cookie):
-        conn = db_pool.connection()
-        cur = conn.cursor()
-        cur.execute("update ym_domain_config set cookie='%s'"%(cookie) )
-        conn.commit()
-        cur.close()
-        conn.close()
 
     def request_handler(self, url,count=0):
         try:
@@ -236,41 +237,101 @@ class Qiang():
 
     #检测是否有建站记录
     def get_beian_data(self,domain):
-        return '检测是否有建站历史记录 不可用'
-        if self.key == '':
-            self.get_token(domain)
+        csrf = self.get_csrf(domain)
+        data = self.get_icp(domain, '', csrf, '', '')
+        if data == None:
             return self.get_beian_data(domain)
-        domain = domain.replace(".","_").lower()
-        qiang_url = f'https://www.juming.com/hao/cha_d?do=beian&ym={domain}&key={self.key}'
-        resp_data = self.request_handler(qiang_url)
+        return data
 
-        if resp_data == None:
-            return None
+    def get_csrf(self,domain):
+        try:
+            url = "http://www.chaicp.com/frontend_tools/getCsrf"
 
-        data = resp_data.json()
-        #请求异常 重新登陆
+            payload = f"ym={domain}\r\n"
+            headers = {
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept-Encoding': 'gzip, deflate',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Host': 'www.chaicp.com',
+                'Origin': 'http://www.chaicp.com',
+                'Pragma': 'no-cache',
+                'Referer': f'http://www.chaicp.com/icp/{domain}',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
 
-        if data['code'] == -1 and data['msg'] != '请求异常!':
-            self.get_token(domain)
-            return self.get_beian_data(domain)
-        elif data['msg'] == '请求异常!':
-            self.set_cookie('')
-            self.get_token(domain)
-            return self.get_beian_data(domain)
+            response = self.chinac_s.post(url, headers=headers, data=payload,timeout=10,proxies=proxies).json()
+            if response['code'] == -1:
+                print(f'重新请求 csrf {response["msg"]} {proxies}')
+                # self.s = requests.session()
+                self.chinac_s = requests.session()
+                return self.get_csrf(domain)
 
-        return resp_data.json()
+            return response
+        except Exception as e:
+            self.chinac_s = requests.session()
+            return self.get_csrf(domain)
+
+
+    def get_icp(self, domain, token, response, authenticate, sessionid):
+        try:
+            url = "http://www.chaicp.com/frontend_tools/getIcp"
+            if (response['code'] == -1):
+                return None
+            payload = {'url': domain,
+                       'token': token,
+                       'csrf': response['data'],
+                       'authenticate': authenticate,
+                       'sessionid': sessionid}
+
+            headers = {
+                'Accept': '*/*',
+                'Accept-Encoding': 'gzip, deflate',
+                'Accept-Language': 'zh-CN,zh;q=0.9',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Host': 'www.chaicp.com',
+                'Origin': 'http://www.chaicp.com',
+                'Pragma': 'no-cache',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+
+            result = self.chinac_s.request("POST", url, headers=headers, data=payload,timeout=10,proxies=proxies).json()
+            if result['code'] == 2001:
+                self.chinac_s = requests.session()
+                return self.get_icp(domain, self.token, response, self.auth, self.session)
+
+            if result['code'] == 1:
+                return result
+
+            url = 'http://127.0.0.1:5001/get_token'
+            token = requests.get(url).json()
+            self.token, self.auth, self.session = token['token'], token['auth'], token['session']
+            if token == '请更新token池':
+                return None
+            time.sleep(1)
+            csrf = self.get_csrf(domain)
+            return self.get_icp(domain, self.token, csrf, self.auth, self.session)
+
+        except Exception as e:
+            print(e)
+            return self.get_icp(domain, self.token, response, self.auth, self.session)
 
 if __name__ == '__main__':
     q = Qiang()
 
-    ym_list = ['cargamescLub.com','nihao.com','baidu.com','maiyuan.com','jding.com','haha.com']
+    ym_list = ['maiyuan.com','nihao.com','baidu.com','maiyuan.com','jding.com','haha.com']
     for ym in ym_list:
         # print(ym)
-        print(q.get_qiang_data(ym))
-        print(q.get_wx_data(ym))
-        print(q.get_qq_data(ym))
-        print(q.get_beian_hmd_data(ym))
-        # print(q.get_beian_data(ym))
+        # print(q.get_qiang_data(ym))
+        # print(q.get_wx_data(ym))
+        # print(q.get_qq_data(ym))
+        # print(q.get_beian_hmd_data(ym))
+        print(q.get_beian_data(ym))
 
         print('=='*20)
 

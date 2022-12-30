@@ -3,26 +3,22 @@ import re
 from lxml import etree
 import threading, queue
 import time
-
+from tool.get_min_gan_word import get_mingan_word
 import redis
 
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
+words = get_mingan_word()
 
 
 class GetSougouRecord():
 
     def __init__(self):
-        pass
-        # ip = self.set_proxies()
-        # self.proxies = {
-        #     'http': f'http://{ip}',
-        #     'https': f'http://{ip}'
-        # }
+        self.set_proxies()
 
     def set_proxies(self):
         ip = redis_cli.rpop('sogou_ip')
         if ip == None:
-            print('备案没有ip可用啦 快快ip安排~~~~~')
+            print('搜狗没有ip可用啦 快快ip安排~~~~~')
             time.sleep(5)
             return self.set_proxies()
 
@@ -41,22 +37,23 @@ class GetSougouRecord():
             }
             headers = {
                 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'}
-            # r = requests.get(url,headers=headers,timeout=5,proxies=self.proxies)
-            r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
+            r = requests.get(url,headers=headers,timeout=5,proxies=self.proxies)
+            # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if '需要您协助验证' in r.text:
-                # self.set_proxies()
+                self.set_proxies()
                 return self.request_hearders(url)
             return r
         except Exception as e:
-            # self.set_proxies()
+            self.set_proxies()
             return self.request_hearders(url)
 
-    def check_sogou(self, html, record_count, time_str,domain):
+    def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word):
         '''
         :param html: 网页html
         :param record_count: 收录数 [min,max]
         :param time_str: 快照时间
         :param time_str: 域名
+        :param sogou_is_com_word: 是否对比敏感词
         :return:
         '''
 
@@ -73,6 +70,7 @@ class GetSougouRecord():
             # 查询
             all_domain = e.xpath('//div[contains(@class,"citeurl")]')
             fuhe_count = 0
+
             for domain_obj in all_domain:
                 if domain in ''.join(domain_obj.xpath('.//text()')):
                     fuhe_count += 1
@@ -83,6 +81,7 @@ class GetSougouRecord():
                         for t in time_str.split(','):
                             if t in ''.join(domain_obj.xpath('.//text()')):
                                 is_kuaizhao = True
+
             #如果小于5 使用页面出现的收录
             if fuhe_count < 5:
                 record = fuhe_count
@@ -94,6 +93,21 @@ class GetSougouRecord():
 
             if int(record) < int(record_count[0]) or int(record) > int(record_count[1]):
                 return f'搜狗 收录不符合 实际收录 {record}'
+
+            #判断是否对比敏感词
+            if sogou_is_com_word == '1':
+                title_list = []
+                all_div = e.xpath('//div[contains(@class,"results")]/div')
+                for d in all_div:
+                    try:
+                        title_list.append(''.join(d.xpath('.///text()')))
+                    except Exception as error:
+                        continue
+                if title_list == []: return '搜狗 没有找到标题 无法判断是否包含敏感词'
+                for t in title_list:
+                    for w in words:
+                        if w in t:
+                            return f'搜狗 包含敏感词：{w}'
 
             return True
         except Exception as error:
@@ -125,11 +139,11 @@ class GetSougouRecord():
             return self.get_info(domain)
 
 if __name__ == '__main__':
-    s = [0,50]
-    tim_str = '小时,1天,2天'
+    s = [0,0]
+    tim_str = ''
     o = GetSougouRecord()
 
-    data = o.get_info('aksqamu.com')
-    r = o.check_sogou(data['html'],s,tim_str,domain='aksqamu.com')
+    data = o.get_info('baidu.com')
+    r = o.check_sogou(data['html'],s,tim_str,domain='aksqamu.com',sogou_is_com_word='1')
     print(r)
 

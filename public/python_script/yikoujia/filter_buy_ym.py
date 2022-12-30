@@ -13,6 +13,8 @@ from tool.get_baidu import BaiDu
 from tool.check_qiang import Qiang
 from tool.get_360 import SoCom
 from tool.get_aizhan import AiZhan
+from tool.get_min_gan_word import get_mingan_word
+
 import redis
 from dbutils.pooled_db import PooledDB
 from conf.config import *
@@ -27,15 +29,8 @@ redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 history_obj = GetHistory()
 
 # 获取敏感词
-mg_word = []
-c = db_pool.connection()
-cur = c.cursor()
-sql = "select `value` from ym_system_config where name='min_gan_word'"
-cur.execute(sql)
-data = cur.fetchone()
-cur.close()
-c.close()
-[mg_word.append(d.strip()) for d in data['value'].split('\n')]
+mg_word = get_mingan_word()
+
 
 #启动插入日志队列
 
@@ -413,7 +408,7 @@ class FilterYm():
                         self.work_queue.put(domain_data)
                         self.log_queue.put(f'搜狗获取错误重新获取')
                         continue
-                    is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'])
+                    is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'],sogou_is_com_word=self.filter_dict['sogou']['sogou_is_com_word'])
                     if is_ok != True:
                         self.log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
@@ -544,7 +539,7 @@ class FilterYm():
                         continue
                     if r['msg'] == '未备案':
                         self.save_out_data(domain_data)
-                        self.log_queue.put({'ym': domain_data['ym'], 'cause': '备案:' + r['msg']})
+                        self.log_queue.put({'ym': domain_data['ym'], 'cause': '建站记录:' + r['msg']})
                         continue
 
                 self.log_queue.put({'ym': domain_data['ym'], 'cause': '需要购买'})
@@ -620,7 +615,8 @@ class FilterYm():
             so_record2 = self.filter_dict['so']['so_sl_2']
             fengxian = self.filter_dict['so']['so_fxts']
             kuaizhao_time = self.filter_dict['so']['so_jg']
-            so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time)
+            so_is_com_word = self.filter_dict['so']['so_is_com_word']
+            so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time,so_is_com_word)
 
         for i in range(self.main_filter['task_num']):
         # for i in range(1):

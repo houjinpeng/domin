@@ -8,7 +8,7 @@ from queue import Queue
 import threading
 from urllib.parse import urlparse
 import redis
-
+from tool.get_min_gan_word import get_mingan_word
 
 #检测是否是中文
 def check_contain_chinese1(check_str):
@@ -26,23 +26,8 @@ def check_contain_chinese(url_list):
     return False
 
 
-# 初始化敏感词
-def sensitive():
-    try:
-        words = []
-        with open("敏感词.txt", encoding="UTF-8-sig") as f:
-            rows = f.readlines()
-            for row in rows:
-                row = row.replace("\n", "")
-                words.append(row)
+words = get_mingan_word()
 
-        words = [x for x in words if x]
-        return words
-    except Exception:
-        return []
-
-
-words = sensitive()
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 class BaiDu():
     def __init__(self,baidu_record=[0,0],kuaizhao_time='',lang_chinese='',min_gan_word=''):

@@ -5,6 +5,9 @@ import time
 import re
 from urllib.parse import urlparse
 from lxml import etree
+from tool.get_min_gan_word import get_mingan_word
+import redis
+
 proxy_queue = queue.Queue()
 headersPool = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
@@ -31,13 +34,13 @@ headersPool = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36",
     "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.94 Safari/537.36"]
 
-import redis
 
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
+words = get_mingan_word()
 
 class SoCom():
-    def __init__(self,record_num,fengxian,kuaizhao_time):
+    def __init__(self,record_num,fengxian,kuaizhao_time,so_is_com_word):
         '''
         :param record_num:[0,0]
         :param fengxian: 是 否
@@ -47,6 +50,7 @@ class SoCom():
         self.record_num_max = 999999999 if int(record_num[1]) == 0 else int(record_num[1])
         self.fengxian = fengxian
         self.kuaizhao_time = kuaizhao_time
+        self.so_is_com_word = so_is_com_word
         self.s = requests.session()
 
     #获取url连接
@@ -129,18 +133,17 @@ class SoCom():
     def get_info(self,domain):
         try:
             r = self.requests_handler(domain)
-            html = etree.HTML(r.text)
             try:
                 count = re.findall('找到相关结果约(.*?)个', r.text)[0].replace(',', '')
             except Exception:
                 count = '0'
-            return {'sl':int(count),'html':html}
+            return {'sl':int(count),'html':r.text}
         except Exception as error:
             return self.get_info(domain)
 
     def check_360(self,html,domain):
-
-        html = etree.HTML(html)
+        global words
+        e = etree.HTML(html)
         try:
             count = re.findall('找到相关结果约(.*?)个', html)[0].replace(',', '')
         except Exception:
@@ -156,8 +159,26 @@ class SoCom():
             if '因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏' in html:
                 return '360 因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏'
 
+
+
         # 判断url结构   1首页     2泛   3内页 0不判断
-        all_result = html.xpath('//ul[@class="result"]/li')
+        all_result = e.xpath('//ul[@class="result"]/li')
+
+        if self.so_is_com_word == '1':
+            title_list = []
+            for d in all_result:
+                try:
+                    title_list.append(''.join(d.xpath('.//text()')))
+                except Exception as error:
+                    continue
+            if title_list == []: return '360 没有找到标题 无法判断是否包含敏感词'
+            for t in title_list:
+                for w in words:
+                    if w in t:
+                        return f'360 包含敏感词：{w}'
+
+
+
         if self.kuaizhao_time == '0':
             return True
 
@@ -202,6 +223,8 @@ class SoCom():
             return '360 内页判断未通过'
 
 if __name__ == '__main__':
+    so = SoCom([1,0],'否','2','1')
+    d = so.get_info('baidu.com')
 
-    res = SoCom('>=2','否','2').check_360('azov-citi.com')
+    res = so.check_360(d['html'],'baidu.com')
     print(res)
