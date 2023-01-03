@@ -24,6 +24,22 @@ class SearchYmAndFilter():
         self.filter_id = filter_id
         self.ym_set = set()
 
+    #定时清除任务线程
+    def clear_data(self):
+        start_time = str(self.filter['start_time'])[:19]
+        while True:
+            t = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            t = t + datetime.timedelta(hours=self.filter['clear_time'])
+            if datetime.datetime.now() > t:
+                #删除数据
+                start_time = str(t)[:19]
+                self.ym_set.clear()
+                self.mycol.delete_many({})
+                self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
+
+            time.sleep(3)
+
+
     #日志任务
     def save_logs(self):
         # conn = self.db_pool.connection()
@@ -51,9 +67,10 @@ class SearchYmAndFilter():
 
 
     def update_spider_status(self,table, spider_id, update_status):
+        time_str = str(datetime.datetime.now())[:19]
         conn = self.db_pool.connection()
         cur = conn.cursor()
-        up_date_sql = "update %s set spider_status= %s ,p_id=%s where id=%s" % (table, update_status, self.p_id,spider_id)
+        up_date_sql = "update %s set spider_status= %s ,p_id=%s,start_time='%s' where id=%s" % (table, update_status, self.p_id,time_str,spider_id)
         cur.execute(up_date_sql)
         conn.commit()
         cur.close()
@@ -336,6 +353,7 @@ class SearchYmAndFilter():
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
             else:
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+
     # 爱站
     def aizhan_worker(self):
         aizhan_obj = AiZhan(['0','0'],['0','0'],['0','0'],['0','0'],['0','0'])
@@ -359,6 +377,7 @@ class SearchYmAndFilter():
                 self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
                 self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+
     #主程序
     def index(self):
         self.db_pool = PooledDB(**mysql_pool_conf)
@@ -378,8 +397,10 @@ class SearchYmAndFilter():
         del all_data
 
 
-        # # 启动日志队列
+        # 启动日志队列
         threading.Thread(target=self.save_logs).start()
+        #启动删除数据任务
+        threading.Thread(target=self.clear_data).start()
         self.p_id = os.getpid()
         self.log_queue.put(f'任务进程号：{self.p_id}')
         self.log_queue.put(f'查询表单：{self.data}')
@@ -428,6 +449,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 51
+    jkt_id = 52
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

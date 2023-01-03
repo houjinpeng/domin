@@ -33,7 +33,14 @@
                            autocomplete="off" class="layui-input">
                 </div>
             </div>
-
+            <div class="layui-inline">
+                <label class="layui-form-label required">下次删除间隔（时）</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$row.clear_time}" name="clear_time" lay-verify="required|number"
+                           placeholder="请输入下次删除间隔（小时）"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
 
         </div>
 

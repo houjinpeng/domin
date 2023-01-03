@@ -55,6 +55,21 @@ class FilterYm():
         conn.close()
         return data
 
+        # 定时清除任务线程
+
+    def clear_data(self):
+        start_time = str(self.main_filter['start_time'])[:19]
+        while True:
+            t = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            t = t + datetime.timedelta(hours=self.main_filter['clear_time'])
+            if datetime.datetime.now() > t:
+                # 删除数据
+                start_time = str(t)[:19]
+                self.ym_set.clear()
+
+            time.sleep(3)
+
+
     def get_history_token(self, data_list):
         ls = []
         new_data_list = []
@@ -576,6 +591,8 @@ class FilterYm():
 
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()
+        # 启动清除内存数据
+        threading.Thread(target=self.clear_data).start()
         # 启动获取数据线程
         self.log_queue.put(f'任务进程号：{os.getpid()}')
         # 修改状态 进行中
