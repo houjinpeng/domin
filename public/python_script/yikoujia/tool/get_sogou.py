@@ -5,6 +5,7 @@ import threading, queue
 import time
 from tool.get_min_gan_word import get_mingan_word
 import redis
+from urllib.parse import urlparse
 
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 words = get_mingan_word()
@@ -14,6 +15,22 @@ class GetSougouRecord():
 
     def __init__(self):
         self.set_proxies()
+    #获取域名
+    def extract_domain(self,ym_str):
+        if '-' in ''.join(ym_str).lower().strip()[:10]:
+            if ''.join(ym_str).lower().find('-')+1 == '':
+                snapshot = ''.join(ym_str).lower().split('-')[1]
+            else:
+                snapshot = ''.join(ym_str).lower().split('/')[0].strip()
+
+            if 'htt' in snapshot:
+                snapshot = snapshot.split('/')[2].strip()
+            else:
+                snapshot = snapshot.split('/')[0].strip()
+        else:
+            snapshot = ''.join(ym_str).lower().split('/')[0].strip()
+
+        return snapshot
 
     def set_proxies(self):
         ip = redis_cli.rpop('sogou_ip')
@@ -47,7 +64,7 @@ class GetSougouRecord():
             self.set_proxies()
             return self.request_hearders(url)
 
-    def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word):
+    def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
         '''
         :param html: 网页html
         :param record_count: 收录数 [min,max]
@@ -56,7 +73,7 @@ class GetSougouRecord():
         :param sogou_is_com_word: 是否对比敏感词
         :return:
         '''
-
+        url_list = []
         e = etree.HTML(html)
         if time_str == '':
             is_kuaizhao = True
@@ -70,6 +87,11 @@ class GetSougouRecord():
             # 查询
             all_domain = e.xpath('//div[contains(@class,"citeurl")]')
             fuhe_count = 0
+
+            url_list_obj = e.xpath('//div[contains(@class,"r-sech")]/@data-url')
+            for url in url_list_obj:
+                if domain in url:
+                    url_list.append(url)
 
             for domain_obj in all_domain:
                 if domain in ''.join(domain_obj.xpath('.//text()')):
@@ -85,11 +107,12 @@ class GetSougouRecord():
             #如果小于5 使用页面出现的收录
             if fuhe_count < 5:
                 record = fuhe_count
+
             if is_kuaizhao == False:
                 return '搜狗快照不符合'
 
             if int(record_count[1]) == 0:
-                record_count[1] = 99999999
+                record_count[1] = 9999999999
 
             if int(record) < int(record_count[0]) or int(record) > int(record_count[1]):
                 return f'搜狗 收录不符合 实际收录 {record}'
@@ -108,6 +131,42 @@ class GetSougouRecord():
                     for w in words:
                         if w in t:
                             return f'搜狗 包含敏感词：{w}'
+
+            # 判断url结构   1首页     2泛   3内页 0不判断
+            if jg == '1':
+                for url in url_list:
+                    domain = urlparse(url).hostname
+                    if domain == None:
+                        continue
+                    if domain.split('.') == 0:
+                        continue
+                    elif domain.split('.') == 2:
+                        return True
+                    elif domain.split('.')[0] == 'www':
+                        return True
+                return '搜狗 首页判断未通过'
+
+            elif jg == '2':
+                for url in url_list:
+                    domain_1 = urlparse(url).hostname
+                    if domain_1 == None:
+                        continue
+                    if len(domain_1.split('.')) == 0:
+                        continue
+                    elif domain_1.split('.') == 3 and domain_1.split('.')[0] != 'www':
+                        return True
+                    elif domain in domain_1 and 'www' not in domain_1 and len(domain_1.split('.')) != 2 and 'm.' not in domain_1:
+                        return True
+                return '搜狗 泛判断未通过'
+
+            elif jg == '3':
+                for url in url_list:
+                    domain = urlparse(url)
+                    if domain.path != '':
+                        return True
+                return '搜狗 内页判断未通过'
+
+
 
             return True
         except Exception as error:
@@ -142,8 +201,9 @@ if __name__ == '__main__':
     s = [0,0]
     tim_str = ''
     o = GetSougouRecord()
-
+    # y = o.extract_domain('aaa.www.baidu.com')
+    # print(y)
     data = o.get_info('baidu.com')
-    r = o.check_sogou(data['html'],s,tim_str,domain='aksqamu.com',sogou_is_com_word='1')
-    print(r)
+    r = o.check_sogou(data['html'],s,tim_str,domain='baidu.com',sogou_is_com_word='1',jg='3')
+    # print(r)
 

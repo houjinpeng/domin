@@ -292,10 +292,30 @@
                     </select>
                 </div>
             </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">url结构</label>
+                <div class="layui-input-block">
+                    <select name="sogou_jg">
+                        {if isset($data['sogou']) &&isset($data['sogou']['sogou_jg']) }
+                        <option value="0"  {if $data['sogou']['sogou_jg'] == '0'} selected {/if}>不判断</option>
+                        <option value="1"  {if $data['sogou']['sogou_jg'] == '1'} selected {/if}>首页</option>
+                        <option value="2"  {if $data['sogou']['sogou_jg'] == '2'} selected {/if}>泛</option>
+                        <option value="3"  {if $data['sogou']['sogou_jg'] == '3'} selected {/if}>内页</option>
+                        {else}
+                        <option value="0" selected>不判断</option>
+                        <option value="1">首页</option>
+                        <option value="2">泛</option>
+                        <option value="3">内页</option>
+                        {/if}
+                    </select>
+                </div>
+            </div>
+
             <div class="layui-inline">
                 <label class="layui-form-label">对比敏感词</label>
                 <div class="layui-input-block">
-                    <select name="so_is_com_word">
+                    <select name="sogou_is_com_word">
                         {if isset($data['sogou']['sogou_is_com_word'])}
                         <option value="0" {if($data['sogou']['sogou_is_com_word'] =='0')} selected {/if}>否</option>
                         <option value="1" {if($data['sogou']['sogou_is_com_word'] =='1')} selected {/if}>是</option>
