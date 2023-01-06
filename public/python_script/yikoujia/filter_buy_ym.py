@@ -319,7 +319,7 @@ class FilterYm():
             chinese_2 = 9999999 if self.filter_dict['history']['history_chinese_2'] == '0' else int(self.filter_dict['history']['history_chinese_2'])
             chinese_tiaoshu = history_obj.get_zh_title_num(history_data)
             if chinese_1 > chinese_tiaoshu or chinese_2 < chinese_tiaoshu:
-                return f"历史 中文条数不符  中文条数为：{age['data']['pf']}"
+                return f"历史 中文条数不符  中文条数为：{chinese_tiaoshu}"
 
         # 判断最长连续时间
         if self.filter_dict['history']['history_lianxu_1'] != '0' or self.filter_dict['history']['history_lianxu_2'] != '0':
@@ -328,7 +328,7 @@ class FilterYm():
 
             lianxu_num = history_obj.get_lianxu_cundang_time(history_data)
             if history_lianxu_1 > lianxu_num or history_lianxu_2 < lianxu_num:
-                return f"历史 最长连续时间不符  连续时间为：{age['data']['pf']}"
+                return f"历史 最长连续时间不符  连续时间为：{lianxu_num}"
 
         # 判断5年连续
         if self.filter_dict['history']['history_five_lianxu_1'] != '0' or self.filter_dict['history']['history_five_lianxu_2'] != '0':
@@ -337,7 +337,7 @@ class FilterYm():
 
             lianxu_num = history_obj.get_lianxu_cundang_time(history_data,5)
             if history_lianxu_1 > lianxu_num or history_lianxu_2 < lianxu_num:
-                return f"历史 5年连续时间不符  连续时间为：{age['data']['pf']}"
+                return f"历史 5年连续时间不符  连续时间为：{lianxu_num}"
 
 
         #判断近5年历史
@@ -347,7 +347,7 @@ class FilterYm():
 
             lianxu_num = history_obj.get_five_year_num(history_data)
             if history_lianxu_1 > lianxu_num or history_lianxu_2 < lianxu_num:
-                return f"历史 5年历史不符  历史年数为：{age['data']['pf']}"
+                return f"历史 5年历史不符  历史年数为：{lianxu_num}"
 
         #判断统一度
         if self.filter_dict['history']['history_tongyidu_1'] != '0' or self.filter_dict['history']['history_tongyidu_2'] != '0':
@@ -552,7 +552,7 @@ class FilterYm():
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
-                    if r['msg'] == '未备案':
+                    if r['msg'] != '当前存在':
                         self.save_out_data(domain_data)
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': '建站记录:' + r['msg']})
                         continue

@@ -1,11 +1,12 @@
 import time
 import re
-
+import threading,queue
 import redis
 import requests
 from dbutils.pooled_db import PooledDB
 import pymysql
 from tool.longin import Login
+from tool.get_min_gan_word import get_mingan_word
 
 mysql_pool_conf = {
     'host': 'localhost',
@@ -24,25 +25,32 @@ proxies = {
 }
 # 连接redis
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
+
 # 初始化敏感词
-def sensitive():
-    try:
-        words = []
-        with open("敏感词.txt", encoding="UTF-8-sig") as f:
-            rows = f.readlines()
-            for row in rows:
-                row = row.replace("\n", "")
-                words.append(row)
+words = get_mingan_word()
 
-        words = [x for x in words if x]
-        return words
-    except Exception:
-        return []
+proxy_queue = queue.Queue()
+def get_proxy():
+    while True:
+        if proxy_queue.qsize()> 20:
+            time.sleep(2)
+            continue
+        url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
+        try:
+            r = requests.get(url, timeout=3)
+            if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
+                print('尝试修改提取筛选参数')
+                continue
+            ip_list = r.text.split('\r\n')
+            for ip in ip_list:
+                if ip.strip() == '': continue
+                proxy_queue.put(ip)
+        except Exception as e:
+            time.sleep(1)
+            print(e)
+            continue
 
-
-words = sensitive()
-
-
+threading.Thread(target=get_proxy).start()
 class Qiang():
     def __init__(self):
         self.url = 'https://www.juming.com/hao/'
@@ -58,21 +66,21 @@ class Qiang():
     # 设置代理
     def get_proxy(self):
         try:
-            # ip = redis_cli.rpop('baidu_ip')
-            # if ip == None:
-            #     print('查找墙 没有ip可用啦 快快ip安排~~~~~')
-            #     time.sleep(5)
-            #     return self.get_proxy()
-            # proxies = {
-            #     'http': f'http://{ip.decode()}',
-            #     'https': f'http://{ip.decode()}'
-            # }
-            self.s = requests.session()
-            # self.proxies = proxies
+            ip =proxy_queue.get()
+            if ip == None:
+                print('查找墙 没有ip可用啦 快快ip安排~~~~~')
+                time.sleep(5)
+                return self.get_proxy()
             proxies = {
-                "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-                "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+                'http': f'http://{ip}',
+                'https': f'http://{ip}'
             }
+            self.s = requests.session()
+            self.proxies = proxies
+            # proxies = {
+            #     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            #     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            # }
             self.s.proxies.update(proxies)
 
             return proxies
@@ -159,14 +167,18 @@ class Qiang():
             return self.verify_code(domain)
 
     def get_token(self,domain):
-        url = 'https://www.juming.com/hao/' + domain
-        resp = self.request_handler(url)
+        try:
+            url = 'https://www.juming.com/hao/' + domain
+            resp = self.request_handler(url)
 
-        if '抱歉，此次操作需要完成下方验证后方可继续' in resp.text:
-            r = self.verify_code(domain)
+            if '抱歉，此次操作需要完成下方验证后方可继续' in resp.text:
+                r = self.verify_code(domain)
+                return self.get_token(domain)
+            self.key = re.findall("key='(.*?)'", resp.text)[0]
+        except Exception as e:
+            print(e)
+            self.get_proxy()
             return self.get_token(domain)
-        self.key = re.findall("key='(.*?)'", resp.text)[0]
-
     #检查被墙
     def get_qiang_data(self, domain):
         if self.key == '':
@@ -324,7 +336,7 @@ class Qiang():
 if __name__ == '__main__':
     q = Qiang()
 
-    ym_list = ['maiyuan.com','nihao.com','baidu.com','maiyuan.com','jding.com','haha.com']
+    ym_list = ['1ddcn.com','shangshanzg.com','baidu.com']
     for ym in ym_list:
         # print(ym)
         # print(q.get_qiang_data(ym))
