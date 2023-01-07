@@ -509,7 +509,9 @@ class FilterYm():
                 if self.filter_data['is_buy_qiang'] == 0:
                     r = qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
-                        self.save_out_data(domain_data)
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'获取墙错误重新获取')
+                        # self.save_out_data(domain_data)
                         continue
                     if r['msg'] == '被墙':
                         self.save_out_data(domain_data)
@@ -520,7 +522,10 @@ class FilterYm():
                     self.log_queue.put(f"检测微信是否被墙 检测域名:{domain_data['ym']}")
                     r = qiang.get_wx_data(domain_data['ym'])
                     if r == None:
-                        self.save_out_data(domain_data)
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'检测微信是否被墙错误重新获取')
+
+                        # self.save_out_data(domain_data)
                         continue
                     if r['msg'] == '微信拦截':
                         self.save_out_data(domain_data)
@@ -530,7 +535,9 @@ class FilterYm():
                 if self.filter_data['is_buy_qq'] == 0:
                     r = qiang.get_qq_data(domain_data['ym'])
                     if r == None:
-                        self.save_out_data(domain_data)
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'检测QQ是否被墙错误重新获取')
+                        # self.save_out_data(domain_data)
                         continue
                     if '拦截' in r['msg'] :
                         self.save_out_data(domain_data)
@@ -540,7 +547,9 @@ class FilterYm():
                 if self.filter_data['is_buy_beian'] == 0:
                     r = qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
-                        self.save_out_data(domain_data)
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'检测备案黑名单错误重新获取')
+                        # self.save_out_data(domain_data)
                         continue
                     if r['msg'] != '正常':
                         self.save_out_data(domain_data)
@@ -550,7 +559,9 @@ class FilterYm():
                 if self.filter_data['is_buy_history'] == 0:
                     r = qiang.get_beian_data(domain_data['ym'])
                     if r == None:
-                        self.save_out_data(domain_data)
+                        self.work_queue.put(domain_data)
+                        self.log_queue.put(f'检测备案建站记录 错误重新获取')
+                        # self.save_out_data(domain_data)
                         continue
                     if r['data'].get('icp') == '':
                         self.save_out_data(domain_data)
