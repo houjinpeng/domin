@@ -237,7 +237,7 @@ class BaiDu():
         elif self.kuaizhao_time == '3':
             for url in url_list:
                 domain = urlparse(url)
-                if domain.path != '':
+                if domain.path != '/':
                     is_guo = True
             if is_guo == False:
                 return '百度 内页判断未通过'
@@ -262,8 +262,8 @@ class BaiDu():
         return data
 
 if __name__ == '__main__':
-    domain = 'lsjiguang.com'
-    d = BaiDu([0,0],kuaizhao_time='2',lang_chinese='0',min_gan_word='0')
+    domain = '694928.com'
+    d = BaiDu([0,0],kuaizhao_time='3',lang_chinese='0',min_gan_word='0')
     data1 = d.get_info(domain)
     result1 = d.check_baidu(data1,domain)
     print(result1)
