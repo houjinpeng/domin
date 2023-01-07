@@ -416,8 +416,8 @@ class SearchYmAndFilter():
             t.start()
         ############################################################################
         thread_list = []
-        # for i in range(self.filter['task_num']):
-        for i in range(1):
+        for i in range(self.filter['task_num']):
+        # for i in range(1):
             if self.filter['main_filter'] == '备案':
                 thread_list.append(threading.Thread(target=self.beian_worker))
 
