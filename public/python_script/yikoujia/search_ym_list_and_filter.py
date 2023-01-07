@@ -32,7 +32,7 @@ class SearchYmAndFilter():
             t = t + datetime.timedelta(hours=self.filter['clear_time'])
             if datetime.datetime.now() > t:
                 #删除数据
-                start_time = str(t)[:19]
+                start_time = str(datetime.datetime.now())[:19]
                 self.ym_set.clear()
                 self.mycol.delete_many({})
                 self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
@@ -417,7 +417,7 @@ class SearchYmAndFilter():
         ############################################################################
         thread_list = []
         for i in range(self.filter['task_num']):
-        # for i in range(1):
+#         for i in range(1):
             if self.filter['main_filter'] == '备案':
                 thread_list.append(threading.Thread(target=self.beian_worker))
 
