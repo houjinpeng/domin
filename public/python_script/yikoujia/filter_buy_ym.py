@@ -118,6 +118,8 @@ class FilterYm():
                     new_data.append(data)
             if is_have == False:
                 self.start_step -= 2000
+                if self.start_step < 0:
+                    self.start_step = 0
             if new_data == []:
                 time.sleep(3)
                 continue
