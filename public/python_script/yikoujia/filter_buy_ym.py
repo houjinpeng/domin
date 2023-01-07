@@ -552,7 +552,7 @@ class FilterYm():
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
-                    if r['msg'] != 'ok':
+                    if r['data'].get('icp') == '':
                         self.save_out_data(domain_data)
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': '建站记录:' + r['msg']})
                         continue
