@@ -137,7 +137,7 @@ class BaiDu():
             }
             # r = requests.get(baidu_url,headers=headers,verify=False)
             r = requests.get(baidu_url, headers=headers, verify=False, allow_redirects=False)
-            url = r.headers._store['location'][1].replace('http://','').replace('https://','')
+            url = r.headers._store['location'][1]
 
             return url
         except Exception as e:
@@ -153,7 +153,7 @@ class BaiDu():
         '''
         if r == None:
             return '请求失败'
-
+        domain = domain.lower()
         html = etree.HTML(r['html'])
 
         if html == None:
@@ -192,7 +192,7 @@ class BaiDu():
         for d in h3_list:
             try:
                 url = self.get_domain_url(d.xpath('.//h3[@class="c-title t t tts-title"]//a/@href')[0])
-                if domain in url:
+                if domain in url.lower():
                     source_url = d.xpath('.//span[@class="c-color-gray"]//text()')[0]
                     url_list.append(url)
                     show_url_list.append(source_url)
@@ -207,40 +207,40 @@ class BaiDu():
 
 
         # 判断url结构   1首页     2泛   3内页 0不判断
+        is_guo = False
         if self.kuaizhao_time == '0':
             return True
         elif self.kuaizhao_time == '1':
             for url in url_list:
-                domain = urlparse(url).hostname
-                if domain == None:
+                host = urlparse(url).hostname
+                if host == None:
                     continue
-                if domain.split('.') == 0:
-                    continue
-                elif domain.split('.') == 2:
-                    return True
-                elif domain.split('.')[0] == 'www':
-                    return True
-            return '百度 首页判断未通过'
+                if host.split('.')[0] == 'www' or host.count('.') == 1:
+                    is_guo =True
+                    break
+
+            if is_guo == False:
+                return '百度 首页判断未通过'
 
         elif self.kuaizhao_time == '2':
             for url in url_list:
                 domain_1 = urlparse(url).hostname
                 if domain_1 == None:
                     continue
-                if len(domain_1.split('.')) == 0:
-                    continue
-                elif domain_1.split('.') == 3 and domain_1.split('.')[0] != 'www':
-                    return True
-                elif domain in domain_1 and 'www' not in domain_1 and len(domain_1.split('.')) != 2 and 'm.' not in domain_1:
-                    return True
-            return '百度 泛判断未通过'
+                if domain_1.count('.') >= 3 and domain_1.split('.')[0] != 'www' and 'm.' not in domain_1:
+                    is_guo = True
+                    break
+
+            if is_guo == False:
+                return '百度 泛判断未通过'
 
         elif self.kuaizhao_time == '3':
             for url in url_list:
                 domain = urlparse(url)
                 if domain.path != '':
-                    return True
-            return '百度 内页判断未通过'
+                    is_guo = True
+            if is_guo == False:
+                return '百度 内页判断未通过'
 
         return True
 
@@ -262,10 +262,10 @@ class BaiDu():
         return data
 
 if __name__ == '__main__':
-
-    d = BaiDu([0,0],kuaizhao_time='0',lang_chinese='1',min_gan_word='0')
-    data1 = d.get_info('baidu.com')
-    result1 = d.check_baidu(data1,'baidu.com')
+    domain = '8888Lf.com'
+    d = BaiDu([0,0],kuaizhao_time='1',lang_chinese='0',min_gan_word='0')
+    data1 = d.get_info(domain)
+    result1 = d.check_baidu(data1,domain)
     print(result1)
     print('=='*10)
 
