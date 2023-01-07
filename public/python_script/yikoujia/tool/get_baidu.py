@@ -227,7 +227,7 @@ class BaiDu():
                 domain_1 = urlparse(url).hostname
                 if domain_1 == None:
                     continue
-                if domain_1.count('.') >= 3 and domain_1.split('.')[0] != 'www' and 'm.' not in domain_1:
+                if domain_1.count('.') >= 2 and domain_1.split('.')[0] != 'www' and 'm.' not in domain_1:
                     is_guo = True
                     break
 
@@ -262,8 +262,8 @@ class BaiDu():
         return data
 
 if __name__ == '__main__':
-    domain = '8888Lf.com'
-    d = BaiDu([0,0],kuaizhao_time='1',lang_chinese='0',min_gan_word='0')
+    domain = 'lsjiguang.com'
+    d = BaiDu([0,0],kuaizhao_time='2',lang_chinese='0',min_gan_word='0')
     data1 = d.get_info(domain)
     result1 = d.check_baidu(data1,domain)
     print(result1)
