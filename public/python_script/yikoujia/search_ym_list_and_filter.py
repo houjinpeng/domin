@@ -286,7 +286,7 @@ class SearchYmAndFilter():
 
     # 过滤360
     def so_worker(self):
-        so_obj = SoCom([1,2],'是','泛')
+        so_obj = SoCom([1,2],'是','泛','')
         while True:
             if self.task_queue.empty():
                 time.sleep(1)
@@ -416,8 +416,8 @@ class SearchYmAndFilter():
             t.start()
         ############################################################################
         thread_list = []
-        for i in range(self.filter['task_num']):
-#         for i in range(1):
+        # for i in range(self.filter['task_num']):
+        for i in range(1):
             if self.filter['main_filter'] == '备案':
                 thread_list.append(threading.Thread(target=self.beian_worker))
 

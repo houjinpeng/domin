@@ -64,7 +64,7 @@ class FilterYm():
             t = t + datetime.timedelta(hours=self.main_filter['clear_time'])
             if datetime.datetime.now() > t:
                 # 删除数据
-                start_time = str(t)[:19]
+                start_time = str(datetime.datetime.now())[:19]
                 self.ym_set.clear()
 
             time.sleep(3)
