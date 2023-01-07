@@ -552,7 +552,7 @@ class FilterYm():
                     if r == None:
                         self.save_out_data(domain_data)
                         continue
-                    if r['msg'] != '当前存在':
+                    if r['msg'] != 'ok':
                         self.save_out_data(domain_data)
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': '建站记录:' + r['msg']})
                         continue
