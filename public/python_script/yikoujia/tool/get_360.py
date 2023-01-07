@@ -61,7 +61,7 @@ class SoCom():
             }
             if 'www.so.com' in so_url:
                 # r = requests.get(baidu_url,headers=headers,verify=False)
-                r = requests.get(so_url, headers=headers, verify=False, allow_redirects=False, timeout=10)
+                r = requests.get(so_url, headers=headers, allow_redirects=False, timeout=10)
                 url = re.findall('URL=\'(.*?)"', r.text)[0][:-1]
             else:
                 return so_url
@@ -159,11 +159,8 @@ class SoCom():
             if '因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏' in html:
                 return '360 因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏'
 
-
-
-        # 判断url结构   1首页     2泛   3内页 0不判断
         all_result = e.xpath('//ul[@class="result"]/li')
-
+        # //判断敏感词
         if self.so_is_com_word == '1':
             title_list = []
             for d in all_result:
@@ -178,53 +175,50 @@ class SoCom():
                         return f'360 包含敏感词：{w}'
 
 
+        url_list = []
 
-        if self.kuaizhao_time == '0':
-            return True
+        for result in all_result:
+            href = result.xpath('.//p[@class="g-linkinfo"]/cite/a/@href')
+            domain_url = self.get_domain_url(href[0])
+            url_list.append(domain_url)
+        # 判断url结构   1首页     2泛   3内页 0不判断
+        is_guo = False
+        if self.kuaizhao_time == '1':
 
-        elif self.kuaizhao_time == '1':
-            for result in all_result:
-                href = result.xpath('//p[@class="g-linkinfo"]/cite/a/@href')
-                domain_url = self.get_domain_url(href[0])
-                domain_1 = urlparse(domain_url).hostname
-                if domain_1 == None:
+            for url in url_list:
+                host = urlparse(url).hostname
+                if host == None:
                     continue
-
-                if domain_1.split('.') == 0:
-                    continue
-                elif domain_1.split('.') == 2:
-                    return True
-                elif domain_1.split('.')[0] == 'www':
-                    return True
-            return '360 首页判断未通过'
+                if host.split('.')[0] == 'www' or host.count('.') == 1:
+                    is_guo = True
+                    break
+            if is_guo == False:
+                return '360 首页判断未通过'
 
         elif str(self.kuaizhao_time) == '2':
-            for result in all_result:
-                href = result.xpath('//p[@class="g-linkinfo"]/cite/a/@href')
-                domain_url = self.get_domain_url(href[0])
-                domain_1 = urlparse(domain_url).hostname
+            for url in url_list:
+                domain_1 = urlparse(url).hostname
                 if domain_1 == None:
                     continue
-                if len(domain_1.split('.')) == 0:
-                    continue
-                elif domain_1.split('.') == 3 and domain_1.split('.')[0] != 'www':
-                    return True
-                elif domain in domain_1 and 'www' not in domain_1 and len(domain_1.split('.')) != 2 and 'm.' not in domain_1:
-                    return True
-            return '360 泛判断未通过'
+                if domain_1.count('.') >= 2 and domain_1.split('.')[0] != 'www' and 'm.' not in domain_1:
+                    is_guo = True
+                    break
+            if is_guo == False:
+                return '360 泛判断未通过'
 
         elif self.kuaizhao_time == '3':
-            for result in all_result:
-                href = result.xpath('//p[@class="g-linkinfo"]/cite/a/@href')
-                domain_url = self.get_domain_url(href[0])
-                domain = urlparse(domain_url)
-                if domain.path != '':
-                    return True
-            return '360 内页判断未通过'
-
+            for url in url_list:
+                domain = urlparse(url)
+                if domain.path != '/':
+                    is_guo = True
+                    break
+            if is_guo == False:
+                return '360 内页判断未通过'
+        return True
 if __name__ == '__main__':
-    so = SoCom([1,0],'否','2','1')
-    d = so.get_info('baidu.com')
+    so = SoCom([0,0],'否','3','0')
+    domain = 'chinac.com'
+    d = so.get_info(domain)
 
-    res = so.check_360(d['html'],'baidu.com')
+    res = so.check_360(d['html'],domain)
     print(res)

@@ -75,6 +75,7 @@ class GetSougouRecord():
         '''
         url_list = []
         e = etree.HTML(html)
+        domain = domain.lower()
         if time_str == '':
             is_kuaizhao = True
         else:
@@ -133,36 +134,33 @@ class GetSougouRecord():
                             return f'搜狗 包含敏感词：{w}'
 
             # 判断url结构   1首页     2泛   3内页 0不判断
+            is_guo = False
             if jg == '1':
                 for url in url_list:
-                    domain = urlparse(url).hostname
-                    if domain == None:
+                    host = urlparse(url).hostname
+                    if host == None:
                         continue
-                    if domain.split('.') == 0:
-                        continue
-                    elif domain.split('.') == 2:
-                        return True
-                    elif domain.split('.')[0] == 'www':
-                        return True
-                return '搜狗 首页判断未通过'
+                    if host.split('.')[0] == 'www' or host.count('.') == 1:
+                        is_guo = True
+                        break
+                if is_guo == False:
+                    return '搜狗 首页判断未通过'
 
             elif jg == '2':
                 for url in url_list:
                     domain_1 = urlparse(url).hostname
                     if domain_1 == None:
                         continue
-                    if len(domain_1.split('.')) == 0:
-                        continue
-                    elif domain_1.split('.') == 3 and domain_1.split('.')[0] != 'www':
-                        return True
-                    elif domain in domain_1 and 'www' not in domain_1 and len(domain_1.split('.')) != 2 and 'm.' not in domain_1:
-                        return True
-                return '搜狗 泛判断未通过'
+                    if domain_1.count('.') >= 2 and domain_1.split('.')[0] != 'www' and 'm.' not in domain_1:
+                        is_guo = True
+                        break
+                if is_guo == False:
+                    return '搜狗 泛判断未通过'
 
             elif jg == '3':
                 for url in url_list:
                     domain = urlparse(url)
-                    if domain.path != '':
+                    if domain.path != '/':
                         return True
                 return '搜狗 内页判断未通过'
 
@@ -203,7 +201,8 @@ if __name__ == '__main__':
     o = GetSougouRecord()
     # y = o.extract_domain('aaa.www.baidu.com')
     # print(y)
-    data = o.get_info('baidu.com')
-    r = o.check_sogou(data['html'],s,tim_str,domain='baidu.com',sogou_is_com_word='1',jg='3')
-    # print(r)
+    domain = 'chinac.com'
+    data = o.get_info(domain)
+    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='0',jg='2')
+    print(r)
 
