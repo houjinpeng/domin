@@ -422,7 +422,7 @@ class FilterYm():
                         self.work_queue.put(domain_data)
                         self.log_queue.put(f'搜狗获取错误重新获取')
                         continue
-                    is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'],sogou_is_com_word=self.filter_dict['sogou']['sogou_is_com_word'],jg=self.filter_dict['sogou']['so_jg'])
+                    is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'],sogou_is_com_word=self.filter_dict['sogou']['sogou_is_com_word'],jg=self.filter_dict['sogou']['sogou_jg'])
                     if is_ok != True:
                         self.log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue

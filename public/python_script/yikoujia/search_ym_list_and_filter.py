@@ -207,7 +207,7 @@ class SearchYmAndFilter():
             # save_conn.commit()
 
         except Exception as error:
-            print(error)
+            print(f'保存数据库错误:{error}')
 
 
     #过滤备案
