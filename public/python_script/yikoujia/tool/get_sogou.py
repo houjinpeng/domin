@@ -163,7 +163,7 @@ class GetSougouRecord():
                     host = urlparse(url).hostname
                     if host == None:
                         continue
-                    if host.path != '/':
+                    if urlparse(url).path != '/':
                         continue
                     if host.split('.')[0] == 'www' or host.count('.') == 1:
                         is_guo = True
