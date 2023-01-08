@@ -315,6 +315,10 @@ class SearchYmAndFilter():
             ym_data = self.task_queue.get()
             self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             history_info = history_obj.get_history(ym_data)
+            if history_info == False:
+                self.task_queue.push(ym_data)
+                self.log_queue.put(f'历史 查询失败  重新查询 {ym_data}')
+                continue
             try:
                 if history_info['count'] == None:
                     self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
