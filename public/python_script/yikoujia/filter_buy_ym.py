@@ -15,7 +15,6 @@ from tool.get_360 import SoCom
 from tool.get_aizhan import AiZhan
 from tool.get_min_gan_word import get_mingan_word
 
-import redis
 from dbutils.pooled_db import PooledDB
 from conf.config import *
 from tool.jmApi import JmApi
@@ -23,8 +22,6 @@ from pymysql.converters import escape_string
 
 jm_api = JmApi()
 db_pool = PooledDB(**mysql_pool_conf)
-
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
 history_obj = GetHistory()
 

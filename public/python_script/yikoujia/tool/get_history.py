@@ -3,8 +3,6 @@ import time
 import difflib
 import requests
 import json
-import redis
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
 from dbutils.pooled_db import PooledDB
 from conf.config import *

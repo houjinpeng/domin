@@ -4,17 +4,37 @@ from lxml import etree
 import threading, queue
 import time
 from tool.get_min_gan_word import get_mingan_word
-import redis
 from urllib.parse import urlparse
 
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 words = get_mingan_word()
+proxy_queue = queue.Queue()
+def get_proxy():
+    while True:
+        if proxy_queue.qsize()> 200:
+            time.sleep(2)
+            continue
+        url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
+        try:
+            r = requests.get(url, timeout=3)
+            if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
+                print('尝试修改提取筛选参数')
+                continue
+            ip_list = r.text.split('\r\n')
+            for ip in ip_list:
+                if ip.strip() == '': continue
+                proxy_queue.put(ip)
+        except Exception as e:
+            time.sleep(1)
+            print(e)
+            continue
 
+# threading.Thread(target=get_proxy).start()
 
 class GetSougouRecord():
 
     def __init__(self):
-        self.set_proxies()
+        pass
+        # self.set_proxies()
     #获取域名
     def extract_domain(self,ym_str):
         if '-' in ''.join(ym_str).lower().strip()[:10]:
@@ -33,15 +53,10 @@ class GetSougouRecord():
         return snapshot
 
     def set_proxies(self):
-        ip = redis_cli.rpop('sogou_ip')
-        if ip == None:
-            print('搜狗没有ip可用啦 快快ip安排~~~~~')
-            time.sleep(5)
-            return self.set_proxies()
-
+        ip = proxy_queue.get()
         self.proxies = {
-            'http': f'http://{ip.decode()}',
-            'https': f'http://{ip.decode()}'
+            'http': f'http://{ip}',
+            'https': f'http://{ip}'
         }
         return ip
 
@@ -53,15 +68,23 @@ class GetSougouRecord():
                 "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
             }
             headers = {
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'}
-            r = requests.get(url,headers=headers,timeout=5,proxies=self.proxies)
-            # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
+                'Connection': 'keep-alive',
+                'Pragma': 'no-cache',
+                'Cache-Control': 'no-cache',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                'Accept-Language': 'zh-CN,zh;q=0.9',
+                'Host': 'www.sogou.com',
+            }
+            # r = requests.get(url,headers=headers,timeout=5,proxies=self.proxies)
+            r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if '需要您协助验证' in r.text:
                 self.set_proxies()
                 return self.request_hearders(url)
             return r
         except Exception as e:
-            self.set_proxies()
+            # self.set_proxies()
             return self.request_hearders(url)
 
     def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
@@ -201,8 +224,8 @@ if __name__ == '__main__':
     o = GetSougouRecord()
     # y = o.extract_domain('aaa.www.baidu.com')
     # print(y)
-    domain = 'chinac.com'
+    domain = 'gehuacs.com'
     data = o.get_info(domain)
-    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='0',jg='2')
+    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='0',jg='3')
     print(r)
 

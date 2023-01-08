@@ -16,14 +16,6 @@ def set_proxy():
         need_proxy = False
         if redis_cli.llen('beian_ip') <= 200:
             need_proxy = True
-        if redis_cli.llen('baidu_ip') <= 200:
-            need_proxy = True
-
-        if redis_cli.llen('so_ip') <= 200:
-            need_proxy = True
-
-        if redis_cli.llen('sogou_ip') <= 200:
-            need_proxy = True
 
         if need_proxy == True:
             try:
@@ -36,35 +28,13 @@ def set_proxy():
                     if ip.strip() == '': continue
                     log.info(ip)
                     redis_cli.lpush("beian_ip", ip)
-                    redis_cli.lpush("baidu_ip", ip)
-                    redis_cli.lpush("so_ip", ip)
-                    redis_cli.lpush("sogou_ip", ip)
-            except Exception as e:
-                time.sleep(1)
-                log.info(e)
-                continue
-
-            try:
-                r = requests.get('http://dev.qydailiip.com/api/?apikey=1515052b1349c02721701f386ade2dae92ee0d26&num=30&type=text&line=win&proxy_type=putong&sort=rand&model=all&protocol=http&address=&kill_address=&port=&kill_port=&today=false&abroad=1&isp=&anonymity=', timeout=3)
-                if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
-                    log.info('用户异常 等60秒')
-                    # time.sleep(60)
-                    continue
-                ip_list = r.text.split('\r\n')
-                for ip in ip_list:
-                    if ip.strip() == '': continue
-                    log.info(ip)
-                    redis_cli.lpush("beian_ip", ip)
-                    redis_cli.lpush("baidu_ip", ip)
-                    redis_cli.lpush("so_ip", ip)
-                    redis_cli.lpush("sogou_ip", ip)
 
             except Exception as e:
                 time.sleep(1)
                 log.info(e)
                 continue
-            finally:
-                pass
+
+
         else:
             time.sleep(3)
 

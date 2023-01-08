@@ -7,9 +7,30 @@ from urllib.parse import urlparse
 from lxml import etree
 proxy_queue = queue.Queue()
 
-import redis
+def get_proxy():
+    while True:
+        if proxy_queue.qsize()> 100:
+            time.sleep(2)
+            continue
+        url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
+        try:
+            r = requests.get(url, timeout=3)
+            if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
+                print('尝试修改提取筛选参数')
+                continue
+            ip_list = r.text.split('\r\n')
+            for ip in ip_list:
+                if ip.strip() == '': continue
+                proxy_queue.put(ip)
+        except Exception as e:
+            time.sleep(1)
+            print(e)
+            continue
 
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
+threading.Thread(target=get_proxy).start()
+
+
+
 
 
 class AiZhan():
@@ -36,14 +57,11 @@ class AiZhan():
     #设置代理
     def get_proxy(self):
         try:
-            ip = redis_cli.rpop('baidu_ip')
-            if ip == None:
-                print('爱站 没有ip可用啦 快快ip安排~~~~~')
-                time.sleep(5)
-                return self.get_proxy()
+            ip = proxy_queue.get()
+
             proxies = {
-                'http': f'http://{ip.decode()}',
-                'https': f'http://{ip.decode()}'
+                'http': f'http://{ip}',
+                'https': f'http://{ip}'
             }
             self.s = requests.session()
             self.proxies = proxies

@@ -11,9 +11,30 @@ import hashlib
 import threading, queue
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-import redis
 
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
+proxy_queue = queue.Queue()
+def get_proxy():
+    while True:
+        if proxy_queue.qsize()> 100:
+            time.sleep(2)
+            continue
+        url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
+        try:
+            r = requests.get(url, timeout=3)
+            if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
+                print('尝试修改提取筛选参数')
+                continue
+            ip_list = r.text.split('\r\n')
+            for ip in ip_list:
+                if ip.strip() == '': continue
+                proxy_queue.put(ip)
+        except Exception as e:
+            time.sleep(1)
+            print(e)
+            continue
+
+threading.Thread(target=get_proxy).start()
+
 
 
 class BeiAn():
@@ -27,15 +48,11 @@ class BeiAn():
 
     def set_proxies(self):
 
-        ip = redis_cli.rpop('beian_ip')
-        if ip == None:
-            print('备案没有ip可用啦 快快ip安排~~~~~')
-            time.sleep(5)
-            return self.set_proxies()
+        ip = proxy_queue.get()
 
         self.proxies = {
-            'http': f'http://{ip.decode()}',
-            'https': f'http://{ip.decode()}',
+            'http': f'http://{ip}',
+            'https': f'http://{ip}',
         }
         #print(f'域名：{self.domain}更换代理 {self.proxies}')
 

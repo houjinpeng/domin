@@ -1,5 +1,6 @@
 # encoding:utf-8
 import copy
+import queue
 import re
 import time
 import requests
@@ -7,7 +8,6 @@ from lxml import etree
 from queue import Queue
 import threading
 from urllib.parse import urlparse
-import redis
 from tool.get_min_gan_word import get_mingan_word
 
 #检测是否是中文
@@ -27,8 +27,32 @@ def check_contain_chinese(url_list):
 
 
 words = get_mingan_word()
+proxy_queue = queue.Queue()
+def get_proxy():
+    while True:
+        if proxy_queue.qsize()> 100:
+            time.sleep(2)
+            continue
+        url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
+        try:
+            r = requests.get(url, timeout=3)
+            if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
+                print('尝试修改提取筛选参数')
+                continue
+            ip_list = r.text.split('\r\n')
+            for ip in ip_list:
+                if ip.strip() == '': continue
+                proxy_queue.put(ip)
+        except Exception as e:
+            time.sleep(1)
+            print(e)
+            continue
 
-redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
+threading.Thread(target=get_proxy).start()
+
+
+
+
 class BaiDu():
     def __init__(self,baidu_record=[0,0],kuaizhao_time='',lang_chinese='',min_gan_word=''):
 
@@ -45,17 +69,11 @@ class BaiDu():
 
     def get_proxy(self):
         try:
-            ip = redis_cli.rpop('baidu_ip')
-            if ip == None:
-                print('百度没有ip可用啦 快快ip安排~~~~~')
-                time.sleep(5)
-                return self.get_proxy()
-
+            ip = proxy_queue.get()
             proxies = {
                 'http': f'http://{ip}',
                 'https': f'http://{ip}'
             }
-
             self.proxies = proxies
             return proxies
         except Exception as e:
