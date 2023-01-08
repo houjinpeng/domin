@@ -147,7 +147,7 @@ class GetSougouRecord():
                 all_div = e.xpath('//div[contains(@class,"results")]/div')
                 for d in all_div:
                     try:
-                        title_list.append(''.join(d.xpath('.///text()')))
+                        title_list.append(''.join(d.xpath('.//text()')))
                     except Exception as error:
                         continue
                 if title_list == []: return '搜狗 没有找到标题 无法判断是否包含敏感词'
@@ -227,6 +227,6 @@ if __name__ == '__main__':
     # print(y)
     domain = 'chinactzj.com'
     data = o.get_info(domain)
-    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='0',jg='1')
+    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='1',jg='1')
     print(r)
 
