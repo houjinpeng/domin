@@ -234,8 +234,8 @@ class SoCom():
                 return '360 内页判断未通过'
         return True
 if __name__ == '__main__':
-    so = SoCom([0,0],'否','2','0')
-    domain = '959394.com'
+    so = SoCom([0,0],'否','1','0')
+    domain = 'tLsf857.com'
     d = so.get_info(domain)
 
     res = so.check_360(d['html'],domain)
