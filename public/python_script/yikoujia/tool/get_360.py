@@ -193,10 +193,10 @@ class SoCom():
 
 
         url_list = []
-
-        for result in all_result:
-            href = result.xpath('.//p[@class="g-linkinfo"]/cite/a/@href')
-            domain_url = self.get_domain_url(href[0])
+        all_url = e.xpath('//p[@class="g-linkinfo"]/cite/a/@href')
+        for result in all_url:
+            # href = result.xpath('.//p[@class="g-linkinfo"]/cite/a/@href')
+            domain_url = self.get_domain_url(result)
             url_list.append(domain_url)
         # 判断url结构   1首页     2泛   3内页 0不判断
         is_guo = False
@@ -234,7 +234,7 @@ class SoCom():
         return True
 if __name__ == '__main__':
     so = SoCom([0,0],'否','1','0')
-    domain = 'chinactzj.com'
+    domain = ''
     d = so.get_info(domain)
 
     res = so.check_360(d['html'],domain)
