@@ -233,9 +233,7 @@ class BaiDu():
                 host = urlparse(url).hostname
                 if host == None:
                     continue
-                if urlparse(url).path != '/':
-                    continue
-                if host.split('.')[0] == 'www' or host.count('.') == 1:
+                if (host.split('.')[0] == 'www' or host.count('.') == 1 ) and (urlparse(url).path == '/' or urlparse(url).path == ''):
                     is_guo =True
                     break
 
@@ -257,7 +255,7 @@ class BaiDu():
         elif self.kuaizhao_time == '3':
             for url in url_list:
                 domain = urlparse(url)
-                if domain.path != '/':
+                if domain.path != '/' and domain.path != '':
                     is_guo = True
             if is_guo == False:
                 return '百度 内页判断未通过'

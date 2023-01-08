@@ -206,9 +206,7 @@ class SoCom():
                 host = urlparse(url).hostname
                 if host == None:
                     continue
-                if urlparse(url).path != '/':
-                    continue
-                if host.split('.')[0] == 'www' or host.count('.') == 1:
+                if (host.split('.')[0] == 'www' or host.count('.') == 1 ) and (urlparse(url).path == '/' or urlparse(url).path == ''):
                     is_guo = True
                     break
             if is_guo == False:
@@ -228,15 +226,15 @@ class SoCom():
         elif self.kuaizhao_time == '3':
             for url in url_list:
                 domain = urlparse(url)
-                if domain.path != '/':
+                if domain.path != '/' and domain.path != '':
                     is_guo = True
                     break
             if is_guo == False:
                 return '360 内页判断未通过'
         return True
 if __name__ == '__main__':
-    so = SoCom([0,0],'否','3','0')
-    domain = 'chinac.com'
+    so = SoCom([0,0],'否','1','0')
+    domain = 'chinactzj.com'
     d = so.get_info(domain)
 
     res = so.check_360(d['html'],domain)

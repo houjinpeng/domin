@@ -163,9 +163,8 @@ class GetSougouRecord():
                     host = urlparse(url).hostname
                     if host == None:
                         continue
-                    if urlparse(url).path != '/':
-                        continue
-                    if host.split('.')[0] == 'www' or host.count('.') == 1:
+
+                    if (host.split('.')[0] == 'www' or host.count('.') == 1) and (urlparse(url).path == '/' or urlparse(url).path == ''):
                         is_guo = True
                         break
                 if is_guo == False:
@@ -185,7 +184,7 @@ class GetSougouRecord():
             elif jg == '3':
                 for url in url_list:
                     domain = urlparse(url)
-                    if domain.path != '/':
+                    if domain.path != '/' and  domain.path != '':
                         return True
                 return '搜狗 内页判断未通过'
 
@@ -226,8 +225,8 @@ if __name__ == '__main__':
     o = GetSougouRecord()
     # y = o.extract_domain('aaa.www.baidu.com')
     # print(y)
-    domain = 'gehuacs.com'
+    domain = 'chinactzj.com'
     data = o.get_info(domain)
-    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='0',jg='3')
+    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='0',jg='1')
     print(r)
 
