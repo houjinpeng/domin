@@ -206,7 +206,8 @@ class SoCom():
                 host = urlparse(url).hostname
                 if host == None:
                     continue
-                if (host.split('.')[0] == 'www' or host.count('.') == 1 ) and (urlparse(url).path == '/' or urlparse(url).path == ''):
+                # if (host.split('.')[0] == 'www' or host.count('.') == 1 ) and (urlparse(url).path != '/' and urlparse(url).path != ''):
+                if host.split('.')[0] == 'www' or host.count('.') == 1 :
                     is_guo = True
                     break
             if is_guo == False:
@@ -233,8 +234,8 @@ class SoCom():
                 return '360 内页判断未通过'
         return True
 if __name__ == '__main__':
-    so = SoCom([0,0],'否','1','0')
-    domain = ''
+    so = SoCom([0,0],'否','2','0')
+    domain = '959394.com'
     d = so.get_info(domain)
 
     res = so.check_360(d['html'],domain)
