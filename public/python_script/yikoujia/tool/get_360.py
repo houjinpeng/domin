@@ -64,6 +64,7 @@ class SoCom():
         :param record_num:[0,0]
         :param fengxian: 是 否
         :param kuaizhao_time: 泛 首页
+        :param so_is_com_word:是否对比敏感词
         '''
         self.record_num_min = int(record_num[0])
         self.record_num_max = 999999999 if int(record_num[1]) == 0 else int(record_num[1])
@@ -176,7 +177,7 @@ class SoCom():
                 return '360 因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏'
 
         all_result = e.xpath('//ul[@class="result"]/li')
-        # //判断敏感词
+        # 判断敏感词
         if self.so_is_com_word == '1':
             title_list = []
             for d in all_result:
