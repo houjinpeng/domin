@@ -41,7 +41,15 @@
                            autocomplete="off" class="layui-input">
                 </div>
             </div>
-
+            <div class="layui-inline" >
+                <label class="layui-form-label required">删除列表时间（优先）</label>
+                <div class="layui-input-block">
+                    <input width="300px" type="text" value="{$row.clear_time_str}" name="clear_time_str"
+                           placeholder="请输入删除列表时间如 时分（23:00）"
+                           autocomplete="off" class="layui-input">
+                    <tip> 输入格式为 时分（23:00） 不删除别输入哦~</tip>
+                </div>
+            </div>
         </div>
 
 
