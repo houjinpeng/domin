@@ -177,6 +177,8 @@ class SoCom():
                 return '360 因部分结果可能无法正常访问或被恶意篡改、存在虚假诈骗等原因，已隐藏'
 
         all_result = e.xpath('//ul[@class="result"]/li')
+        if all_result == []:
+            all_result = e.xpath('//ul[@class="result hide-spite"]/li')
         # 判断敏感词
         if self.so_is_com_word == '1':
             title_list = []
@@ -234,8 +236,8 @@ class SoCom():
                 return '360 内页判断未通过'
         return True
 if __name__ == '__main__':
-    so = SoCom([0,0],'否','1','0')
-    domain = 'tLsf857.com'
+    so = SoCom([0,0],'1','1','1')
+    domain = 'zpokf8f.com'
     d = so.get_info(domain)
 
     res = so.check_360(d['html'],domain)
