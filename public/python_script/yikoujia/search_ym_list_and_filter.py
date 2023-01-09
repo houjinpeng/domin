@@ -27,17 +27,23 @@ class SearchYmAndFilter():
     #定时清除任务线程
     def clear_data(self):
         start_time = str(self.filter['start_time'])[:19]
-        while True:
-            t = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-            t = t + datetime.timedelta(hours=self.filter['clear_time'])
-            if datetime.datetime.now() > t:
-                #删除数据
-                start_time = str(datetime.datetime.now())[:19]
-                self.ym_set.clear()
-                self.mycol.delete_many({})
-                self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
+        if self.filter['clear_time_str'] != '':
+            while True:
+                if str(datetime.datetime.now())[11:16] == self.filter['clear_time_str']:
+                    self.ym_set.clear()
+                time.sleep(3)
+        else:
+            while True:
+                t = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+                t = t + datetime.timedelta(hours=self.filter['clear_time'])
+                if datetime.datetime.now() > t:
+                    #删除数据
+                    start_time = str(datetime.datetime.now())[:19]
+                    self.ym_set.clear()
+                    self.mycol.delete_many({})
+                    self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
 
-            time.sleep(3)
+                time.sleep(3)
 
 
     #日志任务

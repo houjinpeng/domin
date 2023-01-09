@@ -238,7 +238,7 @@ nian:
 '''
 
 if __name__ == '__main__':
-    ds = ['dg1008688.cn','shining-stars.org']
+    ds = ['77ck.com','shining-stars.org']
     h = GetHistory()
     for domain in ds:
         ls = h.get_token(ds)
@@ -246,5 +246,6 @@ if __name__ == '__main__':
             result = h.get_history({'ym':do['ym'],'token':do['token']})
 
             five = h.get_five_year_num(result)
+            tongyidu = h.get_tongyidu(result)
 
-            print(five)
+            print(five,tongyidu)
