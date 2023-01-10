@@ -184,7 +184,7 @@ class SoCom():
             title_list = []
             for d in all_result:
                 try:
-                    title_list.append(''.join(d.xpath('.//text()')))
+                    title_list.append(''.join(d.xpath('.//text()')).replace(domain,''))
                 except Exception as error:
                     continue
             if title_list == []: return '360 没有找到标题 无法判断是否包含敏感词'

@@ -193,7 +193,7 @@ class BaiDu():
             title_list = []
             for d in h3_list:
                 try:
-                    title_list.append(str(d.xpath('.//h3[@class="c-title t t tts-title"]//a/text()')[0]).replace(","," ").replace("\n", ""))
+                    title_list.append(str(d.xpath('.//h3[@class="c-title t t tts-title"]//a/text()')[0]).replace(domain," ").replace(","," ").replace("\n", ""))
                 except Exception as error:
                     continue
             if title_list == []: return '百度 没有找到标题 无法判断是否包含敏感词'

@@ -28,10 +28,17 @@ class SearchYmAndFilter():
     def clear_data(self):
         start_time = str(self.filter['start_time'])[:19]
         if self.filter['clear_time_str'] != '':
+            is_delete = False
             while True:
                 if str(datetime.datetime.now())[11:16] == self.filter['clear_time_str']:
-                    self.ym_set.clear()
+                    if is_delete == False:
+                        self.ym_set.clear()
+                        self.mycol.delete_many({})
+                    is_delete = True
+                    time.sleep(3)
+                    continue
                 time.sleep(3)
+                is_delete = False
         else:
             while True:
                 t = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
