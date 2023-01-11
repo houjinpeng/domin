@@ -112,6 +112,7 @@ class Jkt extends AdminController
             //保存控制台数据   关联
             $save = $this->model->where('id',$id)->update($post);
             if ($save){
+                kill_task($row['p_id']);
                 //如果修改主线条件  直接停止支线数据
                 $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
                 foreach ($zhi as $item){
