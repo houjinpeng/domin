@@ -116,7 +116,7 @@ class Jkt extends AdminController
                 //如果修改主线条件  直接停止支线数据
                 $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
                 foreach ($zhi as $item){
-                    $this->model->where('id','=',$item['id'])->update(['spider_status'=>3]);
+                    $this->filter_model->where('id','=',$item['id'])->update(['spider_status'=>3]);
                     kill_task($item['pid']);
                 }
                 $row = Db::connect('mongo')
