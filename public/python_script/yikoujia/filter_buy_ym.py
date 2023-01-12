@@ -130,7 +130,7 @@ class FilterYm():
                 if self.start_step < 0:
                     self.start_step = 0
             if new_data == []:
-                time.sleep(3)
+                time.sleep(1)
                 continue
             # 判断是否检测历史
             if self.filter_dict.get('history'):
@@ -141,8 +141,8 @@ class FilterYm():
             # 存入任务队列
             for data in new_data:
                 self.work_queue.put(data)
-            # self.log_queue.put(f'本次插入队列数据:{len(new_data)}')
-            time.sleep(3)
+            self.log_queue.put(f'本次插入队列数据:{len(new_data)}')
+            time.sleep(1)
 
     # 修改爬虫状态
     def update_spider_status(self, table, spider_id, update_status):

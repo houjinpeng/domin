@@ -211,7 +211,8 @@ class SearchYmAndFilter():
                 'jg': ym_data['jg'],
                 'zcs': ym_data['zcs'],
                 'token': ym_data.get('token'),
-                key: value
+                key: value,
+                'create_time':str(datetime.datetime.now())[:19]
             }
 
             self.mycol.insert_one(data)
