@@ -162,11 +162,11 @@ class FilterYm():
         # redis_cli.sadd(f'out_ym_data_{self.filter_data["id"]}', json.dumps(domain_data))
 
     # 保存需要购买的域名
-    def save_buy_ym(self, domain_data):
+    def save_buy_ym(self, domain_data,is_buy=0):
         conn = db_pool.connection()
         cur = conn.cursor()
-        save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym) values ('%s','%s')" % (
-        self.filter_data['id'], domain_data['ym'])
+        save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy) values ('%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy)
+
         cur.execute(save_sql)
         conn.commit()
         conn.close()
@@ -213,7 +213,7 @@ class FilterYm():
                     resp = jm_api.buy_ykj(domain_data['ym'], domain_data['jg'],ty=3)
                     if resp['code'] == 1:
                         self.log_queue.put(f'{domain_data["ym"]} 可赎回域名 购买成功')
-                        self.save_buy_ym(domain_data)
+                        self.save_buy_ym(domain_data,is_buy=1)
                     else:
                         self.log_queue.put(f'购买失败 {resp}')
                 else:
