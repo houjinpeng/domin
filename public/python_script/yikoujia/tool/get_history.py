@@ -61,7 +61,7 @@ class GetHistory():
             print("[209]", e)
             return self.get_token(domain_list)
 
-    def get_history(self,domain):
+    def get_history(self,domain,count=0):
         try:
 
             headers = {
@@ -85,7 +85,7 @@ class GetHistory():
                 'group': '1',
                 'nian': ''
             }
-            response_detail = requests.post('http://47.56.160.68:10247/api.php', data=data, verify=False,headers=headers, timeout=3)
+            response_detail = requests.post('http://47.56.160.68:10247/api.php', data=data, verify=False,headers=headers, timeout=10)
             r = response_detail.json()
 
             results = {
@@ -97,8 +97,11 @@ class GetHistory():
 
             # print(results)
             return results
-        except:
-            return False
+        except Exception as e:
+            print(e)
+            if count >5:
+                return False
+            return self.get_history(domain,count+1)
 
     def get_age(self,domain):
         headers = {

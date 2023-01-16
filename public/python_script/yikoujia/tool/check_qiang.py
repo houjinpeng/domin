@@ -427,23 +427,24 @@ if __name__ == '__main__':
     cunzai = 0
     bucunzai = 0
     for ym in ym_list:
-        # print(ym)
+        print(ym)
         print(q.get_qiang_data(ym))
-        # print(q.get_wx_data(ym))
-        # print(q.get_qq_data(ym))
-        # print(q.get_beian_hmd_data(ym))
+        print(q.get_wx_data(ym))
+        print(q.get_qq_data(ym))
+        print(q.get_beian_hmd_data(ym))
         j = q.get_beian_data(ym)
-        if j == None:
-            print(f'ym :{ym} none')
-            continue
-        elif j['data']['icp'] != '':
-            cunzai+=1
-            print(f'ym:{ym} 存在 ：{j}')
-        else:
-            bucunzai+=1
-            print(f'ym:{ym} 不存在 ：{j}')
+        print(j)
+        # if j == None:
+        #     print(f'ym :{ym} none')
+        #     continue
+        # elif j['data']['icp'] != '':
+        #     cunzai+=1
+        #     print(f'ym:{ym} 存在 ：{j}')
+        # else:
+        #     bucunzai+=1
+        #     print(f'ym:{ym} 不存在 ：{j}')
 
-
+        print('=='*10)
 
 
     print('=='*20)

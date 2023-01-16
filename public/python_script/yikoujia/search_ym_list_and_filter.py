@@ -6,17 +6,14 @@ import os
 import time
 from dbutils.pooled_db import PooledDB
 from conf.config import *
-from houhou.logger import Logger
-import sys
 import threading,queue
-from tool.get_beian import BeiAn
-from houhou.sql_handler import *
+# from tool.get_beian import BeiAn
 from tool.jmApi import JmApi
-from tool.get_baidu import BaiDu
-from tool.get_sogou import GetSougouRecord
-from tool.get_360 import SoCom
+# from tool.get_baidu import BaiDu
+# from tool.get_sogou import GetSougouRecord
+# from tool.get_360 import SoCom
 from tool.get_history import GetHistory
-from tool.get_aizhan import AiZhan
+# from tool.get_aizhan import AiZhan
 import pymongo
 
 class SearchYmAndFilter():
@@ -331,7 +328,7 @@ class SearchYmAndFilter():
             history_info = history_obj.get_history(ym_data)
             if history_info == False:
                 self.task_queue.put(ym_data)
-                self.log_queue.put(f'历史 查询失败  重新查询 {ym_data}')
+                self.log_queue.put(f'历史 查询失败  重新查询 {ym_data["ym"]} {ym_data["token"]}')
                 continue
             try:
                 if history_info['count'] == None:
@@ -434,8 +431,8 @@ class SearchYmAndFilter():
             t.start()
         ############################################################################
         thread_list = []
-        for i in range(self.filter['task_num']):
-        # for i in range(1):
+        # for i in range(self.filter['task_num']):
+        for i in range(100):
             if self.filter['main_filter'] == '备案':
                 thread_list.append(threading.Thread(target=self.beian_worker))
 
@@ -467,6 +464,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 52
+    jkt_id = 51
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()
