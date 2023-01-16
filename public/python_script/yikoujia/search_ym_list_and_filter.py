@@ -7,13 +7,13 @@ import time
 from dbutils.pooled_db import PooledDB
 from conf.config import *
 import threading,queue
-# from tool.get_beian import BeiAn
+from tool.get_beian import BeiAn
 from tool.jmApi import JmApi
-# from tool.get_baidu import BaiDu
-# from tool.get_sogou import GetSougouRecord
-# from tool.get_360 import SoCom
+from tool.get_baidu import BaiDu
+from tool.get_sogou import GetSougouRecord
+from tool.get_360 import SoCom
 from tool.get_history import GetHistory
-# from tool.get_aizhan import AiZhan
+from tool.get_aizhan import AiZhan
 import pymongo
 
 class SearchYmAndFilter():
