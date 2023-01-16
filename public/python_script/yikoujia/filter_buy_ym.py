@@ -294,6 +294,12 @@ class FilterYm():
             history_data = domain.get('history')
         else:
             history_data = history_obj.get_history({'ym': domain['ym'], 'token': domain['token']})
+            if history_data == None:
+                return f'历史查询  域名有问题 {domain["ym"]}'
+            if history_data == False:
+                self.work_queue.put(domain)
+                return f"历史查询  重新对比 {domain['ym']}"
+
         # 判断是否对比关键词
         if self.filter_dict['history']['history_is_com_word'] == '1':
             is_mingan = self.check_mingan(history_data)

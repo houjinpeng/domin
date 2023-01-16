@@ -86,6 +86,10 @@ class GetHistory():
                 'nian': ''
             }
             response_detail = requests.post('http://47.56.160.68:10247/api.php', data=data, verify=False,headers=headers, timeout=10)
+            if response_detail.status_code == 200:
+                if response_detail.text == '':
+                    return None
+
             r = response_detail.json()
 
             results = {
@@ -241,7 +245,7 @@ nian:
 '''
 
 if __name__ == '__main__':
-    ds = ['77ck.com','shining-stars.org']
+    ds = ['hoicastLe.com']
     h = GetHistory()
     for domain in ds:
         ls = h.get_token(ds)
