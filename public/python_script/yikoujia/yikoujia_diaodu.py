@@ -36,8 +36,7 @@ def check():
         main_sql = "select * from ym_yikoujia_jkt where spider_status=1"
         cur.execute(main_sql)
         all_main_data = cur.fetchall()
-        cur.close()
-        conn.close()
+
         for dd in all_main_data:
             # 判断进程是否存在 不存在重新启动
             result = os.system(f'tasklist | findstr {dd["p_id"]}')
@@ -49,22 +48,13 @@ def check():
                 # process_task.daemon = True
                 print(f'重启主线  {dd["title"]} 开始运行')
                 process_task.start()
-        time.sleep(60*10)
-
-threading.Thread(target=check).start()
-
-
-#监控程序
-def scheduler():
-    while True:
-
-        conn = db_pool.connection()
-        cur = conn.cursor()
 
         ###############################################################################
         zhi_sql = 'select * from ym_yikoujia_buy_filter where spider_status=1'
         cur.execute(zhi_sql)
         all_zhi = cur.fetchall()
+        cur.close()
+        conn.close()
         for z in all_zhi:
             # 判断进程是否存在 不存在重新启动
             result = os.system(f'tasklist | findstr {z["pid"]}')
@@ -76,6 +66,19 @@ def scheduler():
                 # process_task.daemon = True
                 process_task.start()
                 print(f'重启支线  {z["title"]} 开始运行')
+
+        time.sleep(60*30)
+
+threading.Thread(target=check).start()
+
+
+#监控程序
+def scheduler():
+    while True:
+
+        conn = db_pool.connection()
+        cur = conn.cursor()
+
 
         ###############################################################################
 
