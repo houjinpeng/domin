@@ -67,7 +67,6 @@ def check():
             process_task.start()
             print(f'重启支线  {z["title"]} 开始运行')
 
-    time.sleep(60*30)
 
 
 
