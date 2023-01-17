@@ -12,6 +12,8 @@ multiprocessing.current_process().name
 #获取当前进程名称
 
 '''
+import threading
+
 from dbutils.pooled_db import PooledDB
 from conf.config import *
 from multiprocessing import Process
@@ -24,31 +26,40 @@ db_pool = PooledDB(**mysql_pool_conf)
 
 log = Logger().logger
 
-#监控程序
-def scheduler():
-    while True:
 
+def check():
+    while True:
         conn = db_pool.connection()
         cur = conn.cursor()
 
-
-        #查找启动了确找不到id的进程 重新启动
+        # 查找启动了确找不到id的进程 重新启动
         main_sql = "select * from ym_yikoujia_jkt where spider_status=1"
         cur.execute(main_sql)
         all_main_data = cur.fetchall()
+        cur.close()
+        conn.close()
         for dd in all_main_data:
-            #判断进程是否存在 不存在重新启动
+            # 判断进程是否存在 不存在重新启动
             result = os.system(f'tasklist | findstr {dd["p_id"]}')
             if result == 1:
-                #重启
+                # 重启
                 search_obj = SearchYmAndFilter(dd['id'])
                 process_task = Process(target=search_obj.index)
                 # 设置安全进程   主线退出后 子线程也退出
                 # process_task.daemon = True
                 print(f'重启主线  {dd["title"]} 开始运行')
                 process_task.start()
+        time.sleep(60*10)
 
-            # 监控子条件 并购买
+threading.Thread(target=check).start()
+
+
+#监控程序
+def scheduler():
+    while True:
+
+        conn = db_pool.connection()
+        cur = conn.cursor()
 
         ###############################################################################
         zhi_sql = 'select * from ym_yikoujia_buy_filter where spider_status=1'

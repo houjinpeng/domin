@@ -107,8 +107,8 @@ if __name__ == '__main__':
         # 'tao':'1299,77379'
             # 'bqjc': 99,#被墙检测
             'jgpx': 5,#排序结果
-            'gjz_cha':'js-kaipu.com'
+            'gjz_cha':'trtfund.com'
             }
-    data_info = jm_api.get_ykj_list(data)
+    data_info = jm_api.get_ykj_cj_list(data)
     for data in data_info['data']:
         print(data)
