@@ -674,7 +674,7 @@ class Jkt extends AdminController
     public function logs($id,$type){
 
         if ($type == 1){
-            $file_name = 'logs_'.date('Ymd').'/main_log/zhi_'.$id.'.log';
+            $file_name = 'logs_'.date('Ymd').'/main_log/main_'.$id.'.log';
 
         }else{
             $file_name = 'logs_'.date('Ymd').'/zhi_log/zhi_'.$id.'.log';
