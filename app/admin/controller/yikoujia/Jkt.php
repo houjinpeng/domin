@@ -674,10 +674,10 @@ class Jkt extends AdminController
     public function logs($id,$type){
 
         if ($type == 1){
-            $file_name = 'logs_'.date('Y-m-d').'/main_log/zhi_'.$id.'.log';
+            $file_name = 'logs_'.date('Ymd').'/main_log/zhi_'.$id.'.log';
 
         }else{
-            $file_name = 'logs_'.date('Y-m-d').'/zhi_log/zhi_'.$id.'.log';
+            $file_name = 'logs_'.date('Ymd').'/zhi_log/zhi_'.$id.'.log';
         }
         try {
             $fp=fopen('./python_script/yikoujia/logs/'.$file_name,'r');
