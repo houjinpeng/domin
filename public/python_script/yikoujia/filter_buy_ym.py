@@ -177,13 +177,14 @@ class FilterYm():
     def save_logs(self):
         while True:
             last_date = date.today().strftime('%Y%m%d')
-            dir_path = f'./logs/logs_{last_date}/zhi_log'
+            dir_path = f'./logs/logs_{last_date}'
 
             if os.path.exists(dir_path) == False:
                 os.mkdir(dir_path)
+            if os.path.exists(f'{dir_path}/zhi_log') == False:
+                os.mkdir(f"{dir_path}/zhi_log")
 
-
-            with open(f'{dir_path}/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
+            with open(f'{dir_path}/zhi_log/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
 
                 while True:
                     today = date.today().strftime('%Y-%m-%d')

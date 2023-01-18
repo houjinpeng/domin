@@ -1,8 +1,9 @@
 '''
 按条件搜索域名列表 并筛选数据
 '''
-import datetime
+from datetime import date, timedelta
 import os
+import datetime
 import time
 from dbutils.pooled_db import PooledDB
 from conf.config import *
@@ -15,7 +16,6 @@ from tool.get_360 import SoCom
 from tool.get_history import GetHistory
 from tool.get_aizhan import AiZhan
 import pymongo
-from datetime import date, timedelta
 
 class SearchYmAndFilter():
     def __init__(self,filter_id):
@@ -57,12 +57,14 @@ class SearchYmAndFilter():
         while True:
 
             last_date = date.today().strftime('%Y%m%d')
-            dir_path = f'./logs/logs_{last_date}/main_log'
+            dir_path = f'./logs/logs_{last_date}'
 
             if os.path.exists(dir_path) == False:
                 os.mkdir(dir_path)
+            if os.path.exists(f'{dir_path}/main_log') == False:
+                os.mkdir(f'{dir_path}/main_log')
 
-            with open(f'./logs/main_{self.filter_id}.log','a',encoding='utf-8') as fw:
+            with open(f'{dir_path}/main_log/main_{self.filter_id}.log','a',encoding='utf-8') as fw:
                 while True:
                     today = date.today().strftime('%Y-%m-%d')
 
