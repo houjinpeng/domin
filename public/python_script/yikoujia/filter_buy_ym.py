@@ -3,6 +3,7 @@ import sys
 import time, datetime
 import json
 import threading, queue
+from datetime import date, timedelta
 
 import pymongo
 from houhou.logger import Logger
@@ -174,15 +175,29 @@ class FilterYm():
 
 
     def save_logs(self):
+        while True:
+            last_date = date.today().strftime('%Y-%m-%d')
+            dir_path = f'./logs/logs_{last_date}/zhi_log'
 
-        with open(f'./logs/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
-            while True:
-                if self.log_queue.empty():
-                    time.sleep(2)
-                    continue
-                msg = self.log_queue.get()
-                fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
-                fw.flush()
+            if os.path.exists(dir_path) == False:
+                os.mkdir(dir_path)
+
+
+            with open(f'{dir_path}/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
+
+                while True:
+                    today = date.today().strftime('%Y-%m-%d')
+                    if last_date != today:
+                        break
+                    if self.log_queue.empty():
+                        time.sleep(2)
+                        continue
+                    msg = self.log_queue.get()
+                    fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+                    fw.flush()
+
+
+
         # conn = db_pool.connection()
         # cur = conn.cursor()
         # while True:
@@ -202,7 +217,7 @@ class FilterYm():
         self.log_queue.put(resp)
         if resp['code'] == 1:
             self.log_queue.put('购买成功')
-            self.save_buy_ym(domain_data)
+            self.save_buy_ym(domain_data,is_buy=1)
 
         elif resp['code'] == -11:
             if resp['msg'] == '该域名已被GFW(国家防火墙)拦截,是否确认购买？' or resp['msg'] == '该域名购买后无法解析，需将域名续费或转出至其他注册商才能解析，比较麻烦，是否确认购买？':

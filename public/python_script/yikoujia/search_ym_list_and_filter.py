@@ -15,6 +15,7 @@ from tool.get_360 import SoCom
 from tool.get_history import GetHistory
 from tool.get_aizhan import AiZhan
 import pymongo
+from datetime import date, timedelta
 
 class SearchYmAndFilter():
     def __init__(self,filter_id):
@@ -52,19 +53,30 @@ class SearchYmAndFilter():
 
     #日志任务
     def save_logs(self):
-        # conn = self.db_pool.connection()
-        # cur = conn.cursor()
-        with open(f'./logs/main_{self.filter_id}.log','a',encoding='utf-8') as fw:
-            while True:
-                if self.log_queue.empty():
-                    time.sleep(2)
-                    continue
-                msg = self.log_queue.get()
-                fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
-                fw.flush()
-                # insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')" % (1, self.filter_id, escape_string(str(msg)))
-                # cur.execute(insert_sql)
-                # conn.commit()
+
+        while True:
+
+            last_date = date.today().strftime('%Y-%m-%d')
+            dir_path = f'./logs/logs_{last_date}/main_log_log'
+
+            if os.path.exists(dir_path) == False:
+                os.mkdir(dir_path)
+
+            with open(f'./logs/main_{self.filter_id}.log','a',encoding='utf-8') as fw:
+                while True:
+                    today = date.today().strftime('%Y-%m-%d')
+
+                    if last_date != today:
+                        break
+                    if self.log_queue.empty():
+                        time.sleep(2)
+                        continue
+                    msg = self.log_queue.get()
+                    fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+                    fw.flush()
+                    # insert_sql = "insert into ym_jkt_logs (`type`,filter_id,`msg`) values ('%s','%s','%s')" % (1, self.filter_id, escape_string(str(msg)))
+                    # cur.execute(insert_sql)
+                    # conn.commit()
 
     #获取id的那条数据
     def get_filter_data(self,id):
@@ -159,6 +171,7 @@ class SearchYmAndFilter():
 
         # 解析列表
         for data in new_data:
+            self.log_queue.put(f"插入域名：{data['ym']}-{data['jg']}")
             self.task_queue.put(data)
 
 
