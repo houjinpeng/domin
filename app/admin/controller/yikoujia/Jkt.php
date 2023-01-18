@@ -275,6 +275,30 @@ class Jkt extends AdminController
 
             }
 
+            //桔子
+            if ($post['is_com_jvzi'] == '1') {
+
+                if ($post['jvzi_age_1'] == '0' && $post['jvzi_age_2'] == '0' && $post['jvzi_five_1'] == '0' && $post['jvzi_five_2']== '0'  && $post['jvzi_five_lianxu_1'] == '0' && $post['jvzi_five_lianxu_2']== '0'&& $post['jvzi_lianxu_1'] == '0' && $post['jvzi_lianxu_2']== '0' && $post['jvzi_tongyidu_1'] == '0' && $post['jvzi_tongyidu_2']== '0' ) {
+                    $this->error('请完善桔子信息~');
+                }
+                $data['jvzi']['jvzi_age_1'] = $post['jvzi_age_1'];
+                $data['jvzi']['jvzi_age_2'] = $post['jvzi_age_2'];
+
+                $data['jvzi']['jvzi_five_1'] = $post['jvzi_five_1'];
+                $data['jvzi']['jvzi_five_2'] = $post['jvzi_five_2'];
+
+                $data['jvzi']['jvzi_five_lianxu_1'] = $post['jvzi_five_lianxu_1'];
+                $data['jvzi']['jvzi_five_lianxu_2'] = $post['jvzi_five_lianxu_2'];
+
+                $data['jvzi']['jvzi_lianxu_1'] = $post['jvzi_lianxu_1'];
+                $data['jvzi']['jvzi_lianxu_2'] = $post['jvzi_lianxu_2'];
+
+                $data['jvzi']['jvzi_tongyidu_1'] = $post['jvzi_tongyidu_1'];
+                $data['jvzi']['jvzi_tongyidu_2'] = $post['jvzi_tongyidu_2'];
+
+
+
+            }
 
             $save_data['data'] = $data;
 
@@ -399,6 +423,31 @@ class Jkt extends AdminController
 
                 $data['history']['history_tongyidu_1'] = $post['history_tongyidu_1'];
                 $data['history']['history_tongyidu_2'] = $post['history_tongyidu_2'];
+
+            }
+
+            //桔子
+            if ($post['is_com_jvzi'] == '1') {
+
+                if ($post['jvzi_age_1'] == '0' && $post['jvzi_age_2'] == '0' && $post['jvzi_five_1'] == '0' && $post['jvzi_five_2']== '0'  && $post['jvzi_five_lianxu_1'] == '0' && $post['jvzi_five_lianxu_2']== '0'&& $post['jvzi_lianxu_1'] == '0' && $post['jvzi_lianxu_2']== '0' && $post['jvzi_tongyidu_1'] == '0' && $post['jvzi_tongyidu_2']== '0' ) {
+                    $this->error('请完善桔子信息~');
+                }
+                $data['jvzi']['jvzi_age_1'] = $post['jvzi_age_1'];
+                $data['jvzi']['jvzi_age_2'] = $post['jvzi_age_2'];
+
+                $data['jvzi']['jvzi_five_1'] = $post['jvzi_five_1'];
+                $data['jvzi']['jvzi_five_2'] = $post['jvzi_five_2'];
+
+                $data['jvzi']['jvzi_five_lianxu_1'] = $post['jvzi_five_lianxu_1'];
+                $data['jvzi']['jvzi_five_lianxu_2'] = $post['jvzi_five_lianxu_2'];
+
+                $data['jvzi']['jvzi_lianxu_1'] = $post['jvzi_lianxu_1'];
+                $data['jvzi']['jvzi_lianxu_2'] = $post['jvzi_lianxu_2'];
+
+                $data['jvzi']['jvzi_tongyidu_1'] = $post['jvzi_tongyidu_1'];
+                $data['jvzi']['jvzi_tongyidu_2'] = $post['jvzi_tongyidu_2'];
+
+
 
             }
 
@@ -623,10 +672,12 @@ class Jkt extends AdminController
      *@NodeAnotation(title="日志")
      */
     public function logs($id,$type){
+
         if ($type == 1){
-            $file_name = 'main_'.$id.'.log';
+            $file_name = 'logs_'.date('Y-m-d').'/main_log/zhi_'.$id.'.log';
+
         }else{
-            $file_name = 'zhi_'.$id.'.log';
+            $file_name = 'logs_'.date('Y-m-d').'/zhi_log/zhi_'.$id.'.log';
         }
         try {
             $fp=fopen('./python_script/yikoujia/logs/'.$file_name,'r');

@@ -107,6 +107,85 @@
 
         </div>
 
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">桔子</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <label class="layui-form-label">对比桔子</label>
+                <div class="layui-input-block"  style="width: 100px;">
+                    <select name="is_com_jvzi" lay-verify="required">
+                        <option value="0"  {if !isset($data['jvzi'])} selected {/if}>否</option>
+                        <option value="1" {if isset($data['jvzi'])} selected {/if}>是</option>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">对比年龄</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_age_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_age_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_age_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_age_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年建站</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_lianxu_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_lianxu_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">最长连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_lianxu_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_lianxu_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">统一度</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_tongyidu_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_tongyidu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_tongyidu_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_tongyidu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+        </div>
 
 
         <div class="layui-form-item" style="text-align: left">

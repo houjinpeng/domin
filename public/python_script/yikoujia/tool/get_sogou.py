@@ -1,3 +1,5 @@
+import os
+
 import requests
 import re
 from lxml import etree
@@ -5,12 +7,17 @@ import threading, queue
 import time
 from tool.get_min_gan_word import get_mingan_word
 from urllib.parse import urlparse
+import ddddocr
+
+
+
+
 
 words = get_mingan_word()
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 200:
+        if proxy_queue.qsize()> 10:
             time.sleep(2)
             continue
         url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
@@ -28,11 +35,12 @@ def get_proxy():
             print(e)
             continue
 
-# threading.Thread(target=get_proxy).start()
+threading.Thread(target=get_proxy).start()
 
 class GetSougouRecord():
 
     def __init__(self):
+        self.s = requests.session()
         pass
         # self.set_proxies()
     #获取域名
@@ -60,13 +68,81 @@ class GetSougouRecord():
         }
         return ip
 
+    def check_verify(self,resp,domain):
+        try:
+            headers = {
+                "Accept": "application/json, text/javascript, */*; q=0.01",
+                "Accept-Encoding": "gzip, deflate",
+                "Accept-Language": "zh-CN,zh;q=0.9",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Length": "151",
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Host": "www.sogou.com",
+                "Origin": "http://www.sogou.com",
+                "Pragma": "no-cache",
+                "Referer": "http://www.sogou.com/antispider/?m=1&antip=web_hb&from=%2Fweb%3Fquery%3Dsite%253Anihao.com&suuid=50c5f611-ef2b-435f-b550-c48fd082128c",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
+                "X-Requested-With": "XMLHttpRequest"
+            }
+
+            img_headers = {
+                "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                "Accept-Encoding": "gzip, deflate",
+                "Accept-Language": "zh-CN,zh;q=0.9",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Host": "www.sogou.com",
+                "Pragma": "no-cache",
+                "Referer": "http://www.sogou.com/antispider/?m=1&antip=web_hb&from=%2Fweb%3Fquery%3Dsite%253Anihao.com&suuid=50c5f611-ef2b-435f-b550-c48fd082128c",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
+            }
+
+            #下载图片
+            e = etree.HTML(resp.text)
+            #http://www.sogou.com/antispider/util/seccode.php?tc=1674024271814
+            img_url = 'http://www.sogou.com/antispider/'+e.xpath('//img[@id="seccodeImage"]/@src')[0]
+
+            img_resp = self.s.get(img_url,headers=img_headers,timeout=10)
+
+            with open(f'code_{domain}.png','wb') as fw:
+                fw.write(img_resp.content)
+
+            ocr = ddddocr.DdddOcr(show_ad=False)
+            with open(f'code_{domain}.png', 'rb') as f:
+                img_bytes = f.read()
+            code = ocr.classification(img_bytes)
+
+
+            #获取auuid  suuid
+            suuid = re.findall('suuid = "(.*?)"',resp.text)[0]
+            auuid = re.findall('auuid = "(.*?)"',resp.text)[0]
+            data = {
+                "c": code,
+                "r": f"%2Fweb%3Fquery%3Dsite%3{domain}",
+                "p": "web_hb",
+                "v": "5",
+                "suuid": suuid,
+                "auuid": auuid
+            }
+            os.remove(f'code_{domain}.png')
+
+            result = self.s.post('http://www.sogou.com/antispider/thank.php',data=data,timeout=10,headers=headers)
+            print(result.text)
+            if '跳转'  in result.text:
+                return True
+            return False
+
+        except Exception as e:
+            return False
+
     def request_hearders(self, url):
         try:
 
-            proxies = {
-                "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-                "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            }
+            # proxies = {
+            #     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            #     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            # }
             headers = {
                 'Connection': 'keep-alive',
                 'Pragma': 'no-cache',
@@ -77,10 +153,10 @@ class GetSougouRecord():
                 'Accept-Language': 'zh-CN,zh;q=0.9',
                 'Host': 'www.sogou.com',
             }
-            # r = requests.get(url,headers=headers,timeout=5,proxies=self.proxies)
-            r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
+            r = self.s.get(url,headers=headers,timeout=5)
+            # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if '需要您协助验证' in r.text:
-                self.set_proxies()
+                self.check_verify(r,domain)
                 return self.request_hearders(url)
             return r
         except Exception as e:
@@ -223,10 +299,13 @@ if __name__ == '__main__':
     s = [0,0]
     tim_str = ''
     o = GetSougouRecord()
+
     # y = o.extract_domain('aaa.www.baidu.com')
     # print(y)
-    domain = 'chinactzj.com'
-    data = o.get_info(domain)
-    r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='1',jg='1')
-    print(r)
+    for i in range(1000):
+        domain = 'chinactzj.com'
+        data = o.get_info(domain)
+        print(data)
+        # r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='1',jg='1')
+        # print(r)
 
