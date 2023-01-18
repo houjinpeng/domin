@@ -187,7 +187,7 @@ class FilterYm():
             with open(f'{dir_path}/zhi_log/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
 
                 while True:
-                    today = date.today().strftime('%Y-%m-%d')
+                    today = date.today().strftime('%Y%m%d')
                     if last_date != today:
                         break
                     if self.log_queue.empty():

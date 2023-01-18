@@ -8,13 +8,13 @@ import time
 from dbutils.pooled_db import PooledDB
 from conf.config import *
 import threading,queue
-from tool.get_beian import BeiAn
+# from tool.get_beian import BeiAn
 from tool.jmApi import JmApi
-from tool.get_baidu import BaiDu
-from tool.get_sogou import GetSougouRecord
-from tool.get_360 import SoCom
-from tool.get_history import GetHistory
-from tool.get_aizhan import AiZhan
+# from tool.get_baidu import BaiDu
+# from tool.get_sogou import GetSougouRecord
+# from tool.get_360 import SoCom
+# from tool.get_history import GetHistory
+# from tool.get_aizhan import AiZhan
 import pymongo
 
 class SearchYmAndFilter():
@@ -66,7 +66,7 @@ class SearchYmAndFilter():
 
             with open(f'{dir_path}/main_log/main_{self.filter_id}.log','a',encoding='utf-8') as fw:
                 while True:
-                    today = date.today().strftime('%Y-%m-%d')
+                    today = date.today().strftime('%Y%m%d')
 
                     if last_date != today:
                         break
@@ -482,6 +482,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 51
+    jkt_id = 53
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()
