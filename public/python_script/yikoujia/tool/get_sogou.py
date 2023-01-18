@@ -139,10 +139,10 @@ class GetSougouRecord():
     def request_hearders(self, url):
         try:
 
-            # proxies = {
-            #     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            #     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            # }
+            proxies = {
+                "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+                "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            }
             headers = {
                 'Connection': 'keep-alive',
                 'Pragma': 'no-cache',
@@ -153,10 +153,11 @@ class GetSougouRecord():
                 'Accept-Language': 'zh-CN,zh;q=0.9',
                 'Host': 'www.sogou.com',
             }
-            r = self.s.get(url,headers=headers,timeout=5)
+            r = self.s.get(url,headers=headers,timeout=5,proxies=proxies)
             # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if '需要您协助验证' in r.text:
-                self.check_verify(r,domain)
+                self.s = requests.session()
+                # self.check_verify(r,domain)
                 return self.request_hearders(url)
             return r
         except Exception as e:
