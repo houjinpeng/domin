@@ -15,7 +15,7 @@ from tool.check_qiang import Qiang
 from tool.get_360 import SoCom
 from tool.get_aizhan import AiZhan
 from tool.get_min_gan_word import get_mingan_word
-
+from tool.JvZi import JvZi
 from dbutils.pooled_db import PooledDB
 from conf.config import *
 from tool.jmApi import JmApi
@@ -406,6 +406,7 @@ class FilterYm():
     def work(self, beian=None, baidu=None, sogou=None, so=None,aizhan_obj=None):
         qiang = Qiang()
         history_obj = GetHistory()
+        jvzi_obj = JvZi()
         while True:
             if self.work_queue.empty():
                 time.sleep(3)
@@ -601,15 +602,40 @@ class FilterYm():
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': '建站记录:' + r['msg']})
                         continue
 
-                self.log_queue.put({'ym': domain_data['ym'], 'cause': '需要购买'})
-
-                #判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
-                if self.filter_data['is_buy'] == 1:
-                    self.buy_ym(domain_data)
-                else:
-                    self.save_buy_ym(domain_data)
             except Exception as error:
                 self.log_queue.put(f'判断被墙错误：{error} 失败域名:{domain_data["ym"]}')
+
+            try:
+                #判断桔子数据
+                if self.filter_dict.get('jvzi') != None:
+                    resp = jvzi_obj.get_detail_html(domain_data['ym'])
+                    if resp == None:
+                        self.log_queue.put(f'桔子对比失败 重新对比： {domain_data["ym"]}')
+                        self.work_queue.put(domain_data)
+                        continue
+                    #建站历史  近五年建站 近五年连续 最长连续 统一度
+                    d = self.filter_dict.get('jvzi')
+
+
+                    is_ok = jvzi_obj.check(resp,age=[d['jvzi_age_1'],d['jvzi_age_2']],five_create_store=[d['jvzi_five_1'],d['jvzi_five_2']],lianxu=[d['jvzi_lianxu_1'],d['jvzi_lianxu_2']],five_lianxu=[d['jvzi_five_lianxu_1'],d['jvzi_five_lianxu_2']],tongyidu=[d['jvzi_tongyidu_1'],d['jvzi_tongyidu_2']])
+                    if is_ok != True:
+                        self.save_out_data(domain_data)
+                        self.log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
+                        continue
+
+            except Exception as e:
+                pass
+
+
+
+            self.log_queue.put({'ym': domain_data['ym'], 'cause': '需要购买'})
+
+            # 判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
+            if self.filter_data['is_buy'] == 1:
+                self.buy_ym(domain_data)
+            else:
+                self.save_buy_ym(domain_data)
+
 
     def index(self):
         #初始化
@@ -692,5 +718,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 50
+    jkt_id = 56
     filter = FilterYm(jkt_id).index()

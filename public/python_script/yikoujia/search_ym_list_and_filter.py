@@ -24,7 +24,10 @@ class SearchYmAndFilter():
 
     #定时清除任务线程
     def clear_data(self):
-        start_time = str(self.filter['start_time'])[:19]
+        if self.filter['start_time'] == None:
+            start_time =str(datetime.datetime.now())[:19]
+        else:
+            start_time = str(self.filter['start_time'])[:19]
         if self.filter['clear_time_str'] != '':
             is_delete = False
             while True:
@@ -482,6 +485,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 53
+    jkt_id = 54
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

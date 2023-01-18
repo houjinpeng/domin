@@ -3,11 +3,8 @@ import logging
 import time
 import requests
 import json
-import threading
 from lxml import etree
 import re
-import html
-import random
 proxies = {
     "http": "http://127.0.0.1:7890",
     "https": "http://127.0.0.1:7890",
@@ -18,6 +15,40 @@ class JvZi():
 
     def __init__(self):
         pass
+
+    def save(self, domain):
+        url = 'https://seo.juziseo.com/snapshot/save/'
+        data = f'qrtypeindex=1&domains={domain}&_post_type=ajax'
+        headers = {
+            "accept": "application/json, text/javascript, */*; q=0.01",
+            "accept-encoding": "gzip, deflate, br",
+            "accept-language": "zh-CN,zh;q=0.9",
+            "cache-control": "no-cache",
+            "content-length": "48",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "cookie": cookie,
+            "origin": "https://seo.juziseo.com",
+            "pragma": "no-cache",
+            "referer": "https://seo.juziseo.com/",
+            "sec-ch-ua": "\"Chromium\";v=\"106\", \"Google Chrome\";v=\"106\", \"Not;A=Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
+            "x-requested-with": "XMLHttpRequest"
+        }
+        try:
+            result = requests.post(url, data=data, headers=headers, timeout=10).json()
+            url = result['rsm']['url']
+
+            return url
+        except Exception as e:
+            print(f'桔子 提交错误：{e}')
+            time.sleep(10)
+            return self.save(domain)
+
 
     #获取总建站年龄
     def get_age(self, html):
@@ -37,9 +68,9 @@ class JvZi():
             all_td = e.xpath('//table[@class="table table-condensed text-center"]//tr[1]/td')
             tongyidu = all_td[2].xpath('.//span[@class="v svg_num"]/text()')[0].strip()
             # tongyidu = re.findall('(\d+)<span class="text-color-999"> ', html, re.S)[1]
-            return tongyidu+'%'
+            return int(tongyidu)
         except Exception as e:
-            return '0%'
+            return 0
 
     #连续存档时间
     def get_lianxu_cundang_time(self, html):
@@ -51,8 +82,6 @@ class JvZi():
             return max_lianxu
         except Exception as e:
             return 0
-
-
 
     # 近五年建站
     def get_five_year_num(self, html):
@@ -169,7 +198,8 @@ class JvZi():
 
     def get_detail_html(self,domain,count=0):
         try:
-            url = self.get_domain_url(domain)
+            # url = self.get_domain_url(domain)
+            url = self.save(domain)
             if url == '':
                 return ''
             headers = {
@@ -203,6 +233,42 @@ class JvZi():
 
             return self.get_detail_html(domain,count+1)
 
+
+    def check(self,resp,age,five_create_store,lianxu,five_lianxu,tongyidu):
+        if age != ['0','0']:
+            age[0] = int(age[0])
+            age[1] = 99999 if age[1] == '0' else int(age[1])
+            age_num = self.get_age(resp.text)
+            if age_num < age[0] or age_num> age[1]:
+                return f'桔子历史年龄不符 年龄为：{age_num}'
+
+        if five_create_store != ['0', '0']:
+            five_create_store[0] = int(five_create_store[0])
+            five_create_store[1] = 99999 if five_create_store[1] == '0' else int(five_create_store[1])
+            five_create_store_num = self.get_five_year_num(resp.text)
+            if five_create_store_num < five_create_store[0] or five_create_store_num > five_create_store[1]:
+                return f'桔子五年建站不符 年龄为：{five_create_store_num}'
+
+        if lianxu != ['0', '0']:
+            lianxu[0] = int(lianxu[0])
+            lianxu[1] = 99999 if lianxu[1] == '0' else int(lianxu[1])
+            lianxu_num = self.get_lianxu_cundang_time(resp.text)
+            if lianxu_num < lianxu[0] or lianxu_num > lianxu[1]:
+                return f'桔子最长连续时长不符 为：{lianxu_num}'
+        if five_lianxu != ['0', '0']:
+            five_lianxu[0] = int(five_lianxu[0])
+            five_lianxu[1] = 99999 if five_lianxu[1] == '0' else int(five_lianxu[1])
+            lianxu_num = self.get_lianxu_five_year_num(resp.text)
+            if lianxu_num < lianxu[0] or lianxu_num > lianxu[1]:
+                return f'桔子五年连续时长不符 为：{lianxu_num}'
+
+        if tongyidu != ['0', '0']:
+            tongyidu[0] = int(tongyidu[0])
+            tongyidu[1] = 99999 if tongyidu[1] == '0' else int(tongyidu[1])
+            tongyidu_num = self.get_tongyidu(resp.text)
+            if tongyidu_num < tongyidu[0] or tongyidu_num > tongyidu[1]:
+                return f'桔子统一度不符 为：{tongyidu_num}'
+        return True
 
     def test(self):
         ds = ['zxopfm.com', 'baidu1.com', 'baidu2.com', 'baidu3.com', 'baidu4.com']
