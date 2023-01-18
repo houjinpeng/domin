@@ -176,7 +176,7 @@ class FilterYm():
 
     def save_logs(self):
         while True:
-            last_date = date.today().strftime('%Y-%m-%d')
+            last_date = date.today().strftime('%Y%m%d')
             dir_path = f'./logs/logs_{last_date}/zhi_log'
 
             if os.path.exists(dir_path) == False:

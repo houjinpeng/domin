@@ -56,8 +56,8 @@ class SearchYmAndFilter():
 
         while True:
 
-            last_date = date.today().strftime('%Y-%m-%d')
-            dir_path = f'./logs/logs_{last_date}/main_log_log'
+            last_date = date.today().strftime('%Y%m%d')
+            dir_path = f'./logs/logs_{last_date}/main_log'
 
             if os.path.exists(dir_path) == False:
                 os.mkdir(dir_path)
