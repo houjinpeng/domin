@@ -19,6 +19,13 @@ class JmApi():
         data.update(common_data)
         return data
 
+    def get_all(self,type='all'):
+        url = self.domain+'/newapi/ykj_list'
+        # 增加公共参数
+        data = self.build_data({'type':type})
+        resp = requests.post(url,data=data).json()
+        print(f'全部保存完毕{resp}')
+
     # 获取一口价列表
     def get_ykj_list(self, data):
         '''
@@ -99,6 +106,8 @@ class JmApi():
 
 if __name__ == '__main__':
     jm_api = JmApi()
+    jm_api.get_all()
+
     # data = {'psize': 1000, 'bdqz_1': 1, 'qiangjc': 1, 'jgpx': 5,
     #         'gjz_cha': 'js-kaipu.com',
     #         'page':1}

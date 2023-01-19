@@ -3,7 +3,7 @@ import time
 import difflib
 import requests
 import json
-
+import random
 from dbutils.pooled_db import PooledDB
 from conf.config import *
 
@@ -20,6 +20,10 @@ conn.close()
 
 
 class GetHistory():
+
+    def __init__(self):
+        self.port_list = [10327,81,10236,10133,81,10247,10429,10194,10072,10312]
+
     def get_token(self, domain_list):
         domain_token = []
         url = f'http://127.0.0.1:5001/get_token'
@@ -39,7 +43,7 @@ class GetHistory():
             'X-Requested-With': 'XMLHttpRequest',
         }
 
-        api = "http://47.56.160.68:81/api.php?sckey=y"
+        api = f"http://47.56.160.68:{random.choice(self.port_list)}/api.php?sckey=y"
         data = {"ym": "\n".join(domain_list),
                 "authenticate": token["auth"],
                 "token": token['token'],
@@ -72,8 +76,8 @@ class GetHistory():
                 'Cache-Control': 'no-cache',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Origin': 'http://47.56.160.68:81',
-                'Host': '47.56.160.68:81',
+                # 'Origin': 'http://47.56.160.68:81',
+                # 'Host': '47.56.160.68:81',
             }
 
             data = {
@@ -85,7 +89,8 @@ class GetHistory():
                 'group': '1',
                 'nian': ''
             }
-            response_detail = requests.post('http://47.56.160.68:10247/api.php', data=data, verify=False,headers=headers, timeout=10)
+            # response_detail = requests.post('http://47.56.160.68:81/api.php', data=data, verify=False,headers=headers, timeout=4)
+            response_detail = requests.post(f'http://47.56.160.68:{random.choice(self.port_list)}/api.php', data=data, verify=False,headers=headers, timeout=4)
             if response_detail.status_code == 200:
                 if response_detail.text == '':
                     return None
@@ -101,13 +106,13 @@ class GetHistory():
 
             # print(results)
             return results
-        except Exception as e:
-            print(e)
+        except Exception as error:
+            print(f'获取历史错误 {error}')
             if count >5:
                 return False
             return self.get_history(domain,count+1)
 
-    def get_age(self,domain):
+    def get_age(self,domain,count=0):
         headers = {
             'Accept': '*/*',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -116,8 +121,8 @@ class GetHistory():
             'Cache-Control': 'no-cache',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Origin': 'http://47.56.160.68:81',
-            'Host': '47.56.160.68:81',
+            # 'Origin': 'http://47.56.160.68:81',
+            # 'Host': '47.56.160.68:81',
         }
         data = {
             'ym': domain['ym'],
@@ -125,13 +130,16 @@ class GetHistory():
             'qg': ''
         }
         try:
-            response_detail = requests.post('http://47.56.160.68:10247/api.php', data=data, verify=False,
+            # response_detail = requests.post('http://47.56.160.68:10247/api.php', data=data, verify=False,
+            response_detail = requests.post(f'http://47.56.160.68:{random.choice(self.port_list)}/api.php', data=data, verify=False,
                                             headers=headers, timeout=3)
             results = response_detail.json()
 
             return results
         except Exception as e:
-            return self.get_age(domain)
+            if count > 5:
+                return None
+            return self.get_age(domain,count+1)
 
     #获取中文标题数量
     def get_zh_title_num(self, history_data):

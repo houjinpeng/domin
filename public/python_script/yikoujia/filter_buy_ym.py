@@ -163,9 +163,15 @@ class FilterYm():
         # redis_cli.sadd(f'out_ym_data_{self.filter_data["id"]}', json.dumps(domain_data))
 
     # 保存需要购买的域名
-    def save_buy_ym(self, domain_data,is_buy=0):
+    def save_buy_ym(self, domain_data,is_buy=0,main = '',zhi='',price='',):
         conn = db_pool.connection()
         cur = conn.cursor()
+
+        if is_buy == 1:
+            save_sql1 = "insert into all_buy_ym (main_name,zhi_name,ym,price) values ('%s','%s','%s','%s')" % (main,zhi,domain_data['ym'],price)
+            cur.execute(save_sql1)
+            conn.commit()
+
         save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy) values ('%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy)
 
         cur.execute(save_sql)
@@ -218,7 +224,7 @@ class FilterYm():
         self.log_queue.put(resp)
         if resp['code'] == 1:
             self.log_queue.put('购买成功')
-            self.save_buy_ym(domain_data,is_buy=1)
+            self.save_buy_ym(domain_data,is_buy=1,zhi=self.filter_data['title'],main=self.main_filter['title'],price=domain_data['jg'])
 
         elif resp['code'] == -11:
             if resp['msg'] == '该域名已被GFW(国家防火墙)拦截,是否确认购买？' or resp['msg'] == '该域名购买后无法解析，需将域名续费或转出至其他注册商才能解析，比较麻烦，是否确认购买？':
@@ -229,7 +235,7 @@ class FilterYm():
                     resp = jm_api.buy_ykj(domain_data['ym'], domain_data['jg'],ty=3)
                     if resp['code'] == 1:
                         self.log_queue.put(f'{domain_data["ym"]} 可赎回域名 购买成功')
-                        self.save_buy_ym(domain_data,is_buy=1)
+                        self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'], main=self.main_filter['title'], price=domain_data['jg'])
                     else:
                         self.log_queue.put(f'购买失败 {resp}')
                 else:
@@ -329,11 +335,12 @@ class FilterYm():
                 # 如果最大值为0 赋值99999999
                 self.filter_dict['history']['history_age_2'] = 99999999 if int(self.filter_dict['history']['history_age_2']) == 0 else int(self.filter_dict['history']['history_age_2'])
                 age = history_obj.get_age(domain)
-
+                if age == None:
+                    return f"历史   域名：{domain['ym']} 没有年龄"
                 if int(self.filter_dict['history']['history_age_1']) > int(age['data']['nl']) or self.filter_dict['history']['history_age_2'] < int(age['data']['nl']):
                     return f"历史设置年龄不符 历史年龄：{age['data']['nl']}"
-            except:
-                return f"历史小于设置年龄"
+            except Exception as error:
+                return f"历史小于设置年龄 域名：{domain['ym']} 错误{error}"
 
         #对比评分
         if self.filter_dict['history']['history_score_1'] !='0' or self.filter_dict['history']['history_score_1'] != '0':
@@ -705,8 +712,8 @@ class FilterYm():
             so_is_com_word = self.filter_dict['so']['so_is_com_word']
             so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time,so_is_com_word)
 
-        for i in range(self.main_filter['task_num']):
-        # for i in range(1):
+        # for i in range(self.main_filter['task_num']):
+        for i in range(100):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so,aizhan_obj)))
 
@@ -718,5 +725,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 56
+    jkt_id = 58
     filter = FilterYm(jkt_id).index()

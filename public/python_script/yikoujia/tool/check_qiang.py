@@ -66,22 +66,22 @@ class Qiang():
     # 设置代理
     def get_proxy(self):
         try:
-            ip =proxy_queue.get()
-            if ip == None:
-                print('查找墙 没有ip可用啦 快快ip安排~~~~~')
-                time.sleep(5)
-                return self.get_proxy()
-            proxies = {
-                'http': f'http://{ip}',
-                'https': f'http://{ip}'
-            }
+            # ip =proxy_queue.get()
+            # if ip == None:
+            #     print('查找墙 没有ip可用啦 快快ip安排~~~~~')
+            #     time.sleep(5)
+            #     return self.get_proxy()
+            # proxies = {
+            #     'http': f'http://{ip}',
+            #     'https': f'http://{ip}'
+            # }
             self.s = requests.session()
-            self.proxies = proxies
+            # self.proxies = proxies
             # proxies = {
             #     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
             #     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
             # }
-            self.s.proxies.update(proxies)
+            # self.s.proxies.update(proxies)
 
             return proxies
         except Exception as e:
@@ -179,6 +179,7 @@ class Qiang():
             print(e)
             self.get_proxy()
             return self.get_token(domain)
+
     #检查被墙
     def get_qiang_data(self, domain):
         if self.key == '':
@@ -193,7 +194,7 @@ class Qiang():
         elif resp_data.json()['code'] == -1:
             self.get_token(domain)
             return self.get_qiang_data(domain)
-
+        print(resp_data.json())
         return resp_data.json()
 
     #微信检测
