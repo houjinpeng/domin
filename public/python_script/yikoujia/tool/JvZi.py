@@ -16,7 +16,7 @@ class JvZi():
     def __init__(self):
         pass
 
-    def save(self, domain):
+    def save(self, domain,count=0):
         url = 'https://seo.juziseo.com/snapshot/save/'
         data = f'qrtypeindex=1&domains={domain}&_post_type=ajax'
         headers = {
@@ -45,9 +45,11 @@ class JvZi():
 
             return url
         except Exception as e:
+            if count > 5:
+                return ''
             print(f'桔子 提交错误：{e}')
-            time.sleep(10)
-            return self.save(domain)
+            time.sleep(2)
+            return self.save(domain,count=1)
 
 
     #获取总建站年龄
