@@ -81,7 +81,7 @@ class GetSougouRecord():
                 "Host": "www.sogou.com",
                 "Origin": "http://www.sogou.com",
                 "Pragma": "no-cache",
-                "Referer": "http://www.sogou.com/antispider/?m=1&antip=web_hb&from=%2Fweb%3Fquery%3Dsite%253Anihao.com&suuid=50c5f611-ef2b-435f-b550-c48fd082128c",
+                "Referer": resp.url,
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
                 "X-Requested-With": "XMLHttpRequest"
             }
@@ -94,7 +94,7 @@ class GetSougouRecord():
                 "Connection": "keep-alive",
                 "Host": "www.sogou.com",
                 "Pragma": "no-cache",
-                "Referer": "http://www.sogou.com/antispider/?m=1&antip=web_hb&from=%2Fweb%3Fquery%3Dsite%253Anihao.com&suuid=50c5f611-ef2b-435f-b550-c48fd082128c",
+                "Referer": resp.url,
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
 
@@ -130,13 +130,14 @@ class GetSougouRecord():
             result = self.s.post('http://www.sogou.com/antispider/thank.php',data=data,timeout=10,headers=headers)
             print(result.text)
             if '跳转' in result.text:
+                self.s.cookies['SNUID'] = result['id']
                 return True
             return False
 
         except Exception as e:
             return False
 
-    def request_hearders(self, url):
+    def request_hearders(self, url,referer):
         try:
 
             proxies = {
@@ -144,14 +145,23 @@ class GetSougouRecord():
                 "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
             }
             headers = {
-                'Connection': 'keep-alive',
-                'Pragma': 'no-cache',
-                'Cache-Control': 'no-cache',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-                'Host': 'www.sogou.com',
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language": "zh-CN,zh;q=0.9",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Host": "www.sogou.com",
+                "Pragma": "no-cache",
+                "sec-ch-ua": "\"Chromium\";v=\"106\", \"Google Chrome\";v=\"106\", \"Not;A=Brand\";v=\"99\"",
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": "\"Windows\"",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Referer": referer,
+                "Upgrade-Insecure-Requests": "1",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
             # r = self.s.get(url,headers=headers,timeout=5,proxies=proxies)
             r = self.s.get(url,headers=headers,timeout=5)
@@ -159,11 +169,11 @@ class GetSougouRecord():
             if '需要您协助验证' in r.text:
                 # self.s = requests.session()
                 self.check_verify(r,domain)
-                return self.request_hearders(url)
+                return self.request_hearders(url,referer)
             return r
         except Exception as e:
             # self.set_proxies()
-            return self.request_hearders(url)
+            return self.request_hearders(url,referer)
 
     def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
         '''
@@ -273,8 +283,10 @@ class GetSougouRecord():
             return f'搜狗检测错误 {error}'
 
     def get_info(self,domain):
-        url = f'https://www.sogou.com/web?query=site%3A{domain}'
-        r = self.request_hearders(url)
+        # url = f'https://www.sogou.com/web?query=site%3A{domain}'
+        url = f'https://www.sogou.com/web?query=site:{domain}&_ast=1674051198&_asf=www.sogou.com&w=01029901&cid=&s_from=result_up'
+
+        r = self.request_hearders(url,'')
         try:
             # 查询收录数
             try:
