@@ -129,7 +129,7 @@ class GetSougouRecord():
 
             result = self.s.post('http://www.sogou.com/antispider/thank.php',data=data,timeout=10,headers=headers)
             print(result.text)
-            if '跳转'  in result.text:
+            if '跳转' in result.text:
                 return True
             return False
 
@@ -153,11 +153,12 @@ class GetSougouRecord():
                 'Accept-Language': 'zh-CN,zh;q=0.9',
                 'Host': 'www.sogou.com',
             }
-            r = self.s.get(url,headers=headers,timeout=5,proxies=proxies)
+            # r = self.s.get(url,headers=headers,timeout=5,proxies=proxies)
+            r = self.s.get(url,headers=headers,timeout=5)
             # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if '需要您协助验证' in r.text:
-                self.s = requests.session()
-                # self.check_verify(r,domain)
+                # self.s = requests.session()
+                self.check_verify(r,domain)
                 return self.request_hearders(url)
             return r
         except Exception as e:
