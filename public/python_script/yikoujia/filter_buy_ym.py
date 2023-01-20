@@ -184,24 +184,25 @@ class FilterYm():
         while True:
             last_date = date.today().strftime('%Y%m%d')
             dir_path = f'./logs/logs_{last_date}'
+            try:
+                if os.path.exists(dir_path) == False:
+                    os.mkdir(dir_path)
+                if os.path.exists(f'{dir_path}/zhi_log') == False:
+                    os.mkdir(f"{dir_path}/zhi_log")
+                with open(f'{dir_path}/zhi_log/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
+                    while True:
+                        today = date.today().strftime('%Y%m%d')
+                        if last_date != today:
+                            break
+                        if self.log_queue.empty():
+                            time.sleep(2)
+                            continue
+                        msg = self.log_queue.get()
+                        fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+                        fw.flush()
 
-            if os.path.exists(dir_path) == False:
-                os.mkdir(dir_path)
-            if os.path.exists(f'{dir_path}/zhi_log') == False:
-                os.mkdir(f"{dir_path}/zhi_log")
-
-            with open(f'{dir_path}/zhi_log/zhi_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
-
-                while True:
-                    today = date.today().strftime('%Y%m%d')
-                    if last_date != today:
-                        break
-                    if self.log_queue.empty():
-                        time.sleep(2)
-                        continue
-                    msg = self.log_queue.get()
-                    fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
-                    fw.flush()
+            except Exception :
+                pass
 
 
 
