@@ -1,3 +1,4 @@
+import json
 import os
 
 import requests
@@ -68,7 +69,7 @@ class GetSougouRecord():
         }
         return ip
 
-    def check_verify(self,resp,domain):
+    def check_verify(self,resp,domain,cookie_str):
         try:
             headers = {
                 "Accept": "application/json, text/javascript, */*; q=0.01",
@@ -83,7 +84,8 @@ class GetSougouRecord():
                 "Pragma": "no-cache",
                 "Referer": resp.url,
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
-                "X-Requested-With": "XMLHttpRequest"
+                "X-Requested-With": "XMLHttpRequest",
+                'Cookie':cookie_str
             }
 
             img_headers = {
@@ -103,7 +105,7 @@ class GetSougouRecord():
             #http://www.sogou.com/antispider/util/seccode.php?tc=1674024271814
             img_url = 'http://www.sogou.com/antispider/'+e.xpath('//img[@id="seccodeImage"]/@src')[0]
 
-            img_resp = self.s.get(img_url,headers=img_headers,timeout=10)
+            img_resp = requests.get(img_url,headers=img_headers,timeout=10)
 
             with open(f'code_{domain}.png','wb') as fw:
                 fw.write(img_resp.content)
@@ -127,17 +129,23 @@ class GetSougouRecord():
             }
             os.remove(f'code_{domain}.png')
 
-            result = self.s.post('http://www.sogou.com/antispider/thank.php',data=data,timeout=10,headers=headers)
-            print(result.text)
-            if '跳转' in result.text:
-                self.s.cookies['SNUID'] = result['id']
-                return True
-            return False
+            # result_resp = self.s.post('http://www.sogou.com/antispider/thank.php', data=data, timeout=10, headers=headers)
+            result_resp = requests.post('http://www.sogou.com/antispider/thank.php', data=data, timeout=10, headers=headers)
+            # result = json.loads(result_resp.text)
+            print(result_resp.text)
+            if '跳转' in result_resp.text:
+                cookie_str = ''
+                for k, v in result_resp.cookies.get_dict('www.sogou.com').items():
+                    cookie_str += k + "=" + v + ';'
+                for k, v in result_resp.cookies.get_dict('.sogou.com').items():
+                    cookie_str += k + "=" + v + ';'
+                return cookie_str
+            return ''
 
         except Exception as e:
-            return False
+            return ''
 
-    def request_hearders(self, url,referer):
+    def request_hearders(self, url,referer,cookie_str):
         try:
 
             proxies = {
@@ -160,20 +168,28 @@ class GetSougouRecord():
                 "Sec-Fetch-Site": "none",
                 "Sec-Fetch-User": "?1",
                 "Referer": referer,
+                'cookie':cookie_str,
                 "Upgrade-Insecure-Requests": "1",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
             # r = self.s.get(url,headers=headers,timeout=5,proxies=proxies)
-            r = self.s.get(url,headers=headers,timeout=5)
+            # r = self.s.get(url,headers=headers,timeout=5)
+            r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
+            # cookie_str = ''
+            # for k,v in r.cookies.get_dict('www.sogou.com').items():
+            #     cookie_str +=k+"="+v+';'
+            # for k, v in r.cookies.get_dict('.sogou.com').items():
+            #     cookie_str += k + "=" + v + ';'
+
             # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if '需要您协助验证' in r.text:
                 # self.s = requests.session()
-                self.check_verify(r,domain)
-                return self.request_hearders(url,referer)
+                # cookie_str = self.check_verify(r,domain,cookie_str)
+                return self.request_hearders(url,referer,cookie_str)
             return r
         except Exception as e:
             # self.set_proxies()
-            return self.request_hearders(url,referer)
+            return self.request_hearders(url,referer,cookie_str)
 
     def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
         '''
@@ -286,7 +302,7 @@ class GetSougouRecord():
         # url = f'https://www.sogou.com/web?query=site%3A{domain}'
         url = f'https://www.sogou.com/web?query=site:{domain}&_ast=1674051198&_asf=www.sogou.com&w=01029901&cid=&s_from=result_up'
 
-        r = self.request_hearders(url,'')
+        r = self.request_hearders(url,'','')
         try:
             # 查询收录数
             try:
