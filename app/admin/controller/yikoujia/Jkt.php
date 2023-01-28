@@ -693,20 +693,23 @@ class Jkt extends AdminController
         $str="";
         $linesArr = array();
         $n = 1000000;
-        while($n>0){
-            while($eof!="\n"){
-                if(!fseek($fp,$pos,SEEK_END)){
-                    $eof=fgetc($fp);
-                    $pos--;
-                } else {
-                    break;
-                }
-            }
-            // $str.=fgets($fp);
-            $linesArr[] = fgets($fp);
-            $eof="";
-            $n--;
-        }
+        $linesArr = file('./python_script/yikoujia/logs/'.$file_name);
+        fclose($fp);
+
+//        while($n>0){
+//            while($eof!="\n"){
+//                if(!fseek($fp,$pos,SEEK_END)){
+//                    $eof=fgetc($fp);
+//                    $pos--;
+//                } else {
+//                    break;
+//                }
+//            }
+//            // $str.=fgets($fp);
+//            $linesArr[] = fgets($fp);
+//            $eof="";
+//            $n--;
+//        }
 
 
         $linesArr = array_reverse($linesArr);
