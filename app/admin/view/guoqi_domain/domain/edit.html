@@ -1,0 +1,424 @@
+<div class="layuimini-container">
+
+    <form class="layui-form layuimini-form">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">名称</label>
+            <div class="layui-input-block">
+                <input type="text" value="{$row.title}" name="title" lay-verify="required" placeholder="请输入设置名称"
+                       autocomplete="off" class="layui-input">
+                <tip>为了方便查找 起个名字吧~</tip>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="text-align: center">
+            <h3>抓取设置</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label required">线程数</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$row.task_num}" name="task_num" lay-verify="required"
+                           placeholder="请输入抓取线程数"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label required">刷新时间（秒）</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$row.refresh_time}" name="refresh_time" lay-verify="required|number"
+                           placeholder="请输入刷新域名列表时间"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label required">下次删除间隔（时）</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$row.clear_time}" name="clear_time" lay-verify="required|number"
+                           placeholder="请输入下次删除间隔（小时）"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline" >
+                <label class="layui-form-label required">删除列表时间（优先）</label>
+                <div class="layui-input-block">
+                    <input width="300px" type="text" value="{$row.clear_time_str}" name="clear_time_str"
+                           placeholder="请输入删除列表时间如 时分（23:00）"
+                           autocomplete="off" class="layui-input">
+                    <tip> 输入格式为 时分（23:00） 不删除别输入哦~</tip>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item" style="text-align: center">
+            <h3>聚名来源列表设置</h3>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">店铺包含</label>
+            <div class="layui-input-block">
+                <input type="text" value="{$row.jm_tao}" name="jm_tao" required placeholder="请输入店铺ID"
+                       autocomplete="off" class="layui-input">
+                <tip>多个逗号分割</tip>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">域名包含</label>
+            <div class="layui-input-block">
+                <input type="text" value="{$row.jm_gjz_cha}" name="jm_gjz_cha" required placeholder="请输入域名"
+                       autocomplete="off" class="layui-input">
+                <tip>多个逗号分割</tip>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">域名后缀</label>
+            <div class="layui-input-block">
+                <input type="text" value="{$row.jm_ymhz}" name="jm_ymhz"
+                       placeholder="请输入域名后缀"
+                       autocomplete="off" class="layui-input">
+                <tip>多个逗号分割</tip>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">域名长度</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_ymcd_1" autocomplete="off" class="layui-input" value="{$row.jm_ymcd_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_ymcd_2" autocomplete="off" class="layui-input" value="{$row.jm_ymcd_2}"
+                           lay-verify="number">
+                </div>
+
+
+                <label class="layui-form-label">到期时间</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_dqsj_1" autocomplete="off" class="layui-input" value="{$row.jm_dqsj_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_dqsj_2" autocomplete="off" class="layui-input" value="{$row.jm_dqsj_2}"
+                           lay-verify="number">
+                </div>
+
+                <label class="layui-form-label">出售价格</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_qian_1" autocomplete="off" class="layui-input" value="{$row.jm_qian_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_qian_2" autocomplete="off" class="layui-input" value="{$row.jm_qian_2}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">百度收录</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdsl_1" autocomplete="off" class="layui-input" value="{$row.jm_bdsl_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdsl_2" autocomplete="off" class="layui-input" value="{$row.jm_bdsl_2}"
+                           lay-verify="number">
+                </div>
+
+
+                <label class="layui-form-label">百度权重</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdqz_1" autocomplete="off" class="layui-input" value="{$row.jm_bdqz_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdqz_2" autocomplete="off" class="layui-input" value="{$row.jm_bdqz_2}"
+                           lay-verify="number">
+                </div>
+
+                <label class="layui-form-label">搜狗收录</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_sgsl_1" autocomplete="off" class="layui-input" value="{$row.jm_sgsl_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_sgsl_2" autocomplete="off" class="layui-input" value="{$row.jm_sgsl_2}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">搜狗PR</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_pr_1" autocomplete="off" class="layui-input" value="{$row.jm_pr_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_pr_2" autocomplete="off" class="layui-input" value="{$row.jm_pr_2}"
+                           lay-verify="number">
+                </div>
+
+
+                <label class="layui-form-label">Bd反链</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdfl_1" autocomplete="off" class="layui-input" value="{$row.jm_bdfl_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_bdfl_2" autocomplete="off" class="layui-input" value="{$row.jm_bdfl_1}"
+                           lay-verify="number">
+                </div>
+
+                <label class="layui-form-label">网站外链</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_wzwl_1" autocomplete="off" class="layui-input" value="{$row.jm_wzwl_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_wzwl_2" autocomplete="off" class="layui-input" value="{$row.jm_wzwl_1}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">百度认证</label>
+                <div class="layui-input-block">
+                    <select name="jm_bdrz">
+                        <option value="0" {if $row['jm_bdrz'] ==2 }selected{/if}>不限</option>
+                        <option value="1" {if $row['jm_bdrz'] ==1 }selected{/if}>已认证</option>
+                        <option value="2" {if $row['jm_bdrz'] ==2 }selected{/if}>未认证</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">微信检测</label>
+                <div class="layui-input-block">
+                    <select name="jm_wxjc">
+                        <option value="0" {if $row['jm_wxjc'] ==0 }selected{/if}>不限</option>
+                        <option value="1" {if $row['jm_wxjc'] ==1 }selected{/if}>未拦截</option>
+                        <option value="2" {if $row['jm_wxjc'] ==2 }selected{/if}>已拦截</option>
+                        <option value="3" {if $row['jm_wxjc'] ==3 }selected{/if}>确认访问</option>
+                        <option value="4" {if $row['jm_wxjc'] ==4 }selected{/if}>复制访问</option>
+                        <option value="99" {if $row['jm_wxjc'] ==99 }selected{/if}>还未检测</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">qq检测</label>
+                <div class="layui-input-block">
+                    <select name="jm_qqjc">
+                        <option value="0" {if $row['jm_qqjc'] ==0 }selected{/if}>不限</option>
+                        <option value="1" {if $row['jm_qqjc'] ==1 }selected{/if}>未拦截</option>
+                        <option value="2" {if $row['jm_qqjc'] ==2 }selected{/if}>已拦截</option>
+                        <option value="11" {if $row['jm_qqjc'] ==11 }selected{/if}>绿色认证</option>
+                        <option value="99" {if $row['jm_qqjc'] ==99 }selected{/if}>还未检测</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">被墙检测</label>
+                <div class="layui-input-block">
+                    <select name="jm_qiangjc">
+                        <option value="0" {if $row['jm_qiangjc'] ==0 }selected{/if}>不限</option>
+                        <option value="1" {if $row['jm_qiangjc'] ==1 }selected{/if}>正常</option>
+                        <option value="2" {if $row['jm_qiangjc'] ==2 }selected{/if}>污染</option>
+                        <option value="3" {if $row['jm_qiangjc'] ==3 }selected{/if}>被墙</option>
+                        <option value="99" {if $row['jm_qiangjc'] ==99 }selected{/if}>还未检测</option>
+                    </select>
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">建站历史</label>
+                <div class="layui-input-block">
+                    <select name="jm_jzls" lay-verify="required">
+                        <option value="0" {if $row['jm_jzls'] ==0 }selected{/if}>不限</option>
+                        <option value="1" {if $row['jm_jzls'] ==1 }selected{/if}>存在</option>
+                        <option value="99" {if $row['jm_jzls'] ==99 }selected{/if}>不存在</option>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">建站历史-年龄</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_jznl_1" autocomplete="off" class="layui-input" value="{$row.jm_jznl_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_jznl_2" autocomplete="off" class="layui-input" value="{$row.jm_jznl_2}"
+                           lay-verify="number">
+                </div>
+
+                <label class="layui-form-label">建站历史-记录</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_jzjl_1" autocomplete="off" class="layui-input" value="{$row.jm_jzjl_1}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jm_jzjl_2" autocomplete="off" class="layui-input" value="{$row.jm_jzjl_2}"
+                           lay-verify="number">
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">建站记录</label>
+                <div class="layui-input-block">
+                    <select name="jm_sfba_1" lay-verify="required">
+                        <option value="0" {if $row['jm_sfba_1'] =='0' }selected{/if}>不限</option>
+                        <option value="99" {if $row['jm_sfba_1'] =='99' }selected{/if}>不存在</option>
+                        <option value="2" {if $row['jm_sfba_1'] =='2' }selected{/if}>存在</option>
+                        <option value="2&baxz=个人" {if $row['jm_sfba_1'] =="2&amp;baxz=个人" }selected{/if}>个人</option>
+                        <option value="2&baxz=企业" {if $row['jm_sfba_1'] =='2&amp;baxz=企业' }selected{/if}>企业</option>
+                        <option value="4&baxz=其他" {if $row['jm_sfba_1'] =='4&amp;baxz=其他' }selected{/if}>其他</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">域名构成</label>
+                <div class="layui-input-block">
+                    <select name="jm_ymgc" lay-verify="required">
+                        <option value="0" {if $row['jm_ymgc'] =='0' }selected{/if}>不限</option>
+                        <option value="1" {if $row['jm_ymgc'] =='1' }selected{/if}>纯数字</option>
+                        <option value="11" {if $row['jm_ymgc'] =='11' }selected{/if}>三数字</option>
+                        <option value="12" {if $row['jm_ymgc'] =='12' }selected{/if}>四数字</option>
+                        <option value="13" {if $row['jm_ymgc'] =='13' }selected{/if}>五数字</option>
+                        <option value="14" {if $row['jm_ymgc'] =='14' }selected{/if}>六数字</option>
+                        <option value="15" {if $row['jm_ymgc'] =='15' }selected{/if}>七数字</option>
+                        <option value="16" {if $row['jm_ymgc'] =='16' }selected{/if}>八数字</option>
+                        <option value="17" {if $row['jm_ymgc'] =='17' }selected{/if}>九数字</option>
+                        <option value="2" {if $row['jm_ymgc'] =='2' }selected{/if}>纯字母</option>
+                        <option value="5" {if $row['jm_ymgc'] =='5' }selected{/if}>全声母</option>
+                        <option value="51" {if $row['jm_ymgc'] =='51' }selected{/if}>三声母</option>
+                        <option value="52" {if $row['jm_ymgc'] =='52' }selected{/if}>四声母</option>
+                        <option value="53" {if $row['jm_ymgc'] =='53' }selected{/if}>五声母</option>
+                        <option value="55" {if $row['jm_ymgc'] =='55' }selected{/if}>三字母</option>
+                        <option value="56" {if $row['jm_ymgc'] =='56' }selected{/if}>四字母</option>
+                        <option value="6" {if $row['jm_ymgc'] =='6' }selected{/if}>拼音域名</option>
+                        <option value="7" {if $row['jm_ymgc'] =='7' }selected{/if}>单拼</option>
+                        <option value="8" {if $row['jm_ymgc'] =='8' }selected{/if}>双拼</option>
+                        <option value="9" {if $row['jm_ymgc'] =='9' }selected{/if}>三拼</option>
+                        <option value="10" {if $row['jm_ymgc'] =='10' }selected{/if}>四拼</option>
+                        <option value="112" {if $row['jm_ymgc'] =='112' }selected{/if}>单拼与双拼</option>
+                        <option value="111" {if $row['jm_ymgc'] =='111' }selected{/if}>双拼与三拼</option>
+                        <option value="4" {if $row['jm_ymgc'] =='4' }selected{/if}>数字+字母</option>
+                        <option value="42" {if $row['jm_ymgc'] =='42' }selected{/if}>二杂</option>
+                        <option value="43" {if $row['jm_ymgc'] =='43' }selected{/if}>三杂</option>
+                        <option value="44" {if $row['jm_ymgc'] =='44' }selected{/if}>四杂</option>
+                        <option value="45" {if $row['jm_ymgc'] =='45' }selected{/if}>五杂</option>
+                        <option value="3" {if $row['jm_ymgc'] =='3' }selected{/if}>排除“-”中线</option>
+                    </select>
+                </div>
+            </div>
+
+
+
+            <div class="layui-inline">
+                <label class="layui-form-label">结果排序</label>
+                <div class="layui-input-block">
+                    <select name="jm_jgpx" lay-verify="required">
+                        <option value="0" {if $row['jm_jgpx'] =='0' }selected{/if}>默认</option>
+                        <option value="3" {if $row['jm_jgpx'] =='3' }selected{/if}>域名价格</option>
+                        <option value="5" {if $row['jm_jgpx'] =='5' }selected{/if}>上架时间</option>
+                        <option value="41" {if $row['jm_jgpx'] =='41' }selected{/if}>今日上架</option>
+                        <option value="35" {if $row['jm_jgpx'] =='35' }selected{/if}>浏览热门</option>
+                        <option value="7" {if $row['jm_jgpx'] =='7' }selected{/if}>注册时间</option>
+                        <option value="37" {if $row['jm_jgpx'] =='37' }selected{/if}>到期时间</option>
+                        <option value="1" {if $row['jm_jgpx'] =='1' }selected{/if}>域名长度</option>
+                        <option value="19" {if $row['jm_jgpx'] =='19' }selected{/if}>域名排序</option>
+                        <option value="11" {if $row['jm_jgpx'] =='11' }selected{/if}>百度权重</option>
+                        <option value="13" {if $row['jm_jgpx'] =='13' }selected{/if}>百度收录</option>
+                        <option value="27" {if $row['jm_jgpx'] =='27' }selected{/if}>百度反链</option>
+                        <option value="9" {if $row['jm_jgpx'] =='9' }selected{/if}>搜狗PR</option>
+                        <option value="25" {if $row['jm_jgpx'] =='25' }selected{/if}>搜狗收录</option>
+                        <option value="15" {if $row['jm_jgpx'] =='15' }selected{/if}>搜狗反链</option>
+                        <option value="21" {if $row['jm_jgpx'] =='21' }selected{/if}>网站外链</option>
+                        <option value="17" {if $row['jm_jgpx'] =='17' }selected{/if}>域名估价</option>
+                        <option value="23" {if $row['jm_jgpx'] =='23' }selected{/if}>建站历史记录数</option>
+                        <option value="29" {if $row['jm_jgpx'] =='29' }selected{/if}>建站历史年龄</option>
+                        <option value="31" {if $row['jm_jgpx'] =='31' }selected{/if}>360收录</option>
+                        <option value="33" {if $row['jm_jgpx'] =='33' }selected{/if}>神马收录</option>
+                        <option value="39" {if $row['jm_jgpx'] =='39' }selected{/if}>终端数量</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="layui-form-item" style="text-align: center">
+            <h3>主条件设置</h3>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">主条件</label>
+            <div class="layui-input-block">
+                <input type="radio" name="main_filter" value="备案" title="备案"
+                       {if $row['main_filter'] =="备案" }checked{/if}>
+                <input type="radio" name="main_filter" value="百度" title="百度"
+                       {if $row['main_filter'] =="百度" }checked{/if}>
+                <input type="radio" name="main_filter" value="历史" title="历史"
+                       {if $row['main_filter'] =="历史" }checked{/if}>
+                <input type="radio" name="main_filter" value="注册商" title="注册商"
+                       {if $row['main_filter'] =="注册商" }checked{/if}>
+                <input type="radio" name="main_filter" value="搜狗" title="搜狗"
+                       {if $row['main_filter'] =="搜狗" }checked{/if}>
+                <input type="radio" name="main_filter" value="360" title="360"
+                       {if $row['main_filter'] =="360" }checked{/if}>
+                <input type="radio" name="main_filter" value="爱站" title="爱站"
+                       {if $row['main_filter'] =='爱站' }checked{/if}>
+                <input type="radio" name="main_filter" value="无" title="无" {if $row['main_filter'] =="无" }checked{/if}>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo">添加</button>
+                <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+            </div>
+        </div>
+
+
+    </form>
+
+</div>

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\admin\controller\yikoujia;
+namespace app\admin\controller\guoqi_domain;
 
 
 use app\admin\controller\Tool;
@@ -28,7 +28,7 @@ use think\facade\Db;
 /**
  * @ControllerAnnotation(title="一口价监控台")
  */
-class Jkt extends AdminController
+class Domain extends AdminController
 {
 
     use \app\admin\traits\Curd;
@@ -55,6 +55,7 @@ class Jkt extends AdminController
             list($page, $limit, $where) = $this->buildTableParames();
             $start_time = time();
             $list = $this->model
+                ->where('cate','=','过期域名')
                 ->where($where)->page($page, $limit)->select()->toArray();
             foreach ($list as $index => &$item) {
                 $item['zhixian'] = $this->filter_model->where('main_filter_id', $item['id'])
@@ -83,17 +84,16 @@ class Jkt extends AdminController
         if ($this->request->isPost()) {
             $post = $this->request->post();
             //保存控制台数据   关联
+            $post['cate'] = '过期域名';
             $save = $this->model->insertGetId($post);
-            //启动任务
-//            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$save);
-//            $out = exec('nohup python3 ./python_script/yikoujia/search_ym_list_and_filter.py '.$save.' > ./python_script/nohup.log 2>&1 &');
+
             $save ? $this->success('保存成功') : $this->error('保存失败');
 
         }
         $filters = $this->filter_model->field('id,title')->select()->toArray();
-        $searchs = $this->model->field('id,title')->select()->toArray();
+        $search = $this->model->field('id,title')->select()->toArray();
         $this->assign('filters', $filters);
-        $this->assign('searchs', $searchs);
+        $this->assign('searchs', $search);
         return $this->fetch();
     }
 

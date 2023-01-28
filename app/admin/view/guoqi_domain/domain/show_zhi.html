@@ -1,0 +1,25 @@
+
+<input value="{$row}" id="filter_data" hidden="hidden">
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <table id="show_zhi" class="layui-table layui-hide"
+               lay-filter="show_zhi">
+        </table>
+    </div>
+</div>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm layuimini-btn-primary" data-table-refresh="currentTableRenderId"  lay-event="refresh"><i class="fa fa-refresh"></i> </button>    </div>
+</script>
+
+<script type="text/html" id="barDemo7">
+    <div>
+        <button class="layui-btn layui-btn-sm layui-btn-primary" data-full="false" data-open="yikoujia.jkt/logs?type=2&id={{d.id}}">日志</button>
+        <button class="layui-btn layui-btn-sm layui-btn-warm"  lay-event="check_task">检测</button>
+        <button class="layui-btn layui-btn-sm"  lay-event="start_task">重启</button>
+        <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="stop_task">停止</button>
+        <button class="layui-btn layui-btn-danger layui-btn-sm"  lay-event="del">删除</button>
+        <button class="layui-btn layui-btn-sm"  lay-event="del_list">清空列表</button>
+    </div>
+</script>

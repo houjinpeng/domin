@@ -675,6 +675,7 @@ class FilterYm():
         self.log_queue.put(f'任务进程号：{os.getpid()}')
         # 修改状态 进行中
         self.update_spider_status('ym_yikoujia_buy_filter', self.filter_data['id'], 1)
+        #启动获取数据线程
         threading.Thread(target=self.get_work_data).start()
         thread_list = []
 

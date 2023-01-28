@@ -35,6 +35,8 @@ class SearchYmAndFilter():
                     if is_delete == False:
                         self.ym_set.clear()
                         self.mycol.delete_many({})
+                        self.task_queue.queue.clear()
+                        self.out_ym.delete_many({'type': 'main', 'filter_id':self.filter_id})
                     is_delete = True
                     time.sleep(3)
                     continue
@@ -49,6 +51,7 @@ class SearchYmAndFilter():
                     start_time = str(datetime.datetime.now())[:19]
                     self.ym_set.clear()
                     self.mycol.delete_many({})
+                    self.out_ym.delete_many({'type':'main','filter_id':self.filter_id})
                     self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
 
                 time.sleep(3)
@@ -254,6 +257,8 @@ class SearchYmAndFilter():
                 self.task_queue.put(ym_data)
                 continue
             try:
+                self.out_ym.insert_one({'ym':ym_data['ym'],'type':'main','filter_id':self.filter_id})
+
                 # 判断是否有备案  如果有备案放入redis数据库中
                 if info['params']['total'] != 0:
                     self.save_mysql(ym_data,'beian',info)
@@ -280,6 +285,7 @@ class SearchYmAndFilter():
             if info == None:
                 self.task_queue.put(ym_data)
                 continue
+            self.out_ym.insert_one({'ym':ym_data['ym'],'type':'main','filter_id':self.filter_id})
 
             if int(info['sl']) > 0:
                 # 有直接放入redis 没有过滤
@@ -287,7 +293,6 @@ class SearchYmAndFilter():
                 self.log_queue.put(f'百度 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
                 self.log_queue.put(f'百度 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
-
 
     # 过滤搜狗
     def sogou_worker(self):
@@ -304,6 +309,7 @@ class SearchYmAndFilter():
             if info == None:
                 self.task_queue.put(ym_data)
                 continue
+            self.out_ym.insert_one({'ym': ym_data['ym'], 'type': 'main', 'filter_id':self.filter_id})
 
             if info['sl'] > 0:
                 # 有直接放入redis 没有过滤
@@ -326,6 +332,8 @@ class SearchYmAndFilter():
             if info == None:
                 self.task_queue.put(ym_data)
                 continue
+            self.out_ym.insert_one({'ym': ym_data['ym'], 'type': 'main', 'filter_id':self.filter_id})
+
             if info['sl'] > 0:
                 # 有直接放入redis 没有过滤
                 self.save_mysql(ym_data, 'so', info)
@@ -346,10 +354,13 @@ class SearchYmAndFilter():
             if history_info == None:
                 self.log_queue.put(f'历史 查询失败  域名有问题 {ym_data["ym"]} {ym_data["token"]}')
                 continue
+
             if history_info == False:
                 self.task_queue.put(ym_data)
                 self.log_queue.put(f'历史 查询失败  重新查询 {ym_data["ym"]} {ym_data["token"]}')
                 continue
+            self.out_ym.insert_one({'ym': ym_data['ym'], 'type': 'main', 'filter_id':self.filter_id})
+
             try:
                 if history_info['count'] == None:
                     self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
@@ -383,6 +394,8 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
+            self.out_ym.insert_one({'ym': ym_data['ym'], 'type': 'main', 'filter_id':self.filter_id})
+
             if ym_data['zcs'] != '':
                 self.save_mysql(ym_data, 'zcs', ym_data['zcs'])
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
@@ -401,6 +414,7 @@ class SearchYmAndFilter():
             if info == None:
                 self.task_queue.put(ym_data)
                 continue
+            self.out_ym.insert_one({'ym': ym_data['ym'], 'type': 'main', 'filter_id':self.filter_id})
             is_have = False
             for k,v in info.items():
 
@@ -426,10 +440,19 @@ class SearchYmAndFilter():
         self.task_queue = queue.Queue()
         self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
 
-        all_data  = self.mycol.find()
+
+        #保存查询过的数据
+        self.out_ym = self.mydb['out_ym']
+
+        all_out_data = self.out_ym.find({'filter_id':self.filter_id,'type':'main'})
+        for out_ym in all_out_data:
+            self.ym_set.add(out_ym['ym'])
+
+        all_data = self.mycol.find()
         for data in all_data:
             self.ym_set.add(data['ym'])
         del all_data
+        del all_out_data
 
 
         # 启动日志队列
@@ -444,11 +467,12 @@ class SearchYmAndFilter():
         self.update_spider_status('ym_yikoujia_jkt',self.filter['id'],1)
         ############################################################################
         #抓取数据
-        get_list_thread_list =[]
-        for i in range(1):
-            get_list_thread_list.append(threading.Thread(target=self.get_list))
-        for t in get_list_thread_list:
-            t.start()
+        # get_list_thread_list =[]
+        # for i in range(1):
+        #     get_list_thread_list.append(threading.Thread(target=self.get_list))
+        # for t in get_list_thread_list:
+        #     t.start()
+        threading.Thread(target=self.get_list).start()
         ############################################################################
         thread_list = []
         # for i in range(self.filter['task_num']):
@@ -484,6 +508,6 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 54
+    jkt_id = 45
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

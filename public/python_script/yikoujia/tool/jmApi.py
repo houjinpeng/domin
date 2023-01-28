@@ -43,7 +43,7 @@ class JmApi():
             return response
         except Exception as e:
             time.sleep(2)
-            print(e)
+            # print(e)
             return self.get_ykj_list(data)
 
     # 获取一口价成交数据
@@ -64,7 +64,7 @@ class JmApi():
             return response
         except Exception as e:
             time.sleep(2)
-            print(e)
+            # print(e)
             return self.get_ykj_cj_list(data)
 
     # 获取店铺数据
@@ -100,7 +100,7 @@ class JmApi():
             return response
         except Exception as e:
             time.sleep(2)
-            print(e)
+            # print(e)
             return self.buy_ykj(ym,jg,ty=ty,yz=yz)
 
 

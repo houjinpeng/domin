@@ -1,0 +1,27 @@
+<div class="layuimini-container">
+    <button class="layui-btn layui-btn-xs" onclick="refresh()">刷新</button>
+    <div class="layuimini-main">
+
+
+        <div style="height: 600px" >
+
+            {foreach str as $item}
+                {if strstr($item,'错误')}
+                    <font color="red">{$item}</font><br>
+                {else}
+                    {$item}<br>
+                {/if}
+
+            {/foreach}
+
+        </div>
+
+    </div>
+</div>
+<script>
+    function refresh(){
+        window.location.reload()
+    }
+
+
+</script>

@@ -18,7 +18,7 @@ words = get_mingan_word()
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 10:
+        if proxy_queue.qsize()> 100:
             time.sleep(2)
             continue
         url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
@@ -69,7 +69,7 @@ class GetSougouRecord():
         }
         return ip
 
-    def check_verify(self,resp,domain,cookie_str):
+    def check_verify(self,resp,domain,count=0):
         try:
             headers = {
                 "Accept": "application/json, text/javascript, */*; q=0.01",
@@ -85,7 +85,6 @@ class GetSougouRecord():
                 "Referer": resp.url,
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
                 "X-Requested-With": "XMLHttpRequest",
-                'Cookie':cookie_str
             }
 
             img_headers = {
@@ -105,8 +104,9 @@ class GetSougouRecord():
             #http://www.sogou.com/antispider/util/seccode.php?tc=1674024271814
             img_url = 'http://www.sogou.com/antispider/'+e.xpath('//img[@id="seccodeImage"]/@src')[0]
 
-            img_resp = requests.get(img_url,headers=img_headers,timeout=10)
-
+            img_resp = self.s.get(img_url,headers=img_headers,timeout=10)
+            suv_url = f'http://pb.sogou.com/pv.gif?uigs_productid=search_anti&type=antispider&subtype=seccodeFocus&domain=sogou&suv=&snuid=&t={int(time.time() * 1000)}'
+            self.s.get(suv_url, timeout=10)
             with open(f'code_{domain}.png','wb') as fw:
                 fw.write(img_resp.content)
 
@@ -129,29 +129,56 @@ class GetSougouRecord():
             }
             os.remove(f'code_{domain}.png')
 
-            # result_resp = self.s.post('http://www.sogou.com/antispider/thank.php', data=data, timeout=10, headers=headers)
-            result_resp = requests.post('http://www.sogou.com/antispider/thank.php', data=data, timeout=10, headers=headers)
-            # result = json.loads(result_resp.text)
-            print(result_resp.text)
+            result_resp = self.s.post('http://www.sogou.com/antispider/thank.php', data=data, timeout=10, headers=headers)
+            # result_resp = requests.post('http://www.sogou.com/antispider/thank.php', data=data, timeout=10, headers=headers)
+            result = json.loads(result_resp.text)
+            # print(result_resp.text)
             if '跳转' in result_resp.text:
-                cookie_str = ''
-                for k, v in result_resp.cookies.get_dict('www.sogou.com').items():
-                    cookie_str += k + "=" + v + ';'
-                for k, v in result_resp.cookies.get_dict('.sogou.com').items():
-                    cookie_str += k + "=" + v + ';'
-                return cookie_str
-            return ''
+                c = requests.cookies.RequestsCookieJar()
+                c.set('SNUID', result['id'], path='/', domain='.sogou.com')
+                self.s.cookies.update(c)
+
+
+                url = f'https://sogou.com/web?query=site%3A{domain}&_asf=www.sogou.com&_ast=&w=01015002&p=40040108&ie=utf8&from=index-nologin&s_from=index&oq=&ri=0&sourceid=sugg&suguuid=&sut=0&sst0=1674814022234&lkt=0%2C0%2C0&sugsuv=00C3E8BF76FA00FB63D38A0E70ABA902&sugtime=1674814022234'
+                headers = {
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Accept-Language": "zh-CN,zh;q=0.9",
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "Host": "www.sogou.com",
+                    "Pragma": "no-cache",
+                    "sec-ch-ua": "\"Chromium\";v=\"106\", \"Google Chrome\";v=\"106\", \"Not;A=Brand\";v=\"99\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": "\"Windows\"",
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "none",
+                    "Sec-Fetch-User": "?1",
+                    "Upgrade-Insecure-Requests": "1",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
+                }
+
+                response = self.s.get(url, headers=headers, timeout=5)
+
+                if "seccodeImage" in response.text and "请输入图中的验证码" in response.text:
+                    # print('验证码')
+                    if count >10:
+                        return False
+                    return self.check_verify(resp,domain,count+1)
+                else:
+                    return response
 
         except Exception as e:
-            return ''
+            return False
 
-    def request_hearders(self, url,referer,cookie_str):
+    def request_hearders(self, url,referer):
         try:
 
-            proxies = {
-                "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-                "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            }
+            # proxies = {
+            #     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            #     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            # }
             headers = {
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "Accept-Encoding": "gzip, deflate, br",
@@ -168,13 +195,12 @@ class GetSougouRecord():
                 "Sec-Fetch-Site": "none",
                 "Sec-Fetch-User": "?1",
                 "Referer": referer,
-                'cookie':cookie_str,
                 "Upgrade-Insecure-Requests": "1",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
             # r = self.s.get(url,headers=headers,timeout=5,proxies=proxies)
-            # r = self.s.get(url,headers=headers,timeout=5)
-            r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
+            r = self.s.get(url,headers=headers,timeout=5)
+            # r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
             # cookie_str = ''
             # for k,v in r.cookies.get_dict('www.sogou.com').items():
             #     cookie_str +=k+"="+v+';'
@@ -182,14 +208,17 @@ class GetSougouRecord():
             #     cookie_str += k + "=" + v + ';'
 
             # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
-            if '需要您协助验证' in r.text:
+            if '请输入图中的验证码' in r.text:
                 # self.s = requests.session()
-                # cookie_str = self.check_verify(r,domain,cookie_str)
-                return self.request_hearders(url,referer,cookie_str)
+                resp = self.check_verify(r,domain)
+                if resp == False:
+                    return None
+                return resp
+                # return self.request_hearders(url,referer)
             return r
         except Exception as e:
             # self.set_proxies()
-            return self.request_hearders(url,referer,cookie_str)
+            return self.request_hearders(url,referer)
 
     def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
         '''
@@ -300,9 +329,10 @@ class GetSougouRecord():
 
     def get_info(self,domain):
         # url = f'https://www.sogou.com/web?query=site%3A{domain}'
-        url = f'https://www.sogou.com/web?query=site:{domain}&_ast=1674051198&_asf=www.sogou.com&w=01029901&cid=&s_from=result_up'
+        # url = f'https://www.sogou.com/web?query=site:{domain}&_ast=1674051198&_asf=www.sogou.com&w=01029901&cid=&s_from=result_up'
+        url = f'https://sogou.com/web?query=site%3A{domain}&_asf=www.sogou.com&_ast=&w=01015002&p=40040108&ie=utf8&from=index-nologin&s_from=index&oq=&ri=0&sourceid=sugg&suguuid=&sut=0&sst0=1674814022234&lkt=0%2C0%2C0&sugsuv=00C3E8BF76FA00FB63D38A0E70ABA902&sugtime=1674814022234'
 
-        r = self.request_hearders(url,'','')
+        r = self.request_hearders(url,'')
         try:
             # 查询收录数
             try:

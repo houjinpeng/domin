@@ -1,0 +1,751 @@
+<div class="layuimini-container">
+
+    <form class="layui-form layuimini-form">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+
+                <div class="layui-form-item" >
+                    <label class="layui-form-label required">名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" value="{$row.title}" name="title" lay-verify="required" placeholder="请输入监控名称" autocomplete="off" class="layui-input">
+                        <tip>为了方便查找 起个名字吧~</tip>
+                    </div>
+                </div>
+
+                <label class="layui-form-label">下单金额</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="place_1" autocomplete="off" class="layui-input" value="{$row.place_1}"
+                           lay-verify="number|required" required>
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="place_2" autocomplete="off" class="layui-input" value="{$row.place_2}"
+                           lay-verify="number|required">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">排序</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$row.sort}" name="sort" lay-verify="number" placeholder="请输入备案尾号"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">被墙是否购买</label>
+                <div class="layui-input-block"  style="width: 100px;">
+                    <select name="is_buy_qiang" lay-verify="required">
+                        <option value="0" {if $row['is_buy_qiang'] == 0} selected {/if}>否</option>
+                        <option value="1" {if $row['is_buy_qiang'] == 1} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">微信被墙是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_wx" lay-verify="required">
+                        <option value="0"  {if $row['is_buy_wx'] == 0} selected {/if}>否</option>
+                        <option value="1"  {if $row['is_buy_wx'] == 1} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">QQ被墙是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_qq" lay-verify="required">
+                        <option value="0" {if $row['is_buy_qq'] == 0} selected {/if}>否</option>
+                        <option value="1" {if $row['is_buy_qq'] == 1} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">备案黑名单是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_beian" lay-verify="required">
+                        <option value="0" {if $row['is_buy_beian'] == 0} selected {/if}>否</option>
+                        <option value="1" {if $row['is_buy_beian'] == 1} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">没有建站历史是否购买</label>
+                <div class="layui-input-block"  style="width: 120px;">
+                    <select name="is_buy_history" lay-verify="required">
+                        <option value="0" {if $row['is_buy_history'] == 0} selected {/if} >否</option>
+                        <option value="1" {if $row['is_buy_history'] == 1} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+
+            <div class="layui-inline">
+                <label class="layui-form-label">是否购买</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="is_buy" value="0" title="否" {if $row.is_buy == 0}checked{/if}>
+                    <input type="radio" name="is_buy" value="1" title="是" {if $row.is_buy == 1}checked{/if}>
+                </div>
+
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">购买可赎回域名</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="is_buy_sh" value="0" title="否" {if $row.is_buy_sh == 0}checked{/if}>
+                    <input type="radio" name="is_buy_sh" value="1" title="是" {if $row.is_buy_sh == 1}checked{/if}>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">桔子</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <label class="layui-form-label">对比桔子</label>
+                <div class="layui-input-block"  style="width: 100px;">
+                    <select name="is_com_jvzi" lay-verify="required">
+                        <option value="0"  {if !isset($data['jvzi'])} selected {/if}>否</option>
+                        <option value="1" {if isset($data['jvzi'])} selected {/if}>是</option>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">对比年龄</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_age_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_age_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_age_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_age_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年建站</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_lianxu_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_five_lianxu_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_five_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">最长连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_lianxu_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_lianxu_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">统一度</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_tongyidu_1" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_tongyidu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="jvzi_tongyidu_2" autocomplete="off" class="layui-input" value="{$data['jvzi']['jvzi_tongyidu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">备案</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">对比备案</label>
+            <div class="layui-input-block">
+                <select name="is_com_beian">
+                    <option value="0"  {if !isset($data['beian'])} selected {/if}>否</option>
+                    <option value="1" {if isset($data['beian'])} selected {/if}>是</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">备案尾号</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$data['beian']['beian_suffix']|default='1'}" name="beian_suffix"
+                           lay-verify="number" placeholder="请输入备案尾号"
+                           autocomplete="off" class="layui-input">
+                    <tip>只要小于等于备案尾号的数据</tip>
+
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">排除天数</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$data['beian']['beian_pcts']|default='0'}" name="beian_pcts"
+                           lay-verify="number" placeholder="请输入排除天数"
+                           autocomplete="off" class="layui-input">
+                    <tip>排除天数大于设置的天数</tip>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">备案性质</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$data['beian']['beian_xz']|default=''}" name="beian_xz"
+                           placeholder="排除备案性质"
+                           autocomplete="off" class="layui-input">
+                    <tip>排除 企业 个人 其他 多个 企业,个人（,分割）</tip>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">历史</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <label class="layui-form-label">对比历史</label>
+                <div class="layui-input-block" style="width: 100px;">
+                    <select name="is_com_history" lay-verify="required">
+                        <option value="0" {if !isset($data['history'])} selected {/if}>否</option>
+                        <option value="1" {if isset($data['history'])} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-input-inline">
+                <label class="layui-form-label">对比敏感词</label>
+                <div class="layui-input-block" style="width: 100px;">
+                    <select name="history_is_com_word" lay-verify="required">
+                        {if isset($data['history']['history_is_com_word'])}
+                        <option value="0" {if $data['history']['history_is_com_word'] =='0'} selected {/if}>否</option>
+                        <option value="1" {if $data['history']['history_is_com_word'] =='1'} selected {/if}>是</option>
+                        {else}
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                        {/if}
+
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="layui-inline">
+                <label class="layui-form-label">对比年龄</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_age_1" autocomplete="off" class="layui-input"
+                           value="{$data['history']['history_age_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_age_2" autocomplete="off" class="layui-input"
+                           value="{$data['history']['history_age_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">中文条数</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_chinese_1" autocomplete="off" class="layui-input" value="{$data['history']['history_chinese_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_chinese_2" autocomplete="off" class="layui-input" value="{$data['history']['history_chinese_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年历史</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_1" autocomplete="off" class="layui-input" value="{$data['history']['history_five_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_2" autocomplete="off" class="layui-input" value="{$data['history']['history_five_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">近五年连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_lianxu_1" autocomplete="off" class="layui-input" value="{$data['history']['history_five_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_five_lianxu_2" autocomplete="off" class="layui-input" value="{$data['history']['history_five_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">最长连续</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_lianxu_1" autocomplete="off" class="layui-input" value="{$data['history']['history_lianxu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_lianxu_2" autocomplete="off" class="layui-input" value="{$data['history']['history_lianxu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">评分</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_score_1" autocomplete="off" class="layui-input" value="{$data['history']['history_score_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_score_2" autocomplete="off" class="layui-input" value="{$data['history']['history_score_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">统一度</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_tongyidu_1" autocomplete="off" class="layui-input" value="{$data['history']['history_tongyidu_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="history_tongyidu_2" autocomplete="off" class="layui-input" value="{$data['history']['history_tongyidu_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">搜狗</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">对比搜狗</label>
+                <div class="layui-input-block">
+                    <select name="is_com_sogou" lay-verify="required">
+                        <option value="0" {if !isset($data['sogou'])} selected {/if}>否</option>
+                        <option value="1" {if isset($data['sogou'])} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">url结构</label>
+                <div class="layui-input-block">
+                    <select name="sogou_jg">
+                        {if isset($data['sogou']) &&isset($data['sogou']['sogou_jg']) }
+                        <option value="0"  {if $data['sogou']['sogou_jg'] == '0'} selected {/if}>不判断</option>
+                        <option value="1"  {if $data['sogou']['sogou_jg'] == '1'} selected {/if}>首页</option>
+                        <option value="2"  {if $data['sogou']['sogou_jg'] == '2'} selected {/if}>泛</option>
+                        <option value="3"  {if $data['sogou']['sogou_jg'] == '3'} selected {/if}>内页</option>
+                        {else}
+                        <option value="0" selected>不判断</option>
+                        <option value="1">首页</option>
+                        <option value="2">泛</option>
+                        <option value="3">内页</option>
+                        {/if}
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">对比敏感词</label>
+                <div class="layui-input-block">
+                    <select name="sogou_is_com_word">
+                        {if isset($data['sogou']['sogou_is_com_word'])}
+                        <option value="0" {if($data['sogou']['sogou_is_com_word'] =='0')} selected {/if}>否</option>
+                        <option value="1" {if($data['sogou']['sogou_is_com_word'] =='1')} selected {/if}>是</option>
+                        {else}
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                        {/if}
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">收录数</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="sogou_sl_1" autocomplete="off" class="layui-input"
+                           value="{$data['sogou']['sogou_sl_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="sogou_sl_2" autocomplete="off" class="layui-input"
+                           value="{$data['sogou']['sogou_sl_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">快照时间</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$data['sogou']['sogou_kz']|default=''}" name="sogou_kz"
+                           placeholder="请输入要搜索的快照时间"
+                           autocomplete="off" class="layui-input">
+                    <tip>判断快照时间 是否包含字符串 1小时 2小时 1天 不设置不填（要包含的） 如：小时,1天</tip>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">注册商</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">对比注册商</label>
+                <div class="layui-input-block">
+                    <select name="is_com_zcs" lay-verify="required">
+                        <option value="0" {if !isset($data['zcs'])} selected {/if}>否</option>
+                        <option value="1" {if isset($data['zcs'])} selected {/if}>是</option>
+                    </select>
+                    <tip>注册商对比</tip>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">包含字符串</label>
+                <div class="layui-input-block">
+                    <input type="text" value="{$data['zcs']['zcs_include']|default=''}" name="zcs_include"
+                           placeholder="匹配符合的字符串"
+                           autocomplete="off" class="layui-input">
+                    <tip>常用注册商包含字符gname国际:【gathernames,gname,namebright】  西部：【xb】  阿里云：【netcn】 新网：【xw】 易名：【ename】  中国数据：【zgsj】 爱名：【22cn】聚名：【juming】</tip>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">360</h3>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">对比360</label>
+                <div class="layui-input-block">
+                    <select name="is_com_so" lay-verify="required">
+                        <option value="0" {if !isset($data['so'])} selected {/if}>否</option>
+                        <option value="1" {if isset($data['so'])} selected {/if}>是</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">对比敏感词</label>
+                <div class="layui-input-block">
+                    <select name="so_is_com_word">
+                        {if isset($data['so']['so_is_com_word'])}
+                            <option value="0" {if($data['so']['so_is_com_word'] =='0')} selected {/if}>否</option>
+                            <option value="1" {if($data['so']['so_is_com_word'] =='1')} selected {/if}>是</option>
+                        {else}
+                            <option value="0" selected>否</option>
+                            <option value="1">是</option>
+                        {/if}
+
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">收录数</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="so_sl_1" autocomplete="off" class="layui-input"
+                           value="{$data['so']['so_sl_1']|default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="so_sl_2" autocomplete="off" class="layui-input"
+                           value="{$data['so']['so_sl_2']|default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">风险提示</label>
+                <div class="layui-input-block">
+                    <select name="so_fxts">
+                        {if isset($data['so'])}
+                        <option value="0" {if $data['so']['so_fxts'] == '0'} selected {/if}>否</option>
+                        <option value="1" {if $data['so']['so_fxts'] == '1'} selected {/if}>是</option>
+                        {else}
+                        <option value="0">否</option>
+                        <option value="1" selected>是</option>
+                        {/if}
+
+
+                    </select>
+                    <tip>风险提示是否购买 是 购买 否不购买</tip>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">url结构</label>
+                <div class="layui-input-block">
+                    <select name="so_jg">
+                        {if isset($data['so'])}
+                        <option value="0"  {if $data['so']['so_jg'] == '0'} selected {/if}>不判断</option>
+                        <option value="1"  {if $data['so']['so_jg'] == '1'} selected {/if}>首页</option>
+                        <option value="2"  {if $data['so']['so_jg'] == '2'} selected {/if}>泛</option>
+                        <option value="3"  {if $data['so']['so_jg'] == '3'} selected {/if}>内页</option>
+                        {else}
+                        <option value="0" selected>不判断</option>
+                        <option value="1">首页</option>
+                        <option value="2">泛</option>
+                        <option value="3">内页</option>
+                        {/if}
+
+                    </select>
+                    <tip>只要符合选择结构为可购买域名</tip>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">百度</h3>
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">对比百度</label>
+                <div class="layui-input-block">
+                    <select name="is_com_baidu">
+                        <option value="0" {if !isset($data['baidu'])} selected {/if}>否</option>
+                        <option value="1" {if isset($data['baidu'])} selected {/if}>是</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">收录数</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="baidu_sl_1" autocomplete="off" class="layui-input"
+                           value="{$data['baidu']['baidu_sl_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="baidu_sl_2" autocomplete="off" class="layui-input"
+                           value="{$data['baidu']['baidu_sl_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="layui-form-item">
+
+            <div class="layui-inline">
+                <label class="layui-form-label">识别中文</label>
+                <div class="layui-input-block">
+                    <select name="baidu_is_com_chinese">
+                        {if isset($data['baidu'])}
+                        <option value="0" {if $data['baidu']['baidu_is_com_chinese'] == '0'} selected {/if}>否</option>
+                        <option value="1" {if $data['baidu']['baidu_is_com_chinese']== '1'} selected {/if}>是</option>
+                        {else}
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                        {/if}
+                    </select>
+                    <tip>识别url中是否有中文 是：只要有中文的 否：不判断语言</tip>
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label">对比敏感词</label>
+                <div class="layui-input-block">
+                    <select name="baidu_is_com_word">
+                        {if isset($data['baidu'])}
+                        <option value="0" {if $data['baidu']['baidu_is_com_word'] == '0'} selected {/if}>否</option>
+                        <option value="1" {if $data['baidu']['baidu_is_com_word'] == '1'} selected {/if}>是</option>
+                        {else}
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                        {/if}
+                    </select>
+                    <tip>如果有敏感词过滤掉</tip>
+                </div>
+            </div>
+
+
+            <div class="layui-inline">
+                <label class="layui-form-label">url结构</label>
+                <div class="layui-input-block">
+                    <select name="baidu_jg">
+                        {if isset($data['baidu'])}
+                        <option value="0" {if $data['baidu']['baidu_jg'] == '0'} selected {/if}>不判断</option>
+                        <option value="1" {if $data['baidu']['baidu_jg'] == '1'} selected {/if}>首页</option>
+                        <option value="2" {if $data['baidu']['baidu_jg'] == '2'} selected {/if}>泛</option>
+                        <option value="3" {if $data['baidu']['baidu_jg'] == '3'} selected {/if}>内页</option>
+
+                        {else}
+                        <option value="0" selected>不判断</option>
+                        <option value="1">首页</option>
+                        <option value="2">泛</option>
+                        <option value="3">内页</option>
+                        {/if}
+                    </select>
+                    <tip>只要符合选择结构为可购买域名</tip>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="layui-form-item" style="text-align: left">
+            <h3 style="color: red">爱站</h3>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">对比爱站</label>
+                <div class="layui-input-block">
+                    <select name="is_com_aizhan" lay-verify="required">
+
+                        <option value="0" {if !isset($data['aizhan'])} selected {/if}>否</option>
+                        <option value="1"  {if isset($data['aizhan'])} selected {/if}>是</option>
+
+
+                    </select>
+                </div>
+            </div>
+
+
+
+            <div class="layui-inline">
+                <label class="layui-form-label">百度权重</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_baidu_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_baidu_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_baidu_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_baidu_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">移动权重</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_yidong_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_yidong_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_yidong_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_yidong_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">360权重</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_so_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_so_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_so_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_so_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">神马</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sm_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sm_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sm_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sm_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">搜狗</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sogou_pr_1" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sogou_pr_1'] | default='0'}"
+                           lay-verify="number">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="aizhan_sogou_pr_2" autocomplete="off" class="layui-input" value="{$data['aizhan']['aizhan_sogou_pr_2'] | default='0'}"
+                           lay-verify="number">
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo">添加</button>
+                <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+            </div>
+        </div>
+
+
+    </form>
+
+</div>
