@@ -672,7 +672,6 @@ class Domain extends AdminController
      *@NodeAnotation(title="日志")
      */
     public function logs($id,$type){
-
         if ($type == 1){
             $file_name = 'logs_'.date('Ymd').'/main_log/main_'.$id.'.log';
 
@@ -687,28 +686,28 @@ class Domain extends AdminController
             $this->assign('str', ["打开文件失败，请检查文件路径是否正确，路径和文件名不要包含中文"]);
             return $this->fetch();
         }
-
+        $start_time = time();
         $pos=-2;
         $eof="";
         $str="";
         $linesArr = array();
-        $n = 10000000;
-        while($n>0){
-            while($eof!="\n"){
-                if(!fseek($fp,$pos,SEEK_END)){
-                    $eof=fgetc($fp);
-                    $pos--;
-                } else {
-                    break;
-                }
+        $n = 1000;
+//        while($n>0){
+        while($eof!="\n"){
+            if(!fseek($fp,$pos,SEEK_END)){
+                $eof=fgetc($fp);
+                $pos--;
+            } else {
+                break;
             }
-            // $str.=fgets($fp);
-            $linesArr[] = fgets($fp);
-            $eof="";
-            $n--;
         }
+        // $str.=fgets($fp);
+        $linesArr[] = fgets($fp);
+        $eof="";
+        $n--;
+//        }
 
-
+        dd(time()-$start_time);
         $linesArr = array_reverse($linesArr);
         foreach ($linesArr as $one) {
             $str .= $one;

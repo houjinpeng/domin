@@ -692,7 +692,7 @@ class Jkt extends AdminController
         $eof="";
         $str="";
         $linesArr = array();
-        $n = 10000000;
+        $n = 1000000;
         while($n>0){
             while($eof!="\n"){
                 if(!fseek($fp,$pos,SEEK_END)){
