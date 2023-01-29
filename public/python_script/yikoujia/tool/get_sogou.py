@@ -217,7 +217,7 @@ class GetSougouRecord():
                 # return self.request_hearders(url,referer)
             return r
         except Exception as e:
-            # self.set_proxies()
+            self.set_proxies()
             return self.request_hearders(url,referer)
 
     def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):

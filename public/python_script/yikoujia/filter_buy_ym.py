@@ -423,6 +423,8 @@ class FilterYm():
             # 获取域名
             domain_data = self.work_queue.get()
             # 先判断价格是否合适
+            self.out_ym.insert_one({'ym': domain_data['ym'], 'type': 'zhi', 'filter_id': self.filter_id})
+
             try:
                 if self.filter_data['place_1'] > int(domain_data['jg']) or int(domain_data['jg']) > self.filter_data['place_2']:
                     self.log_queue.put(f'购买金额不符 域名：{domain_data["ym"]}价格：{domain_data["jg"]}')
@@ -665,7 +667,12 @@ class FilterYm():
             self.filter_dict = {}
         self.ym_set = set()
 
+        # 保存查询过的数据
+        self.out_ym = self.mydb['out_ym']
 
+        all_out_data = self.out_ym.find({'filter_id': self.filter_id, 'type': 'zhi'})
+        for out_ym in all_out_data:
+            self.ym_set.add(out_ym['ym'])
 
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()

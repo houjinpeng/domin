@@ -275,10 +275,12 @@ class BaiDu():
             record_count = 0
         if html == None:
             return None
-        html = etree.tostring(html.xpath('//div[@id="container"]')[0],encoding='utf-8')
-        data = {'sl':record_count,'html':html.decode()}
-        return data
-
+        try:
+            html = etree.tostring(html.xpath('//div[@id="container"]')[0],encoding='utf-8')
+            data = {'sl':record_count,'html':html.decode()}
+            return data
+        except Exception :
+            return None
 if __name__ == '__main__':
     ls = ["0431auto.cn",
 "wncet.cn",

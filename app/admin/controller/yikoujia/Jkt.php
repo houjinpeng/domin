@@ -729,10 +729,12 @@ class Jkt extends AdminController
     public function delete_buy_list($id,$type){
         if($type == 'zhi'){
             $this->buy_model->where('buy_filter_id','=',$id)->delete();
+            Db::connect('mongo') ->table('out_ym')->where('type','=','zhi')->where('filter_id','=',intval($id))->delete();
+
             $this->success('清除成功');
         }else{
             $row = Db::connect('mongo') ->table('ym_data_'.$id)->delete(true);
-            Db::connect('mongo') ->table('out_ym')->where('filter_id','=',intval($id))->delete();
+            Db::connect('mongo') ->table('out_ym')->where('type','=','main')->where('filter_id','=',intval($id))->delete();
 //            dd(Db::connect('mongo')->getLastSql());
 //            Db::connect('mongo') ->table('out_ym')->where('type','=','main')->delete();
             $this->success('清除成功');
