@@ -691,7 +691,7 @@ class Domain extends AdminController
         $eof="";
         $str="";
         $linesArr = array();
-        $n = 1000;
+        $n = 10000;
 //        while($n>0){
         while($eof!="\n"){
             if(!fseek($fp,$pos,SEEK_END)){

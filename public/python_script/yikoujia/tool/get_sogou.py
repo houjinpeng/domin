@@ -18,7 +18,7 @@ words = get_mingan_word()
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 100:
+        if proxy_queue.qsize()> 10:
             time.sleep(2)
             continue
         url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
@@ -42,8 +42,7 @@ class GetSougouRecord():
 
     def __init__(self):
         self.s = requests.session()
-        pass
-        # self.set_proxies()
+        self.set_proxies()
     #获取域名
     def extract_domain(self,ym_str):
         if '-' in ''.join(ym_str).lower().strip()[:10]:
@@ -172,7 +171,7 @@ class GetSougouRecord():
         except Exception as e:
             return False
 
-    def request_hearders(self, url,referer):
+    def request_hearders(self, url,referer,count=0):
         try:
 
             # proxies = {
@@ -217,6 +216,8 @@ class GetSougouRecord():
                 # return self.request_hearders(url,referer)
             return r
         except Exception as e:
+            if count >= 20:
+                return None
             self.set_proxies()
             return self.request_hearders(url,referer)
 
@@ -333,6 +334,8 @@ class GetSougouRecord():
         url = f'https://sogou.com/web?query=site%3A{domain}&_asf=www.sogou.com&_ast=&w=01015002&p=40040108&ie=utf8&from=index-nologin&s_from=index&oq=&ri=0&sourceid=sugg&suguuid=&sut=0&sst0=1674814022234&lkt=0%2C0%2C0&sugsuv=00C3E8BF76FA00FB63D38A0E70ABA902&sugtime=1674814022234'
 
         r = self.request_hearders(url,'')
+        if r == None:
+            return self.get_info(domain)
         try:
             # 查询收录数
             try:
@@ -352,7 +355,7 @@ class GetSougouRecord():
 
             return {'sl':int(record),'html':r.text}
         except Exception as error:
-            print(error)
+            print(f'搜索查询错误：{error}')
             return self.get_info(domain)
 
 if __name__ == '__main__':
