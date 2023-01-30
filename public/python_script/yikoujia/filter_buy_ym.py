@@ -70,14 +70,14 @@ class Client():
                 if new_data_list == []:continue
                 # # 判断是否检测历史
                 if self.filter_dict.get('history'):
-                    if data.get('history') == None:
+                    if new_data_list[0].get('history') == None:
                         new_data_list = self.get_history_token(new_data_list)
 
                 for d in new_data_list:
                     self.queue.put(d)
                     self.log_queue.put(f'本次插入队列数据:{d["ym"]}')
             except Exception as e:
-                print(e)
+                print(f'获取数据错误：{e}')
 
 #启动插入日志队列
 
