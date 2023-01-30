@@ -171,7 +171,7 @@ class FilterYm():
         except Exception as e:
             time.sleep(3)
             #重新获取port
-            print(f'websocket 主线端口：{self.main_filter["port"]} 连接错误 {e} ')
+            print(f'websocket 主线id:{self.main_filter["id"]} 主线端口：{self.main_filter["port"]} 连接错误 {e} ')
             self.get_filter_data(self.filter_id)
             return self.get_work_data()
 
