@@ -47,7 +47,7 @@ class Client():
 
         self.client.sendall(str(self.filter_id).encode())
         while True:
-            response = self.client.recv(102400)
+            response = self.client.recv(10240000)
             try:
                 data = json.loads(response.decode())
                 # # 判断是否检测历史
