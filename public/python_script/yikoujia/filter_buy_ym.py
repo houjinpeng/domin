@@ -46,6 +46,7 @@ class Client():
     def run(self):
 
         self.client.sendall(str(self.filter_id).encode())
+        error_data = ''
         while True:
             response = self.client.recv(102400000)
             try:
@@ -54,8 +55,17 @@ class Client():
                 data_list = data.split('||||||')
                 new_data_list = []
                 for data in data_list:
+                    if error_data != '':
+                        data = error_data + data
+                        error_data = ''
+
                     if data.strip() == '':continue
-                    data = json.loads(data.replace('|',''))
+                    try:
+                        data = json.loads(data.replace('|',''))
+                    except Exception :
+                        error_data = data
+                        continue
+
                     new_data_list.append(data)
                 if new_data_list == []:continue
                 # # 判断是否检测历史
