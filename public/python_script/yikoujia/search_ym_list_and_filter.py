@@ -49,6 +49,7 @@ class Handler(BaseRequestHandler):
         while True:
             #对比发送的
             qvchong_data = self.ym_set.difference(self.createVar[f'send_set_{zhi_id}'])
+            print(f'添加数据{len(qvchong_data)}')
             for d in qvchong_data:
                 d = d+'||||||'
                 # self.request.sendall(d.encode())
