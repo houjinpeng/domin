@@ -142,11 +142,17 @@ class FilterYm():
     # h获取数据
 
     def get_work_data(self):
-        client = Client(self.filter_id,self.filter_dict,self.work_queue,self.log_queue,self.get_history_token)
-        client.connect('127.0.0.1', self.main_filter['port'])
-        # client.run()
-        threading.Thread(target=client.run).start()
-
+        try:
+            client = Client(self.filter_id,self.filter_dict,self.work_queue,self.log_queue,self.get_history_token)
+            client.connect('127.0.0.1', self.main_filter['port'])
+            # client.run()
+            threading.Thread(target=client.run).start()
+        except Exception as e:
+            time.sleep(3)
+            #重新获取port
+            print(f'websocket 主线端口：{self.main_filter["port"]} 连接错误 {e} ')
+            self.get_filter_data(self.filter_id)
+            return self.get_work_data()
 
     # # h获取数据
     # def get_work_data(self):
