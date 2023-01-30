@@ -23,6 +23,7 @@ def get_proxy():
             r = requests.get(url, timeout=3)
             if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
                 print('尝试修改提取筛选参数')
+                time.sleep(20)
                 continue
             ip_list = r.text.split('\r\n')
             for ip in ip_list:

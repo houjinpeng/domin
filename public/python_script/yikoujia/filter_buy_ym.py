@@ -47,19 +47,27 @@ class Client():
 
         self.client.sendall(str(self.filter_id).encode())
         while True:
-            response = self.client.recv(10240000)
+            response = self.client.recv(102400000)
             try:
-                data = json.loads(response.decode())
+                data = response.decode()
+                if data == '':time.sleep(0.2) ;continue
+                data_list = data.split('||||||')
+                new_data_list = []
+                for data in data_list:
+                    if data.strip() == '':continue
+                    data = json.loads(data.replace('|',''))
+                    new_data_list.append(data)
+                if new_data_list == []:continue
                 # # 判断是否检测历史
                 if self.filter_dict.get('history'):
                     if data.get('history') == None:
-                        new_data = self.get_history_token([data])
-                        data = new_data[0]
+                        new_data_list = self.get_history_token(new_data_list)
 
-                self.queue.put(data)
-                self.log_queue.put(f'本次插入队列数据:{data["ym"]}')
+                for d in new_data_list:
+                    self.queue.put(d)
+                    self.log_queue.put(f'本次插入队列数据:{d["ym"]}')
             except Exception as e:
-                print(response)
+                print(e)
 
 #启动插入日志队列
 

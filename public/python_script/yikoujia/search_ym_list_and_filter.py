@@ -50,7 +50,9 @@ class Handler(BaseRequestHandler):
             #对比发送的
             qvchong_data = self.ym_set.difference(self.createVar[f'send_set_{zhi_id}'])
             for d in qvchong_data:
-                self.request.sendall(d.encode())
+                d = d+'||||||'
+                # self.request.sendall(d.encode())
+                self.request.send(d.encode())
                 self.createVar[f'send_set_{zhi_id}'].add(d)
             # print(f'receive data: {str(i).decode()}')
 
