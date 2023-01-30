@@ -48,15 +48,18 @@ class Client():
         self.client.sendall(str(self.filter_id).encode())
         while True:
             response = self.client.recv(102400)
-            data = json.loads(response.decode())
-            # # 判断是否检测历史
-            if self.filter_dict.get('history'):
-                if data.get('history') == None:
-                    new_data = self.get_history_token([data])
-                    data = new_data[0]
+            try:
+                data = json.loads(response.decode())
+                # # 判断是否检测历史
+                if self.filter_dict.get('history'):
+                    if data.get('history') == None:
+                        new_data = self.get_history_token([data])
+                        data = new_data[0]
 
-            self.queue.put(data)
-            self.log_queue.put(f'本次插入队列数据:{data["ym"]}')
+                self.queue.put(data)
+                self.log_queue.put(f'本次插入队列数据:{data["ym"]}')
+            except Exception as e:
+                print(response)
 
 #启动插入日志队列
 
