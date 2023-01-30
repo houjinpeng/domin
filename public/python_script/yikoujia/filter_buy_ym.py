@@ -20,6 +20,7 @@ from dbutils.pooled_db import PooledDB
 from conf.config import *
 from tool.jmApi import JmApi
 from pymysql.converters import escape_string
+import socket
 
 jm_api = JmApi()
 db_pool = PooledDB(**mysql_pool_conf)
@@ -30,13 +31,39 @@ history_obj = GetHistory()
 mg_word = get_mingan_word()
 
 
+class Client():
+    def __init__(self,filter_id,filter_dict,queue,log_queue,get_history_token):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.queue = queue
+        self.log_queue = log_queue
+        self.filter_dict = filter_dict
+        self.filter_id = filter_id
+        self.get_history_token = get_history_token
+
+    def connect(self, server_ip, server_port):
+        self.client.connect((server_ip, server_port))
+
+    def run(self):
+
+        self.client.sendall(str(self.filter_id).encode())
+        while True:
+            response = self.client.recv(102400)
+            data = json.loads(response.decode())
+            # # 判断是否检测历史
+            if self.filter_dict.get('history'):
+                if data.get('history') == None:
+                    new_data = self.get_history_token([data])
+                    data = new_data[0]
+
+            self.queue.put(data)
+            self.log_queue.put(f'本次插入队列数据:{data["ym"]}')
+
 #启动插入日志队列
 
 class FilterYm():
     def __init__(self, filter_id):
         self.filter_id = filter_id
         self.start_step = 0
-
 
     # 获取id的那条数据
     def get_filter_data(self, id):
@@ -113,37 +140,46 @@ class FilterYm():
         return new_data_list
 
     # h获取数据
-    def get_work_data(self):
-        while True:
-            # redis去重
-            all_data = self.mycol.find().limit(1000).skip(self.start_step)
-            self.start_step += 1000
-            new_data = []
-            is_have = False
-            for data in all_data:
-                is_have =True
-                old_len = len(self.ym_set)
-                self.ym_set.add(data['ym'])
-                if old_len != len(self.ym_set):
-                    new_data.append(data)
-            if is_have == False:
-                self.start_step -= 2000
-                if self.start_step < 0:
-                    self.start_step = 0
-            if new_data == []:
-                time.sleep(1)
-                continue
-            # 判断是否检测历史
-            if self.filter_dict.get('history'):
-                if new_data != []:
-                    if new_data[0].get('history') == None:
-                        new_data = self.get_history_token(new_data)
 
-            # 存入任务队列
-            for data in new_data:
-                self.work_queue.put(data)
-            self.log_queue.put(f'本次插入队列数据:{len(new_data)}')
-            time.sleep(1)
+    def get_work_data(self):
+        client = Client(self.filter_id,self.filter_dict,self.work_queue,self.log_queue,self.get_history_token)
+        client.connect('127.0.0.1', self.main_filter['port'])
+        # client.run()
+        threading.Thread(target=client.run).start()
+
+
+    # # h获取数据
+    # def get_work_data(self):
+    #     while True:
+    #         # redis去重
+    #         all_data = self.mycol.find().limit(1000).skip(self.start_step)
+    #         self.start_step += 1000
+    #         new_data = []
+    #         is_have = False
+    #         for data in all_data:
+    #             is_have =True
+    #             old_len = len(self.ym_set)
+    #             self.ym_set.add(data['ym'])
+    #             if old_len != len(self.ym_set):
+    #                 new_data.append(data)
+    #         if is_have == False:
+    #             self.start_step -= 2000
+    #             if self.start_step < 0:
+    #                 self.start_step = 0
+    #         if new_data == []:
+    #             time.sleep(1)
+    #             continue
+    #         # 判断是否检测历史
+    #         if self.filter_dict.get('history'):
+    #             if new_data != []:
+    #                 if new_data[0].get('history') == None:
+    #                     new_data = self.get_history_token(new_data)
+    #
+    #         # 存入任务队列
+    #         for data in new_data:
+    #             self.work_queue.put(data)
+    #         self.log_queue.put(f'本次插入队列数据:{len(new_data)}')
+    #         time.sleep(1)
 
     # 修改爬虫状态
     def update_spider_status(self, table, spider_id, update_status):
@@ -239,10 +275,13 @@ class FilterYm():
                         self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'], main=self.main_filter['title'], price=domain_data['jg'])
                     else:
                         self.log_queue.put(f'购买失败 {resp}')
+                        self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'] + ' 失败',main=self.main_filter['title'] + ' 失败', price=domain_data['jg'])
+
                 else:
                     self.log_queue.put(f'{domain_data["ym"]} 可赎回域名不购买')
 
         else:
+            self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title']+' 失败', main=self.main_filter['title']+' 失败', price=domain_data['jg'])
             self.log_queue.put(f'购买失败 {resp}')
 
     # 备案对比
@@ -417,7 +456,7 @@ class FilterYm():
         jvzi_obj = JvZi()
         while True:
             if self.work_queue.empty():
-                time.sleep(3)
+                time.sleep(0.5)
                 continue
 
             # 获取域名
@@ -734,5 +773,5 @@ class FilterYm():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 58
+    jkt_id = 62
     filter = FilterYm(jkt_id).index()

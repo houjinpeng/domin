@@ -39,7 +39,35 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     icon: 'fa fa-plus ',
                     class: 'layui-btn  layui-btn-sm',
                     extend: 'data-full="true"',
-                }], 'delete'],
+                },{
+                    checkbox:true,
+                    text: '运行主线',
+                    title: '是否运行选中主线？',
+                    url: 'guoqi_domain.domain/restart_task?type=zhu',
+                    method: 'request',
+                    auth: 'add',
+                    class: 'layui-btn  layui-btn-sm',
+                    extend: 'data-full="true"',
+                },{
+                    checkbox:true,
+                    text: '运行所有支线',
+                    title: '是否运行选中主线下的所有支线？',
+                    url: 'guoqi_domain.domain/restart_task?type=zhi_all',
+                    method: 'request',
+                    auth: 'add',
+                    class: 'layui-btn  layui-btn-sm',
+                    extend: 'data-full="true"',
+                },{
+                    checkbox:true,
+                    text: '停止所有任务',
+                    title: '是否停止选中所有主线和支线的任务？',
+                    url: init.stop_task_url,
+                    method: 'request',
+                    auth: 'add',
+                    class: 'layui-btn layui-btn-danger layui-btn-sm',
+                    extend: 'data-full="true"',
+                }
+                ], 'delete'],
                 cols: [[
                     {type: "checkbox"},
                     {field: 'id', title: 'ID'},
@@ -56,6 +84,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 return '<button class="layui-btn layui-btn-xs layui-btn-primary layui-border-red"><i style="color: #ff2222;" class="layui-icon layui-icon-tips" style="display: inline-block"></i>异常</button>'
                             }else if (d.spider_status === 0) {
                                 return '<button class="layui-btn layui-btn-xs layui-btn-primary"><i class="layui-icon layui-icon-time" style="display: inline-block"></i>待运行</button>'
+                            }else if (d.spider_status === -1) {
+                                return '<button class="layui-btn layui-btn-xs layui-btn-primary"><i class="layui-icon layui-icon-time" style="display: inline-block"></i>未运行</button>'
                             }
                         }},
                     {
@@ -203,8 +233,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             class: 'layui-btn  layui-btn-xs layui-btn-primary',
                         },{
                             text: '上传域名',
-                            title:'检测程序是否在运行中',
-                            url: 'guoqi_domain.domain/check_status?type=zhu',
+                            title:'上传域名',
+                            url: 'guoqi_domain.domain/upload_ym',
                             method: 'open',
                             auth: 'edit',
                             class: 'layui-btn  layui-btn-xs layui-btn-warm',
@@ -256,7 +286,35 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
         add: function () {
 
+            ea.listen()
+        },
 
+        upload_ym: function () {
+            var upload = layui.upload;
+
+            //执行实例
+            var uploadInst = upload.render({
+                elem: '#upload_store' //绑定元素
+                , url: '/admin/ajax/upload' //上传接口
+                , accept: 'file' //允许上传的文件类型
+                , exts: 'txt' //允许上传的文件类型
+                , done: function (res) {
+                    console.log(res)
+                    let file_path = 'upload'+res['data']['url'].split('upload')[1]
+                    ea.request.post({
+                        url: '/admin/guoqi_domain.domain/upload_ym?id='+$('#filter_id').val(),
+                        data:{'file_path':file_path}
+                    },function (res) {
+                        layer.msg('导入成功',{icon:1})
+                        parent.layer.closeAll()
+                        parent.layui.table.reload('currentTableRenderId');
+                    })
+
+                }
+                , error: function () {
+                    //请求异常回调
+                }
+            });
             ea.listen()
         },
 

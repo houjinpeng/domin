@@ -1,7 +1,9 @@
 '''
 按条件搜索域名列表 并筛选数据
 '''
-from datetime import date, timedelta
+import json
+import random
+from datetime import date
 import os
 import datetime
 import time
@@ -16,11 +18,63 @@ from tool.get_360 import SoCom
 from tool.get_history import GetHistory
 from tool.get_aizhan import AiZhan
 import pymongo
+from socketserver import BaseRequestHandler, ThreadingTCPServer
+from functools import partial
+
+#websoket
+class Handler(BaseRequestHandler):
+
+
+    def __init__(self,ym_set, *args, **kwargs):
+        self.ym_set = ym_set   #所有的域名结合
+        self.zhi_id_list = []  #支线列表
+        self.createVar = locals()  #动态创建参数
+
+
+        # super(BaseRequestHandler, self).__init__( **kwargs)
+        super().__init__(*args, **kwargs)
+
+    def handle(self) -> None:
+        address, pid = self.client_address
+        data = self.request.recv(1024)
+        zhi_id = data.decode()
+
+        #判断是否是重启的
+        if zhi_id not in self.zhi_id_list:
+            #接收支线的id 创建一个 发送过的集合
+            self.createVar[f'send_set_{zhi_id}'] = set()
+
+        print(f'{address} connected!')
+
+        while True:
+            #对比发送的
+            qvchong_data = self.ym_set.difference(self.createVar[f'send_set_{zhi_id}'])
+            for d in qvchong_data:
+                self.request.sendall(d.encode())
+                self.createVar[f'send_set_{zhi_id}'].add(d)
+            # print(f'receive data: {str(i).decode()}')
+
+            time.sleep(0.3)
+
+
 
 class SearchYmAndFilter():
     def __init__(self,filter_id):
         self.filter_id = filter_id
         self.ym_set = set()
+
+    def create_socket(self):
+        handler = partial(Handler, self.save_ym)
+        while True:
+            self.port = random.randint(10000, 65530)
+            try:
+                server = ThreadingTCPServer(('127.0.0.1', self.port), handler)
+                print(f"Listening 端口号：{self.port}")
+                # server.serve_forever()
+                threading.Thread(target=server.serve_forever).start()
+                break
+            except Exception as e:
+                print(e)
 
     #定时清除任务线程
     def clear_data(self):
@@ -69,18 +123,31 @@ class SearchYmAndFilter():
                     os.mkdir(dir_path)
                 if os.path.exists(f'{dir_path}/main_log') == False:
                     os.mkdir(f'{dir_path}/main_log')
-                with open(f'{dir_path}/main_log/main_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
-                    while True:
-                        today = date.today().strftime('%Y%m%d')
+                if self.filter['cate'] == '一口价':
+                    with open(f'{dir_path}/main_log/main_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
+                        while True:
+                            today = date.today().strftime('%Y%m%d')
 
-                        if last_date != today:
-                            break
-                        if self.log_queue.empty():
-                            time.sleep(2)
-                            continue
-                        msg = self.log_queue.get()
-                        fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
-                        fw.flush()
+                            if last_date != today:
+                                break
+                            if self.log_queue.empty():
+                                time.sleep(2)
+                                continue
+                            msg = self.log_queue.get()
+                            fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+                            fw.flush()
+                elif self.filter['cate'] == '过期域名':
+                    with open(f'{dir_path}/main_log/guoqi_main_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
+                        while True:
+                            today = date.today().strftime('%Y%m%d')
+                            if last_date != today:
+                                break
+                            if self.log_queue.empty():
+                                time.sleep(2)
+                                continue
+                            msg = self.log_queue.get()
+                            fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+                            fw.flush()
             except Exception as e:
                 pass
 
@@ -207,16 +274,13 @@ class SearchYmAndFilter():
                 info = self.jm_api.get_ykj_list(self.data)
 
                 # 修改总数
-                update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (
-                info['count'], self.filter['id'])
+                update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (info['count'], self.filter['id'])
                 cur.execute(update_sql)
                 conn.commit()
-
-
                 self.parse_info(info)
 
             # self.log_queue.put('本次查询任务结束')
-            time.sleep(3)
+            time.sleep(1)
 
 
     def save_mysql(self, ym_data, key, value):
@@ -225,17 +289,14 @@ class SearchYmAndFilter():
         try:
             data = {
                 'ym': ym_data['ym'],
-                'jg': ym_data['jg'],
-                'zcs': ym_data['zcs'],
+                'jg': ym_data.get('jg'),
+                'zcs': ym_data.get('zcs'),
                 'token': ym_data.get('token'),
                 key: value,
-                'create_time':str(datetime.datetime.now())[:19]
+                'create_time': str(datetime.datetime.now())[:19]
             }
-
+            self.save_ym.add(json.dumps(data))
             self.mycol.insert_one(data)
-            # sql = "insert into ym_domain_detail (ym,`data`,`filter_type`,filter_id) VALUES ('%s','%s','%s','%s')"%(data['ym'],escape_string(json.dumps(data)),0,self.filter_id)
-            # save_cur.execute(sql)
-            # save_conn.commit()
 
         except Exception as error:
             print(f'保存数据库错误:{error}')
@@ -438,42 +499,79 @@ class SearchYmAndFilter():
         self.data = self.build_search_data()
         self.log_queue = queue.Queue()  # 日志队列
         self.task_queue = queue.Queue()
-        self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
 
 
         #保存查询过的数据
         self.out_ym = self.mydb['out_ym']
+        #需要发送的域名
+        self.save_ym = set()
+
+
 
         all_out_data = self.out_ym.find({'filter_id':self.filter_id,'type':'main'})
         for out_ym in all_out_data:
             self.ym_set.add(out_ym['ym'])
 
-        all_data = self.mycol.find()
-        for data in all_data:
-            self.ym_set.add(data['ym'])
-        del all_data
         del all_out_data
 
-
-        # 启动日志队列
-        threading.Thread(target=self.save_logs).start()
-        #启动删除数据任务
-        threading.Thread(target=self.clear_data).start()
         self.p_id = os.getpid()
         self.log_queue.put(f'任务进程号：{self.p_id}')
         self.log_queue.put(f'查询表单：{self.data}')
+        # 修改状态 进行中
+        self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
 
-        #修改状态 进行中
-        self.update_spider_status('ym_yikoujia_jkt',self.filter['id'],1)
-        ############################################################################
-        #抓取数据
-        # get_list_thread_list =[]
-        # for i in range(1):
-        #     get_list_thread_list.append(threading.Thread(target=self.get_list))
-        # for t in get_list_thread_list:
-        #     t.start()
-        threading.Thread(target=self.get_list).start()
-        ############################################################################
+        # 启动日志队列
+        threading.Thread(target=self.save_logs).start()
+
+        if self.filter['cate'] == '一口价':
+            self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
+            all_data = self.mycol.find()
+            for data in all_data:
+                self.ym_set.add(data['ym'])
+            del all_data
+
+            #启动webscoket
+            threading.Thread(target=self.create_socket).start()
+            time.sleep(3)
+            #修改端口号
+            conn = self.db_pool.connection()
+            cur = conn.cursor()
+            up_date_sql = "update ym_yikoujia_jkt set port= %s where id=%s" % (self.port,self.filter_id)
+            cur.execute(up_date_sql)
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            # 启动删除数据任务
+            threading.Thread(target=self.clear_data).start()
+            ############################################################################
+            #抓取列表数据
+            threading.Thread(target=self.get_list).start()
+            ############################################################################
+        else:
+            self.mycol = self.mydb[f"guoqi_ym_data_{self.filter_id}"]
+            all_data = self.mycol.find()
+            for data in all_data:
+                self.ym_set.add(data['ym'])
+            del all_data
+
+
+            #查询所有域名数据
+            select_all_data_sql = "select * from ym_guoqi_main_ym where filter_id=%s"%self.filter['id']
+            conn = self.db_pool.connection()
+            cur = conn.cursor()
+            cur.execute(select_all_data_sql)
+            all_data = cur.fetchall()
+
+            # 判断是否检测历史
+            if self.filter['main_filter'] == '历史':
+                all_data = self.get_history_token(all_data)
+
+            for data in all_data:
+                self.task_queue.put(data)
+
+
+
         thread_list = []
         # for i in range(self.filter['task_num']):
         for i in range(100):
@@ -508,6 +606,7 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
+    # jkt_id = 76
     jkt_id = 45
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

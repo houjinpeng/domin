@@ -10,12 +10,31 @@
                 <tip>为了方便查找 起个名字吧~</tip>
             </div>
         </div>
-
+        <div class="layui-form-item">
+            <label class="layui-form-label">主条件</label>
+            <div class="layui-input-block">
+                <input type="radio" name="main_filter" value="备案" title="备案"
+                       {if $row['main_filter'] =="备案" }checked{/if}>
+                <input type="radio" name="main_filter" value="百度" title="百度"
+                       {if $row['main_filter'] =="百度" }checked{/if}>
+                <input type="radio" name="main_filter" value="历史" title="历史"
+                       {if $row['main_filter'] =="历史" }checked{/if}>
+                <input type="radio" name="main_filter" value="注册商" title="注册商"
+                       {if $row['main_filter'] =="注册商" }checked{/if}>
+                <input type="radio" name="main_filter" value="搜狗" title="搜狗"
+                       {if $row['main_filter'] =="搜狗" }checked{/if}>
+                <input type="radio" name="main_filter" value="360" title="360"
+                       {if $row['main_filter'] =="360" }checked{/if}>
+                <input type="radio" name="main_filter" value="爱站" title="爱站"
+                       {if $row['main_filter'] =='爱站' }checked{/if}>
+                <input type="radio" name="main_filter" value="无" title="无" {if $row['main_filter'] =="无" }checked{/if}>
+            </div>
+        </div>
 
 
         <div class="layui-form-item">
             <div class="layui-input-block">
-                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo">添加</button>
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo">保存</button>
                 <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
             </div>
         </div>

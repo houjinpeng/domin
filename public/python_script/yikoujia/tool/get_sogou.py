@@ -219,7 +219,7 @@ class GetSougouRecord():
             if count >= 20:
                 return None
             self.set_proxies()
-            return self.request_hearders(url,referer)
+            return self.request_hearders(url,referer,count+1)
 
     def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
         '''

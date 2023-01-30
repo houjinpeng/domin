@@ -5,6 +5,7 @@ namespace app\admin\controller\guoqi_domain;
 
 
 use app\admin\controller\Tool;
+use app\admin\model\DomainGuoqi;
 use app\admin\model\SystemAdmin;
 use app\admin\model\YikoujiaAccountPool;
 use app\admin\model\YikoujiaBuy;
@@ -19,6 +20,7 @@ use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
 use EasyAdmin\tool\CommonTool;
+use EasyAdmin\upload\FileBase;
 use jianyan\excel\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use think\App;
@@ -42,7 +44,7 @@ class Domain extends AdminController
         $this->spider_status_model = new YikoujiaSpiderStatus();
         $this->account_pool_model = new YikoujiaAccountPool();
         $this->buy_model = new YikoujiaBuy();
-        $this->logs_model = new YikouLogs();
+        $this->guoqi_model = new DomainGuoqi();
     }
 
     /**
@@ -83,10 +85,10 @@ class Domain extends AdminController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
+            $post['spider_status'] = -1;
             //保存控制台数据   关联
             $post['cate'] = '过期域名';
             $save = $this->model->insertGetId($post);
-
             $save ? $this->success('保存成功') : $this->error('保存失败');
 
         }
@@ -97,6 +99,41 @@ class Domain extends AdminController
         return $this->fetch();
     }
 
+    /**
+     *  @NodeAnotation(title="上传域名")
+     */
+    public function upload_ym($id){
+        if ($this->request->isAjax()){
+            $post = $this->request->post();
+
+            $file_path = $post['file_path'];
+            ini_set('max_execution_time', '0');//执行时间
+            ini_set('memory_limit','1024M');
+            #打开文件
+            $fp = fopen($file_path,"r");
+            $str = fread($fp,filesize($file_path));//指定读取大小，这里把整个文件内容读取出来
+
+            $insert_data = [];
+            foreach (explode("\n",$str) as $item){
+                if (trim($item)== '' || strstr($item,'.') == false) continue;
+                $insert_data[] = ['filter_id'=>$id,'ym'=>$item];
+            }
+            if ($insert_data){
+                $this->guoqi_model->where('filter_id','=',$id)->delete();
+                $count = $this->guoqi_model->insertAll($insert_data);
+                $this->model->where('id','=',$id)->update(['filter_count'=>$count]);
+                $this->success('插入成功');
+            }
+            $this->error('插入失败');
+
+
+
+        }
+        $this->assign('filter_id',$id);
+        return $this->fetch();
+
+
+    }
 
     /**
      * @NodeAnotation(title="编辑")
@@ -108,22 +145,22 @@ class Domain extends AdminController
 
         if ($this->request->isPost()) {
             $post = $this->request->post();
-            $post['spider_status'] = 0;//爬虫状态修改为0  重新抓取
+//            $post['spider_status'] = 0;//爬虫状态修改为0  重新抓取
             //保存控制台数据   关联
             $save = $this->model->where('id',$id)->update($post);
-            if ($save){
-                kill_task($row['p_id']);
-                //如果修改主线条件  直接停止支线数据
-                $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
-                foreach ($zhi as $item){
-                    $this->filter_model->where('id','=',$item['id'])->update(['spider_status'=>3]);
-                    kill_task($item['pid']);
-                }
-                $row = Db::connect('mongo')
-                    ->table('ym_data_'.$id)->delete(true);
-                $save ? $this->success('保存完毕~成功停止所有程序') : $this->error('保存失败');
-            }
-            $this->error('没有修改任何数据~');
+//            if ($save){
+//                kill_task($row['p_id']);
+//                //如果修改主线条件  直接停止支线数据
+//                $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
+//                foreach ($zhi as $item){
+//                    $this->filter_model->where('id','=',$item['id'])->update(['spider_status'=>3]);
+//                    kill_task($item['pid']);
+//                }
+//                $row = Db::connect('mongo')
+//                    ->table('ym_data_'.$id)->delete(true);
+//                $save ? $this->success('保存完毕~成功停止所有程序') : $this->error('保存失败');
+//            }
+            $this->success('修改成功~');
 
         }
         $this->assign('row', $row);
@@ -138,7 +175,7 @@ class Domain extends AdminController
         ini_set ("memory_limit","-1");
         ini_set('max_execution_time', '0');//执行时间
         $row = Db::connect('mongo')
-            ->table('ym_data_'.$id)->select()->toArray();
+            ->table('guoqi_ym_data_'.$id)->select()->toArray();
         $this->assign('row',$row);
         return $this->fetch();
 
@@ -153,10 +190,6 @@ class Domain extends AdminController
         if ($this->request->isAjax()) {
             $post = $this->request->post();
             $save_data = [];
-            $save_data['place_1'] = $post['place_1'];
-            $save_data['place_2'] = $post['place_2'];
-            $save_data['is_buy'] = $post['is_buy'];
-            $save_data['is_buy_sh'] = $post['is_buy_sh'];
             $save_data['main_filter_id'] = $id;
             $save_data['sort'] = $post['sort'];
             $save_data['title'] = $post['title'];
@@ -327,10 +360,7 @@ class Domain extends AdminController
         if ($this->request->isAjax()) {
             $post = $this->request->post();
             $save_data = [];
-            $save_data['place_1'] = $post['place_1'];
-            $save_data['place_2'] = $post['place_2'];
-            $save_data['is_buy'] = $post['is_buy'];
-            $save_data['is_buy_sh'] = $post['is_buy_sh'];
+
             $save_data['title'] = $post['title'];
             $save_data['sort'] = $post['sort'];
             $save_data['is_buy_qiang'] = $post['is_buy_qiang'];
@@ -473,7 +503,7 @@ class Domain extends AdminController
             $d =$row['data'] ?json_decode($row['data'],true):null;
             //判断是否修改了参数 如果修改直接停止
             if (json_encode($d) != json_encode($data) || $row['place_1'] != intval($post['place_1']) || $row['place_2'] != intval($post['place_2'])|| $row['is_buy']!= intval($post['is_buy']) || $row['is_buy_sh']!= intval($post['is_buy_sh'])){
-                $save_data['spider_status'] = 3;
+                $save_data['spider_status'] = 0;
 
                 //删除订单数据
                 $this->buy_model->where('buy_filter_id','=',$id)->delete();
@@ -496,16 +526,19 @@ class Domain extends AdminController
      */
     public function delete($id)
     {
-        $row = $this->model->whereIn('id', $id)->select();
-        $row->isEmpty() && $this->error('数据不存在');
+        $row = $this->model->whereIn('id', $id)->select()->toArray();
+        empty($row) && $this->error('数据不存在');
         try {
+            $this->model->whereIn('id', $id)->delete();
             foreach ($row as $v){
-                $v->delete();
-                //删除数据库数据 停止任务
-                $row = Db::connect('mongo')
-                    ->table('ym_data_'.$id)->delete(true);
                 kill_task($v['p_id']);
+                //删除数据库数据 停止任务
+                foreach ($id as $id1){
+                    Db::connect('mongo')
+                        ->table('guoqi_ym_data_'.$id1)->delete(true);
+                }
             }
+
 
             //删除支线任务
             $zhi_list  = $this->filter_model->where('main_filter_id', 'in', $id)->select()->toArray();
@@ -553,6 +586,7 @@ class Domain extends AdminController
      */
     public function stop_zhi_task($id)
     {
+
         //查询进程号
         $row = $this->filter_model->find($id);
         empty($row) && $this->error('没有该数据 无法停止~');
@@ -570,29 +604,29 @@ class Domain extends AdminController
     {
         if ($type=='zhu'){
             //查询进程号
-            $row = $this->model->find($id);
+            $row = $this->model->where('id','in',$id)->select();
             empty($row) && $this->error('没有该数据 无法重启~');
             //查询主线是否在运行
 
-//            $out = exec('ps -p '.$row['p_id']);
-            $out = exec('tasklist | findstr '.$row['p_id'],$rep);
-            //如果程序不存在  爬虫程序为进行中  报错程序异常
-            if (strstr($out,$row['p_id'])){
-                $this->error('请先停止主线任务后重启~');
+            foreach ($row as $zhu){
+                $zhu->save(['spider_status'=>0,'p_id'=>null]);
             }
-            $row ->save(['spider_status'=>0,'p_id'=>null]);
-            //删除之前数据 重新运行
-//            $row = Db::connect('mongo')
-//                ->table('ym_data_'.$id)->delete(true);
-//            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
-            $this->success('主线等待运行中~');
-        }else{
-            //查询进程号
-            $row = $this->filter_model->find($id);
-            empty($row) && $this->error('没有该数据 无法重启~');
-            $row ->save(['spider_status'=>0,'pid'=>null]);
 
-//            start_task('./python_script/yikoujia/filter_buy_ym.py',$id);
+            $this->success('主线等待运行中~');
+        } elseif ($type=='zhi_all'){
+            //查询进程号
+            $row = $this->model->where('id','in',$id)->select();
+            foreach ($row as $zhu){
+                $zhi = $this->filter_model->where('main_filter_id','=',$zhu['id'])->select();
+                foreach ($zhi as $z){
+                    $z ->save(['spider_status'=>0,'pid'=>null]);
+                }
+            }
+
+            $this->success('支线等待运行中~');
+        }
+        elseif ($type=='zhi'){
+            $zhi = $this->filter_model->where('id','=',$id)->update(['spider_status'=>0,'pid'=>null]);
             $this->success('支线等待运行中~');
         }
 
@@ -617,18 +651,23 @@ class Domain extends AdminController
      */
     public function stop_task($id)
     {
-        //查询进程号
-        $row = $this->model->find($id);
-        empty($row) && $this->error('没有该数据 无法停止~');
-        $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
-        foreach ($zhi as $item){
-            $item->save(['spider_status'=>3]);
-            kill_task($item['pid']);
+        if (!is_array($id)){
+            $id = [$id];
         }
-        //停止主线程
-        kill_task($row['p_id']);
-        $row->save(['spider_status'=>3]);
-        $this->success('成功停止全部任务');
+        foreach ($id as $main_id){
+            $row = $this->model->find($main_id);
+            if (empty($row)) continue;
+            kill_task($row['p_id']);
+            $row ->save(['spider_status'=>3]);
+            #查询支线数据
+            $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
+            foreach ($zhi as $item){
+                $item->save(['spider_status'=>3]);
+                kill_task($item['pid']);
+            }
+            $this->success('成功停止全部任务');
+        }
+
     }
 
     /**
@@ -673,10 +712,10 @@ class Domain extends AdminController
      */
     public function logs($id,$type){
         if ($type == 1){
-            $file_name = 'logs_'.date('Ymd').'/main_log/main_'.$id.'.log';
+            $file_name = 'logs_'.date('Ymd').'/main_log/guoqi_main_'.$id.'.log';
 
         }else{
-            $file_name = 'logs_'.date('Ymd').'/zhi_log/zhi_'.$id.'.log';
+            $file_name = 'logs_'.date('Ymd').'/zhi_log/guoqi_zhi_'.$id.'.log';
         }
         try {
             $fp=fopen('./python_script/yikoujia/logs/'.$file_name,'r');
@@ -707,7 +746,7 @@ class Domain extends AdminController
         $n--;
 //        }
 
-        dd(time()-$start_time);
+//        dd(time()-$start_time);
         $linesArr = array_reverse($linesArr);
         foreach ($linesArr as $one) {
             $str .= $one;
@@ -727,10 +766,8 @@ class Domain extends AdminController
             $this->buy_model->where('buy_filter_id','=',$id)->delete();
             $this->success('清除成功');
         }else{
-            $row = Db::connect('mongo') ->table('ym_data_'.$id)->delete(true);
+            $row = Db::connect('mongo') ->table('main_ym_data_'.$id)->delete(true);
             Db::connect('mongo') ->table('out_ym')->where('filter_id','=',intval($id))->delete();
-//            dd(Db::connect('mongo')->getLastSql());
-//            Db::connect('mongo') ->table('out_ym')->where('type','=','main')->delete();
             $this->success('清除成功');
         }
 

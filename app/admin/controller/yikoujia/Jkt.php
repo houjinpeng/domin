@@ -54,7 +54,7 @@ class Jkt extends AdminController
         if ($this->request->isAjax()) {
             list($page, $limit, $where) = $this->buildTableParames();
             $start_time = time();
-            $list = $this->model
+            $list = $this->model->where('cate','=','一口价')
                 ->where($where)->page($page, $limit)->select()->toArray();
             foreach ($list as $index => &$item) {
                 $item['zhixian'] = $this->filter_model->where('main_filter_id', $item['id'])
@@ -499,11 +499,13 @@ class Jkt extends AdminController
         $row = $this->model->whereIn('id', $id)->select();
         $row->isEmpty() && $this->error('数据不存在');
         try {
+            $this->model->whereIn('id', $id)->delete();
             foreach ($row as $v){
-                $v->delete();
                 //删除数据库数据 停止任务
-                $row = Db::connect('mongo')
-                    ->table('ym_data_'.$id)->delete(true);
+                foreach ($id as $id1){
+                    Db::connect('mongo')
+                        ->table('ym_data_'.$id1)->delete(true);
+                }
                 kill_task($v['p_id']);
             }
 
