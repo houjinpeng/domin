@@ -18,7 +18,7 @@ words = get_mingan_word()
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 100:
+        if proxy_queue.qsize()> 1:
             time.sleep(2)
             continue
         url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
@@ -42,7 +42,7 @@ class GetSougouRecord():
 
     def __init__(self):
         self.s = requests.session()
-        self.set_proxies()
+        # self.set_proxies()
     #获取域名
     def extract_domain(self,ym_str):
         if '-' in ''.join(ym_str).lower().strip()[:10]:
@@ -174,10 +174,10 @@ class GetSougouRecord():
     def request_hearders(self, url,referer,count=0):
         try:
 
-            # proxies = {
-            #     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            #     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            # }
+            proxies = {
+                "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+                "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            }
             headers = {
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "Accept-Encoding": "gzip, deflate, br",
@@ -197,8 +197,8 @@ class GetSougouRecord():
                 "Upgrade-Insecure-Requests": "1",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
-            # r = self.s.get(url,headers=headers,timeout=5,proxies=proxies)
-            r = self.s.get(url,headers=headers,timeout=5)
+            r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
+            # r = self.s.get(url,headers=headers,timeout=5)
             # r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
             # cookie_str = ''
             # for k,v in r.cookies.get_dict('www.sogou.com').items():
@@ -209,16 +209,16 @@ class GetSougouRecord():
             # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if '请输入图中的验证码' in r.text:
                 # self.s = requests.session()
-                resp = self.check_verify(r,domain)
-                if resp == False:
-                    return None
-                return resp
-                # return self.request_hearders(url,referer)
+                # resp = self.check_verify(r,domain)
+                # if resp == False:
+                #     return None
+                # return resp
+                return self.request_hearders(url,referer)
             return r
         except Exception as e:
             if count >= 20:
                 return None
-            self.set_proxies()
+            # self.set_proxies()
             return self.request_hearders(url,referer,count+1)
 
     def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
