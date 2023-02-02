@@ -127,8 +127,15 @@
                 <div class="layui-input-block"  style="width: 100px;">
                     <select name="jvzi_title_mingan" lay-verify="required">
                         {if isset($data['jvzi'])}
-                            <option value="0" {if $data['jvzi']['jvzi_title_mingan']== 0} selected {/if}>否</option>
-                            <option value="1" {if $data['jvzi']['jvzi_title_mingan'] == 1 } selected {/if}>是</option>
+                           {if isset($data['jvzi']['jvzi_neirong_mingan'])}
+                                <option value="0" {if $data['jvzi']['jvzi_title_mingan']== 0} selected {/if}>否</option>
+                                <option value="1" {if $data['jvzi']['jvzi_title_mingan'] == 1 } selected {/if}>是</option>
+                            {else}
+                                <option value="0" selected >否</option>
+                                <option value="1" >是</option>
+                            {/if}
+
+
                         {else}
                             <option value="0" selected >否</option>
                             <option value="1" >是</option>
@@ -143,8 +150,14 @@
                 <div class="layui-input-block"  style="width: 100px;">
                     <select name="jvzi_neirong_mingan" lay-verify="required">
                         {if isset($data['jvzi'])}
-                        <option value="0" {if $data['jvzi']['jvzi_neirong_mingan']== 0} selected {/if}>否</option>
-                        <option value="1" {if $data['jvzi']['jvzi_neirong_mingan'] == 1 } selected {/if}>是</option>
+                            {if isset($data['jvzi']['jvzi_neirong_mingan'])}
+                                <option value="0" {if $data['jvzi']['jvzi_neirong_mingan']== 0} selected {/if}>否</option>
+                                <option value="1" {if $data['jvzi']['jvzi_neirong_mingan'] == 1 } selected {/if}>是</option>
+                            {else}
+                                <option value="0" selected >否</option>
+                                <option value="1" >是</option>
+                            {/if}
+
                         {else}
                         <option value="0" selected >否</option>
                         <option value="1" >是</option>
@@ -157,11 +170,18 @@
                 <div class="layui-input-block"  style="width: 100px;">
                     <select name="jvzi_soulu_mingan" lay-verify="required">
                         {if isset($data['jvzi'])}
-                        <option value="0" {if $data['jvzi']['jvzi_soulu_mingan']== 0} selected {/if}>否</option>
-                        <option value="1" {if $data['jvzi']['jvzi_soulu_mingan'] == 1 } selected {/if}>是</option>
+                             {if isset($data['jvzi']['jvzi_neirong_mingan'])}
+                            <option value="0" {if $data['jvzi']['jvzi_soulu_mingan']== 0} selected {/if}>否</option>
+                            <option value="1" {if $data['jvzi']['jvzi_soulu_mingan'] == 1 } selected {/if}>是</option>
+                            {else}
+                            <option value="0" selected >否</option>
+                            <option value="1" >是</option>
+                            {/if}
+
+
                         {else}
-                        <option value="0" selected >否</option>
-                        <option value="1" >是</option>
+                            <option value="0" selected >否</option>
+                            <option value="1" >是</option>
                         {/if}
                     </select>
                 </div>
