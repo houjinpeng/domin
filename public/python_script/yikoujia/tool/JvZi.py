@@ -86,7 +86,7 @@ class JvZi():
         except Exception as e:
             if count > 10:
                 return None
-            print(f'桔子 提交错误：{e}')
+            print(f'桔子 域名：{domain} 提交错误 {e}')
             time.sleep(2)
             self.set_proxy()
             return self.save(domain,count+1)
