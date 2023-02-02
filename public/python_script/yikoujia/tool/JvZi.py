@@ -5,16 +5,55 @@ import requests
 import json
 from lxml import etree
 import re
+import threading,queue
+
+proxy_queue = queue.Queue()
 proxies = {
-    "http": "http://127.0.0.1:7890",
-    "https": "http://127.0.0.1:7890",
-}
+            "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+            "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+        }
+def get_proxy():
+    while True:
+        if proxy_queue.qsize()> 1:
+            time.sleep(2)
+            continue
+        url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
+        try:
+            r = requests.get(url, timeout=3)
+            if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
+                print('尝试修改提取筛选参数')
+                time.sleep(20)
+                continue
+            ip_list = r.text.split('\r\n')
+            for ip in ip_list:
+                if ip.strip() == '': continue
+                proxy_queue.put(ip)
+        except Exception as e:
+            time.sleep(1)
+            print(e)
+            continue
+
+# threading.Thread(target=get_proxy).start()
 
 cookie = '__bid_n=185bf0f7c047f2324b4207; FPTOKEN=RVYA2RIjazLHJY160EtVPdxdI0ncFm5Meppkm9C1IyyM6BEvgnFuH26xFO97aXa1UjGmE065clUu+Yv2PFpDOfUFXe3cdQdgnj6Y6fUYDHBw47tEOAN+fXngCpX6Lg9DBcnnrZazYgBI7YV/OnaiygVkhJWRnxUK8x/yAylawlTWvj1W1se2UxGnoP2LscMtefeODIs9Ox43mhUb7AXVVe9S2dS2907kmNLI2MmInCP417VDUIY7My9OEfG8MgrfU9KYs5bOpMXv8o+CoybqZFmgFGUHWKu8ZqIKy1CbhLRpnYPrcqHJAw3ryMBCAR+Bkpda4pNNiGePH6ow4Bs/RF5xR9jroGMKEpNvwXktH5vJ7nEBUEHaHNmdbU36lyBOO7b0rRGgRmpSuFlXzwTzHg==|d0VSeWdv05KEYOIQI58bpn6V9quEusT6HD+OF/oJkH8=|10|3bd55de002844f2dc9da2e61a9144c2a; juz_Session=mg3li0t643t84qum5ui20u4t5r; Hm_lvt_f87ce311d1eb4334ea957f57640e9d15=1673947741,1673955092; juz_user_login=04U%2BBdgSdC%2FPZtYVPHlA%2BHJhH60QPYPs%2BoraqAJpwo8eo5L0YxMTSZSAUbKNJRNJekGsNOSNM4KoAfmETC%2BUlk%2Bn14xDbOiAUmWPUkz1LCqBh68uFQe6VX6yU%2BW1QURaHyzaLpIwbzGfXa4kyRgnbw%3D%3D; Hm_lpvt_f87ce311d1eb4334ea957f57640e9d15=1673955164'
 class JvZi():
 
     def __init__(self):
-        pass
+
+        self.set_proxy()
+
+    def set_proxy(self):
+        try:
+            # ip = proxy_queue.get()
+            # proxies = {
+            #     'http': f'http://{ip}',
+            #     'https': f'http://{ip}'
+            # }
+            self.proxies = proxies
+            return proxies
+        except Exception as e:
+            time.sleep(2)
+            return None
 
     def save(self, domain,count=0):
         url = 'https://seo.juziseo.com/snapshot/save/'
@@ -40,16 +79,17 @@ class JvZi():
             "x-requested-with": "XMLHttpRequest"
         }
         try:
-            result = requests.post(url, data=data, headers=headers, timeout=10).json()
+            result = requests.post(url, data=data, headers=headers, timeout=10,proxies=self.proxies).json()
             url = result['rsm']['url']
 
             return url
         except Exception as e:
-            if count > 5:
-                return ''
+            if count > 10:
+                return None
             print(f'桔子 提交错误：{e}')
             time.sleep(2)
-            return self.save(domain,count=1)
+            self.set_proxy()
+            return self.save(domain,count+1)
 
 
     #获取总建站年龄
@@ -59,7 +99,7 @@ class JvZi():
             all_td = e.xpath('//table[@class="table table-condensed text-center"]//tr[1]/td')
             age = all_td[3].xpath('.//span[@class="v svg_num"]/text()')[0].strip()
             # age = re.findall('(\d+)<span class="text-color-999"> ', html, re.S)[2]
-            return age
+            return int(age)
         except Exception as e:
             return 0
 
@@ -81,7 +121,7 @@ class JvZi():
             all_td = e.xpath('//table[@class="table table-condensed text-center"]//tr[1]/td')
             max_lianxu = all_td[4].xpath('.//span[@class="v svg_num"]/text()')[0].strip()
             # max_lianxu = re.findall('(\d+)<span class="text-color-999"> ', html, re.S)[3]
-            return max_lianxu
+            return int(max_lianxu)
         except Exception as e:
             return 0
 
@@ -89,7 +129,7 @@ class JvZi():
     def get_five_year_num(self, html):
         try:
             five_year_num = re.findall('(\d+)<span class="text-color-999">/5 年 </span>', html, re.S)[0]
-            return five_year_num
+            return int(five_year_num)
         except Exception as e:
             return 0
 
@@ -98,7 +138,7 @@ class JvZi():
 
         try:
             lianxu_five_year_num = re.findall('(\d+)<span class="text-color-999">/5 年 </span>', html, re.S)[1]
-            return lianxu_five_year_num
+            return int(lianxu_five_year_num)
         except Exception as e:
             return 0
 
@@ -202,8 +242,8 @@ class JvZi():
         try:
             # url = self.get_domain_url(domain)
             url = self.save(domain)
-            if url == '':
-                return ''
+            if url == None:
+                return None
             headers = {
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                 'accept-encoding': 'gzip, deflate, br',
@@ -225,102 +265,158 @@ class JvZi():
             # self.check_proxy()
             # self.proxies = random.choice(self.proxy_list)
 
-            response = requests.get(url, headers=headers, timeout=3)
+            response = requests.get(url, headers=headers, timeout=3,proxies=self.proxies)
             # response = requests.get(url, headers=headers, timeout=10)
             return response
         except Exception as e:
-            if count > 5:
+            if count > 10:
                 return None
 
-
+            self.set_proxy()
             return self.get_detail_html(domain,count+1)
 
 
-    def check(self,resp,age,five_create_store,lianxu,five_lianxu,tongyidu):
+    def check(self,resp,age,five_create_store,lianxu,five_lianxu,tongyidu,is_comp_title_mingan,is_comp_neirong_mingan,is_comp_soulu_mingan):
         if age != ['0','0']:
             age[0] = int(age[0])
             age[1] = 99999 if age[1] == '0' else int(age[1])
             age_num = self.get_age(resp.text)
             if age_num < age[0] or age_num> age[1]:
-                return f'桔子历史年龄不符 年龄为：{age_num}'
+                return f'桔子历史年龄不符 年龄为：{age_num} 设置区间为：{age[0],age[1]}'
+        #获取自检词
+        zijian = self.get_zijian_word(resp.text)
+        if is_comp_title_mingan == 1:
+            if '标题敏感词' in zijian:
+                return f'桔子标题有敏感词 ：{zijian}'
+
+
+        if is_comp_soulu_mingan == 1:
+            if '收录敏感' in zijian:
+                return f'桔子收录有敏感词 ：{zijian}'
+        if is_comp_neirong_mingan == 1:
+            if '内容敏感词' in zijian:
+                return f'桔子内容有敏感词 ：{zijian}'
+
 
         if five_create_store != ['0', '0']:
             five_create_store[0] = int(five_create_store[0])
             five_create_store[1] = 99999 if five_create_store[1] == '0' else int(five_create_store[1])
             five_create_store_num = self.get_five_year_num(resp.text)
             if five_create_store_num < five_create_store[0] or five_create_store_num > five_create_store[1]:
-                return f'桔子五年建站不符 年龄为：{five_create_store_num}'
+                return f'桔子五年建站不符 年龄为：{five_create_store_num}  设置区间为：{five_create_store[0],five_create_store[1]}'
 
         if lianxu != ['0', '0']:
             lianxu[0] = int(lianxu[0])
             lianxu[1] = 99999 if lianxu[1] == '0' else int(lianxu[1])
             lianxu_num = self.get_lianxu_cundang_time(resp.text)
             if lianxu_num < lianxu[0] or lianxu_num > lianxu[1]:
-                return f'桔子最长连续时长不符 为：{lianxu_num}'
+                return f'桔子最长连续时长不符 为：{lianxu_num} 设置区间为：{lianxu[0],lianxu[1]}'
         if five_lianxu != ['0', '0']:
             five_lianxu[0] = int(five_lianxu[0])
             five_lianxu[1] = 99999 if five_lianxu[1] == '0' else int(five_lianxu[1])
             lianxu_num = self.get_lianxu_five_year_num(resp.text)
             if lianxu_num < lianxu[0] or lianxu_num > lianxu[1]:
-                return f'桔子五年连续时长不符 为：{lianxu_num}'
+                return f'桔子五年连续时长不符 为：{lianxu_num} 设置区间为：{five_lianxu[0],five_lianxu[1]}'
 
         if tongyidu != ['0', '0']:
             tongyidu[0] = int(tongyidu[0])
             tongyidu[1] = 99999 if tongyidu[1] == '0' else int(tongyidu[1])
             tongyidu_num = self.get_tongyidu(resp.text)
             if tongyidu_num < tongyidu[0] or tongyidu_num > tongyidu[1]:
-                return f'桔子统一度不符 为：{tongyidu_num}'
+                return f'桔子统一度不符 为：{tongyidu_num} 设置区间为：{tongyidu[0],tongyidu[1]}'
         return True
 
     def test(self):
-        ds = ['zxopfm.com', 'baidu1.com', 'baidu2.com', 'baidu3.com', 'baidu4.com']
+        ds = ["b9188.cn",
+              "parkly.com.cn",
+              "hsywjc.com",
+              "ucuishui.cn",
+              "njyljs.com.cn",
+              "lpjfm.cn",
+              "njkcy.cn",
+              "hndouo.cn",
+              "wl65.cn",
+              "yzjrdy.cn",
+              "360manyi.cn",
+              "zssx.com.cn",
+              "ay24.cn",
+              "yaliyi.cn",
+              "m535.cn",
+              "yxauto.com.cn",
+              "fztnt.cn",
+              "hzskc.cn",
+              "yhyaxing.cn",
+              "yilanrna.cn",
+              "pidifu.cn",
+              "ice126.cn",
+              "lsyifan.cn",
+              "qili163.cn",
+              "jddfbz.cn",
+              "0577auto.cn",
+              "shdaxi.cn",
+              "ophome.cn",
+              "hdxsdkm.cn",
+              "f1475.cn",
+              "0572auto.cn",
+              "0421pet.cn",
+              "yatai-digital.cn",
+              "daiyun159.cn",
+              "nentex.cn",
+              "adango.cn",
+              "mctyn.cn",
+              "dlfsr.cn",
+              "d033.cn",
+              "0660pet.cn",
+              "nmass.com.cn", ]
         # resp = self.get_token(ds)
 
+        for d in ds:
+            resp = self.get_detail_html(d)
 
-        resp = self.get_detail_html(ds[0])
-
-        '''
-        1.域名用桔子查询历史并抓取历史中的标题 对比词库是否含有词库。
-        2.提取桔子标题中 是中文的标题数量。注意每年只算一条。
-        3.提取桔子中的总建站年数参数作为输出总建站年龄。
-        4.提取桔子中的内容统一度参数作为统一度输出。
-        5.提取桔子中的近5年历史参数作为近5年历史输出。
-        6.提取桔子中的最长连续时间参数作为最长连续时间（年）输出。
-        7.提取桔子中的近5年连续参数作为近5年连续输出。
-        8.投射桔子当前域名的当前网址
-        
-        '''
-
-
-        #   2.提取桔子标题中 是中文的标题数量。注意每年只算一条。
-        zh_num = self.get_zh_title_num(resp.text)
-        #自检敏感词
-        zijian = self.get_zijian_word(resp.text)
-        print('中文标题数量：',zh_num)
-        # 3.提取桔子中的总建站年数参数作为输出总建站年龄。
-        age = self.get_age(resp.text)
-        print('建站中年龄:',age)
-        # 4.提取桔子中的内容统一度参数作为统一度输出。
-        tongyidu = self.get_tongyidu(resp.text)
-        print('统一度：',tongyidu)
-        #5.提取桔子中的近5年历史参数作为近5年历史输出。
-        five_year_num = self.get_five_year_num(resp.text)
-        print('近五年历史输出数：',five_year_num)
-        # 6.提取桔子中的最长连续时间参数作为最长连续时间（年）输出。
-        lianxu_cundang_time = self.get_lianxu_cundang_time(resp.text)
-        print('最长连续时间（年）输出:',lianxu_cundang_time)
-        # 7.提取桔子中的近5年连续参数作为近5年连续输出。
-        lianxu_five_year_num = self.get_lianxu_five_year_num(resp.text)
-        print('5年连续输出:',lianxu_five_year_num)
-        # 8.投射桔子当前域名的当前网址
-        url = resp.url
-        print('详情网址：',url)
+            '''
+            1.域名用桔子查询历史并抓取历史中的标题 对比词库是否含有词库。
+            2.提取桔子标题中 是中文的标题数量。注意每年只算一条。
+            3.提取桔子中的总建站年数参数作为输出总建站年龄。
+            4.提取桔子中的内容统一度参数作为统一度输出。
+            5.提取桔子中的近5年历史参数作为近5年历史输出。
+            6.提取桔子中的最长连续时间参数作为最长连续时间（年）输出。
+            7.提取桔子中的近5年连续参数作为近5年连续输出。
+            8.投射桔子当前域名的当前网址
+            
+            '''
 
 
+            #   2.提取桔子标题中 是中文的标题数量。注意每年只算一条。
+            print(f'开始查询：{d} ')
+            zh_num = self.get_zh_title_num(resp.text)
+            print('中文标题数量：', zh_num)
+            #自检敏感词
+            zijian = self.get_zijian_word(resp.text)
+            print('中文自检敏感词：',zijian)
+            # 3.提取桔子中的总建站年数参数作为输出总建站年龄。
+            age = self.get_age(resp.text)
+            print('建站中年龄:',age)
+            # 4.提取桔子中的内容统一度参数作为统一度输出。
+            tongyidu = self.get_tongyidu(resp.text)
+            print('统一度：',tongyidu)
+            #5.提取桔子中的近5年历史参数作为近5年历史输出。
+            five_year_num = self.get_five_year_num(resp.text)
+            print('近五年历史输出数：',five_year_num)
+            # 6.提取桔子中的最长连续时间参数作为最长连续时间（年）输出。
+            lianxu_cundang_time = self.get_lianxu_cundang_time(resp.text)
+            print('最长连续时间（年）输出:',lianxu_cundang_time)
+            # 7.提取桔子中的近5年连续参数作为近5年连续输出。
+            lianxu_five_year_num = self.get_lianxu_five_year_num(resp.text)
+            print('5年连续输出:',lianxu_five_year_num)
+            # 8.投射桔子当前域名的当前网址
+            url = resp.url
+            print('详情网址：',url)
+            reslut = self.check(resp, age=[1,100], five_create_store=[2,100], lianxu=[2,50], five_lianxu=[2,60], tongyidu=[90,100],is_comp_soulu_mingan=1,is_comp_title_mingan=1,is_comp_neirong_mingan=1)
+            print(reslut)
+            print('=='*10)
 
 if __name__ == '__main__':
-    ds = ['zxopfm.com', 'baidu1.com', 'baidu2.com', 'baidu3.com', 'baidu4.com']
+
 
     JvZi().test()
-    # for domain in ['baidu.com','baidu.com','baidu.com','baidu.com']:
-    # get_history(ds)
+

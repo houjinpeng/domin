@@ -138,10 +138,10 @@ class SearchYmAndFilter():
                                 time.sleep(2)
                                 continue
                             msg = self.log_queue.get()
-                            fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+                            fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg).strip()}\n')
                             fw.flush()
                 elif self.filter['cate'] == '过期域名':
-                    with open(f'{dir_path}/main_log/guoqi_main_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
+                    with open(f'{dir_path}/main_log/main_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
                         while True:
                             today = date.today().strftime('%Y%m%d')
                             if last_date != today:
@@ -303,6 +303,7 @@ class SearchYmAndFilter():
             self.mycol.insert_one(data)
 
         except Exception as error:
+            self.log_queue.put(f'保存数据库错误:{error}')
             print(f'保存数据库错误:{error}')
 
 
@@ -328,7 +329,7 @@ class SearchYmAndFilter():
                 if info['params']['total'] != 0:
                     self.save_mysql(ym_data,'beian',info)
                     # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
+                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
                 else:
                     # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
                     self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
@@ -463,7 +464,7 @@ class SearchYmAndFilter():
 
             if ym_data['zcs'] != '':
                 self.save_mysql(ym_data, 'zcs', ym_data['zcs'])
-                self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
+                self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
                 self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
@@ -526,25 +527,13 @@ class SearchYmAndFilter():
 
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()
+        self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
+        all_data = self.mycol.find()
+        for data in all_data:
+            self.ym_set.add(data['ym'])
+        del all_data
 
         if self.filter['cate'] == '一口价':
-            self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
-            all_data = self.mycol.find()
-            for data in all_data:
-                self.ym_set.add(data['ym'])
-            del all_data
-
-            #启动webscoket
-            threading.Thread(target=self.create_socket).start()
-            time.sleep(3)
-            #修改端口号
-            conn = self.db_pool.connection()
-            cur = conn.cursor()
-            up_date_sql = "update ym_yikoujia_jkt set port= %s where id=%s" % (self.port,self.filter_id)
-            cur.execute(up_date_sql)
-            conn.commit()
-            cur.close()
-            conn.close()
 
             # 启动删除数据任务
             threading.Thread(target=self.clear_data).start()
@@ -553,12 +542,6 @@ class SearchYmAndFilter():
             threading.Thread(target=self.get_list).start()
             ############################################################################
         else:
-            self.mycol = self.mydb[f"guoqi_ym_data_{self.filter_id}"]
-            all_data = self.mycol.find()
-            for data in all_data:
-                self.ym_set.add(data['ym'])
-            del all_data
-
 
             #查询所有域名数据
             select_all_data_sql = "select * from ym_guoqi_main_ym where filter_id=%s"%self.filter['id']
@@ -573,6 +556,18 @@ class SearchYmAndFilter():
 
             for data in all_data:
                 self.task_queue.put(data)
+
+        # 启动webscoket
+        threading.Thread(target=self.create_socket).start()
+        time.sleep(3)
+        # 修改端口号
+        conn = self.db_pool.connection()
+        cur = conn.cursor()
+        up_date_sql = "update ym_yikoujia_jkt set port= %s where id=%s" % (self.port, self.filter_id)
+        cur.execute(up_date_sql)
+        conn.commit()
+        cur.close()
+        conn.close()
 
 
 
@@ -610,7 +605,8 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    # jkt_id = 76
-    jkt_id = 45
+    jkt_id = 54 #测试桔子
+    # jkt_id = 76 #测试过期域名
+    # jkt_id = 45
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()

@@ -2,7 +2,15 @@
     <div class="layuimini-main">
         <table id="currentTable" class="layui-table layui-hide"
 
-{/*               data-auth-password="{:auth('system.admin/password')}"*/}
+               data-auth-delete="{:auth('domain.sales/delete')}"
+               data-auth-edit="{:auth('domain.sales/edit')}"
+               data-auth-add="{:auth('domain.sales/add')}"
+               data-auth-export="{:auth('domain.sales/export')}"
+               data-auth-add_jk="{:auth('domain.sales/add_jk')}"
+               data-auth-add_like="{:auth('domain.sales/add_like')}"
+               data-auth-reset_data="{:auth('domain.sales/reset_data')}"
+
+
                lay-filter="currentTable">
         </table>
     </div>

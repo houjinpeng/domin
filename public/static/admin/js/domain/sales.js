@@ -95,7 +95,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             text: '关注',
                             url: init.add_like_url,
                             method: 'request',
-                            auth: 'show',
+                            auth: 'add_like',
                             class: 'layui-btn  layui-btn-xs layui-btn-warm',
                             extend: 'data-full="true"',
                         }],'edit',

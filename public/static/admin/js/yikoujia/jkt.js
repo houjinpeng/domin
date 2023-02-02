@@ -201,14 +201,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             text: '日志',
                             url: 'yikoujia.jkt/logs?type=1',
                             method: 'open',
-                            auth: 'edit',
+                            auth: 'logs',
                             class: 'layui-btn  layui-btn-xs layui-btn-primary',
                         },{
                             text: '检测',
                             title:'检测程序是否在运行中',
                             url: 'yikoujia.jkt/check_status?type=zhu',
                             method: 'request',
-                            auth: 'edit',
+                            auth: 'check_status',
                             class: 'layui-btn  layui-btn-xs layui-btn-warm',
 
                         },{
@@ -216,14 +216,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             title:'是否在开一个主线运行程序?如果主线正在运行还是会重新开一个哦~',
                             url: 'yikoujia.jkt/restart_task?type=zhu',
                             method: 'request',
-                            auth: 'edit',
+                            auth: 'restart_task',
                             class: 'layui-btn  layui-btn-xs',
 
                         },{
                             text: '新增分支',
                             url: init.add_zhi_url,
                             method: 'open',
-                            auth: 'edit',
+                            auth: 'add_zhi',
                             class: 'layui-btn  layui-btn-xs',
                             extend: 'data-full="true"',
                         }, {
@@ -245,7 +245,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             title:'是否要清除筛选列表~不可逆谨慎操作！',
                             url: init.delete_buy_list_list,
                             method: 'request',
-                            auth: 'delete',
+                            auth: 'delete_buy_list_list',
                             class: 'layui-btn  layui-btn-xs layui-btn-danger',
                         }]]
                     }

@@ -78,6 +78,7 @@ class Client():
                     self.log_queue.put(f'本次插入队列数据:{d["ym"]}')
             except Exception as e:
                 print(f'获取数据错误：{e}')
+                self.log_queue.put(f'获取数据错误：{e}')
 
 #启动插入日志队列
 
@@ -161,7 +162,6 @@ class FilterYm():
         return new_data_list
 
     # h获取数据
-
     def get_work_data(self):
         try:
             client = Client(self.filter_id,self.filter_dict,self.work_queue,self.log_queue,self.get_history_token)
@@ -261,7 +261,7 @@ class FilterYm():
                             time.sleep(2)
                             continue
                         msg = self.log_queue.get()
-                        fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg)}\n')
+                        fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg).strip()}\n')
                         fw.flush()
 
             except Exception :
@@ -488,18 +488,20 @@ class FilterYm():
 
             # 获取域名
             domain_data = self.work_queue.get()
-            # 先判断价格是否合适
-            self.out_ym.insert_one({'ym': domain_data['ym'], 'type': 'zhi', 'filter_id': self.filter_id})
-
-            try:
-                if self.filter_data['place_1'] > int(domain_data['jg']) or int(domain_data['jg']) > self.filter_data['place_2']:
-                    self.log_queue.put(f'购买金额不符 域名：{domain_data["ym"]}价格：{domain_data["jg"]}')
-                    self.save_out_data(domain_data)
+            self.log_queue.put(f'剩余任务:{self.work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
+            #如果是一口先判断是否合适
+            if self.main_filter['cate'] == '一口价':
+                try:
+                    self.out_ym.insert_one({'ym': domain_data['ym'], 'type': 'zhi', 'filter_id': self.filter_id})
+                    if self.filter_data['place_1'] > int(domain_data['jg']) or int(domain_data['jg']) > self.filter_data['place_2']:
+                        self.log_queue.put(f'购买金额不符 域名：{domain_data["ym"]}价格：{domain_data["jg"]}')
+                        self.save_out_data(domain_data)
+                        continue
+                except Exception as error:
+                    self.log_queue.put(f'对比金额错误： {error}')
                     continue
-                self.log_queue.put(f'剩余任务:{self.work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
-            except Exception as error:
-                self.log_queue.put(f'对比金额错误： {error}')
-                continue
+
+
             try:
                 # 对比历史
                 if self.filter_dict.get('history'):
@@ -689,11 +691,13 @@ class FilterYm():
                         self.log_queue.put(f'桔子对比失败 重新对比： {domain_data["ym"]}')
                         self.work_queue.put(domain_data)
                         continue
-                    #建站历史  近五年建站 近五年连续 最长连续 统一度
+                    #建站历史  近五年建站 近五年连续 最长连续 统一度 (标题  收录 内容敏感)
                     d = self.filter_dict.get('jvzi')
-
-
-                    is_ok = jvzi_obj.check(resp,age=[d['jvzi_age_1'],d['jvzi_age_2']],five_create_store=[d['jvzi_five_1'],d['jvzi_five_2']],lianxu=[d['jvzi_lianxu_1'],d['jvzi_lianxu_2']],five_lianxu=[d['jvzi_five_lianxu_1'],d['jvzi_five_lianxu_2']],tongyidu=[d['jvzi_tongyidu_1'],d['jvzi_tongyidu_2']])
+                    is_comp_title_mingan = 0 if d.get('jvzi_title_mingan') == None else d.get('jvzi_title_mingan')
+                    is_comp_neirong_mingan = 0 if d.get('jvzi_neirong_mingan') == None else d.get('jvzi_neirong_mingan')
+                    is_comp_soulu_mingan = 0 if d.get('jvzi_soulu_mingan') == None else d.get('jvzi_soulu_mingan')
+                    is_ok = jvzi_obj.check(resp,age=[d['jvzi_age_1'],d['jvzi_age_2']],five_create_store=[d['jvzi_five_1'],d['jvzi_five_2']],lianxu=[d['jvzi_lianxu_1'],d['jvzi_lianxu_2']],
+                                           five_lianxu=[d['jvzi_five_lianxu_1'],d['jvzi_five_lianxu_2']],tongyidu=[d['jvzi_tongyidu_1'],d['jvzi_tongyidu_2']],is_comp_title_mingan=is_comp_title_mingan,is_comp_neirong_mingan=is_comp_neirong_mingan,is_comp_soulu_mingan=is_comp_soulu_mingan)
                     if is_ok != True:
                         self.save_out_data(domain_data)
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
@@ -702,13 +706,14 @@ class FilterYm():
             except Exception as e:
                 pass
 
-
-
-            self.log_queue.put({'ym': domain_data['ym'], 'cause': '需要购买'})
-
-            # 判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
-            if self.filter_data['is_buy'] == 1:
-                self.buy_ym(domain_data)
+            # 判断是否是过期域名还是一口价域名   一口价域名直接保存到数据库
+            if self.main_filter['cate'] == '一口价':
+                self.log_queue.put({'ym': domain_data['ym'], 'cause': '需要购买'})
+                # 判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
+                if self.filter_data['is_buy'] == 1:
+                    self.buy_ym(domain_data)
+                else:
+                    self.save_buy_ym(domain_data)
             else:
                 self.save_buy_ym(domain_data)
 
@@ -733,21 +738,26 @@ class FilterYm():
             self.filter_dict = {}
         self.ym_set = set()
 
-        # 保存查询过的数据
-        self.out_ym = self.mydb['out_ym']
+        #判断是否是过期域名还是一口价域名
+        if self.main_filter['cate'] == '一口价':
+            # 启动清除内存数据
+            threading.Thread(target=self.clear_data).start()
 
-        all_out_data = self.out_ym.find({'filter_id': self.filter_id, 'type': 'zhi'})
-        for out_ym in all_out_data:
-            self.ym_set.add(out_ym['ym'])
+
+            # 保存查询过的数据
+            self.out_ym = self.mydb['out_ym']
+
+            all_out_data = self.out_ym.find({'filter_id': self.filter_id, 'type': 'zhi'})
+            for out_ym in all_out_data:
+                self.ym_set.add(out_ym['ym'])
 
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()
-        # 启动清除内存数据
-        threading.Thread(target=self.clear_data).start()
-        # 启动获取数据线程
+
         self.log_queue.put(f'任务进程号：{os.getpid()}')
         # 修改状态 进行中
         self.update_spider_status('ym_yikoujia_buy_filter', self.filter_data['id'], 1)
+
         #启动获取数据线程
         threading.Thread(target=self.get_work_data).start()
         thread_list = []
@@ -788,6 +798,7 @@ class FilterYm():
             so = SoCom([so_record1, so_record2], fengxian, kuaizhao_time,so_is_com_word)
 
         # for i in range(self.main_filter['task_num']):
+        print('开始程序')
         for i in range(100):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so,aizhan_obj)))
@@ -796,9 +807,13 @@ class FilterYm():
             t.start()
 
 
+        # 结束进程
+        # os.system(f'taskkill -f -pid {os.getpid()}')
+
 
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 62
+    # jkt_id = 60 #测试过期域名
+    jkt_id = 56 #测试桔子
     filter = FilterYm(jkt_id).index()

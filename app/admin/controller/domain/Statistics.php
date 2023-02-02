@@ -21,7 +21,7 @@ use think\db\Where;
 use think\facade\Db;
 
 /**
- * @ControllerAnnotation(title="统计")
+ * @ControllerAnnotation(title="统计数据")
  */
 class Statistics extends AdminController
 {

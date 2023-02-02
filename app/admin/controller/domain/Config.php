@@ -23,7 +23,7 @@ use think\App;
 use think\facade\Db;
 
 /**
- * @ControllerAnnotation(title="配置管理")
+ * @ControllerAnnotation(title="聚名配置管理")
  */
 class Config extends AdminController
 {

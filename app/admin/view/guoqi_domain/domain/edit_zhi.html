@@ -401,33 +401,6 @@
         </div>
 
 
-        <div class="layui-form-item" style="text-align: left">
-            <h3 style="color: red">注册商</h3>
-        </div>
-
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">对比注册商</label>
-                <div class="layui-input-block">
-                    <select name="is_com_zcs" lay-verify="required">
-                        <option value="0" {if !isset($data['zcs'])} selected {/if}>否</option>
-                        <option value="1" {if isset($data['zcs'])} selected {/if}>是</option>
-                    </select>
-                    <tip>注册商对比</tip>
-                </div>
-            </div>
-            <div class="layui-inline">
-                <label class="layui-form-label">包含字符串</label>
-                <div class="layui-input-block">
-                    <input type="text" value="{$data['zcs']['zcs_include']|default=''}" name="zcs_include"
-                           placeholder="匹配符合的字符串"
-                           autocomplete="off" class="layui-input">
-                    <tip>常用注册商包含字符gname国际:【gathernames,gname,namebright】  西部：【xb】  阿里云：【netcn】 新网：【xw】 易名：【ename】  中国数据：【zgsj】 爱名：【22cn】聚名：【juming】</tip>
-                </div>
-
-            </div>
-
-        </div>
 
 
         <div class="layui-form-item" style="text-align: left">

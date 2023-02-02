@@ -28,7 +28,7 @@ use think\cache\driver\Redis;
 use think\facade\Db;
 
 /**
- * @ControllerAnnotation(title="一口价监控台")
+ * @ControllerAnnotation(title="过期域名监控台")
  */
 class Domain extends AdminController
 {
@@ -116,7 +116,7 @@ class Domain extends AdminController
             $insert_data = [];
             foreach (explode("\n",$str) as $item){
                 if (trim($item)== '' || strstr($item,'.') == false) continue;
-                $insert_data[] = ['filter_id'=>$id,'ym'=>$item];
+                $insert_data[] = ['filter_id'=>$id,'ym'=>trim($item)];
             }
             if ($insert_data){
                 $this->guoqi_model->where('filter_id','=',$id)->delete();
@@ -136,7 +136,7 @@ class Domain extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="编辑")
+     * @NodeAnotation(title="编辑主线")
      */
     public function edit($id)
     {
@@ -175,7 +175,7 @@ class Domain extends AdminController
         ini_set ("memory_limit","-1");
         ini_set('max_execution_time', '0');//执行时间
         $row = Db::connect('mongo')
-            ->table('guoqi_ym_data_'.$id)->select()->toArray();
+            ->table('ym_data_'.$id)->select()->toArray();
         $this->assign('row',$row);
         return $this->fetch();
 
@@ -249,15 +249,7 @@ class Domain extends AdminController
 
 
             }
-            //注册商
-            if ($post['is_com_zcs'] == '1') {
 
-                if ($post['zcs_include'] == '') {
-                    $this->error('请完善注册商信息~');
-                }
-                $data['zcs']['zcs_include'] = $post['zcs_include'];
-
-            }
 
             //历史
             if ($post['is_com_history'] == '1') {
@@ -416,15 +408,6 @@ class Domain extends AdminController
                 $data['so']['so_is_com_word'] = $post['so_is_com_word'];
 
             }
-            //注册商
-            if ($post['is_com_zcs'] == '1') {
-
-                if ($post['zcs_include'] == '') {
-                    $this->error('请完善注册商信息~');
-                }
-                $data['zcs']['zcs_include'] = $post['zcs_include'];
-
-            }
 
             //历史
             if ($post['is_com_history'] == '1') {
@@ -535,7 +518,7 @@ class Domain extends AdminController
                 //删除数据库数据 停止任务
                 foreach ($id as $id1){
                     Db::connect('mongo')
-                        ->table('guoqi_ym_data_'.$id1)->delete(true);
+                        ->table('ym_data_'.$id1)->delete(true);
                 }
             }
 
@@ -711,11 +694,12 @@ class Domain extends AdminController
      *@NodeAnotation(title="日志")
      */
     public function logs($id,$type){
+
         if ($type == 1){
-            $file_name = 'logs_'.date('Ymd').'/main_log/guoqi_main_'.$id.'.log';
+            $file_name = 'logs_'.date('Ymd').'/main_log/main_'.$id.'.log';
 
         }else{
-            $file_name = 'logs_'.date('Ymd').'/zhi_log/guoqi_zhi_'.$id.'.log';
+            $file_name = 'logs_'.date('Ymd').'/zhi_log/zhi_'.$id.'.log';
         }
         try {
             $fp=fopen('./python_script/yikoujia/logs/'.$file_name,'r');
@@ -725,28 +709,31 @@ class Domain extends AdminController
             $this->assign('str', ["打开文件失败，请检查文件路径是否正确，路径和文件名不要包含中文"]);
             return $this->fetch();
         }
-        $start_time = time();
+
         $pos=-2;
         $eof="";
         $str="";
         $linesArr = array();
         $n = 10000;
-//        while($n>0){
-        while($eof!="\n"){
-            if(!fseek($fp,$pos,SEEK_END)){
-                $eof=fgetc($fp);
-                $pos--;
-            } else {
-                break;
-            }
-        }
-        // $str.=fgets($fp);
-        $linesArr[] = fgets($fp);
-        $eof="";
-        $n--;
-//        }
+//        $linesArr = file('./python_script/yikoujia/logs/'.$file_name);
+//        fclose($fp);
 
-//        dd(time()-$start_time);
+        while($n>0){
+            while($eof!="\n"){
+                if(!fseek($fp,$pos,SEEK_END)){
+                    $eof=fgetc($fp);
+                    $pos--;
+                } else {
+                    break;
+                }
+            }
+            // $str.=fgets($fp);
+            $linesArr[] = fgets($fp);
+            $eof="";
+            $n--;
+        }
+
+
         $linesArr = array_reverse($linesArr);
         foreach ($linesArr as $one) {
             $str .= $one;
@@ -757,7 +744,6 @@ class Domain extends AdminController
         return $this->fetch();
 
     }
-
     /**
      *@NodeAnotation(title="删除购买域名")
      */
@@ -766,7 +752,7 @@ class Domain extends AdminController
             $this->buy_model->where('buy_filter_id','=',$id)->delete();
             $this->success('清除成功');
         }else{
-            $row = Db::connect('mongo') ->table('main_ym_data_'.$id)->delete(true);
+            $row = Db::connect('mongo') ->table('ym_data_'.$id)->delete(true);
             Db::connect('mongo') ->table('out_ym')->where('filter_id','=',intval($id))->delete();
             $this->success('清除成功');
         }

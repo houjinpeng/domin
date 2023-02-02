@@ -35,7 +35,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         icon: 'fa fa-refresh',
                         url: show_init.refresh_store_url,
                         method: 'request',
-                        auth: 'add_like',
+                        auth: 'refresh_store',
                         class: 'layui-btn layui-btn-warm layui-btn-sm',
                     }
                 ]],

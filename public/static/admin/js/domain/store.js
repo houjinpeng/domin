@@ -47,7 +47,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         text:'批量编辑',
                         icon: 'fa fa-edit',
                         url: init.batch_edit_url,
-                        method: 'open',
+                        method: 'batch_edit',
                         auth: 'add_like',
                         class: 'layui-btn  layui-btn-sm',
                     },{

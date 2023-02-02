@@ -23,7 +23,7 @@ use think\App;
 use think\facade\Db;
 
 /**
- * @ControllerAnnotation(title="销量列表")
+ * @ControllerAnnotation(title="特别关注")
  */
 class Jk extends AdminController
 {

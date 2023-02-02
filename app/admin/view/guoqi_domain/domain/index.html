@@ -1,6 +1,19 @@
 <div class="layuimini-container">
     <div class="layuimini-main">
         <table id="currentTable" class="layui-table layui-hide"
+               data-auth-delete="{:auth('guoqi_domain.domain/delete')}"
+               data-auth-edit="{:auth('guoqi_domain.domain/edit')}"
+               data-auth-add="{:auth('guoqi_domain.domain/add')}"
+               data-auth-add_zhi="{:auth('guoqi_domain.domain/add_zhi')}"
+               data-auth-stop_task="{:auth('guoqi_domain.domain/stop_task')}"
+               data-auth-show_buy_ym="{:auth('guoqi_domain.domain/show_buy_ym')}"
+               data-auth-show_zhi="{:auth('guoqi_domain.domain/show_zhi')}"
+               data-auth-delete_buy_list="{:auth('guoqi_domain.domain/delete_buy_list')}"
+               data-auth-restart_task="{:auth('guoqi_domain.domain/restart_task')}"
+               data-auth-logs="{:auth('guoqi_domain.domain/logs')}"
+               data-auth-upload_ym="{:auth('guoqi_domain.domain/upload_ym')}"
+
+
 
                lay-filter="currentTable">
         </table>

@@ -45,7 +45,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     title: '是否运行选中主线？',
                     url: 'guoqi_domain.domain/restart_task?type=zhu',
                     method: 'request',
-                    auth: 'add',
+                    auth: 'restart_task',
                     class: 'layui-btn  layui-btn-sm',
                     extend: 'data-full="true"',
                 },{
@@ -54,7 +54,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     title: '是否运行选中主线下的所有支线？',
                     url: 'guoqi_domain.domain/restart_task?type=zhi_all',
                     method: 'request',
-                    auth: 'add',
+                    auth: 'restart_task',
                     class: 'layui-btn  layui-btn-sm',
                     extend: 'data-full="true"',
                 },{
@@ -63,7 +63,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     title: '是否停止选中所有主线和支线的任务？',
                     url: init.stop_task_url,
                     method: 'request',
-                    auth: 'add',
+                    auth: 'stop_task',
                     class: 'layui-btn layui-btn-danger layui-btn-sm',
                     extend: 'data-full="true"',
                 }
@@ -229,14 +229,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             text: '日志',
                             url: 'guoqi_domain.domain/logs?type=1',
                             method: 'open',
-                            auth: 'edit',
+                            auth: 'logs',
                             class: 'layui-btn  layui-btn-xs layui-btn-primary',
                         },{
                             text: '上传域名',
                             title:'上传域名',
                             url: 'guoqi_domain.domain/upload_ym',
                             method: 'open',
-                            auth: 'edit',
+                            auth: 'upload_ym',
                             class: 'layui-btn  layui-btn-xs layui-btn-warm',
 
                         },{
@@ -244,14 +244,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             title:'是否在开一个主线运行程序?如果主线正在运行还是会重新开一个哦~',
                             url: 'guoqi_domain.domain/restart_task?type=zhu',
                             method: 'request',
-                            auth: 'edit',
+                            auth: 'restart_task',
                             class: 'layui-btn  layui-btn-xs',
 
                         },{
                             text: '新增分支',
                             url: init.add_zhi_url,
                             method: 'open',
-                            auth: 'edit',
+                            auth: 'add_zhi',
                             class: 'layui-btn  layui-btn-xs',
                             extend: 'data-full="true"',
                         }, {
@@ -273,7 +273,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             title:'是否要清除筛选列表~不可逆谨慎操作！',
                             url: init.delete_buy_list_list,
                             method: 'request',
-                            auth: 'delete',
+                            auth: 'delete_buy_list',
                             class: 'layui-btn  layui-btn-xs layui-btn-danger',
                         }]]
                     }

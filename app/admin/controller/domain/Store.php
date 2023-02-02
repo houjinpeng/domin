@@ -208,7 +208,9 @@ class Store extends AdminController
 
     }
 
-
+    /**
+     * @NodeAnotation(title="批量编辑")
+     */
     public function batch_edit($id){
         if ($this->request->isAjax()){
             $post = $this->request->post();

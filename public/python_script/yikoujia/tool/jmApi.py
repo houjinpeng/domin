@@ -96,10 +96,9 @@ class JmApi():
                 'yz':yz,
             }
             data = self.build_data(data)
-            response = requests.post(f'{self.domain}/newapi/ykj_buy', data=data, timeout=4).json()
+            response = requests.post(f'{self.domain}/newapi/ykj_buy', data=data, timeout=2).json()
             return response
         except Exception as e:
-            time.sleep(2)
             # print(e)
             return self.buy_ykj(ym,jg,ty=ty,yz=yz)
 

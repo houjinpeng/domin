@@ -296,6 +296,10 @@ class Jkt extends AdminController
                 $data['jvzi']['jvzi_tongyidu_1'] = $post['jvzi_tongyidu_1'];
                 $data['jvzi']['jvzi_tongyidu_2'] = $post['jvzi_tongyidu_2'];
 
+                $data['jvzi']['jvzi_title_mingan'] = $post['jvzi_title_mingan'];
+                $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
+                $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
+
 
 
             }
@@ -447,6 +451,9 @@ class Jkt extends AdminController
                 $data['jvzi']['jvzi_tongyidu_1'] = $post['jvzi_tongyidu_1'];
                 $data['jvzi']['jvzi_tongyidu_2'] = $post['jvzi_tongyidu_2'];
 
+                $data['jvzi']['jvzi_title_mingan'] = $post['jvzi_title_mingan'];
+                $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
+                $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
 
 
             }
