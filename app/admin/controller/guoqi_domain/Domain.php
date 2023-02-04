@@ -102,7 +102,7 @@ class Domain extends AdminController
     /**
      *  @NodeAnotation(title="上传域名")
      */
-    public function upload_ym($id){
+    public function upload_ym(){
         if ($this->request->isAjax()){
             $post = $this->request->post();
 
@@ -116,12 +116,12 @@ class Domain extends AdminController
             $insert_data = [];
             foreach (explode("\n",$str) as $item){
                 if (trim($item)== '' || strstr($item,'.') == false) continue;
-                $insert_data[] = ['filter_id'=>$id,'ym'=>trim($item)];
+                $insert_data[] = ['ym'=>trim($item)];
             }
             if ($insert_data){
-                $this->guoqi_model->where('filter_id','=',$id)->delete();
+                $this->guoqi_model->delete();
                 $count = $this->guoqi_model->insertAll($insert_data);
-                $this->model->where('id','=',$id)->update(['filter_count'=>$count]);
+                $this->model->where('cate','=','过期域名')->update(['filter_count'=>$count]);
                 $this->success('插入成功');
             }
             $this->error('插入失败');
@@ -129,7 +129,6 @@ class Domain extends AdminController
 
 
         }
-        $this->assign('filter_id',$id);
         return $this->fetch();
 
 

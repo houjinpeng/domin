@@ -36,7 +36,7 @@ def get_proxy():
             print(e)
             continue
 
-threading.Thread(target=get_proxy).start()
+# threading.Thread(target=get_proxy).start()
 
 class GetSougouRecord():
 

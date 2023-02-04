@@ -40,6 +40,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     class: 'layui-btn  layui-btn-sm',
                     extend: 'data-full="true"',
                 },{
+                    text: '上传域名',
+                    title:'上传域名',
+                    url: 'guoqi_domain.domain/upload_ym',
+                    method: 'open',
+                    auth: 'upload_ym',
+                    class: 'layui-btn  layui-btn-sm layui-btn-warm',
+
+                },{
                     checkbox:true,
                     text: '运行主线',
                     title: '是否运行选中主线？',
@@ -232,14 +240,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             auth: 'logs',
                             class: 'layui-btn  layui-btn-xs layui-btn-primary',
                         },{
-                            text: '上传域名',
-                            title:'上传域名',
-                            url: 'guoqi_domain.domain/upload_ym',
-                            method: 'open',
-                            auth: 'upload_ym',
-                            class: 'layui-btn  layui-btn-xs layui-btn-warm',
-
-                        },{
                             text: '运行主线',
                             title:'是否在开一个主线运行程序?如果主线正在运行还是会重新开一个哦~',
                             url: 'guoqi_domain.domain/restart_task?type=zhu',
@@ -302,7 +302,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     console.log(res)
                     let file_path = 'upload'+res['data']['url'].split('upload')[1]
                     ea.request.post({
-                        url: '/admin/guoqi_domain.domain/upload_ym?id='+$('#filter_id').val(),
+                        url: '/admin/guoqi_domain.domain/upload_ym',
                         data:{'file_path':file_path}
                     },function (res) {
                         layer.msg('导入成功',{icon:1})

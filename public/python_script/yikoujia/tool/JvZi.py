@@ -35,7 +35,7 @@ def get_proxy():
 
 # threading.Thread(target=get_proxy).start()
 
-cookie = '__bid_n=185bf0f7c047f2324b4207; FPTOKEN=RVYA2RIjazLHJY160EtVPdxdI0ncFm5Meppkm9C1IyyM6BEvgnFuH26xFO97aXa1UjGmE065clUu+Yv2PFpDOfUFXe3cdQdgnj6Y6fUYDHBw47tEOAN+fXngCpX6Lg9DBcnnrZazYgBI7YV/OnaiygVkhJWRnxUK8x/yAylawlTWvj1W1se2UxGnoP2LscMtefeODIs9Ox43mhUb7AXVVe9S2dS2907kmNLI2MmInCP417VDUIY7My9OEfG8MgrfU9KYs5bOpMXv8o+CoybqZFmgFGUHWKu8ZqIKy1CbhLRpnYPrcqHJAw3ryMBCAR+Bkpda4pNNiGePH6ow4Bs/RF5xR9jroGMKEpNvwXktH5vJ7nEBUEHaHNmdbU36lyBOO7b0rRGgRmpSuFlXzwTzHg==|d0VSeWdv05KEYOIQI58bpn6V9quEusT6HD+OF/oJkH8=|10|3bd55de002844f2dc9da2e61a9144c2a; juz_Session=mg3li0t643t84qum5ui20u4t5r; Hm_lvt_f87ce311d1eb4334ea957f57640e9d15=1673947741,1673955092; juz_user_login=04U%2BBdgSdC%2FPZtYVPHlA%2BHJhH60QPYPs%2BoraqAJpwo8eo5L0YxMTSZSAUbKNJRNJekGsNOSNM4KoAfmETC%2BUlk%2Bn14xDbOiAUmWPUkz1LCqBh68uFQe6VX6yU%2BW1QURaHyzaLpIwbzGfXa4kyRgnbw%3D%3D; Hm_lpvt_f87ce311d1eb4334ea957f57640e9d15=1673955164'
+cookie = '__bid_n=185bf0f7c047f2324b4207; juz_user_login=04U%2BBdgSdC%2FPZtYVPHlA%2BHJhH60QPYPs%2BoraqAJpwo8eo5L0YxMTSZSAUbKNJRNJekGsNOSNM4KoAfmETC%2BUlk%2Bn14xDbOiAUmWPUkz1LCqBh68uFQe6VX6yU%2BW1QURaHyzaLpIwbzGfXa4kyRgnbw%3D%3D; FPTOKEN=QfMYduhF9mFvFqC4i2Bz9bUbrNic3KQ94OSwRay9VV+5eejF81GABeN0UUu7pUxhrWpgGk14YQPbnfs9G3yKggXKApJZAOpjpJpbdNxENgZroNmH5tb7atojsOAWkDdqeOgUZAT6WaaDsAhA64lIGFppf9YIXIWLj0/ZjgmogYePaFEA7g5awisFnkWHiNvU9sjAJgYbsNuC9B1GsAgh4GoM9qvekWXIvAkHzZGLmptBCP8L0t+2Zme7O9/nSkMq+FMrHqCac3NYwrhQH8dWvokMz+hk7g9ZzlUyIpPFKVIkCyy+bPYhUjrWiKLWlReX3wFpSCn/gKF/qFtEC2/1arUETUbF1bXH1/QHu/CBTYzDoQWjwGOhnpAtLBjF1KHjCx0qYuZsIBu3kq1yMXKW6g==|ITDu1li0jhOkWCZLWgRy32XBJIC+MClOKAPlVYqaMmc=|10|ce5c6844c8cbc6ba5603554459be7beb; juz_Session=ggfvuj593c8in4s747nidtte38; Hm_lvt_f87ce311d1eb4334ea957f57640e9d15=1674041808,1675303304,1675416437,1675422292; Hm_lpvt_f87ce311d1eb4334ea957f57640e9d15=1675435590'
 class JvZi():
 
     def __init__(self):
@@ -57,7 +57,9 @@ class JvZi():
 
     def save(self, domain,count=0):
         url = 'https://seo.juziseo.com/snapshot/save/'
-        data = f'qrtypeindex=1&domains={domain}&_post_type=ajax'
+        domain = ['yinxunkeji.com', 'qzycwsgc.com', 'dianyuanzulin.com']
+        # data = f'qrtypeindex=1&domains={domain}&_post_type=ajax'
+        data = f'post_hash=c6178ebec1d62d911fbfab0f34ceeede&domains={"%0A".join(domain)}&is_ajax=1&mark_title=&_post_type=ajax'
         headers = {
             "accept": "application/json, text/javascript, */*; q=0.01",
             "accept-encoding": "gzip, deflate, br",
@@ -238,12 +240,9 @@ class JvZi():
                 return None
             return self.get_domain_url(domain,count+1)
 
-    def get_detail_html(self,domain,count=0):
+    def get_detail_html(self,domain,url,count=0):
         try:
-            # url = self.get_domain_url(domain)
-            url = self.save(domain)
-            if url == None:
-                return None
+
             headers = {
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                 'accept-encoding': 'gzip, deflate, br',
@@ -265,15 +264,15 @@ class JvZi():
             # self.check_proxy()
             # self.proxies = random.choice(self.proxy_list)
 
-            response = requests.get(url, headers=headers, timeout=3,proxies=self.proxies)
+            response = requests.get(url, headers=headers, timeout=5,proxies=self.proxies)
             # response = requests.get(url, headers=headers, timeout=10)
             return response
         except Exception as e:
             if count > 10:
                 return None
 
-            self.set_proxy()
-            return self.get_detail_html(domain,count+1)
+            # self.set_proxy()
+            return self.get_detail_html(url,domain,count+1)
 
 
     def check(self,resp,age,five_create_store,lianxu,five_lianxu,tongyidu,is_comp_title_mingan,is_comp_neirong_mingan,is_comp_soulu_mingan):

@@ -235,10 +235,10 @@ class FilterYm():
             cur.execute(save_sql1)
             conn.commit()
 
-        save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy) values ('%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy)
-
-        cur.execute(save_sql)
-        conn.commit()
+        if '失败' not in main:
+            save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy) values ('%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy)
+            cur.execute(save_sql)
+            conn.commit()
         conn.close()
         cur.close()
 
@@ -480,7 +480,7 @@ class FilterYm():
     def work(self, beian=None, baidu=None, sogou=None, so=None,aizhan_obj=None):
         qiang = Qiang()
         history_obj = GetHistory()
-        jvzi_obj = JvZi()
+
         while True:
             if self.work_queue.empty():
                 time.sleep(0.5)
@@ -686,22 +686,9 @@ class FilterYm():
             try:
                 #判断桔子数据
                 if self.filter_dict.get('jvzi') != None:
-                    resp = jvzi_obj.get_detail_html(domain_data['ym'])
-                    if resp == None:
-                        self.log_queue.put(f'桔子对比失败 重新对比： {domain_data["ym"]}')
-                        self.work_queue.put(domain_data)
-                        continue
-                    #建站历史  近五年建站 近五年连续 最长连续 统一度 (标题  收录 内容敏感)
-                    d = self.filter_dict.get('jvzi')
-                    is_comp_title_mingan = 0 if d.get('jvzi_title_mingan') == None else d.get('jvzi_title_mingan')
-                    is_comp_neirong_mingan = 0 if d.get('jvzi_neirong_mingan') == None else d.get('jvzi_neirong_mingan')
-                    is_comp_soulu_mingan = 0 if d.get('jvzi_soulu_mingan') == None else d.get('jvzi_soulu_mingan')
-                    is_ok = jvzi_obj.check(resp,age=[d['jvzi_age_1'],d['jvzi_age_2']],five_create_store=[d['jvzi_five_1'],d['jvzi_five_2']],lianxu=[d['jvzi_lianxu_1'],d['jvzi_lianxu_2']],
-                                           five_lianxu=[d['jvzi_five_lianxu_1'],d['jvzi_five_lianxu_2']],tongyidu=[d['jvzi_tongyidu_1'],d['jvzi_tongyidu_2']],is_comp_title_mingan=is_comp_title_mingan,is_comp_neirong_mingan=is_comp_neirong_mingan,is_comp_soulu_mingan=is_comp_soulu_mingan)
-                    if is_ok != True:
-                        self.save_out_data(domain_data)
-                        self.log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
-                        continue
+                    #保存到待查询数据中  等待桔子程序判断是否购买
+                    self.insert_jv_ym(domain_data['ym'],domain_data['jg'])
+                    continue
 
             except Exception as e:
                 pass
@@ -717,6 +704,85 @@ class FilterYm():
             else:
                 self.save_buy_ym(domain_data)
 
+    #修改mysql中桔子查询域名
+    def update_is_search(self,id):
+        # 修改域名已查询
+        conn = db_pool.connection()
+        cur = conn.cursor()
+        update_sql = "update search_jvzi_data set is_search=2 where id=%s " % (id)
+        cur.execute(update_sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    #保存进查找桔子数据队列中
+    def insert_jv_ym(self,ym,jg):
+        conn = db_pool.connection()
+        cur = conn.cursor()
+        insert_sql = "insert into search_jvzi_data (ym,zhi_filter_id,jg) value('%s',%s,%s)"%(ym,self.filter_id,jg)
+        cur.execute(insert_sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+
+
+    def check_jvzi(self):
+        jvzi_obj = JvZi()
+        while True:
+            conn = db_pool.connection()
+            cur = conn.cursor()
+            select_sql = "select * from search_jvzi_data where zhi_filter_id=%s and is_search=1 "% (self.filter_id)
+            cur.execute(select_sql)
+            all_data = cur.fetchall()
+            conn.close()
+            cur.close()
+            if all_data == []:
+                time.sleep(1)
+                continue
+
+            for data in all_data:
+
+                resp = jvzi_obj.get_detail_html(data['ym'],data['ym_url'])
+                if resp == None:
+                    continue
+                try:
+                    # 建站历史  近五年建站 近五年连续 最长连续 统一度 (标题  收录 内容敏感)
+                    d = self.filter_dict.get('jvzi')
+                    is_comp_title_mingan = 0 if d.get('jvzi_title_mingan') == None else d.get('jvzi_title_mingan')
+                    is_comp_neirong_mingan = 0 if d.get('jvzi_neirong_mingan') == None else d.get('jvzi_neirong_mingan')
+                    is_comp_soulu_mingan = 0 if d.get('jvzi_soulu_mingan') == None else d.get('jvzi_soulu_mingan')
+                    is_ok = jvzi_obj.check(resp, age=[d['jvzi_age_1'], d['jvzi_age_2']],
+                                           five_create_store=[d['jvzi_five_1'], d['jvzi_five_2']],
+                                           lianxu=[d['jvzi_lianxu_1'], d['jvzi_lianxu_2']],
+                                           five_lianxu=[d['jvzi_five_lianxu_1'], d['jvzi_five_lianxu_2']],
+                                           tongyidu=[d['jvzi_tongyidu_1'], d['jvzi_tongyidu_2']],
+                                           is_comp_title_mingan=is_comp_title_mingan,
+                                           is_comp_neirong_mingan=is_comp_neirong_mingan,
+                                           is_comp_soulu_mingan=is_comp_soulu_mingan)
+                    if is_ok != True:
+                        self.log_queue.put({'ym': data['ym'], 'cause': is_ok})
+                        #修改域名已查询
+                        self.update_is_search(data['id'])
+
+                        continue
+                except Exception as error:
+                    self.log_queue.put(f'桔子对比错误 ：{data} {error}')
+                    continue
+
+                #判断是否购买 如果购买直接购买
+                # 判断是否是过期域名还是一口价域名   一口价域名直接保存到数据库
+                if self.main_filter['cate'] == '一口价':
+                    self.log_queue.put({'ym': data['ym'], 'cause': '需要购买'})
+                    # 判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
+                    if self.filter_data['is_buy'] == 1:
+                        self.buy_ym(data)
+                        self.update_is_search(data['id'])
+                    else:
+                        self.update_is_search(data['id'])
+                        self.save_buy_ym(data)
+                else:
+                    self.update_is_search(data['id'])
+                    self.save_buy_ym(data)
 
     def index(self):
         #初始化
@@ -750,6 +816,13 @@ class FilterYm():
             all_out_data = self.out_ym.find({'filter_id': self.filter_id, 'type': 'zhi'})
             for out_ym in all_out_data:
                 self.ym_set.add(out_ym['ym'])
+
+
+        #判断是否使用桔子的筛选条件
+        if self.filter_dict.get('jvzi') != None:
+            #开启一个线程监控桔子数据
+
+            threading.Thread(target=self.check_jvzi).start()
 
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()
@@ -799,7 +872,7 @@ class FilterYm():
 
         # for i in range(self.main_filter['task_num']):
         print('开始程序')
-        for i in range(100):
+        for i in range(0):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so,aizhan_obj)))
 
@@ -815,5 +888,5 @@ class FilterYm():
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
     # jkt_id = 60 #测试过期域名
-    jkt_id = 56 #测试桔子
+    jkt_id = 64 #测试桔子
     filter = FilterYm(jkt_id).index()

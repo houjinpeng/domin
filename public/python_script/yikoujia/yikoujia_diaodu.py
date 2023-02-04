@@ -21,6 +21,7 @@ import time
 from filter_buy_ym import FilterYm
 from search_ym_list_and_filter import SearchYmAndFilter
 from houhou.logger import Logger
+from tool.save_jvzi import JvZi
 import os
 db_pool = PooledDB(**mysql_pool_conf)
 
@@ -72,7 +73,12 @@ def check():
 
 #监控程序
 def scheduler():
-    check()
+    # check()
+
+    #启动查询桔子线程
+    threading.Thread(target=JvZi().index).start()
+    time.sleep(60*60*24)
+
     while True:
 
         conn = db_pool.connection()
