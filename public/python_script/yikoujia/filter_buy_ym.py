@@ -887,6 +887,6 @@ class FilterYm():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    # jkt_id = 60 #测试过期域名
-    jkt_id = 64 #测试桔子
+    jkt_id = 66 #测试过期域名
+    # jkt_id = 64 #测试桔子
     filter = FilterYm(jkt_id).index()

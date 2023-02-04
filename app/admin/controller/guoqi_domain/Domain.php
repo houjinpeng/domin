@@ -60,6 +60,7 @@ class Domain extends AdminController
                 ->where('cate','=','过期域名')
                 ->where($where)->page($page, $limit)->select()->toArray();
             foreach ($list as $index => &$item) {
+                $item['filter_count'] = $this->guoqi_model->count();
                 $item['zhixian'] = $this->filter_model->where('main_filter_id', $item['id'])
                     ->order('sort','desc')
                     ->select()->toArray();
@@ -119,7 +120,7 @@ class Domain extends AdminController
                 $insert_data[] = ['ym'=>trim($item)];
             }
             if ($insert_data){
-                $this->guoqi_model->delete();
+                $this->guoqi_model->where('filter_id','=',null)->delete(true);
                 $count = $this->guoqi_model->insertAll($insert_data);
                 $this->model->where('cate','=','过期域名')->update(['filter_count'=>$count]);
                 $this->success('插入成功');
@@ -302,7 +303,8 @@ class Domain extends AdminController
             //桔子
             if ($post['is_com_jvzi'] == '1') {
 
-                if ($post['jvzi_age_1'] == '0' && $post['jvzi_age_2'] == '0' && $post['jvzi_five_1'] == '0' && $post['jvzi_five_2']== '0'  && $post['jvzi_five_lianxu_1'] == '0' && $post['jvzi_five_lianxu_2']== '0'&& $post['jvzi_lianxu_1'] == '0' && $post['jvzi_lianxu_2']== '0' && $post['jvzi_tongyidu_1'] == '0' && $post['jvzi_tongyidu_2']== '0' ) {
+                if ($post['jvzi_age_1'] == '0' && $post['jvzi_age_2'] == '0' && $post['jvzi_five_1'] == '0' && $post['jvzi_five_2']== '0'  && $post['jvzi_five_lianxu_1'] == '0' && $post['jvzi_five_lianxu_2']== '0'&& $post['jvzi_lianxu_1'] == '0' && $post['jvzi_lianxu_2']== '0' && $post['jvzi_tongyidu_1'] == '0'
+                    && $post['jvzi_tongyidu_2']== '0'&& $post['jvzi_title_mingan']== '0'&& $post['jvzi_neirong_mingan']== '0'&& $post['jvzi_soulu_mingan']== '0' ) {
                     $this->error('请完善桔子信息~');
                 }
                 $data['jvzi']['jvzi_age_1'] = $post['jvzi_age_1'];
@@ -320,7 +322,9 @@ class Domain extends AdminController
                 $data['jvzi']['jvzi_tongyidu_1'] = $post['jvzi_tongyidu_1'];
                 $data['jvzi']['jvzi_tongyidu_2'] = $post['jvzi_tongyidu_2'];
 
-
+                $data['jvzi']['jvzi_title_mingan'] = $post['jvzi_title_mingan'];
+                $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
+                $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
 
             }
 
@@ -441,7 +445,8 @@ class Domain extends AdminController
             //桔子
             if ($post['is_com_jvzi'] == '1') {
 
-                if ($post['jvzi_age_1'] == '0' && $post['jvzi_age_2'] == '0' && $post['jvzi_five_1'] == '0' && $post['jvzi_five_2']== '0'  && $post['jvzi_five_lianxu_1'] == '0' && $post['jvzi_five_lianxu_2']== '0'&& $post['jvzi_lianxu_1'] == '0' && $post['jvzi_lianxu_2']== '0' && $post['jvzi_tongyidu_1'] == '0' && $post['jvzi_tongyidu_2']== '0' ) {
+                if ($post['jvzi_age_1'] == '0' && $post['jvzi_age_2'] == '0' && $post['jvzi_five_1'] == '0' && $post['jvzi_five_2']== '0'  && $post['jvzi_five_lianxu_1'] == '0' && $post['jvzi_five_lianxu_2']== '0'&& $post['jvzi_lianxu_1'] == '0' && $post['jvzi_lianxu_2']== '0' && $post['jvzi_tongyidu_1'] == '0'
+                    && $post['jvzi_tongyidu_2']== '0'&& $post['jvzi_title_mingan']== '0'&& $post['jvzi_neirong_mingan']== '0'&& $post['jvzi_soulu_mingan']== '0' ) {
                     $this->error('请完善桔子信息~');
                 }
                 $data['jvzi']['jvzi_age_1'] = $post['jvzi_age_1'];
@@ -459,7 +464,9 @@ class Domain extends AdminController
                 $data['jvzi']['jvzi_tongyidu_1'] = $post['jvzi_tongyidu_1'];
                 $data['jvzi']['jvzi_tongyidu_2'] = $post['jvzi_tongyidu_2'];
 
-
+                $data['jvzi']['jvzi_title_mingan'] = $post['jvzi_title_mingan'];
+                $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
+                $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
 
             }
 
