@@ -872,7 +872,7 @@ class FilterYm():
 
         # for i in range(self.main_filter['task_num']):
         print('开始程序')
-        for i in range(0):
+        for i in range(100):
             # 启动任务线程程
             thread_list.append(threading.Thread(target=self.work, args=(beian, baidu, sogou, so,aizhan_obj)))
 
