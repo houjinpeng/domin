@@ -758,8 +758,9 @@ class FilterYm():
     def check_jvzi(self):
         jvzi_obj = JvZi()
         while not self.juzi_queue.empty():
-
             data = self.juzi_queue.get()
+            self.log_queue.put(f'桔子剩余任务：{self.juzi_queue.qsize()} 当前查询：{data}')
+
             resp = jvzi_obj.get_detail_html(data['ym'],data['ym_url'])
             if resp == None:
                 continue
