@@ -73,11 +73,11 @@ def check():
 
 #监控程序
 def scheduler():
-    # check()
+    check()
 
     #启动查询桔子线程
     threading.Thread(target=JvZi().index).start()
-    time.sleep(60*60*24)
+    # time.sleep(60*60*24)
 
     while True:
 
