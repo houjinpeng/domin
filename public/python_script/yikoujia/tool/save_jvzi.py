@@ -45,9 +45,9 @@ class JvZi():
         data = f'post_hash=c6178ebec1d62d911fbfab0f34ceeede&domains={"%0A".join(ym_list)}&is_ajax=1&mark_title=&_post_type=ajax'
         try:
             result = requests.post(url, data=data, headers=self.headers, timeout=10).json()
-            url = result['rsm']['url']
-
-            return url
+            # url = result['rsm']['url']
+            #
+            # return url
         except Exception as e:
             if count > 10:
                 return None
@@ -65,8 +65,16 @@ class JvZi():
         conn.close()
 
     def get_histroy(self, ym):
+
+        ym_list = []
+        for y in ym:
+            ym_list.append(y['ym'].lower())
+
+
+
         # 查询
-        data = f'post_hash=c6178ebec1d62d911fbfab0f34ceeede&stype=domain&qr={ym}&qrtype=1&input_time=lastquery&start_time=&end_time=&mark_title=&fav=&history_score=0&lang=&age=0&title_precent=0&site_age=0&stable_count=0&stable_start_year_eq=&stable_start_year=&last_year_eq=&last_year=&site_5_age=0&site_5_stable_count=0&blocked=&gray=&gray_in_html=&site_gray=&baidu_site=0&gword=&has_snap=&per_page='
+        # data = f'post_hash=c6178ebec1d62d911fbfab0f34ceeede&stype=domain&qr={ym}&qrtype=1&input_time=lastquery&start_time=&end_time=&mark_title=&fav=&history_score=0&lang=&age=0&title_precent=0&site_age=0&stable_count=0&stable_start_year_eq=&stable_start_year=&last_year_eq=&last_year=&site_5_age=0&site_5_stable_count=0&blocked=&gray=&gray_in_html=&site_gray=&baidu_site=0&gword=&has_snap=&per_page='
+        data = f'post_hash=c6178ebec1d62d911fbfab0f34ceeede&stype=domain&qr={"+".join(ym_list)}&qrtype=1&input_time=lastquery&start_time=&end_time=&mark_title=&fav=&history_score=0&lang=&age=0&title_precent=0&site_age=0&stable_count=0&stable_start_year_eq=&stable_start_year=&last_year_eq=&last_year=&site_5_age=0&site_5_stable_count=0&blocked=&gray=&gray_in_html=&site_gray=&baidu_site=0&gword=&has_snap=&per_page=1000'
 
         try:
             headers = {
@@ -113,28 +121,55 @@ class JvZi():
             time.sleep(2)
             return self.get_histroy(ym)
 
+
+    #开启线程一直监控桔子保存过的数据
+    def get_url(self):
+        while True:
+            try:
+                conn = db_pool.connection()
+                cur = conn.cursor()
+                select_sql = "select * from search_jvzi_data where is_search=3 limit 100"
+                cur.execute(select_sql)
+                all_data = cur.fetchall()
+                cur.close()
+                conn.close()
+                self.get_histroy(all_data)
+                time.sleep(1)
+            except Exception as error:
+                print(f'桔子线程获取域名url错误：{error}')
+
     def index(self):
+        # 开启线程
+        threading.Thread(target=self.get_url).start()
+
         # 查询数据库 是否有要查询的任务 1.5秒一次
         while True:
             conn = db_pool.connection()
             cur = conn.cursor()
-            select_sql = "select * from search_jvzi_data where is_search=0 limit 10"
+            select_sql = "select * from search_jvzi_data where is_search=0 limit 10000"
             cur.execute(select_sql)
             all_data = cur.fetchall()
-            cur.close()
-            conn.close()
+
             ym_list = [data['ym'] for data in all_data]
             if ym_list == []:
                 time.sleep(1)
                 continue
             self.save(ym_list)
-            for ym in ym_list:
-                print(f'桔子 查询域名：{ym}')
-                self.get_histroy(ym)
+
+            #修改域名信息为3 已保存 未找到url
+            update_sql ="update search_jvzi_data set is_search=3 where ym in (%s)"%(str(ym_list)[1:-1])
+            cur.execute(update_sql)
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            # for ym in ym_list:
+            #     print(f'桔子 查询域名：{ym}')
+            #     self.get_histroy(ym)
 
             # 直接查询结果  放到数据库中
 
-            time.sleep(1.5)
+            time.sleep(1)
 
 
 if __name__ == '__main__':

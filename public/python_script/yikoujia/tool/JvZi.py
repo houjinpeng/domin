@@ -314,7 +314,7 @@ class JvZi():
             five_lianxu[0] = int(five_lianxu[0])
             five_lianxu[1] = 99999 if five_lianxu[1] == '0' else int(five_lianxu[1])
             lianxu_num = self.get_lianxu_five_year_num(resp.text)
-            if lianxu_num < lianxu[0] or lianxu_num > lianxu[1]:
+            if lianxu_num < five_lianxu[0] or lianxu_num > five_lianxu[1]:
                 return f'桔子五年连续时长不符 为：{lianxu_num} 设置区间为：{five_lianxu[0],five_lianxu[1]}'
 
         if tongyidu != ['0', '0']:
