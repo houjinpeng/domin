@@ -12,6 +12,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         show_buy_ym_url: 'yikoujia.jkt/show_buy_ym',
         show_zhi: 'yikoujia.jkt/show_zhi',
         delete_buy_list_list: 'yikoujia.jkt/delete_buy_list?type=main',
+        clear_result: 'yikoujia.jkt/clear_result',
     };
 
     var fuhe_init = {
@@ -38,6 +39,42 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     auth: 'add',
                     icon: 'fa fa-plus ',
                     class: 'layui-btn  layui-btn-sm',
+                    extend: 'data-full="true"',
+                },{
+                    checkbox:true,
+                    text: '运行主线',
+                    title: '是否运行选中主线？',
+                    url: 'yikoujia.jkt/restart_task?type=zhu',
+                    method: 'request',
+                    auth: 'restart_task',
+                    class: 'layui-btn  layui-btn-sm',
+                    extend: 'data-full="true"',
+                },{
+                    checkbox:true,
+                    text: '运行支线',
+                    title: '是否运行选中主线下的所有支线？',
+                    url: 'yikoujia.jkt/restart_task?type=zhi',
+                    method: 'request',
+                    auth: 'restart_task',
+                    class: 'layui-btn  layui-btn-sm',
+                    extend: 'data-full="true"',
+                },{
+                    checkbox:true,
+                    text: '停止所有任务',
+                    title: '是否停止选中所有主线和支线的任务？',
+                    url: init.stop_task_url,
+                    method: 'request',
+                    auth: 'stop_task',
+                    class: 'layui-btn layui-btn-danger layui-btn-sm',
+                    extend: 'data-full="true"',
+                },{
+                    checkbox:true,
+                    text: '清空所有结果',
+                    title: '是否要清空所有结果？',
+                    url: init.delete_buy_list_list,
+                    method: 'request',
+                    auth: 'delete_buy_list_list',
+                    class: 'layui-btn layui-btn-danger layui-btn-sm',
                     extend: 'data-full="true"',
                 }], 'delete'],
                 cols: [[

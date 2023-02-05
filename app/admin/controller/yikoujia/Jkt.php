@@ -578,31 +578,47 @@ class Jkt extends AdminController
     public function restart_task($id,$type)
     {
         if ($type=='zhu'){
-            //查询进程号
-            $row = $this->model->find($id);
-            empty($row) && $this->error('没有该数据 无法重启~');
-            //查询主线是否在运行
-
-//            $out = exec('ps -p '.$row['p_id']);
-            $out = exec('tasklist | findstr '.$row['p_id'],$rep);
-            //如果程序不存在  爬虫程序为进行中  报错程序异常
-            if (strstr($out,$row['p_id'])){
-                $this->error('请先停止主线任务后重启~');
+            if (!is_array($id)){
+                $id = [$id];
             }
-            $row ->save(['spider_status'=>0,'p_id'=>null]);
-            //删除之前数据 重新运行
-//            $row = Db::connect('mongo')
-//                ->table('ym_data_'.$id)->delete(true);
-//            start_task('./python_script/yikoujia/search_ym_list_and_filter.py',$id);
-            $this->success('主线等待运行中~');
-        }else{
-            //查询进程号
-            $row = $this->filter_model->find($id);
-            empty($row) && $this->error('没有该数据 无法重启~');
-            $row ->save(['spider_status'=>0,'pid'=>null]);
 
-//            start_task('./python_script/yikoujia/filter_buy_ym.py',$id);
-            $this->success('支线等待运行中~');
+            foreach ($id as $ids){
+                //查询进程号
+                $row = $this->model->find($ids);
+                empty($row) && $this->error('没有该数据 无法重启~');
+                //修改之前把任务先停止掉
+                kill_task($row['p_id']);
+                $row ->save(['spider_status'=>0,'p_id'=>null]);
+                //删除之前数据 重新运行
+                $this->success('主线等待运行中~');
+            }
+
+
+
+        }else{
+            if (is_array($id)){
+                foreach ($id as $ids){
+                    //查询进程号
+                    $row = $this->model->find($ids);
+                    empty($row) && $this->error('没有该数据 无法重启~');
+                    //查询主线是否在运行
+                    kill_task($row['p_id']);
+
+                    $row ->save(['spider_status'=>0,'p_id'=>null]);
+                    //删除之前数据 重新运行
+                    $this->success('主线等待运行中~');
+                }
+
+            }else{
+                //查询进程号
+                $row = $this->filter_model->find($id);
+                empty($row) && $this->error('没有该数据 无法重启~');
+                $row ->save(['spider_status'=>0,'pid'=>null]);
+                kill_task($row['pid']);
+                $this->success('支线等待运行中~');
+            }
+
+
         }
 
 
@@ -626,18 +642,25 @@ class Jkt extends AdminController
      */
     public function stop_task($id)
     {
-        //查询进程号
-        $row = $this->model->find($id);
-        empty($row) && $this->error('没有该数据 无法停止~');
-        $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
-        foreach ($zhi as $item){
-            $item->save(['spider_status'=>3]);
-            kill_task($item['pid']);
+
+        if (!is_array($id)){
+            $id = [$id];
         }
-        //停止主线程
-        kill_task($row['p_id']);
-        $row->save(['spider_status'=>3]);
-        $this->success('成功停止全部任务');
+        foreach ($id as $ids){
+            //查询进程号
+            $row = $this->model->find($ids);
+            empty($row) && $this->error('没有该数据 无法停止~');
+            $zhi = $this->filter_model->where('main_filter_id','=',$row['id'])->select();
+            foreach ($zhi as $item){
+                $item->save(['spider_status'=>3]);
+                kill_task($item['pid']);
+            }
+            //停止主线程
+            kill_task($row['p_id']);
+            $row->save(['spider_status'=>3]);
+            $this->success('成功停止全部任务');
+        }
+
     }
 
     /**
@@ -736,6 +759,25 @@ class Jkt extends AdminController
      *@NodeAnotation(title="删除购买域名")
      */
     public function delete_buy_list($id,$type){
+        if (is_array($id)){
+            foreach ($id as $ids){
+                $row = Db::connect('mongo') ->table('ym_data_'.$ids)->delete(true);
+                Db::connect('mongo') ->table('out_ym')->where('type','=','main')->where('filter_id','=',intval($ids))->delete();
+
+                //查询主线中支线
+                $all_zhi = $this->filter_model->where('main_filter_id','=',$ids)->select()->toArray();
+                foreach ($all_zhi as $zhi){
+                    $this->buy_model->where('buy_filter_id','=',$zhi['id'])->delete();
+                    Db::connect('mongo') ->table('out_ym')->where('type','=','zhi')->where('filter_id','=',intval($zhi['id']))->delete();
+
+                }
+
+            }
+            $this->success('清除成功');
+        }
+
+
+
         if($type == 'zhi'){
             $this->buy_model->where('buy_filter_id','=',$id)->delete();
             Db::connect('mongo') ->table('out_ym')->where('type','=','zhi')->where('filter_id','=',intval($id))->delete();
@@ -752,4 +794,8 @@ class Jkt extends AdminController
 
 
     }
+
+
+
+
 }
