@@ -286,6 +286,11 @@ class FilterYm():
 
         resp = jm_api.buy_ykj(domain_data['ym'],domain_data['jg'])
         self.log_queue.put(resp)
+        if '系统繁忙，请重试' in str(resp):
+            self.log_queue.put(str(resp))
+            return self.buy_ym(domain_data)
+
+
         if resp['code'] == 1:
             self.log_queue.put('购买成功')
             self.save_buy_ym(domain_data,is_buy=1,zhi=self.filter_data['title'],main=self.main_filter['title'],price=domain_data['jg'])

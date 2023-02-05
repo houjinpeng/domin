@@ -11,6 +11,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         stop_task_url: 'guoqi_domain.domain/stop_task',
         show_buy_ym_url: 'guoqi_domain.domain/show_buy_ym',
         show_zhi: 'guoqi_domain.domain/show_zhi',
+        clear_result_url: 'guoqi_domain.domain/clear_result',
         delete_buy_list_list: 'guoqi_domain.domain/delete_buy_list?type=main',
     };
 
@@ -72,6 +73,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     url: init.stop_task_url,
                     method: 'request',
                     auth: 'stop_task',
+                    class: 'layui-btn layui-btn-danger layui-btn-sm',
+                    extend: 'data-full="true"',
+                },{
+                    text: '清空所有结果',
+                    title: '是否要清空所有结果？',
+                    url: init.clear_result_url,
+                    method: 'request',
+                    auth: 'clear_result',
                     class: 'layui-btn layui-btn-danger layui-btn-sm',
                     extend: 'data-full="true"',
                 }

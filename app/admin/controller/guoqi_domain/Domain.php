@@ -643,6 +643,7 @@ class Domain extends AdminController
         if (!is_array($id)){
             $id = [$id];
         }
+
         foreach ($id as $main_id){
             $row = $this->model->find($main_id);
             if (empty($row)) continue;
@@ -766,4 +767,32 @@ class Domain extends AdminController
 
 
     }
+    /**
+     *@NodeAnotation(title="一键清空所有结果")
+     */
+    public function clear_result(){
+        //获取所有过期主线支线id
+        $all_main = $this->model->where('cate','=','过期域名')->select()->toArray();
+        foreach ($all_main as $main){
+
+            //清除主线数据
+            Db::connect('mongo') ->table('ym_data_'.$main['id'])->delete(true);
+            //查询支线数据
+            $all_zhi = $this->filter_model->where('main_filter_id','=',$main['id'])->select()->toArray();
+
+            foreach ($all_zhi as $zhi){
+                $this->buy_model->where('buy_filter_id','=',$zhi['id'])->delete();
+
+            }
+
+
+        }
+        $this->success('删除成功');
+
+
+
+    }
+
+
+
 }
