@@ -284,15 +284,15 @@ class JvZi():
                 return f'桔子历史年龄不符 年龄为：{age_num} 设置区间为：{age[0],age[1]}'
         #获取自检词
         zijian = self.get_zijian_word(resp.text)
-        if is_comp_title_mingan == 1:
+        if int(is_comp_title_mingan) == 1:
             if '标题敏感词' in zijian:
                 return f'桔子标题有敏感词 ：{zijian}'
 
 
-        if is_comp_soulu_mingan == 1:
-            if '收录敏感' in zijian:
+        if int(is_comp_soulu_mingan) == 1:
+            if '收录敏感' in zijian or '百度敏感' in zijian:
                 return f'桔子收录有敏感词 ：{zijian}'
-        if is_comp_neirong_mingan == 1:
+        if int(is_comp_neirong_mingan) == 1:
             if '内容敏感词' in zijian:
                 return f'桔子内容有敏感词 ：{zijian}'
 
@@ -326,51 +326,11 @@ class JvZi():
         return True
 
     def test(self):
-        ds = ["b9188.cn",
-              "parkly.com.cn",
-              "hsywjc.com",
-              "ucuishui.cn",
-              "njyljs.com.cn",
-              "lpjfm.cn",
-              "njkcy.cn",
-              "hndouo.cn",
-              "wl65.cn",
-              "yzjrdy.cn",
-              "360manyi.cn",
-              "zssx.com.cn",
-              "ay24.cn",
-              "yaliyi.cn",
-              "m535.cn",
-              "yxauto.com.cn",
-              "fztnt.cn",
-              "hzskc.cn",
-              "yhyaxing.cn",
-              "yilanrna.cn",
-              "pidifu.cn",
-              "ice126.cn",
-              "lsyifan.cn",
-              "qili163.cn",
-              "jddfbz.cn",
-              "0577auto.cn",
-              "shdaxi.cn",
-              "ophome.cn",
-              "hdxsdkm.cn",
-              "f1475.cn",
-              "0572auto.cn",
-              "0421pet.cn",
-              "yatai-digital.cn",
-              "daiyun159.cn",
-              "nentex.cn",
-              "adango.cn",
-              "mctyn.cn",
-              "dlfsr.cn",
-              "d033.cn",
-              "0660pet.cn",
-              "nmass.com.cn", ]
+        ds = ["bjzry.com"]
         # resp = self.get_token(ds)
 
         for d in ds:
-            resp = self.get_detail_html(d)
+            resp = self.get_detail_html(d,'https://seo.juziseo.com/snapshot/list/id-SzA5cVEwOTFLMU5XU0ZGT01USlpTakl2UkRVME9YYzk=')
 
             '''
             1.域名用桔子查询历史并抓取历史中的标题 对比词库是否含有词库。
