@@ -724,7 +724,7 @@ class Jkt extends AdminController
         $eof="";
         $str="";
         $linesArr = array();
-        $n = 10000;
+        $n = 5000;
 //        $linesArr = file('./python_script/yikoujia/logs/'.$file_name);
 //        fclose($fp);
 
