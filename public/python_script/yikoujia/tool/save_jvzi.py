@@ -107,17 +107,79 @@ class JvZi():
 
             #查找域名url 保存到数据库
             e = etree.HTML(resp_data.text)
-            a_list = e.xpath('//a[@class="openUrl"]')
+            a_list = e.xpath('//tr[@class="a_row"]')
+            # 保存数据
+            conn = db_pool.connection()
+            cur = conn.cursor()
             for a in a_list:
-                if ym.lower() in ''.join(a.xpath('.//text()')).lower():
-                    ym_url = 'https://seo.juziseo.com'+a.xpath('.//@href')[0]
-                    self.save_ym_url(ym,ym_url)
-                    return
-            time.sleep(2)
-            return self.get_histroy(ym)
 
+                ym_str = a.xpath('.//a[@class="openUrl"]//text()')[0].lower()
+
+                if ym_str in ym_list:
+                    try:
+
+                        data_obj = a.xpath('.//td')
+
+                        ym_dict = {}
+
+                        try:
+                            #评分
+                            ym_dict['score'] = int(data_obj[0].xpath('.//b/text()')[-1])
+                        except:
+                            ym_dict['score'] = 0
+                        try:
+                            # 自检
+                            ym_dict['zijian'] = '|'.join(data_obj[0].xpath('.//span[@class="label label-warning show-tips"]//text()'))
+                        except:
+                            ym_dict['zijian'] = ''
+                        try:
+                            # 建站年龄
+                            ym_dict['history_age'] = int(''.join(data_obj[1].xpath('.//span[@class="v svg_num"]/text()')).strip())
+                        except:
+                            ym_dict['history_age'] = 0
+                        try:
+                            # 统一度
+                            ym_dict['tongyidu'] = int(''.join(data_obj[2].xpath('.//span[@class="v svg_num"]/text()')).strip())
+                        except:
+                            ym_dict['tongyidu'] = 0
+                        try:
+                            #建站总年数
+                            ym_dict['create_site_total_year'] = int(''.join(data_obj[3].xpath('.//span[@class="v svg_num"]/text()')).strip())
+                        except:
+                            ym_dict['create_site_total_year'] = 0
+
+                        try:
+                            # 最长连续时长
+                            ym_dict['zuizhanglianxu'] = int(''.join(data_obj[4].xpath('.//span[@class="v svg_num"]/text()')).strip())
+                        except:
+                            ym_dict['zuizhanglianxu'] = 0
+                        try:
+                            # 近五年历史输出
+                            ym_dict['five_create_site'] = int(''.join(data_obj[5].xpath('.//span[@class="v svg_num"]/text()')).strip())
+                        except:
+                            ym_dict['five_create_site'] = 0
+                        try:
+                            # 5年连续
+                            ym_dict['five_lianxu'] = int(''.join(data_obj[6].xpath('.//span[@class="v svg_num"]/text()')).strip())
+                        except:
+                            ym_dict['five_lianxu'] = 0
+
+                        ym_dict['ym_url'] = 'https://seo.juziseo.com'+a.xpath('.//@href')[0]
+
+
+                        update_sql = "update search_jvzi_data set ym_url='%s',is_search=1,detail='%s' where ym='%s'" % (ym_dict['ym_url'], json.dumps(ym_dict),ym_str)
+                        cur.execute(update_sql)
+                        conn.commit()
+
+
+                    except Exception as error:
+                        print(f'桔子获取详情时错误：{error}')
+
+
+            cur.close()
+            conn.close()
         except Exception as e:
-            print('桔子获取域名url失败')
+            print(f'桔子获取域名url失败 错误信息 ：{e}')
             time.sleep(2)
             return self.get_histroy(ym)
 
@@ -174,4 +236,4 @@ class JvZi():
 
 if __name__ == '__main__':
     # JvZi().get_histroy('houjinpeng.com')
-    JvZi().index()
+    JvZi().get_url()

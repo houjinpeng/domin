@@ -731,8 +731,7 @@ class FilterYm():
         conn.close()
 
     #获取桔子数据  然后开启线程检测
-    def get_jv_data(self):
-
+    def check_jvzi(self):
         while True:
             conn = db_pool.connection()
             cur = conn.cursor()
@@ -741,67 +740,109 @@ class FilterYm():
             all_data = cur.fetchall()
             conn.close()
             cur.close()
-            for data in all_data:
-                self.juzi_queue.put(data)
             if all_data == []:
                 time.sleep(1)
                 continue
-            t = []
-            for i in range(20):
-                t.append(threading.Thread(target=self.check_jvzi))
-            for j in t:
-                j.start()
-            for j in t:
-                j.join()
-
-
-    def check_jvzi(self):
-        jvzi_obj = JvZi()
-        while not self.juzi_queue.empty():
-            data = self.juzi_queue.get()
-            self.log_queue.put(f'桔子剩余任务：{self.juzi_queue.qsize()} 当前查询：{data["ym"]}')
-
-            resp = jvzi_obj.get_detail_html(data['ym'],data['ym_url'])
-            if resp == None:
-                continue
-            try:
-                # 建站历史  近五年建站 近五年连续 最长连续 统一度 (标题  收录 内容敏感)
-                d = self.filter_dict.get('jvzi')
-                is_comp_title_mingan = 0 if d.get('jvzi_title_mingan') == None else d.get('jvzi_title_mingan')
-                is_comp_neirong_mingan = 0 if d.get('jvzi_neirong_mingan') == None else d.get('jvzi_neirong_mingan')
-                is_comp_soulu_mingan = 0 if d.get('jvzi_soulu_mingan') == None else d.get('jvzi_soulu_mingan')
-                is_ok = jvzi_obj.check(resp, age=[d['jvzi_age_1'], d['jvzi_age_2']],
-                                       five_create_store=[d['jvzi_five_1'], d['jvzi_five_2']],
-                                       lianxu=[d['jvzi_lianxu_1'], d['jvzi_lianxu_2']],
-                                       five_lianxu=[d['jvzi_five_lianxu_1'], d['jvzi_five_lianxu_2']],
-                                       tongyidu=[d['jvzi_tongyidu_1'], d['jvzi_tongyidu_2']],
-                                       is_comp_title_mingan=is_comp_title_mingan,
-                                       is_comp_neirong_mingan=is_comp_neirong_mingan,
-                                       is_comp_soulu_mingan=is_comp_soulu_mingan)
-                if is_ok != True:
-                    self.log_queue.put({'ym': data['ym'], 'cause': is_ok})
-                    #修改域名已查询
-                    self.update_is_search(data['id'])
-
+            for data in all_data:
+                try:
+                    detail = json.loads(data['detail'])
+                except Exception as error:
+                    self.log_queue.put(f'桔子解析错误 ：{data}')
                     continue
-            except Exception as error:
-                self.log_queue.put(f'桔子对比错误 ：{data} {error}')
-                continue
+                try:
+                    d = self.filter_dict.get('jvzi')
 
-            #判断是否购买 如果购买直接购买
-            # 判断是否是过期域名还是一口价域名   一口价域名直接保存到数据库
-            if self.main_filter['cate'] == '一口价':
-                self.log_queue.put({'ym': data['ym'], 'cause': '需要购买'})
-                # 判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
-                if self.filter_data['is_buy'] == 1:
-                    self.buy_ym(data)
+                    is_comp_title_mingan = 0 if d.get('jvzi_title_mingan') == None else d.get('jvzi_title_mingan')
+                    is_comp_neirong_mingan = 0 if d.get('jvzi_neirong_mingan') == None else d.get('jvzi_neirong_mingan')
+                    is_comp_soulu_mingan = 0 if d.get('jvzi_soulu_mingan') == None else d.get('jvzi_soulu_mingan')
+
+                    if [d['jvzi_age_1'], d['jvzi_age_2']] != ['0', '0']:
+                        d['jvzi_age_1'] = int(d['jvzi_age_1'])
+                        d['jvzi_age_2'] = 99999 if d['jvzi_age_2'] == '0' else int(d['jvzi_age_2'])
+                        age_num = detail['create_site_total_year']
+                        if age_num < d['jvzi_age_1'] or age_num > d['jvzi_age_2']:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put(f"桔子历史年龄不符 年龄为：{age_num} 设置区间为：{d['jvzi_age_1'], d['jvzi_age_2']}")
+                            continue
+                        # 获取自检词
+                    zijian = detail['zijian']
+                    if int(is_comp_title_mingan) == 1:
+                        if '标题敏感词' in zijian:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put( f'桔子标题有敏感词 ：{zijian}')
+                            continue
+                    if int(is_comp_soulu_mingan) == 1:
+                        if '收录敏感' in zijian or '百度敏感' in zijian:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put( f'桔子收录有敏感词 ：{zijian}')
+                            continue
+                    if int(is_comp_neirong_mingan) == 1:
+                        if '内容敏感词' in zijian:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put(f'桔子内容有敏感词 ：{zijian}')
+                            continue
+
+                    if [d['jvzi_five_1'], d['jvzi_five_2']] != ['0', '0']:
+                        d['jvzi_five_1'] = int(d['jvzi_five_1'])
+                        d['jvzi_five_2'] = 99999 if d['jvzi_five_2'] == '0' else int(d['jvzi_five_2'])
+                        five_create_store_num = detail['five_create_store_num']
+                        if five_create_store_num < d['jvzi_five_1'] or five_create_store_num > d['jvzi_five_2']:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put( f"桔子五年建站不符 年龄为：{five_create_store_num}  设置区间为：{d['jvzi_five_1'], d['jvzi_five_2']}")
+                            continue
+                    if [d['jvzi_lianxu_1'], d['jvzi_lianxu_2']] != ['0', '0']:
+                        d['jvzi_lianxu_1'] = int(d['jvzi_lianxu_1'])
+                        d['jvzi_lianxu_2'] = 99999 if d['jvzi_lianxu_2'] == '0' else int(d['jvzi_lianxu_2'])
+                        lianxu_num = detail['zuizhanglianxu']
+                        if lianxu_num < d['jvzi_lianxu_1'] or lianxu_num > d['jvzi_lianxu_2'] :
+                            self.update_is_search(data['id'])
+                            self.log_queue.put(f"桔子最长连续时长不符 为：{lianxu_num} 设置区间为：{d['jvzi_lianxu_1'], d['jvzi_lianxu_2']}")
+                            continue
+                    if [d['jvzi_five_lianxu_1'], d['jvzi_five_lianxu_2']] != ['0', '0']:
+                        d['jvzi_five_lianxu_1'] = int(d['jvzi_five_lianxu_1'])
+                        d['jvzi_five_lianxu_2'] = 99999 if d['jvzi_five_lianxu_2'] == '0' else int(d['jvzi_five_lianxu_2'])
+                        five_lianxu = detail['five_lianxu']
+                        if five_lianxu < five_lianxu[0] or five_lianxu > five_lianxu[1]:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put( f"桔子五年连续时长不符 为：{five_lianxu} 设置区间为：{d['jvzi_five_lianxu_1'], d['jvzi_five_lianxu_2']}")
+                            continue
+
+                    if [d['jvzi_tongyidu_1'], d['jvzi_tongyidu_2']] != ['0', '0']:
+                        d['jvzi_tongyidu_1'] = int(d['jvzi_tongyidu_1'])
+                        d['jvzi_tongyidu_2'] = 99999 if d['jvzi_tongyidu_2'] == '0' else int( d['jvzi_tongyidu_2'])
+                        tongyidu_num = detail['tongyidu']
+                        if tongyidu_num < d['jvzi_tongyidu_1'] or tongyidu_num >  d['jvzi_tongyidu_2']:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put( f"桔子统一度不符 为：{tongyidu_num} 设置区间为：{d['jvzi_tongyidu_1'], d['jvzi_tongyidu_2']}")
+                            continue
+                    if [d['jvzi_pingfen_1'], d['jvzi_pingfen_2']] != ['0', '0']:
+                        d['jvzi_pingfen_1'] = int(d['jvzi_pingfen_1'])
+                        d['jvzi_pingfen_2'] = 99999 if d['jvzi_pingfen_2'] == '0' else int(d['jvzi_pingfen_2'])
+                        score = detail['score']
+                        if score < d['jvzi_pingfen_1'] or score > d['jvzi_pingfen_2']:
+                            self.update_is_search(data['id'])
+                            self.log_queue.put( f"桔子统一度不符 为：{score} 设置区间为：{d['jvzi_pingfen_1'], d['jvzi_pingfen_2']}")
+                            continue
+
                     self.update_is_search(data['id'])
-                else:
-                    self.update_is_search(data['id'])
-                    self.save_buy_ym(data)
-            else:
-                self.update_is_search(data['id'])
-                self.save_buy_ym(data)
+                    # 判断是否购买 如果购买直接购买
+                    # 判断是否是过期域名还是一口价域名   一口价域名直接保存到数据库
+                    if self.main_filter['cate'] == '一口价':
+                        self.log_queue.put({'ym': data['ym'], 'cause': '需要购买'})
+                        # 判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
+                        if self.filter_data['is_buy'] == 1:
+                            self.buy_ym(data)
+                            self.update_is_search(data['id'])
+                        else:
+                            self.update_is_search(data['id'])
+                            self.save_buy_ym(data)
+                    else:
+                        self.update_is_search(data['id'])
+                        self.save_buy_ym(data)
+                except Exception as error:
+                    self.log_queue.put(f'桔子对比错误：{error}')
+
+
 
     def index(self):
         #初始化
@@ -841,7 +882,7 @@ class FilterYm():
         #判断是否使用桔子的筛选条件
         if self.filter_dict.get('jvzi') != None:
             #开启一个线程监控桔子数据
-            threading.Thread(target=self.get_jv_data).start()
+            threading.Thread(target=self.check_jvzi).start()
 
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()
