@@ -747,7 +747,7 @@ class FilterYm():
                 try:
                     detail = json.loads(data['detail'])
                 except Exception as error:
-                    self.log_queue.put(f'桔子解析错误 ：{data}')
+                    # self.log_queue.put(f'桔子解析错误 ：{data}')
                     continue
                 try:
                     d = self.filter_dict.get('jvzi')
@@ -839,18 +839,19 @@ class FilterYm():
                     self.update_is_search(data['id'])
                     # 判断是否购买 如果购买直接购买
                     # 判断是否是过期域名还是一口价域名   一口价域名直接保存到数据库
+
+                    # 判断是否是过期域名还是一口价域名   一口价域名直接保存到数据库
                     if self.main_filter['cate'] == '一口价':
                         self.log_queue.put({'ym': data['ym'], 'cause': '需要购买'})
                         # 判断是否真的购买 真的购买直接下单 不购买直接保存到数据库里
                         if self.filter_data['is_buy'] == 1:
                             self.buy_ym(data)
-                            self.update_is_search(data['id'])
                         else:
-                            self.update_is_search(data['id'])
                             self.save_buy_ym(data)
                     else:
-                        self.update_is_search(data['id'])
                         self.save_buy_ym(data)
+
+
                 except Exception as error:
                     self.log_queue.put(f'桔子对比错误：{error}')
 

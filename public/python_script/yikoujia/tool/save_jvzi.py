@@ -236,4 +236,4 @@ class JvZi():
 
 if __name__ == '__main__':
     # JvZi().get_histroy('houjinpeng.com')
-    JvZi().get_url()
+    JvZi().index()
