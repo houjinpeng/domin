@@ -802,10 +802,14 @@ class FilterYm():
                         d['jvzi_five_lianxu_1'] = int(d['jvzi_five_lianxu_1'])
                         d['jvzi_five_lianxu_2'] = 99999 if d['jvzi_five_lianxu_2'] == '0' else int(d['jvzi_five_lianxu_2'])
                         five_lianxu = detail['five_lianxu']
-                        if five_lianxu < five_lianxu[0] or five_lianxu > five_lianxu[1]:
+                        if five_lianxu < d['jvzi_five_lianxu_1'] or five_lianxu > d['jvzi_five_lianxu_2']:
                             self.update_is_search(data['id'])
                             self.log_queue.put( f"桔子五年连续时长不符 为：{five_lianxu} 设置区间为：{d['jvzi_five_lianxu_1'], d['jvzi_five_lianxu_2']}")
                             continue
+
+                    if d.get('jvzi_tongyidu_1') == None:
+                        d['jvzi_tongyidu_1'] = '0'
+                        d['jvzi_tongyidu_2'] = '0'
 
                     if [d['jvzi_tongyidu_1'], d['jvzi_tongyidu_2']] != ['0', '0']:
                         d['jvzi_tongyidu_1'] = int(d['jvzi_tongyidu_1'])
@@ -815,14 +819,22 @@ class FilterYm():
                             self.update_is_search(data['id'])
                             self.log_queue.put( f"桔子统一度不符 为：{tongyidu_num} 设置区间为：{d['jvzi_tongyidu_1'], d['jvzi_tongyidu_2']}")
                             continue
-                    if [d['jvzi_pingfen_1'], d['jvzi_pingfen_2']] != ['0', '0']:
-                        d['jvzi_pingfen_1'] = int(d['jvzi_pingfen_1'])
-                        d['jvzi_pingfen_2'] = 99999 if d['jvzi_pingfen_2'] == '0' else int(d['jvzi_pingfen_2'])
-                        score = detail['score']
-                        if score < d['jvzi_pingfen_1'] or score > d['jvzi_pingfen_2']:
-                            self.update_is_search(data['id'])
-                            self.log_queue.put( f"桔子统一度不符 为：{score} 设置区间为：{d['jvzi_pingfen_1'], d['jvzi_pingfen_2']}")
-                            continue
+
+                    try:
+                        if d.get('jvzi_pingfen_1') == None:
+                            d['jvzi_pingfen_1'] = '0'
+                            d['jvzi_pingfen_2'] = '0'
+
+                        if [d['jvzi_pingfen_1'], d['jvzi_pingfen_2']] != ['0', '0']:
+                            d['jvzi_pingfen_1'] = int(d['jvzi_pingfen_1'])
+                            d['jvzi_pingfen_2'] = 99999 if d['jvzi_pingfen_2'] == '0' else int(d['jvzi_pingfen_2'])
+                            score = detail['score']
+                            if score < d['jvzi_pingfen_1'] or score > d['jvzi_pingfen_2']:
+                                self.update_is_search(data['id'])
+                                self.log_queue.put( f"桔子统一度不符 为：{score} 设置区间为：{d['jvzi_pingfen_1'], d['jvzi_pingfen_2']}")
+                                continue
+                    except Exception as error:
+                        self.log_queue.put(f'桔子评分对比错误：{error}')
 
                     self.update_is_search(data['id'])
                     # 判断是否购买 如果购买直接购买

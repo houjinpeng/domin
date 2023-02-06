@@ -756,8 +756,8 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    # jkt_id = 78 #测试桔子
-    jkt_id = 77 #测试过期域名
+    jkt_id = 78 #测试桔子
+    # jkt_id = 77 #测试过期域名
     # jkt_id = 45
     filter = SearchYmAndFilter(jkt_id).index()
     # filter = SearchYmAndFilter(40).index()
