@@ -785,7 +785,7 @@ class FilterYm():
                     if [d['jvzi_five_1'], d['jvzi_five_2']] != ['0', '0']:
                         d['jvzi_five_1'] = int(d['jvzi_five_1'])
                         d['jvzi_five_2'] = 99999 if d['jvzi_five_2'] == '0' else int(d['jvzi_five_2'])
-                        five_create_store_num = detail['five_create_store_num']
+                        five_create_store_num = detail['five_create_site']
                         if five_create_store_num < d['jvzi_five_1'] or five_create_store_num > d['jvzi_five_2']:
                             self.update_is_search(data['id'])
                             self.log_queue.put( f"桔子五年建站不符 年龄为：{five_create_store_num}  设置区间为：{d['jvzi_five_1'], d['jvzi_five_2']}")
