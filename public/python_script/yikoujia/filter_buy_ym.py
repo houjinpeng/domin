@@ -497,7 +497,7 @@ class FilterYm():
             #如果是一口先判断是否合适
             if self.main_filter['cate'] == '一口价':
                 try:
-                    self.out_ym.insert_one({'ym': domain_data['ym'], 'type': 'zhi', 'filter_id': self.filter_id})
+                    # self.out_ym.insert_one({'ym': domain_data['ym'], 'type': 'zhi', 'filter_id': self.filter_id})
                     if self.filter_data['place_1'] > int(domain_data['jg']) or int(domain_data['jg']) > self.filter_data['place_2']:
                         self.log_queue.put(f'购买金额不符 域名：{domain_data["ym"]}价格：{domain_data["jg"]}')
                         self.save_out_data(domain_data)
