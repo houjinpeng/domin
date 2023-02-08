@@ -4,7 +4,7 @@ import time
 import requests
 import json
 from conf.config import *
-
+from pymysql.converters import escape_string
 from dbutils.pooled_db import PooledDB
 from lxml import etree
 import re
@@ -166,8 +166,8 @@ class JvZi():
 
                         ym_dict['ym_url'] = 'https://seo.juziseo.com'+a.xpath('.//@href')[0]
 
-
-                        update_sql = "update search_jvzi_data set ym_url='%s',is_search=1,detail='%s' where ym='%s'" % (ym_dict['ym_url'], json.dumps(ym_dict),ym_str)
+                        update_sql = "update search_jvzi_data set ym_url='%s',is_search=1,detail='%s' where ym='%s'" % (ym_dict['ym_url'], escape_string(json.dumps(ym_dict)), ym_str)
+                        # update_sql = "update search_jvzi_data set ym_url='%s',is_search=1,detail='%s' where ym='%s'" % (ym_dict['ym_url'], str(ym_dict),ym_str)
                         cur.execute(update_sql)
                         conn.commit()
 
