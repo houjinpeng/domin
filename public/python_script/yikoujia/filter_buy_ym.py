@@ -752,9 +752,9 @@ class FilterYm():
                 try:
                     d = self.filter_dict.get('jvzi')
 
-                    is_comp_title_mingan = 0 if d.get('jvzi_title_mingan') == None else d.get('jvzi_title_mingan')
-                    is_comp_neirong_mingan = 0 if d.get('jvzi_neirong_mingan') == None else d.get('jvzi_neirong_mingan')
-                    is_comp_soulu_mingan = 0 if d.get('jvzi_soulu_mingan') == None else d.get('jvzi_soulu_mingan')
+                    is_comp_title_mingan = 0 if d.get('jvzi_title_mingan') == None else int(d.get('jvzi_title_mingan'))
+                    is_comp_neirong_mingan = 0 if d.get('jvzi_neirong_mingan') == None else int(d.get('jvzi_neirong_mingan'))
+                    is_comp_soulu_mingan = 0 if d.get('jvzi_soulu_mingan') == None else int(d.get('jvzi_soulu_mingan'))
 
                     if [d['jvzi_age_1'], d['jvzi_age_2']] != ['0', '0']:
                         d['jvzi_age_1'] = int(d['jvzi_age_1'])
