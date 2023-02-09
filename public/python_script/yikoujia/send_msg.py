@@ -23,6 +23,8 @@ def select_data():
                 price = data['place']
                 main = data['main_name']
                 zhi = data['zhi_name']
+                if '失败' in zhi:
+                    continue
                 msg = f"用户: 3198\n购买域名：{ym} \n金额：{price}\n主线：{main}\n支线：{zhi}\n时间：{t}\n"
 
                 #修改
