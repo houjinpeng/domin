@@ -127,6 +127,8 @@ class JvZi():
                             ym_dict['score'] = int(data_obj[0].xpath('.//b/text()')[-1])
                         except:
                             ym_dict['score'] = 0
+                            print('未查到域名评分 稍后再查')
+                            continue
                         try:
                             # 自检
                             ym_dict['zijian'] = '|'.join(data_obj[0].xpath('.//span[@class="label label-warning show-tips"]//text()'))
@@ -235,5 +237,5 @@ class JvZi():
 
 
 if __name__ == '__main__':
-    # JvZi().get_histroy('houjinpeng.com')
-    JvZi().index()
+    JvZi().get_histroy([{'ym':'ivcv.cn'}])
+    # JvZi().index()
