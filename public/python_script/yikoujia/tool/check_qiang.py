@@ -48,7 +48,7 @@ def get_proxy():
                 proxy_queue.put(ip)
         except Exception as e:
             time.sleep(1)
-            print(e)
+            print(f'获取墙错误51行：{e}')
             continue
 
 threading.Thread(target=get_proxy).start()
@@ -177,7 +177,7 @@ class Qiang():
                 return self.get_token(domain)
             self.key = re.findall("key='(.*?)'", resp.text)[0]
         except Exception as e:
-            print(e)
+            print(f'检测墙错误 180行：{e}')
             self.get_proxy()
             return self.get_token(domain)
 
@@ -332,7 +332,7 @@ class Qiang():
             return self.get_icp(domain, self.token, csrf, self.auth, self.session)
 
         except Exception as e:
-            print(e)
+            print(f'检测墙335行错误：{e}')
             return self.get_icp(domain, self.token, response, self.auth, self.session)
 
 if __name__ == '__main__':

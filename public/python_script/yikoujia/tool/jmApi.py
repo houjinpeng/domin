@@ -82,7 +82,7 @@ class JmApi():
             return response
         except Exception as e:
             time.sleep(2)
-            print(e)
+            print(f'聚名api 获取店铺数据85行错误：{e}')
             return self.get_store_info(store_id)
 
     #一口价下单

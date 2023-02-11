@@ -78,7 +78,7 @@ class SearchYmAndFilter():
                 threading.Thread(target=server.serve_forever).start()
                 break
             except Exception as e:
-                print(e)
+                print(f'主线81行错误：{e}')
 
     #定时清除任务线程
     def clear_data(self):

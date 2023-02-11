@@ -33,7 +33,7 @@ def get_proxy():
                 proxy_queue.put(ip)
         except Exception as e:
             time.sleep(1)
-            print(e)
+            print(f'搜狗 36行错误： {e}')
             continue
 
 # threading.Thread(target=get_proxy).start()
