@@ -12,7 +12,7 @@ def get_proxy():
         if proxy_queue.qsize()> 100:
             time.sleep(2)
             continue
-        url = 'http://39.104.96.30:8888/SML.aspx?action=GetIPAPI&OrderNumber=98b90a0ef0fd11e6d054dcf38e343fe927999888&poolIndex=1628048006&poolnumber=0&cache=1&ExpectedIPtime=&Address=&cachetimems=0&Whitelist=&isp=&qty=20'
+        url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'
         try:
             r = requests.get(url, timeout=3)
             if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:

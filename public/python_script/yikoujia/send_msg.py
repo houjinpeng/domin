@@ -20,7 +20,7 @@ def select_data():
             for data in all_data:
                 ym = data['ym']
                 t = data['place_time']
-                price = data['place']
+                price = data['price']
                 main = data['main_name']
                 zhi = data['zhi_name']
                 if '失败' in zhi:
