@@ -267,6 +267,6 @@ class BeiAn():
             return result
 
 if __name__ == '__main__':
-    data = BeiAn().beian_info('sdfs123adssdsda.com')
+    data = BeiAn().beian_info('baidu.com')
     print(data)
 
