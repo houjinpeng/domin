@@ -315,11 +315,14 @@ class SearchYmAndFilter():
         if self.filter['cate'] == '过期域名':
             while not self.task_queue.empty():
                 ym_data = self.task_queue.get()
+
+                start_time = int(time.time())
                 # print(f'备案剩余任务：{self.task_queue.qsize()}')
                 info = beian.beian_info(ym_data['ym'])
 
                 # 查询库中是否存在 不存在插入 存在更新
                 if info == None:
+                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time()-start_time)}')
                     self.task_queue.put(ym_data)
                     continue
                 try:
@@ -329,13 +332,13 @@ class SearchYmAndFilter():
                     if info['params']['total'] != 0:
                         self.save_mysql(ym_data, 'beian', info)
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
                     else:
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
                 except Exception as error:
                     print(f'备案错误：{error}')
-                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
+                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error}  本次运行时间：{int(time.time()-start_time)} ')
 
         else:
             while True:
@@ -345,11 +348,13 @@ class SearchYmAndFilter():
 
 
                 ym_data = self.task_queue.get()
+                start_time = int(time.time())
                 # print(f'备案剩余任务：{self.task_queue.qsize()}')
                 info = beian.beian_info(ym_data['ym'])
 
                 # 查询库中是否存在 不存在插入 存在更新
                 if info == None:
+                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time() - start_time)}')
                     self.task_queue.put(ym_data)
                     continue
                 try:
@@ -359,10 +364,10 @@ class SearchYmAndFilter():
                     if info['params']['total'] != 0:
                         self.save_mysql(ym_data,'beian',info)
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
                     else:
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
                 except Exception as error:
                     print(f'备案错误：{error}')
                     self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
@@ -450,6 +455,7 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
+
             self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             history_info = history_obj.get_history(ym_data)
             if history_info == None:
