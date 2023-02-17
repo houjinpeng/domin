@@ -15,14 +15,14 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 10:
+        if proxy_queue.qsize() > 10:
             time.sleep(2)
             continue
         url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'
         try:
-            r = requests.get(url, timeout=3)
+            r = requests.get(url, timeout=4)
             if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
-                print('尝试修改提取筛选参数')
+                print(r.text)
                 time.sleep(20)
                 continue
             ip_list = r.text.split('\r\n')

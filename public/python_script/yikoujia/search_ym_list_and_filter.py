@@ -140,7 +140,7 @@ class SearchYmAndFilter():
                                 time.sleep(2)
                                 continue
                             msg = self.log_queue.get()
-                            fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg).strip()}\n')
+                            fw.write(f'{str(msg).strip()}\n')
                             fw.flush()
                 elif self.filter['cate'] == '过期域名':
                     with open(f'{dir_path}/main_log/main_{self.filter_id}.log', 'a', encoding='utf-8') as fw:
@@ -264,14 +264,14 @@ class SearchYmAndFilter():
             if onece:
                 onece = False
                 for i in range(1, 1000000):
-                    self.log_queue.put(f'开始查询列表第{i}页')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 开始查询列表第{i}页')
                     self.data['page'] = i
                     info = self.jm_api.get_ykj_list(self.data)
                     # 修改总数
                     update_sql = "update ym_yikoujia_jkt set filter_count= %s  where id=%s" % (info['count'],self.filter['id'])
                     cur.execute(update_sql)
                     conn.commit()
-                    # self.log_queue.put(f'查询总数：{info["count"]}')
+                    # self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 查询总数：{info["count"]}')
                     self.parse_info(info)
                     if info['data'] == []:
                         break
@@ -305,7 +305,7 @@ class SearchYmAndFilter():
             self.mycol.insert_one(data)
 
         except Exception as error:
-            self.log_queue.put(f'保存数据库错误:{error}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 保存数据库错误:{error}')
             print(f'保存数据库错误:{error}')
 
 
@@ -322,7 +322,7 @@ class SearchYmAndFilter():
 
                 # 查询库中是否存在 不存在插入 存在更新
                 if info == None:
-                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time()-start_time)}秒')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time()-start_time)}秒')
                     self.task_queue.put(ym_data)
                     continue
                 try:
@@ -332,13 +332,13 @@ class SearchYmAndFilter():
                     if info['params']['total'] != 0:
                         self.save_mysql(ym_data, 'beian', info)
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                     else:
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                 except Exception as error:
                     print(f'备案错误：{error}')
-                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error}  本次运行时间：{int(time.time()-start_time)}秒 ')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  错误：{error}  本次运行时间：{int(time.time()-start_time)}秒 ')
 
         else:
             while True:
@@ -354,7 +354,7 @@ class SearchYmAndFilter():
 
                 # 查询库中是否存在 不存在插入 存在更新
                 if info == None:
-                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time() - start_time)}秒')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time() - start_time)}秒')
                     self.task_queue.put(ym_data)
                     continue
                 try:
@@ -364,13 +364,13 @@ class SearchYmAndFilter():
                     if info['params']['total'] != 0:
                         self.save_mysql(ym_data,'beian',info)
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                     else:
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                 except Exception as error:
                     print(f'备案错误：{error}')
-                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
 
     #过滤百度
     def baidu_worker(self):
@@ -391,9 +391,9 @@ class SearchYmAndFilter():
             if int(info['sl']) > 0:
                 # 有直接放入redis 没有过滤
                 self.save_mysql(ym_data, 'baidu', info)
-                self.log_queue.put(f'百度 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 百度 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
-                self.log_queue.put(f'百度 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 百度 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
 
     # 过滤搜狗
@@ -416,9 +416,9 @@ class SearchYmAndFilter():
             if info['sl'] > 0:
                 # 有直接放入redis 没有过滤
                 self.save_mysql(ym_data, 'sogou', info)
-                self.log_queue.put(f'搜狗 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 搜狗 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
-                self.log_queue.put(f'搜狗 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 搜狗 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
 
     # 过滤360
@@ -440,9 +440,9 @@ class SearchYmAndFilter():
             if info['sl'] > 0:
                 # 有直接放入redis 没有过滤
                 self.save_mysql(ym_data, 'so', info)
-                self.log_queue.put(f'360 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 360 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
-                self.log_queue.put(f'360 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 360 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
 
 
@@ -456,32 +456,32 @@ class SearchYmAndFilter():
                 continue
             ym_data = self.task_queue.get()
 
-            self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 历史 查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             history_info = history_obj.get_history(ym_data)
             if history_info == None:
-                self.log_queue.put(f'历史 查询失败  域名有问题 {ym_data["ym"]} {ym_data["token"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 历史 查询失败  域名有问题 {ym_data["ym"]} {ym_data["token"]}')
                 continue
 
             if history_info == False:
                 self.task_queue.put(ym_data)
-                self.log_queue.put(f'历史 查询失败  重新查询 {ym_data["ym"]} {ym_data["token"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 历史 查询失败  重新查询 {ym_data["ym"]} {ym_data["token"]}')
                 continue
             self.out_ym.insert_one({'ym': ym_data['ym'], 'type': 'main', 'filter_id':self.filter_id})
 
             try:
                 if history_info['count'] == None:
-                    self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
                     continue
                 if int(history_info['count']) > 0 :
                     # 有直接放入redis 没有过滤
                     self.save_mysql(ym_data, 'history', history_info)
-                    self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 历史 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
                 else:
                     # 有直接放入redis 没有过滤
-                    self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]}')
             except Exception as e:
                 # 有直接放入redis 没有过滤
-                self.log_queue.put(f'历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]} 错误:{e}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 历史 查询剩余任务：{self.task_queue.qsize()}  过滤域名 {ym_data["ym"]} 错误:{e}')
 
     #直接放入查询队列中
     def wu_work(self):
@@ -491,9 +491,9 @@ class SearchYmAndFilter():
                 time.sleep(1)
                 continue
             ym_data = self.task_queue.get()
-            self.log_queue.put(f'查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 查询剩余任务：{self.task_queue.qsize()} 当前数据:{ym_data["ym"]}')
             self.save_mysql(ym_data, 'wu', 'wu')
-            # self.log_queue.put(f'插入购买查询队列中 {ym_data}')
+            # self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 插入购买查询队列中 {ym_data}')
 
     #注册商
     def zcs_worker(self):
@@ -506,9 +506,9 @@ class SearchYmAndFilter():
 
             if ym_data['zcs'] != '':
                 self.save_mysql(ym_data, 'zcs', ym_data['zcs'])
-                self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 注册商 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
-                self.log_queue.put(f'注册商 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 注册商 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
     # 爱站
     def aizhan_worker(self):
@@ -532,9 +532,9 @@ class SearchYmAndFilter():
                     is_have = True
             if is_have == True:
                 self.save_mysql(ym_data, 'aizhan', info)
-                self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 爱站 查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}')
             else:
-                self.log_queue.put(f'爱站 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 爱站 查询剩余任务：{self.task_queue.qsize()} 过滤当前数据:{ym_data["ym"]}')
 
     #主程序
     def index(self):
@@ -566,8 +566,8 @@ class SearchYmAndFilter():
         del all_out_data
 
         self.p_id = os.getpid()
-        self.log_queue.put(f'任务进程号：{self.p_id}')
-        self.log_queue.put(f'查询表单：{self.data}')
+        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 任务进程号：{self.p_id}')
+        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} {str(datetime.datetime.now())[:19]} 查询表单：{self.data}')
         # 修改状态 进行中
         self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
 

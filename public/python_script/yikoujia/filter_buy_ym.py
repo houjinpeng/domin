@@ -75,10 +75,10 @@ class Client():
 
                 for d in new_data_list:
                     self.queue.put(d)
-                    self.log_queue.put(f'本次插入队列数据:{d["ym"]}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  本次插入队列数据:{d["ym"]}')
             except Exception as e:
                 print(f'获取数据错误：{e}')
-                self.log_queue.put(f'获取数据错误：{e}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  获取数据错误：{e}')
 
 #启动插入日志队列
 
@@ -205,7 +205,7 @@ class FilterYm():
     #         # 存入任务队列
     #         for data in new_data:
     #             self.work_queue.put(data)
-    #         self.log_queue.put(f'本次插入队列数据:{len(new_data)}')
+    #         self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  本次插入队列数据:{len(new_data)}')
     #         time.sleep(1)
 
     # 修改爬虫状态
@@ -261,7 +261,7 @@ class FilterYm():
                             time.sleep(2)
                             continue
                         msg = self.log_queue.get()
-                        fw.write(f'{str(datetime.datetime.now())[:19]} {str(msg).strip()}\n')
+                        fw.write(f'{str(msg).strip()}\n')
                         fw.flush()
 
             except Exception :
@@ -303,18 +303,18 @@ class FilterYm():
                 if self.filter_data['is_buy_sh'] == 1:
                     resp = jm_api.buy_ykj(domain_data['ym'], domain_data['jg'],ty=3)
                     if resp['code'] == 1:
-                        self.log_queue.put(f'{domain_data["ym"]} 可赎回域名 购买成功')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  {domain_data["ym"]} 可赎回域名 购买成功')
                         self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'], main=self.main_filter['title'], price=domain_data['jg'])
                     else:
-                        self.log_queue.put(f'购买失败 {resp}')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  购买失败 {resp}')
                         self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'] + ' 失败',main=self.main_filter['title'] + ' 失败', price=domain_data['jg'])
 
                 else:
-                    self.log_queue.put(f'{domain_data["ym"]} 可赎回域名不购买')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  {domain_data["ym"]} 可赎回域名不购买')
 
         else:
             self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title']+' 失败', main=self.main_filter['title']+' 失败', price=domain_data['jg'])
-            self.log_queue.put(f'购买失败 {resp}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  购买失败 {resp}')
 
     # 备案对比
     def comp_beian(self, domain, beian):
@@ -325,7 +325,7 @@ class FilterYm():
         if beian_info == None:
             # domain['cause'] = '没有备案'
             # out_ym_quque.put(domain)
-            self.log_queue.put(f'查询备案失败，重新放入列表重新查询  {domain["domain"]}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  查询备案失败，重新放入列表重新查询  {domain["domain"]}')
             # self.work_queue.put(domain)
             return self.comp_beian(domain, beian)
 
@@ -333,13 +333,13 @@ class FilterYm():
             # 没有备案的过滤
             if len(beian_info['params']['list']) == 0:
                 domain['cause'] = '没有备案'
-                # self.log_queue.put(f' 域名为：{domain["ym"]} 备案 {domain["cause"]}')
+                # self.log_queue.put(f'{str(datetime.datetime.now())[:19]}   域名为：{domain["ym"]} 备案 {domain["cause"]}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
             xingzhi = beian_info['params']['list'][0]['natureName']
             if xingzhi in self.filter_dict['beian']['beian_xz'].split(','):
                 domain['cause'] = f'备案 域名性质为：{xingzhi}'
-                # self.log_queue.put(f'域名为：{domain["ym"]} 备案 域名性质为：{xingzhi}')
+                # self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  域名为：{domain["ym"]} 备案 域名性质为：{xingzhi}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
 
@@ -347,7 +347,7 @@ class FilterYm():
             # 判断备案号 大于自定义号码的过滤
             if int(self.filter_dict['beian']['beian_suffix']) < int(beiai_num.split('-')[1]):
                 domain['cause'] = f"备案号为：{beiai_num.split('-')[1]} 您设置的备案号为：{self.filter_dict['beian']['beian_suffix']}"
-                # self.log_queue.put(f'域名为：{domain["ym"]} 备案 {domain["cause"]}')
+                # self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  域名为：{domain["ym"]} 备案 {domain["cause"]}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
 
@@ -356,20 +356,20 @@ class FilterYm():
             day = (datetime.datetime.now() - datetime.datetime.strptime(up_time, '%Y-%m-%d %H:%M:%S')).days
             if day <= int(self.filter_dict['beian']['beian_pcts']):
                 domain['cause'] = f"备案历史审核时间为：{day}天  您设置的审核时间为：{self.filter_dict['beian']['beian_pcts']}天"
-                # self.log_queue.put(f'域名为：{domain["ym"]} 备案 {domain["cause"]}')
+                # self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  域名为：{domain["ym"]} 备案 {domain["cause"]}')
                 # out_ym_quque.put(domain)
                 return domain['cause']
             return True
         except Exception as e:
             domain['cause'] = str(e)
-            self.log_queue.put(f'过滤备案错误：{e}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  过滤备案错误：{e}')
             return e
 
     # 对比敏感词
     def check_mingan(self, history_data):
         try:
             if history_data['data'] == None:
-                self.log_queue.put(f'剩余任务：{self.work_queue.qsize()}   历史对比完毕 没有历史')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  剩余任务：{self.work_queue.qsize()}   历史对比完毕 没有历史')
                 return True
         except Exception as e:
             return '没有历史'
@@ -493,17 +493,17 @@ class FilterYm():
 
             # 获取域名
             domain_data = self.work_queue.get()
-            self.log_queue.put(f'剩余任务:{self.work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  剩余任务:{self.work_queue.qsize()}  域名开始对比：{domain_data["ym"]}')
             #如果是一口先判断是否合适
             if self.main_filter['cate'] == '一口价':
                 try:
                     # self.out_ym.insert_one({'ym': domain_data['ym'], 'type': 'zhi', 'filter_id': self.filter_id})
                     if self.filter_data['place_1'] > int(domain_data['jg']) or int(domain_data['jg']) > self.filter_data['place_2']:
-                        self.log_queue.put(f'购买金额不符 域名：{domain_data["ym"]}价格：{domain_data["jg"]}')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  购买金额不符 域名：{domain_data["ym"]}价格：{domain_data["jg"]}')
                         self.save_out_data(domain_data)
                         continue
                 except Exception as error:
-                    self.log_queue.put(f'对比金额错误： {error}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比金额错误： {error}')
                     continue
 
 
@@ -516,7 +516,7 @@ class FilterYm():
                         self.save_out_data(domain_data)
                         continue
             except Exception as error:
-                self.log_queue.put(f'对比历史错误： {error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比历史错误： {error}')
                 continue
             try:
                 # 备案
@@ -527,7 +527,7 @@ class FilterYm():
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
                         continue
             except Exception as error:
-                self.log_queue.put(f'对比备案错误： {error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比备案错误： {error}')
                 continue
             try:
                 # 搜狗
@@ -538,14 +538,14 @@ class FilterYm():
                         data = sogou.get_info(domain_data['ym'])
                     if data == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'搜狗获取错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  搜狗获取错误重新获取')
                         continue
                     is_ok = sogou.check_sogou(data['html'], [self.filter_dict['sogou']['sogou_sl_1'],self.filter_dict['sogou']['sogou_sl_2']],self.filter_dict['sogou']['sogou_kz'],domain=domain_data['ym'],sogou_is_com_word=self.filter_dict['sogou']['sogou_is_com_word'],jg=self.filter_dict['sogou']['sogou_jg'])
                     if is_ok != True:
                         self.log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
             except Exception as error:
-                self.log_queue.put(f'对比搜狗错误： {error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比搜狗错误： {error}')
                 continue
             try:
                 # 注册商
@@ -555,7 +555,7 @@ class FilterYm():
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': '注册商包含非法字符串'})
                         continue
             except Exception as error:
-                self.log_queue.put(f'对比注册商错误： {error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比注册商错误： {error}')
                 continue
             try:
                 # # 360
@@ -566,7 +566,7 @@ class FilterYm():
                         data = so.get_info(domain_data['ym'])
                     if data == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'360获取错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  360获取错误重新获取')
                         continue
                     is_ok = so.check_360(data['html'],domain_data['ym'])
                     if is_ok == '请求失败':
@@ -577,7 +577,7 @@ class FilterYm():
                         self.log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
             except Exception as error:
-                self.log_queue.put(f'对比360错误： {error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比360错误： {error}')
                 continue
             try:
                 # 百度
@@ -588,7 +588,7 @@ class FilterYm():
                         data = baidu.get_info(domain_data['ym'])
                     if data == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'百度获取错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  百度获取错误重新获取')
                         continue
                     is_ok = baidu.check_baidu(data, domain_data['ym'])
                     if is_ok == '请求失败':
@@ -599,7 +599,7 @@ class FilterYm():
                         self.log_queue.put({'ym': domain_data['ym'],  'cause': is_ok})
                         continue
             except Exception as error:
-                self.log_queue.put(f'对比百度错误： {error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比百度错误： {error}')
                 continue
             try:
                 # 爱站
@@ -610,7 +610,7 @@ class FilterYm():
                         data = aizhan_obj.get_info(domain_data['ym'])
                     if data == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'爱站获取错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  爱站获取错误重新获取')
                         continue
                     is_ok = aizhan_obj.check_aizhan(data)
 
@@ -619,7 +619,7 @@ class FilterYm():
                         self.log_queue.put({'ym': domain_data['ym'], 'cause': is_ok})
                         continue
             except Exception as error:
-                self.log_queue.put(f'对比爱站错误： {error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  对比爱站错误： {error}')
                 continue
             try:
                 # 最后判断是否被墙 如果被墙不买
@@ -627,7 +627,7 @@ class FilterYm():
                     r = qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'获取墙错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  获取墙错误重新获取')
                         # self.save_out_data(domain_data)
                         continue
                     if r['msg'] == '被墙':
@@ -640,7 +640,7 @@ class FilterYm():
                     r = qiang.get_wx_data(domain_data['ym'])
                     if r == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'检测微信是否被墙错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  检测微信是否被墙错误重新获取')
 
                         # self.save_out_data(domain_data)
                         continue
@@ -653,7 +653,7 @@ class FilterYm():
                     r = qiang.get_qq_data(domain_data['ym'])
                     if r == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'检测QQ是否被墙错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  检测QQ是否被墙错误重新获取')
                         # self.save_out_data(domain_data)
                         continue
                     if '拦截' in r['msg'] :
@@ -665,7 +665,7 @@ class FilterYm():
                     r = qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'检测备案黑名单错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  检测备案黑名单错误重新获取')
                         # self.save_out_data(domain_data)
                         continue
                     if r['msg'] != '正常':
@@ -677,7 +677,7 @@ class FilterYm():
                     r = qiang.get_beian_data(domain_data['ym'])
                     if r == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'检测备案建站记录 错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  检测备案建站记录 错误重新获取')
                         # self.save_out_data(domain_data)
                         continue
                     if r['data'].get('icp') == '':
@@ -686,7 +686,7 @@ class FilterYm():
                         continue
 
             except Exception as error:
-                self.log_queue.put(f'判断被墙错误：{error} 失败域名:{domain_data["ym"]}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  判断被墙错误：{error} 失败域名:{domain_data["ym"]}')
 
             try:
                 #判断桔子数据
@@ -747,7 +747,7 @@ class FilterYm():
                 try:
                     detail = json.loads(data['detail'])
                 except Exception as error:
-                    # self.log_queue.put(f'桔子解析错误 ：{data}')
+                    # self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  桔子解析错误 ：{data}')
                     continue
                 try:
                     d = self.filter_dict.get('jvzi')
@@ -779,7 +779,7 @@ class FilterYm():
                     if int(is_comp_neirong_mingan) == 1:
                         if '内容敏感词' in zijian:
                             self.update_is_search(data['id'])
-                            self.log_queue.put(f'桔子内容有敏感词 ：{zijian}')
+                            self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  桔子内容有敏感词 ：{zijian}')
                             continue
 
                     if [d['jvzi_five_1'], d['jvzi_five_2']] != ['0', '0']:
@@ -834,7 +834,7 @@ class FilterYm():
                                 self.log_queue.put( f"桔子统一度不符 为：{score} 设置区间为：{d['jvzi_pingfen_1'], d['jvzi_pingfen_2']}")
                                 continue
                     except Exception as error:
-                        self.log_queue.put(f'桔子评分对比错误：{error}')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  桔子评分对比错误：{error}')
 
                     self.update_is_search(data['id'])
                     # 判断是否购买 如果购买直接购买
@@ -853,7 +853,7 @@ class FilterYm():
 
 
                 except Exception as error:
-                    self.log_queue.put(f'桔子对比错误：{error}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  桔子对比错误：{error}')
 
 
 
@@ -900,7 +900,7 @@ class FilterYm():
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()
 
-        self.log_queue.put(f'任务进程号：{os.getpid()}')
+        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  任务进程号：{os.getpid()}')
         # 修改状态 进行中
         self.update_spider_status('ym_yikoujia_buy_filter', self.filter_data['id'], 1)
 

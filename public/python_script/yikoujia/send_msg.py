@@ -1,3 +1,4 @@
+import datetime
 import json
 import time
 
@@ -18,6 +19,12 @@ def select_data():
             cur.execute(select_sql)
             all_data = cur.fetchall()
             for data in all_data:
+                today_sql = f"SELECT count(*) as c FROM all_buy_ym where place_time >= '{str(datetime.datetime.now())[:10]}' and main_name NOT LIKE '%失败%'"
+                cur.execute(today_sql)
+                count = cur.fetchone()
+
+
+
                 ym = data['ym']
                 t = data['place_time']
                 price = data['price']
@@ -25,7 +32,7 @@ def select_data():
                 zhi = data['zhi_name']
                 if '失败' in zhi:
                     continue
-                msg = f"用户: 3198\n购买域名：{ym} \n金额：{price}\n主线：{main}\n支线：{zhi}\n时间：{t}\n"
+                msg = f"今日购买：{count['c']}个域名\n用户：3198\n购买域名：{ym} \n金额：{price}\n主线：{main}\n支线：{zhi}\n时间：{t}\n"
 
                 #修改
                 cur.execute("update all_buy_ym set is_send=1 where id=%s"%data['id'])

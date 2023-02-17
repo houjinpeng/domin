@@ -19,10 +19,10 @@ mysql_pool_conf = {
 }
 
 db_pool = PooledDB(**mysql_pool_conf)
-proxies = {
-    "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-    "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-}
+# proxies = {
+#     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+#     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
+# }
 # 连接redis
 redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 
@@ -64,24 +64,22 @@ class Qiang():
         self.auth = ''
         self.session = ''
 
+
     # 设置代理
     def get_proxy(self):
         try:
-            # ip =proxy_queue.get()
-            # if ip == None:
-            #     print('查找墙 没有ip可用啦 快快ip安排~~~~~')
-            #     time.sleep(5)
-            #     return self.get_proxy()
-            # proxies = {
-            #     'http': f'http://{ip}',
-            #     'https': f'http://{ip}'
-            # }
+            ip =proxy_queue.get()
+            if ip == None:
+                print('查找墙 没有ip可用啦 快快ip安排~~~~~')
+                time.sleep(5)
+                return self.get_proxy()
+            proxies = {
+                'http': f'http://{ip}',
+                'https': f'http://{ip}'
+            }
             self.s = requests.session()
-            # self.proxies = proxies
-            # proxies = {
-            #     "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            #     "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            # }
+            self.proxies = proxies
+
             # self.s.proxies.update(proxies)
 
             return proxies
@@ -276,15 +274,17 @@ class Qiang():
                 'X-Requested-With': 'XMLHttpRequest'
             }
 
-            response = self.chinac_s.post(url, headers=headers, data=payload,timeout=10,proxies=proxies).json()
+            response = self.chinac_s.post(url, headers=headers, data=payload,timeout=10,proxies=self.proxies).json()
             if response['code'] == -1:
-                print(f'重新请求 csrf {response["msg"]} {proxies}')
+                print(f'重新请求 csrf {response["msg"]} {self.proxies}')
                 # self.s = requests.session()
+                self.get_proxy()
                 self.chinac_s = requests.session()
                 return self.get_csrf(domain)
 
             return response
         except Exception as e:
+            self.get_proxy()
             self.chinac_s = requests.session()
             return self.get_csrf(domain)
 
@@ -314,7 +314,7 @@ class Qiang():
                 'X-Requested-With': 'XMLHttpRequest'
             }
 
-            result = self.chinac_s.request("POST", url, headers=headers, data=payload,timeout=10,proxies=proxies).json()
+            result = self.chinac_s.request("POST", url, headers=headers, data=payload,timeout=10,proxies=self.proxies).json()
             if result['code'] == 2001:
                 self.chinac_s = requests.session()
                 return self.get_icp(domain, self.token, response, self.auth, self.session)
@@ -431,11 +431,11 @@ if __name__ == '__main__':
     for ym in ym_list:
         print(ym)
         print(q.get_qiang_data(ym))
-        print(q.get_wx_data(ym))
-        print(q.get_qq_data(ym))
-        print(q.get_beian_hmd_data(ym))
-        j = q.get_beian_data(ym)
-        print(j)
+        # print(q.get_wx_data(ym))
+        # print(q.get_qq_data(ym))
+        # print(q.get_beian_hmd_data(ym))
+        # j = q.get_beian_data(ym)
+        # print(j)
         # if j == None:
         #     print(f'ym :{ym} none')
         #     continue
