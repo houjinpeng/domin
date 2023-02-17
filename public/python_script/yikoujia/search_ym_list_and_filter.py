@@ -322,7 +322,7 @@ class SearchYmAndFilter():
 
                 # 查询库中是否存在 不存在插入 存在更新
                 if info == None:
-                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time()-start_time)}')
+                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time()-start_time)}秒')
                     self.task_queue.put(ym_data)
                     continue
                 try:
@@ -332,13 +332,13 @@ class SearchYmAndFilter():
                     if info['params']['total'] != 0:
                         self.save_mysql(ym_data, 'beian', info)
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                     else:
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                 except Exception as error:
                     print(f'备案错误：{error}')
-                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error}  本次运行时间：{int(time.time()-start_time)} ')
+                    self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error}  本次运行时间：{int(time.time()-start_time)}秒 ')
 
         else:
             while True:
@@ -354,7 +354,7 @@ class SearchYmAndFilter():
 
                 # 查询库中是否存在 不存在插入 存在更新
                 if info == None:
-                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time() - start_time)}')
+                    self.log_queue.put(f'备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time() - start_time)}秒')
                     self.task_queue.put(ym_data)
                     continue
                 try:
@@ -364,10 +364,10 @@ class SearchYmAndFilter():
                     if info['params']['total'] != 0:
                         self.save_mysql(ym_data,'beian',info)
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                     else:
                         # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}')
+                        self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
                 except Exception as error:
                     print(f'备案错误：{error}')
                     self.log_queue.put(f'备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
@@ -541,6 +541,8 @@ class SearchYmAndFilter():
         self.ym_set = set()
         self.db_pool = PooledDB(**mysql_pool_conf)
         self.myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+        # self.myclient = pymongo.MongoClient('mongodb://myspider:maiyuan123@127.0.0.1:27017/')
+
         self.mydb = self.myclient["domain"]
         self.jm_api = JmApi()
         self.filter = self.get_filter_data(self.filter_id)
@@ -652,7 +654,7 @@ class SearchYmAndFilter():
 
 if __name__ == '__main__':
     # jkt_id = sys.argv[1]
-    jkt_id = 78 #测试桔子
+    jkt_id = 47 #测试桔子
     # jkt_id = 77 #测试过期域名
     # jkt_id = 45
     filter = SearchYmAndFilter(jkt_id).index()
