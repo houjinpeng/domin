@@ -251,7 +251,7 @@ class SearchYmAndFilter():
 
         # 解析列表
         for data in new_data:
-            self.log_queue.put(f"插入域名：{data['ym']}-{data['jg']}")
+            self.log_queue.put(f"{str(datetime.datetime.now())[:19]}  插入域名：{data['ym']}-{data['jg']}")
             self.task_queue.put(data)
 
 
@@ -260,7 +260,9 @@ class SearchYmAndFilter():
         onece = True
         conn = self.db_pool.connection()
         cur = conn.cursor()
+        info = {'count':0}
         while True:
+            start_time = int(time.time())
             if onece:
                 onece = False
                 for i in range(1, 1000000):
@@ -285,7 +287,7 @@ class SearchYmAndFilter():
                 conn.commit()
                 self.parse_info(info)
 
-            # self.log_queue.put('本次查询任务结束')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 本次查询任务结束 耗时：{int(time.time())-start_time}秒  本次查询数据总数为：{info["count"]}')
             time.sleep(1)
 
 
@@ -312,65 +314,37 @@ class SearchYmAndFilter():
     #过滤备案
     def beian_worker(self):
         beian = BeiAn()
-        if self.filter['cate'] == '过期域名':
-            while not self.task_queue.empty():
-                ym_data = self.task_queue.get()
 
-                start_time = int(time.time())
-                # print(f'备案剩余任务：{self.task_queue.qsize()}')
-                info = beian.beian_info(ym_data['ym'])
-
-                # 查询库中是否存在 不存在插入 存在更新
-                if info == None:
-                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time()-start_time)}秒')
-                    self.task_queue.put(ym_data)
-                    continue
-                try:
-                    self.out_ym.insert_one({'ym': ym_data['ym'], 'type': 'main', 'filter_id': self.filter_id})
-
-                    # 判断是否有备案  如果有备案放入redis数据库中
-                    if info['params']['total'] != 0:
-                        self.save_mysql(ym_data, 'beian', info)
-                        # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
-                    else:
-                        # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
-                except Exception as error:
-                    print(f'备案错误：{error}')
-                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  错误：{error}  本次运行时间：{int(time.time()-start_time)}秒 ')
-
-        else:
-            while True:
-                if self.task_queue.empty():
-                    time.sleep(1)
-                    continue
+        while True:
+            if self.task_queue.empty():
+                time.sleep(1)
+                continue
 
 
-                ym_data = self.task_queue.get()
-                start_time = int(time.time())
-                # print(f'备案剩余任务：{self.task_queue.qsize()}')
-                info = beian.beian_info(ym_data['ym'])
+            ym_data = self.task_queue.get()
+            start_time = int(time.time())
+            # print(f'备案剩余任务：{self.task_queue.qsize()}')
+            info = beian.beian_info(ym_data['ym'])
 
-                # 查询库中是否存在 不存在插入 存在更新
-                if info == None:
-                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time() - start_time)}秒')
-                    self.task_queue.put(ym_data)
-                    continue
-                try:
-                    self.out_ym.insert_one({'ym':ym_data['ym'],'type':'main','filter_id':self.filter_id})
+            # 查询库中是否存在 不存在插入 存在更新
+            if info == None:
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询失败 重新插入队列等待查询： {ym_data["ym"]}   本次运行时间：{int(time.time() - start_time)}秒')
+                self.task_queue.put(ym_data)
+                continue
+            try:
+                self.out_ym.insert_one({'ym':ym_data['ym'],'type':'main','filter_id':self.filter_id})
 
-                    # 判断是否有备案  如果有备案放入redis数据库中
-                    if info['params']['total'] != 0:
-                        self.save_mysql(ym_data,'beian',info)
-                        # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
-                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
-                    else:
-                        # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
-                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
-                except Exception as error:
-                    print(f'备案错误：{error}')
-                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
+                # 判断是否有备案  如果有备案放入redis数据库中
+                if info['params']['total'] != 0:
+                    self.save_mysql(ym_data,'beian',info)
+                    # print(f'备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  插入购买查询队列中 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
+                else:
+                    # print(f'备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}')
+                    self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()} 备案 过滤 {ym_data["ym"]}  本次运行时间：{int(time.time()-start_time)}秒')
+            except Exception as error:
+                print(f'备案错误：{error}')
+                self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 备案查询剩余任务：{self.task_queue.qsize()}  错误：{error} ')
 
     #过滤百度
     def baidu_worker(self):

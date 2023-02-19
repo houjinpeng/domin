@@ -314,7 +314,7 @@ class Qiang():
                 'X-Requested-With': 'XMLHttpRequest'
             }
 
-            result = self.chinac_s.request("POST", url, headers=headers, data=payload,timeout=10,proxies=self.proxies).json()
+            result = self.chinac_s.request("POST", url, headers=headers, data=payload,timeout=4,proxies=self.proxies).json()
             if result['code'] == 2001:
                 self.chinac_s = requests.session()
                 return self.get_icp(domain, self.token, response, self.auth, self.session)
@@ -332,7 +332,7 @@ class Qiang():
             return self.get_icp(domain, self.token, csrf, self.auth, self.session)
 
         except Exception as e:
-            print(f'检测墙335行错误：{e}')
+            print(f'检测建站历史335行错误：{e}')
             return self.get_icp(domain, self.token, response, self.auth, self.session)
 
 if __name__ == '__main__':
