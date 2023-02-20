@@ -35,7 +35,7 @@ class JmApi():
         try:
             # 增加公共参数
             data = self.build_data(data)
-            response = requests.post(f'{self.domain}/newapi/ykj_get_list', data=data, timeout=10).json()
+            response = requests.post(f'{self.domain}/newapi/ykj_get_list', data=data, timeout=4).json()
             if response['code'] != 1:
                 time.sleep(2)
                 return self.get_ykj_list(data)

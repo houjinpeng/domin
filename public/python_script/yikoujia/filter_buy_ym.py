@@ -628,12 +628,12 @@ class FilterYm():
                     r = qiang.get_qiang_data(domain_data['ym'])
                     if r == None:
                         self.work_queue.put(domain_data)
-                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  获取墙错误重新获取')
+                        self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  获取墙错误重新获取'+f' 耗时：{int(time.time())-start_time}秒')
                         # self.save_out_data(domain_data)
                         continue
-                    if r['msg'] == '被墙':
+                    if r['msg'] != '正常':
                         self.save_out_data(domain_data)
-                        self.log_queue.put({'ym': domain_data['ym'],  'cause': '域名被墙'})
+                        self.log_queue.put(str({'ym': domain_data['ym'],  'cause': '域名被墙','msg':r['msg']})+f' 耗时：{int(time.time())-start_time}秒')
                         continue
 
                 if self.filter_data['is_buy_wx'] == 0:
