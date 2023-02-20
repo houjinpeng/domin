@@ -16,11 +16,7 @@
         "alibabacloud/client": "^1.5",
         "jianyan74/php-excel": "^1.0",
         "ramsey/uuid": "^4.2",
-        "basalt/core": "dev-master",
-        "basalt/pms": "dev-master",
         "jaeger/querylist": "^4.2",
-        "basalt/framework": "dev-master",
-        "basalt/feishu": "dev-master"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.2",
@@ -47,25 +43,5 @@
             "@php think vendor:publish"
         ]
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "ssh://git@git.maiyuan.online:20022/basalt/pms.git",
-            "reference": "master"
-        },
-        {
-            "type": "git",
-            "url": "ssh://git@git.maiyuan.online:20022/basalt/core.git",
-            "reference": "master"
-        },     {
-            "type": "git",
-            "url": "ssh://git@git.maiyuan.online:20022/basalt/feishu.git",
-            "reference": "master"
-        },
-        {
-            "type": "git",
-            "url": "ssh://git@git.maiyuan.online:20022/basalt/framework.git",
-            "reference": "master"
-        }
-    ]
+
 }

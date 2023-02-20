@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 
@@ -18,7 +19,7 @@ words = get_mingan_word()
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 1:
+        if proxy_queue.qsize()> 10:
             time.sleep(2)
             continue
         url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'
@@ -36,7 +37,7 @@ def get_proxy():
             print(f'搜狗 36行错误： {e}')
             continue
 
-# threading.Thread(target=get_proxy).start()
+threading.Thread(target=get_proxy).start()
 
 class GetSougouRecord():
 
@@ -62,11 +63,13 @@ class GetSougouRecord():
 
     def set_proxies(self):
         ip = proxy_queue.get()
+        self.s = requests.session()
         self.proxies = {
             'http': f'http://{ip}',
             'https': f'http://{ip}'
         }
-        return ip
+        self.s.proxies = self.proxies
+        return self.proxies
 
     def check_verify(self,resp,domain,count=0):
         try:
@@ -171,13 +174,35 @@ class GetSougouRecord():
         except Exception as e:
             return False
 
+    def get_jv_now_day(self,domain,html):
+        try:
+            e = etree.HTML(html)
+            url_list_obj = e.xpath('//div[contains(@class,"r-sech")]/@data-url')
+            all_domain = e.xpath('//div[contains(@class,"citeurl")]')
+            time_list = []
+
+            for url,domain_obj in zip(url_list_obj,all_domain):
+                kuaizhao = ''.join(domain_obj.xpath('.//text()'))
+                if domain.lower() in url:
+                    if re.findall('\d+小时', kuaizhao) != []:
+                        time_list.append(1)
+                    elif re.findall('(\d+)天', kuaizhao) != []:
+                        time_list.append(int(re.findall('(\d+)天', kuaizhao)[0]))
+                    else:
+                        date = domain_obj.xpath('.//text()')[-1][2:]
+                        t = datetime.strptime(date, '%Y-%m-%d')
+                        time_list.append((datetime.now()-t).days)
+            if time_list == []:
+                return '无法计算'
+
+            time_list.sort()
+            return int(time_list[0])
+
+        except Exception as e:
+            return '计算失败'
+
     def request_hearders(self, url,referer,count=0):
         try:
-
-            proxies = {
-                "http": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-                "https": "http://user-sp68470966:maiyuan312@gate.dc.visitxiangtan.com:20000",
-            }
             headers = {
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "Accept-Encoding": "gzip, deflate, br",
@@ -197,8 +222,8 @@ class GetSougouRecord():
                 "Upgrade-Insecure-Requests": "1",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
-            r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
-            # r = self.s.get(url,headers=headers,timeout=5)
+            # r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
+            r = self.s.get(url,headers=headers,timeout=5)
             # r = requests.get(url,headers=headers,timeout=5,proxies=proxies)
             # cookie_str = ''
             # for k,v in r.cookies.get_dict('www.sogou.com').items():
@@ -207,7 +232,14 @@ class GetSougouRecord():
             #     cookie_str += k + "=" + v + ';'
 
             # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
+            if r.status_code != 200:
+                # print(r.status_code)
+                self.set_proxies()
+                return self.request_hearders(url,referer)
+
             if '请输入图中的验证码' in r.text:
+                # print('请输入图中的验证码')
+                self.set_proxies()
                 # self.s = requests.session()
                 # resp = self.check_verify(r,domain)
                 # if resp == False:
@@ -218,18 +250,22 @@ class GetSougouRecord():
         except Exception as e:
             if count >= 20:
                 return None
-            # self.set_proxies()
+            self.set_proxies()
             return self.request_hearders(url,referer,count+1)
 
-    def check_sogou(self, html, record_count, time_str,domain,sogou_is_com_word,jg='0'):
+    def check_sogou(self, html, record_count, time_str, domain, sogou_is_com_word, jg='0', jv_now_day=None):
         '''
         :param html: 网页html
         :param record_count: 收录数 [min,max]
         :param time_str: 快照时间
         :param time_str: 域名
         :param sogou_is_com_word: 是否对比敏感词
+        :param jg: 结构
+        :param jv_now_day: 快照距离当前时间
         :return:
         '''
+        if jv_now_day is None:
+            jv_now_day = ['0', '0']
         url_list = []
         e = etree.HTML(html)
         domain = domain.lower()
@@ -322,16 +358,24 @@ class GetSougouRecord():
                         return True
                 return '搜狗 内页判断未通过'
 
-
+            #判断快照距离当前时间天数
+            if jv_now_day != ['0','0']:
+                j1 = int(jv_now_day[0])
+                j2 =  9999999 if jv_now_day[1] == '0' else int(jv_now_day[1])
+                day = self.get_jv_now_day(domain,html)
+                if isinstance(day,str):
+                    return f'搜狗无法计算出 快照距离当前时间天数：{day}'
+                if j1 > day or j2 < day:
+                    return f'搜狗快照距离当前时间天数为：{day}  您设置的是:{j1,j2}'
 
             return True
         except Exception as error:
             return f'搜狗检测错误 {error}'
 
     def get_info(self,domain):
-        # url = f'https://www.sogou.com/web?query=site%3A{domain}'
+        url = f'https://www.sogou.com/web?query=site%3A{domain}'
         # url = f'https://www.sogou.com/web?query=site:{domain}&_ast=1674051198&_asf=www.sogou.com&w=01029901&cid=&s_from=result_up'
-        url = f'https://sogou.com/web?query=site%3A{domain}&_asf=www.sogou.com&_ast=&w=01015002&p=40040108&ie=utf8&from=index-nologin&s_from=index&oq=&ri=0&sourceid=sugg&suguuid=&sut=0&sst0=1674814022234&lkt=0%2C0%2C0&sugsuv=00C3E8BF76FA00FB63D38A0E70ABA902&sugtime=1674814022234'
+        # url = f'https://sogou.com/web?query=site%3A{domain}&_asf=www.sogou.com&_ast=&w=01015002&p=40040108&ie=utf8&from=index-nologin&s_from=index&oq=&ri=0&sourceid=sugg&suguuid=&sut=0&sst0=1674814022234&lkt=0%2C0%2C0&sugsuv=00C3E8BF76FA00FB63D38A0E70ABA902&sugtime=1674814022234'
 
         r = self.request_hearders(url,'')
         if r == None:
@@ -366,9 +410,9 @@ if __name__ == '__main__':
     # y = o.extract_domain('aaa.www.baidu.com')
     # print(y)
     for i in range(1000):
-        domain = 'chinactzj.com'
+        domain = 'maiyuan.com'
         data = o.get_info(domain)
-        print(data)
-        # r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='1',jg='1')
-        # print(r)
+        # print(data)
+        r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='1',jg='1',jv_now_day=[0,1234])
+        print(r)
 

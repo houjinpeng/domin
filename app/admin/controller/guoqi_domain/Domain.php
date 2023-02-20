@@ -234,7 +234,8 @@ class Domain extends AdminController
                 $data['sogou']['sogou_kz'] = $post['so_fxts'];
                 $data['sogou']['sogou_is_com_word'] = $post['sogou_is_com_word'];
                 $data['sogou']['sogou_jg'] = $post['sogou_jg'];
-
+                $data['sogou']['sogou_jv_now_day_1'] = $post['sogou_jv_now_day_1'];
+                $data['sogou']['sogou_jv_now_day_2'] = $post['sogou_jv_now_day_2'];
             }
             //360
             if ($post['is_com_so'] == '1') {
@@ -401,6 +402,8 @@ class Domain extends AdminController
                 $data['sogou']['sogou_kz'] = $post['sogou_kz'];
                 $data['sogou']['sogou_is_com_word'] = $post['sogou_is_com_word'];
                 $data['sogou']['sogou_jg'] = $post['sogou_jg'];
+                $data['sogou']['sogou_jv_now_day_1'] = $post['sogou_jv_now_day_1'];
+                $data['sogou']['sogou_jv_now_day_2'] = $post['sogou_jv_now_day_2'];
             }
             //360
             if ($post['is_com_so'] == '1') {
