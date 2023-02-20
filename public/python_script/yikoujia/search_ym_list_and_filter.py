@@ -287,8 +287,8 @@ class SearchYmAndFilter():
                 conn.commit()
                 self.parse_info(info)
 
-            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 本次查询任务结束 耗时：{int(time.time())-start_time}秒  本次查询数据总数为：{info["count"]}')
-            time.sleep(1)
+            # self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 本次查询任务结束 耗时：{int(time.time())-start_time}秒  本次查询数据总数为：{info["count"]}')
+            time.sleep(0.5)
 
 
     def save_mysql(self, ym_data, key, value):
