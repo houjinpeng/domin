@@ -1,6 +1,6 @@
 import time
 import re
-import threading,queue
+import threading, queue
 import redis
 import requests
 from dbutils.pooled_db import PooledDB
@@ -30,10 +30,20 @@ redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=15)
 words = get_mingan_word()
 
 proxy_queue = queue.Queue()
+
+
 def get_proxy():
+    start_time = int(time.time())
     while True:
-        if proxy_queue.qsize()> 20:
-            time.sleep(2)
+        #两分钟的清除一次ip
+        now_time = int(time.time())
+        if start_time + 150 <= now_time:
+            while not proxy_queue.empty():
+                proxy_queue.get()
+            start_time = int(time.time())
+
+        if proxy_queue.qsize() > 10:
+            time.sleep(0.5)
             continue
         url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'
         try:
@@ -52,6 +62,8 @@ def get_proxy():
             continue
 
 threading.Thread(target=get_proxy).start()
+
+
 class Qiang():
     def __init__(self):
         self.url = 'https://www.juming.com/hao/'
@@ -64,11 +76,10 @@ class Qiang():
         self.auth = ''
         self.session = ''
 
-
     # 设置代理
     def get_proxy(self):
         try:
-            ip =proxy_queue.get()
+            ip = proxy_queue.get()
             if ip == None:
                 print('查找墙 没有ip可用啦 快快ip安排~~~~~')
                 time.sleep(5)
@@ -87,11 +98,11 @@ class Qiang():
             time.sleep(2)
             return None
 
-    def request_handler(self, url,count=0):
+    def request_handler(self, url, count=0):
         try:
 
             headers = {
-                "cookie":self.ct ,
+                "cookie": self.ct,
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "accept-encoding": "gzip, deflate, br",
                 "accept-language": "zh-CN,zh;q=0.9",
@@ -109,7 +120,7 @@ class Qiang():
             }
             # resp = requests.get(url,headers=headers,timeout=7,proxies=dt_proxies)
             # resp = requests.get(url,headers=headers,timeout=7)
-            resp = self.s.get(url,headers=headers,timeout=7)
+            resp = self.s.get(url, headers=headers, timeout=7)
 
             return resp
         except Exception as e:
@@ -118,18 +129,18 @@ class Qiang():
             #     return None
             print(f'获取被墙信息失败 {e}')
             # time.sleep(2)
-            return self.request_handler(url,count+1)
+            return self.request_handler(url, count + 1)
 
-    def verify_code(self,domain):
+    def verify_code(self, domain):
         try:
-            url = 'https://www.juming.com/hao/'+domain
+            url = 'https://www.juming.com/hao/' + domain
 
             token = requests.get(f'http://127.0.0.1:5001/get_token').json()
 
             data = {
-                'token':token['token'],
-                'sid':token['session'],
-                'sig':token["auth"],
+                'token': token['token'],
+                'sid': token['session'],
+                'sig': token["auth"],
             }
             headers = {
                 "accept": "application/json, text/javascript, */*; q=0.01",
@@ -145,15 +156,15 @@ class Qiang():
                 "sec-fetch-site": "same-origin",
                 "sec-fetch-user": "?1",
                 "upgrade-insecure-requests": "1",
-                "origin":'https://www.juming.com',
-                "referer":url,
+                "origin": 'https://www.juming.com',
+                "referer": url,
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
             # r = requests.post(url,data=data,headers=headers,timeout=3,proxies=dt_proxies)
-            r = self.s.post(url,data=data,headers=headers,timeout=3)
+            r = self.s.post(url, data=data, headers=headers, timeout=3)
             if r.json()['code'] == 1:
                 # pass
-                self.ct = 'ct='+r.cookies._cookies['www.juming.com']['/']['ct'].value
+                self.ct = 'ct=' + r.cookies._cookies['www.juming.com']['/']['ct'].value
                 # cookie = f'{cookie.split(";")[0]};ct={ct}'
                 # self.set_cookie(cookie)
             else:
@@ -165,7 +176,7 @@ class Qiang():
             print(f'解除验证码失败：{e}')
             return self.verify_code(domain)
 
-    def get_token(self,domain):
+    def get_token(self, domain):
         try:
             url = 'https://www.juming.com/hao/' + domain
             resp = self.request_handler(url)
@@ -179,12 +190,12 @@ class Qiang():
             self.get_proxy()
             return self.get_token(domain)
 
-    #检查被墙
+    # 检查被墙
     def get_qiang_data(self, domain):
         if self.key == '':
             self.get_token(domain)
             return self.get_qiang_data(domain)
-        domain = domain.replace(".","_").lower()
+        domain = domain.replace(".", "_").lower()
         qiang_url = f'https://www.juming.com/hao/cha_d?do=qiang&ym={domain}&key={self.key}'
         resp_data = self.request_handler(qiang_url)
 
@@ -196,12 +207,12 @@ class Qiang():
         print(resp_data.json())
         return resp_data.json()
 
-    #微信检测
+    # 微信检测
     def get_wx_data(self, domain):
         if self.key == '':
             self.get_token(domain)
             return self.get_wx_data(domain)
-        domain = domain.replace(".","_").lower()
+        domain = domain.replace(".", "_").lower()
         qiang_url = f'https://www.juming.com/hao/cha_d?do=weixin&ym={domain}&key={self.key}'
         resp_data = self.request_handler(qiang_url)
 
@@ -213,12 +224,12 @@ class Qiang():
 
         return resp_data.json()
 
-    #qq检查
+    # qq检查
     def get_qq_data(self, domain):
         if self.key == '':
             self.get_token(domain)
             return self.get_qq_data(domain)
-        domain = domain.replace(".","_").lower()
+        domain = domain.replace(".", "_").lower()
         qiang_url = f'https://www.juming.com/hao/cha_d?do=qqjc&ym={domain}&key={self.key}'
         resp_data = self.request_handler(qiang_url)
 
@@ -230,12 +241,12 @@ class Qiang():
 
         return resp_data.json()
 
-    #备案黑名单
+    # 备案黑名单
     def get_beian_hmd_data(self, domain):
-        if self.key =='':
+        if self.key == '':
             self.get_token(domain)
             return self.get_beian_hmd_data(domain)
-        domain = domain.replace(".","_").lower()
+        domain = domain.replace(".", "_").lower()
         qiang_url = f'https://www.juming.com/hao/cha_d?do=beian_hmd&ym={domain}&key={self.key}'
         resp_data = self.request_handler(qiang_url)
 
@@ -247,15 +258,15 @@ class Qiang():
 
         return resp_data.json()
 
-    #检测是否有建站记录
-    def get_beian_data(self,domain):
+    # 检测是否有建站记录
+    def get_beian_data(self, domain):
         csrf = self.get_csrf(domain)
         data = self.get_icp(domain, '', csrf, '', '')
         if data == None:
             return self.get_beian_data(domain)
         return data
 
-    def get_csrf(self,domain):
+    def get_csrf(self, domain):
         try:
             url = "http://www.chaicp.com/frontend_tools/getCsrf"
 
@@ -274,7 +285,7 @@ class Qiang():
                 'X-Requested-With': 'XMLHttpRequest'
             }
 
-            response = self.chinac_s.post(url, headers=headers, data=payload,timeout=10,proxies=self.proxies).json()
+            response = self.chinac_s.post(url, headers=headers, data=payload, timeout=4, proxies=self.proxies).json()
             if response['code'] == -1:
                 print(f'重新请求 csrf {response["msg"]} {self.proxies}')
                 # self.s = requests.session()
@@ -287,7 +298,6 @@ class Qiang():
             self.get_proxy()
             self.chinac_s = requests.session()
             return self.get_csrf(domain)
-
 
     def get_icp(self, domain, token, response, authenticate, sessionid):
         try:
@@ -314,7 +324,8 @@ class Qiang():
                 'X-Requested-With': 'XMLHttpRequest'
             }
 
-            result = self.chinac_s.request("POST", url, headers=headers, data=payload,timeout=4,proxies=self.proxies).json()
+            result = self.chinac_s.request("POST", url, headers=headers, data=payload, timeout=4,
+                                           proxies=self.proxies).json()
             if result['code'] == 2001:
                 self.chinac_s = requests.session()
                 return self.get_icp(domain, self.token, response, self.auth, self.session)
@@ -335,97 +346,97 @@ class Qiang():
             print(f'检测建站历史335行错误：{e}')
             return self.get_icp(domain, self.token, response, self.auth, self.session)
 
+
 if __name__ == '__main__':
     q = Qiang()
 
-
     ym_list = ["iseeyouopticaL.com",
-"acooLcustomer.com",
-"jmbie.com",
-"Lyc002.com",
-"78Lhj.com",
-"ca-creation.com",
-"9103game.com",
-"goto-mech.com",
-"pc975.com",
-"aLiyunfenqi.com",
-"Lc137.com",
-"ft2345.com",
-"5515cp.com",
-"pc976.com",
-"ttL87.com",
-"372game.com",
-"shhchuangmu.com",
-"pc736.com",
-"ahhczdhyb.com",
-"zccp7.com",
-"ome-toho.com",
-"hgcp666.com",
-"yeezy-beLuga.com",
-"8888Lf.com",
-"ho678.com",
-"Lc9931.com",
-"carLosgandara.com",
-"xiaoweixindai.com",
-"pencereuzmani.com",
-"yuanma518.com",
-"94beauty.com",
-"zxy521.com",
-"24soLarterms.com",
-"htp4.com",
-"dongshan520.com",
-"25zhan.com",
-"knight66.com",
-"hjx77.com",
-"92youhuiquan.com",
-"ntn5.com",
-"ptscratch.com",
-"nbtaide.com",
-"cb7788.com",
-"f7654.com",
-"boyaai.com",
-"shangpinhome.com",
-"hongmu007.com",
-"xiexie8.com",
-"seanzhao.com",
-"yifucon.com",
-"0p0b.com",
-"shou1quan.com",
-"Lekuaiyun.com",
-"cqyyit.com",
-"mifenhome.com",
-"myd-tech.com",
-"minyinbank.com",
-"shop10010.com",
-"hxq001.com",
-"aoruizhi.com",
-"zeigao.com",
-"aixiangchuan.com",
-"jhske.com",
-"sjmpf.com",
-"iweixinqun.com",
-"baidao100.com",
-"ynjhjy.com",
-"zhangjianjin.com",
-"matrixdk.com",
-"huijiamao.com",
-"qqsy2.com",
-"66yhj.com",
-"tea-food.com",
-"cnbcnet.com",
-"hfdent.com",
-"gouzhengpin.com",
-"seeyou520.com",
-"qqsy1.com",
-"nk2019.com",
-"jhrbkj.com",
-"5gdog.com",
-"rvwtp.com",
-"zgtwpsc.com",
-"wx9898.com",
-"2026sf.com",
-"gy09.com",
-"go-123.com",]
+               "acooLcustomer.com",
+               "jmbie.com",
+               "Lyc002.com",
+               "78Lhj.com",
+               "ca-creation.com",
+               "9103game.com",
+               "goto-mech.com",
+               "pc975.com",
+               "aLiyunfenqi.com",
+               "Lc137.com",
+               "ft2345.com",
+               "5515cp.com",
+               "pc976.com",
+               "ttL87.com",
+               "372game.com",
+               "shhchuangmu.com",
+               "pc736.com",
+               "ahhczdhyb.com",
+               "zccp7.com",
+               "ome-toho.com",
+               "hgcp666.com",
+               "yeezy-beLuga.com",
+               "8888Lf.com",
+               "ho678.com",
+               "Lc9931.com",
+               "carLosgandara.com",
+               "xiaoweixindai.com",
+               "pencereuzmani.com",
+               "yuanma518.com",
+               "94beauty.com",
+               "zxy521.com",
+               "24soLarterms.com",
+               "htp4.com",
+               "dongshan520.com",
+               "25zhan.com",
+               "knight66.com",
+               "hjx77.com",
+               "92youhuiquan.com",
+               "ntn5.com",
+               "ptscratch.com",
+               "nbtaide.com",
+               "cb7788.com",
+               "f7654.com",
+               "boyaai.com",
+               "shangpinhome.com",
+               "hongmu007.com",
+               "xiexie8.com",
+               "seanzhao.com",
+               "yifucon.com",
+               "0p0b.com",
+               "shou1quan.com",
+               "Lekuaiyun.com",
+               "cqyyit.com",
+               "mifenhome.com",
+               "myd-tech.com",
+               "minyinbank.com",
+               "shop10010.com",
+               "hxq001.com",
+               "aoruizhi.com",
+               "zeigao.com",
+               "aixiangchuan.com",
+               "jhske.com",
+               "sjmpf.com",
+               "iweixinqun.com",
+               "baidao100.com",
+               "ynjhjy.com",
+               "zhangjianjin.com",
+               "matrixdk.com",
+               "huijiamao.com",
+               "qqsy2.com",
+               "66yhj.com",
+               "tea-food.com",
+               "cnbcnet.com",
+               "hfdent.com",
+               "gouzhengpin.com",
+               "seeyou520.com",
+               "qqsy1.com",
+               "nk2019.com",
+               "jhrbkj.com",
+               "5gdog.com",
+               "rvwtp.com",
+               "zgtwpsc.com",
+               "wx9898.com",
+               "2026sf.com",
+               "gy09.com",
+               "go-123.com", ]
     cunzai = 0
     bucunzai = 0
     for ym in ym_list:
@@ -446,10 +457,8 @@ if __name__ == '__main__':
         #     bucunzai+=1
         #     print(f'ym:{ym} 不存在 ：{j}')
 
-        print('=='*10)
+        print('==' * 10)
 
-
-    print('=='*20)
+    print('==' * 20)
     print(f'存在：{cunzai}')
     print(f'存在：{bucunzai}')
-
