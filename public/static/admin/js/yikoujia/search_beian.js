@@ -3,8 +3,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'yikoujia.account_pool/index',
-
 
     };
 
@@ -23,17 +21,24 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ,page: false //开启分页
                 ,cols: [[ //表头
                     {type: "checkbox"}
-                    ,{field: 'ym', title: '域名', minWidth:120,templet:function (d) {
-                            return '<a target="_blank" href="https://www.baidu.com/s?wd=site:'+d.ym+'">'+d.ym+'</a>'
+                    ,{field: 'ym', title: '域名', minWidth:200}
+                    ,{field: '#', title: '主办单位名称', minWidth:180,templet:function (d) {
+                            console.log(d)
+                        return d['data'] ? d['data']['unitName'] :''
                         }}
-                    ,{field: 'sl', title: '收录', minWidth:80,}
-                    ,{field: 'is_chinese', title: '是否是中文', minWidth:80,templet:function (d) {
-                        return d.is_chinese === true? '是':"否"
+                    ,{field: '#', title: '主办单位性质', minWidth:180,templet:function (d) {
+                        return d['data'] ? d['data']['natureName'] :''
                         }}
-                    ,{field: 'mgc', title: '敏感词', minWidth:180,templet:function (d) {
-                            return d.mgc === '无结果'?'无':d.mgc
+                    ,{field: '#', title: '网站备案号', minWidth:260,templet:function (d) {
+                        return d['data'] ? d['data']['serviceLicence'] :''
                         }}
-                    ,{field: 'jg', title: '结构', minWidth:180,}
+                    ,{field: '#', title: '审核日期', minWidth:260,templet:function (d) {
+                        return d['data'] ? d['data']['updateRecordTime'] :''
+                        }}
+                    ,{field: '#', title: '是否限制接入', minWidth:180,templet:function (d) {
+                        return d['data'] ? d['data']['limitAccess'] :''
+
+                        }}
 
                 ]]
             });
@@ -51,14 +56,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     if (search_list.indexOf($.trim(yms[i])) === -1){
                         search_list.push($.trim(yms[i]))
                     }
-
                 }
-
                 let count_ym = search_list.length
                 $('#sy').text(count_ym)
                 for (let i in search_list){
                     $.ajax({
-                        url:'search_baidu?ym='+search_list[i],
+                        url:'search?ym='+search_list[i],
                         method:'get',
                         success:function (resp) {
                             let sy = parseInt($('#sy').text())
@@ -66,12 +69,17 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             if (resp.code === 0){
                                 let old_data = table.cache['resultTable']
                                 resp.data.forEach(function (item) {
+                                    let d = false
+                                    try{
+                                        d =  item['data']['params']['list'][0]
+                                    }catch (e) {
+
+                                    }
+
+
                                     old_data.push({
                                         ym:item['ym'],
-                                        jg:item['data']['jg'],
-                                        mgc:item['data']['mgc'],
-                                        sl:item['data']['sl'],
-                                        is_chinese:item['data']['is_chinese'],
+                                        data:d,
                                     })
                                 })
                                 table.reload('resultTable',{data:old_data,limit:100000})
@@ -81,12 +89,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
 
                     })
-
                 }
-
-
-
-
 
             })
 
