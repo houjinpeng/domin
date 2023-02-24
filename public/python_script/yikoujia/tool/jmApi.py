@@ -35,15 +35,14 @@ class JmApi():
         try:
             # 增加公共参数
             data = self.build_data(data)
-            response = requests.post(f'{self.domain}/newapi/ykj_get_list', data=data, timeout=4).json()
+            response = requests.post(f'{self.domain}/newapi/ykj_get_list', data=data, timeout=1).json()
             if response['code'] != 1:
-                time.sleep(2)
+                print(f'重新请求  一口价获取列表返回数据错误：{response}')
                 return self.get_ykj_list(data)
 
             return response
         except Exception as e:
-            time.sleep(2)
-            # print(e)
+            print(f'重新请求  一口价获取列表错误：{e}')
             return self.get_ykj_list(data)
 
     # 获取一口价成交数据
@@ -57,14 +56,12 @@ class JmApi():
             data = self.build_data(data)
             response = requests.post(f'{self.domain}/newapi/ykj_cj', data=data, timeout=4).json()
             if response['code'] != 1:
-                time.sleep(2)
                 print(response)
                 return self.get_ykj_cj_list(data)
 
             return response
         except Exception as e:
-            time.sleep(2)
-            # print(e)
+            print(f'一口价获取成交数据错误：{e}')
             return self.get_ykj_cj_list(data)
 
     # 获取店铺数据
