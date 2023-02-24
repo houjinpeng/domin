@@ -55,19 +55,21 @@ class SearchBaidu extends AdminController
      */
     public function search_baidu(){
 
-        $post = $this->request->post();
-        $all_ym = explode(',',$post['data']);
-        $search_ym = [];
-        foreach ($all_ym as $ym){
-            $s = $this->model->where('ym','=',$ym)->where('type','=','baidu')->find();
-            empty($s) && $search_ym[] = $ym;
-        }
-        if (count($search_ym) != 0){
-            $cmd = 'python3 ./python_script/search/search_baidu.py '.join(',',$search_ym).'  2>&1';
+        $ym = $this->request->get('ym');
+
+
+
+
+
+//        dd($out,$cmd);
+
+        $list = $this->model->where('ym','=',$ym)->where('type','=','baidu')->select()->toArray();
+        if (empty($list)){
+            $cmd = 'python3 ./python_script/search/search_baidu.py '.$ym.'  2>&1';
             $out = exec($cmd);
-            dd($cmd,$out);
         }
-        $list = $this->model->where('ym','in',$all_ym)->where('type','=','baidu')->select()->toArray();
+
+        $list = $this->model->where('ym','=',$ym)->where('type','=','baidu')->select()->toArray();
         foreach ($list as &$item){
             $item['data'] = json_decode($item['data'],true);
         }

@@ -63,7 +63,7 @@ class BaiDu():
         try:
 
             if proxy_queue.qsize() == 0:
-                url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'
+                url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=1'
                 try:
                     r = requests.get(url, timeout=3)
                     if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
@@ -198,78 +198,80 @@ class BaiDu():
                 return self.get_domain_url(baidu_url, count + 1)
             return ''
 
-    def get_info(self):
+    def get_info(self,domain):
 
-        while not task_queue.empty():
-            domain = task_queue.get()
-            data = {
-                'ym': domain,
-                'sl': 0,
-                'mgc': '',  # 敏感词
-                'jg': 'baidu',  # 结构
-                'is_chinese': '',  # URL语言
-            }
+        # while not task_queue.empty():
+        # domain = task_queue.get()
+        data = {
+            'ym': domain,
+            'sl': 0,
+            'mgc': '',  # 敏感词
+            'jg': 'baidu',  # 结构
+            'is_chinese': '',  # URL语言
+        }
 
-            r = self.requests_handler(domain)
-            if r == None:
-                task_queue.put(domain)
-                continue
-            html = etree.HTML(r.text)
-            # 数据量
-            h3_list = html.xpath('//div[@class="result c-container xpath-log new-pmd"]')
-            # 完整的url域名
-            full_url_list = []
-            # 显示的url
-            show_url_list = []
-            findword = ''
-            # 获取url list
-            for d in h3_list:
-                try:
-                    url = self.get_domain_url(d.xpath('.//h3[@class="c-title t t tts-title"]//a/@href')[0])
-                    if domain.lower() in url.lower():
-                        full_url = self.get_domain_url(d.xpath('.//h3[@class="c-title t t tts-title"]//a/@href')[0])
-                        full_url_list.append(full_url)
-                        source_url = d.xpath('.//span[@class="c-color-gray"]//text()')[0]
-                        show_url_list.append(source_url)
-                        title = str(d.xpath('.//h3[@class="c-title t t tts-title"]//a/text()')[0]).replace(","," ").replace("\n", "")
-                        findword += title
-                except Exception as error:
-                    pass
+        r = self.requests_handler(domain)
+        if r == None:
+            return self.get_info(domain)
+        html = etree.HTML(r.text)
+        # 数据量
+        h3_list = html.xpath('//div[@class="result c-container xpath-log new-pmd"]')
+        # 完整的url域名
+        full_url_list = []
+        # 显示的url
+        show_url_list = []
+        findword = ''
+        # 获取url list
+        for d in h3_list:
             try:
-                record_count = int(re.findall('找到相关结果数约(.*?)个', r.text)[0].replace(',', ''))
+                url = self.get_domain_url(d.xpath('.//h3[@class="c-title t t tts-title"]//a/@href')[0])
+                if domain.lower() in url.lower():
+                    full_url = self.get_domain_url(d.xpath('.//h3[@class="c-title t t tts-title"]//a/@href')[0])
+                    full_url_list.append(full_url)
+                    source_url = d.xpath('.//span[@class="c-color-gray"]//text()')[0]
+                    show_url_list.append(source_url)
+                    title = str(d.xpath('.//h3[@class="c-title t t tts-title"]//a/text()')[0]).replace(","," ").replace("\n", "")
+                    findword += title
             except Exception as error:
-                record_count = 0
-            data['jg'] = self.get_jg(domain, full_url_list)
-            data['mgc'] = self.find_word(findword)
-            data['sl'] = record_count
-            data['is_chinese'] = self.check_contain_chinese(show_url_list)
+                pass
+        try:
+            record_count = int(re.findall('找到相关结果数约(.*?)个', r.text)[0].replace(',', ''))
+        except Exception as error:
+            record_count = 0
+        data['jg'] = self.get_jg(domain, full_url_list)
+        data['mgc'] = self.find_word(findword)
+        data['sl'] = record_count
+        data['is_chinese'] = self.check_contain_chinese(show_url_list)
 
-            sql = build_sql('ym_search_result', {'ym': domain, 'data': data, 'type': 'baidu'})
-            save_data(sql, cur, conn)
+        sql = build_sql('ym_search_result', {'ym': domain, 'data': data, 'type': 'baidu'})
+        save_data(sql, cur, conn)
 
 if __name__ == '__main__':
-    yms = sys.argv[1].split(',')
+    ym = sys.argv[1]
+    BaiDu().get_info(ym)
+
+
     # print(yms,type(yms))
     # print(os.getcwd())
+    #
+    # task_queue = queue.Queue()
+    # for ym in yms:
+    #     print(ym,12312331)
+    #     if ym.strip() == '': continue
+    #     task_queue.put(ym.strip())
+    #
+    #
+    # def start():
+    #     t = []
+    #     for i in range(10):
+    #         t.append(threading.Thread(target=BaiDu().get_info))
+    #     for j in t:
+    #         j.start()
+    #     for j in t:
+    #         j.join()
+    #     cur.close()
+    #     conn.close()
+    #     print('success',len(yms))
 
-    task_queue = queue.Queue()
-    for ym in yms:
-        print(ym,12312331)
-        if ym.strip() == '': continue
-        task_queue.put(ym.strip())
 
-
-    def start():
-        t = []
-        for i in range(10):
-            t.append(threading.Thread(target=BaiDu().get_info))
-        for j in t:
-            j.start()
-        for j in t:
-            j.join()
-        cur.close()
-        conn.close()
-        print('success',len(yms))
-
-
-    start()
+    # start()

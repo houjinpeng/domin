@@ -38,55 +38,53 @@ define(["jquery", "easy-admin"], function ($, ea) {
             });
 
 
-            let all_count = 0
             $('#search').click(function () {
                 let index = layer.msg('正在努力查询',{icon: 16})
                 table.reload('resultTable',{data:[],limit:100000})
                 let all_ym = $('#yms').val()
-                let search_ym = []
                 let yms = all_ym.split('\n')
+                //去掉不可用的域名和重复的域名
+                let search_list = []
                 for (let i in yms){
                     if ($.trim(yms[i]) === '')continue
+                    if (search_list.indexOf($.trim(yms[i])) === -1){
+                        search_list.push($.trim(yms[i]))
+                    }
 
-                    search_ym.push($.trim(yms[i]))
                 }
 
-                if (search_ym.length ===0) {
-                    layer.msg('请输入要查询的域名',{icon:2})
-                    return
-                }
-
-                $.ajax({
-                    url:'search_baidu',
-                    method:'post',
-                    data:{
-                        data:search_ym.join(',')
-                    },
-                    success:function (resp) {
-                        if (resp.code === 0){
-                            let old_data = table.cache['resultTable']
-                            resp.data.forEach(function (item) {
-                                old_data.push({
-                                    ym:item['ym'],
-                                    jg:item['data']['jg'],
-                                    mgc:item['data']['mgc'],
-                                    sl:item['data']['sl'],
-                                    is_chinese:item['data']['is_chinese'],
+                let count_ym = search_list.length
+                $('#sy').text(count_ym)
+                for (let i in search_list){
+                    $.ajax({
+                        url:'search_baidu?ym='+yms[i],
+                        method:'get',
+                        success:function (resp) {
+                            let sy = parseInt($('#sy').text())
+                            $('#sy').text(sy-1)
+                            if (resp.code === 0){
+                                let old_data = table.cache['resultTable']
+                                resp.data.forEach(function (item) {
+                                    old_data.push({
+                                        ym:item['ym'],
+                                        jg:item['data']['jg'],
+                                        mgc:item['data']['mgc'],
+                                        sl:item['data']['sl'],
+                                        is_chinese:item['data']['is_chinese'],
+                                    })
                                 })
-                            })
-                            table.reload('resultTable',{data:old_data,limit:100000})
-
-                            layer.close(index)
+                                table.reload('resultTable',{data:old_data,limit:100000})
+                                layer.close(index)
+                            }
 
                         }
 
+                    })
 
-                        console.log(resp)
-                    }
+                }
 
 
 
-                })
 
 
             })
