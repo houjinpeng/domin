@@ -38,6 +38,7 @@ class JmApi():
             response = requests.post(f'{self.domain}/newapi/ykj_get_list', data=data, timeout=1).json()
             if response['code'] != 1:
                 print(f'重新请求  一口价获取列表返回数据错误：{response}')
+                time.sleep(2)
                 return self.get_ykj_list(data)
 
             return response
