@@ -95,19 +95,25 @@ class BaiDu():
 
             for url in url_list:
                 if domain not in url: continue
-                if (url.split('.')[0] == 'www' or url.count('.') == 1) and (len(urlparse('https://' + url).path) <= 1):
+                host = urlparse(url).hostname
+                if host == None:
+                    continue
+                if (host.split('.')[0] == 'www' or host.count('.') == 1) and (len(urlparse(url).path) <= 1):
                     jg.append('首页')
                     break
 
             for url in url_list:
                 if domain not in url: continue
-                if url.count('.') >= 2 and url.split('.')[0] != 'www':
+                host = urlparse(url).hostname
+                if host == None:
+                    continue
+                if host.count('.') >= 2 and host.split('.')[0] != 'www' and 'm.' not in host:
                     jg.append('泛')
                     break
 
             for url in url_list:
                 if domain not in url: continue
-                domain_1 = urlparse('https://' + url)
+                domain_1 = urlparse(url)
                 if domain_1.path != '/' and domain_1.path != '':
                     jg.append('内页')
                     break
@@ -248,6 +254,7 @@ class BaiDu():
 
 if __name__ == '__main__':
     ym = sys.argv[1]
+    # ym = 'loohool.cn'
     BaiDu().get_info(ym)
 
 
