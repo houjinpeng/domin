@@ -1,0 +1,31 @@
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <form class="layui-form" action="">
+            <div class="layui-form-item  layui-inline layui-form-text">
+                <label class="layui-form-label">域名</label>
+                <div class="layui-input-block">
+                    <textarea id="yms" rows="10" style="width: 500px" name="desc" placeholder="请输入你要查询的域名,一行一个，支持100个" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item  layui-inline" >
+                <div class="layui-input-block">
+                    <a class="layui-btn layui-btn-sm" id="search">开始查询</a>
+                    <button type="reset" class="layui-btn  layui-btn-sm layui-btn-primary">重置</button>
+                    <br><br><span>待查询：<font id="sy" color="red">0</font>条域名</span>
+                </div>
+            </div>
+        </form>
+
+        <table id="resultTable" class="layui-table layui-hide" lay-filter="resultTable" lay-filter="resultTable">
+
+
+        </table>
+
+
+
+        </table>
+    </div>
+</div>
+
+
