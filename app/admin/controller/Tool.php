@@ -22,112 +22,7 @@ class Tool
         phpinfo();
     }
 
-    //获取user_id
-    public function get_user_id()
-    {
-        $this->model = new \app\admin\model\WebsiteSite();
-//        如果其他用户 auth表belong不为0 就查询当前用户的id
-        $where = [];
-        if (session("admin")['id'] != 1) {
-            $list = $this->model
-                ->createuser()
-                ->where('id', '=', session("admin")['id'])
-                ->select()->toArray();
-            if ($list[0]['belong_id'] == null || $list[0]['belong_id'] == 1) {
-                $user_id = $list[0]['id'];
-                $list1 = $this->model
-                    ->createuser()
-                    ->field('id')
-                    ->where('belong_id', '=', $user_id)
-                    ->select()->toArray();
-                foreach ($list1 as $key => $v) {
-                    $user_list[] = $v['id'];
-                }
-                $user_list [] = $list[0]['id'];
-                $where[] = ['user_id', 'in', $user_list];
 
-            } else {
-                $where[] = ['user_id', '=', session("admin")['id']];
-            }
-
-        }
-
-
-        return $where;
-    }
-
-    //获取user_id
-    public function build_user_id()
-    {
-
-        $this->model_admin = new \app\admin\model\SystemAdmin();
-        //查询当前用户可见组
-        $user = $this->model_admin->find(session('admin.id'));
-        if (session('admin.id') == 1) return [];
-        //查询所有相同组的用户名
-        $all_user = $this->model_admin->where('group_id', '=', $user['group_id'])->select()->toArray();
-        $user_list = [];
-        foreach ($all_user as $index => $item) {
-            $user_list[] = $item['id'];
-        }
-        if (count($user_list) == 0) {
-            return [];
-        }
-        return ['user_id', 'in', $user_list];
-
-    }
-
-    //获取当前组的id
-    public function get_current_group_id($child_id = [], $search_id = 18, $group_id_list = [])
-    {
-        //根据查找此分组下的所有子组
-        echo '查找id:' . $search_id . "<br>";
-
-        if (empty($child_id) && $search_id != 0) {
-            $child_id = $this->model_group->field(['id', 'title'])
-                ->where('pid', '=', $search_id)->select()->toArray();
-        }
-
-        foreach ($child_id as $index => $item) {
-            $group_id_list[] = $item['id'];
-            echo '找到id:' . $item['id'] . $item['title'] . $search_id . '找到：' . count($child_id) . "个<br>";
-            return $this->get_current_group_id($item, $item['id'], $group_id_list);
-        }
-        return $group_id_list;
-    }
-
-    //根据组查找出可以查看的user_id列表
-    public function get_group_user_id()
-    {
-        if (session('admin.id') == 1) return [];
-
-        //查看用户当前组
-        $user = $this->model_admin->find(session('admin.id'));
-        //查询当前用户可见组
-        $group_id_list = [$user['group_id']];
-        $group_id = $user['group_id'];
-        for ($i = 1; $i <= 10; $i++) {
-            //根据查找此分组下的所有子组
-            $parent_id = $this->model_group->where('pid', '=', $group_id)->select()->toArray();
-            if (empty($parent_id)) break;
-            foreach ($parent_id as $index => $item) {
-                $group_id = $item['id'];
-                $group_id_list[] = $item['id'];
-            }
-
-        }
-        //查询所有相同组的用户名
-        $all_user = $this->model_admin->where('group_id', 'in', $group_id_list)->select()->toArray();
-        $user_list = [];
-        foreach ($all_user as $index => $item) {
-            $user_list[] = $item['id'];
-        }
-        if (count($user_list) == 0) {
-            return [];
-        }
-        return $user_list;
-
-    }
 
     //构建where条件  是min max类型的
     public function build_select_where($where)
@@ -192,57 +87,6 @@ class Tool
         return $where;
     }
 
-    public function check_user_id($where)
-    {
-        $is_have_user_id = false;
-        foreach ($where as $index => $value) {
-            if ($value[0] == 'user_id') {
-                $is_have_user_id = true;
-                if ($value[2] == '0') {
-                    unset($where[$index]);
-                }
-                continue;
-            }
-        }
-        if ($is_have_user_id == false) {
-            $where[] = ['user_id', '=', session('admin.id')];
-        }
-        $ar = [];
-        foreach ($where as $index => $value) {
-            $ar[] = $value;
-        }
-
-        return $ar;
-
-    }
-
-
-
-
-    /**
-     * @return array 返回柱状数据
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    public function getTreeData()
-    {
-        $cate = new WebsiteCustomCategory();
-        $all_data_parent = $cate->where('parent_id', '=', null)->select()->toArray();
-        $all_data_childern = $cate->where('parent_id', '<>', null)->select()->toArray();
-        $tree_array = [];
-        foreach ($all_data_parent as $index => $item) {
-            $tree_array[] = ['name' => $item['name'], 'value' => $item['id'], 'children' => []];
-            foreach ($all_data_childern as $i => $childer_item) {
-                if ($childer_item['parent_id'] == $item['id']) {
-                    $tree_array[$index]['children'][] = ['name' => $childer_item['name'], 'value' => $childer_item['id'], 'parent_id' => $childer_item['parent_id']];
-                }
-            }
-        }
-        return $tree_array;
-
-    }
-
 
     public function readExcelFile($filePath)
     {
@@ -278,10 +122,6 @@ class Tool
         return $excelResult;
 
     }
-
-
-
-
 
 
     /**
