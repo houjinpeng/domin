@@ -85,7 +85,7 @@ class SearchHistory extends AdminController
     public function get_token()
     {
         $post = $this->request->post();
-        $url = 'http://192.168.1.105:5001/get_token';
+        $url = 'http://127.0.0.1:5001/get_token';
         $token = json_decode($this->client->request('get', $url)->getBody()->getContents(), true);
         $headers = [
             'Accept' => 'application/json, text/javascript, */*; q=0.01',
