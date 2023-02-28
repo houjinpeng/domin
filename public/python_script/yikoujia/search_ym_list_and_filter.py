@@ -66,7 +66,13 @@ class Handler(BaseRequestHandler):
 class SearchYmAndFilter():
     def __init__(self,filter_id):
         self.filter_id = filter_id
+        #获取黑名单
+        self.store_id_list = get_min_gan_word.get_exclude_store_id()
 
+    def get_hmd(self):
+        while True:
+            time.sleep(10*60)
+            self.store_id_list = get_min_gan_word.get_exclude_store_id()
 
     def create_socket(self):
         handler = partial(Handler, self.save_ym)
@@ -236,7 +242,7 @@ class SearchYmAndFilter():
     #解析数据
     def parse_info(self,resp):
 
-        store_id_list = get_min_gan_word.get_exclude_store_id()
+
 
         all_data = resp['data']
         # 内存去重 set
@@ -244,7 +250,7 @@ class SearchYmAndFilter():
         for data in all_data:
             lens = len(self.ym_set)
             self.ym_set.add(data['ym'])
-            if data['sid'] in store_id_list:
+            if data['sid'] in self.store_id_list:
                 self.log_queue.put(f'域名：{data["ym"]} 店铺ID为：{data["sid"]}  在我们的黑名单中 已过滤')
                 continue
             if len(self.ym_set) != lens :
@@ -553,6 +559,8 @@ class SearchYmAndFilter():
 
         # 启动日志队列
         threading.Thread(target=self.save_logs).start()
+        #启动刷新黑名单任务
+        threading.Thread(target=self.get_hmd).start()
         self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
         all_data = self.mycol.find()
         for data in all_data:
