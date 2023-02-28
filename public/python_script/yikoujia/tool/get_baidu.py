@@ -9,6 +9,7 @@ from queue import Queue
 import threading
 from urllib.parse import urlparse
 from tool.get_min_gan_word import get_mingan_word
+import cloudscraper
 
 #检测是否是中文
 def check_contain_chinese1(check_str):
@@ -57,6 +58,7 @@ threading.Thread(target=get_proxy).start()
 class BaiDu():
     def __init__(self,baidu_record=[0,0],kuaizhao_time='',lang_chinese='',min_gan_word=''):
 
+        self.scraper = cloudscraper.create_scraper(disableCloudflareV1=True)
 
         self.proxies = self.get_proxy()
         self.s = requests.session()
@@ -101,37 +103,36 @@ class BaiDu():
             return "无结果"
 
 
-    def requests_handler(self, url1,is_yz=False):
+    def requests_handler(self, url1,is_yz=True):
         url = f"https://www.baidu.com/s?f=8&rsv_bp=1&wd=site%3A{url1}"
 
+
         headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Host': 'www.baidu.com',
-            'Pragma': 'no-cache',
-            'Referer': 'https://www.baidu.com/',
-            'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="101", "Google Chrome";v="101"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-User': '?1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
-            'Cookie': 'BIDUPSID=7E8FF5B8B6A04F730D326E096D797311; PSTM=1631605740; BAIDUID=7E8FF5B8B6A04F73916DB66CF6DA889A:FG=1; __yjs_duid=1_ac59271c36da10cdc87f4dc99a62b19b1631605755856; BD_UPN=12314753; BDUSS=HRGaEZLblB1QVN-cW9zUS1ER0o0SFNmOWo3Z3lnS2RWc1luYVpRNk51SndwSWhpRVFBQUFBJCQAAAAAAAAAAAEAAAAAJZjRYmF5dWxpYW4xMDQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAXYWJwF2FiV; BDUSS_BFESS=HRGaEZLblB1QVN-cW9zUS1ER0o0SFNmOWo3Z3lnS2RWc1luYVpRNk51SndwSWhpRVFBQUFBJCQAAAAAAAAAAAEAAAAAJZjRYmF5dWxpYW4xMDQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAXYWJwF2FiV; H_WISE_SIDS=107314_110085_114550_127969_174441_179350_180636_184716_188746_189755_190623_191527_194085_194519_194530_196426_197241_197711_197956_199574_201193_203517_206906_207236_207574_207729_208608_208721_209455_209568_210091_210306_210440_210470_210642_210664_210757_210851_211288_211435_211558_211732_212416_212699_212778_212797_213031_213060_213094_213125_213353_213416_213596_213645_214005_214025_214115_214129_214138_214142_214396_214535_214655_214793_214883_215175_215280_215457_215484_215727_215806_215829_215859_216049; BDSFRCVID_BFESS=3WCOJeC62rTEVBJDlYXsMFIMlmPlqOOTH6aoTq4RcGLzFvWtAe3mEG0P5x8g0KuM3ulxogKKLmOTHpKF_2uxOjjg8UtVJeC6EG0Ptf8g0f5; H_BDCLCKID_SF_BFESS=tR4joID5tC-3fP36q4bs5t_HbUR0-I62aKDs-PDMBhcqEIL4jhjkM5-pQMcH0t33Bn7dhIojthjzHxbSj4QoQbt_jb_j35ci5CoMaKjYah5nhMJEb67JDMP0qfbe3hoy523i2n6vQpn2OpQ3DRoWXPIqbN7P-p5Z5mAqKl0MLPbtbb0xb6_0j5OBDG_eJ60s-C5KWJnaHt3qjRTphR6s-t6H-UnLq5oaX2OZ0l8KttK2eK3mXUOCXn8WM-keQhvMtjueXDOmWIQthn6wQJ6kjp5-DMt80JTz-nR4KKJxLlCWeIJo5fFhKxuehUJiBM7LBan7QpvIXKohJh7FM4tW3J0ZyxomtfQxtNRJ0DnjtnLhbC89jj-MDT5LepJq-J-XM6vH0RcXHJO_bIO5LUnkbfJBDl5n0l5GWenQhxnbBlQz8JRz0-vaXU47yajK2h3DJNr2KhRL3tQRfhjNDPcpQT8rjqAOK5OibmDeLRRyab3vOpRzXpO1KMPzBN5thURB2DkO-4bCWJ5TMl5jDh3Mb6ksDMDtqtJHKbDeoKLMfU5; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BAIDUID_BFESS=7E8FF5B8B6A04F73916DB66CF6DA889A:FG=1; BA_HECTOR=85a12lah242ka58l802mdcnb1hd74nc17; ZFY=ba75SbVoKLf:AJxKUdLtbSEwnx:BPnQN7SAJHpxFCIMZk:C; BD_HOME=1; H_PS_PSSID=36558_36625_36820_36454_36413_36611_36692_36165_36816_36775_36745_36762_36771_36764_26350; delPer=0; BD_CK_SAM=1; PSINO=6; H_PS_645EC=a3c72gk8irtDfWDIrQiWofEHgqpQmJfOoP7TmNwXu7uwiQR6MINMvLZ45eA; channel=baidusearch; baikeVisitId=6ac61418-a9ce-47a5-ac60-b1c7abd4b0b6'
-            # 'Cookie': 'BAIDUID=FE5D3C7F6CAAF5A80701894E937B66C2:FG=1; BIDUPSID=B2CE0F7F4FACBD5E54D7A2EF967F7D5D; BD_UPN=12314753; H_PS_PSSID=36543_37352_36885_34813_37486_37402_37396_36569_36786_37071_26350_37344_37372; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BAIDUID_BFESS=FE5D3C7F6CAAF5A80701894E937B66C2:FG=1; BD_HOME=1; delPer=0; BA_HECTOR=218l2k8hal0k012h802lfnpa1hj7acd1a; ZFY=cMpoHD8KA4cRAxz88vZGKrU0Pz:AA6UjS9TTTXS:AyI6Y:C; BD_CK_SAM=1; B64_BOT=1; COOKIE_SESSION=159677_3_8_6_5_13_1_0_3_7_0_1_159742_89_3_0_1664335776_1664005747_1664335773%7C9%2333_4_1664005672%7C2; PSINO=7; H_PS_645EC=82b5rVoBLL0BGMQjI4j2q9mrsheDDXZ3dHodpCt8T1im4lzVAVR3clFJuKE; BDSVRTM=0; WWW_ST=1664345254413'
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Accept-Language": "zh-CN,zh;q=0.9",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Cookie": "BD_UPN=12314753; sugstore=0; PSTM=1677413840; BAIDUID=EC7F6D8958635C036EE418BA799CA93C:FG=1; BIDUPSID=F3FAFC72C4FD6A2E278274CE21B7A65C; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BA_HECTOR=05842gal8h2kal21a10ha4t91hvqi241k; ZFY=ZBOVrcTMl2cG4L:ARZBDG0Vt8dcgM4BAbSRse2ImPs2s:C; BAIDUID_BFESS=EC7F6D8958635C036EE418BA799CA93C:FG=1; COOKIE_SESSION=42_1_9_9_25_19_0_3_9_9_10_4_598_0_575_0_1677544175_1677542849_1677543600%7C9%23339016_18_1677542847%7C9; BD_HOME=1; delPer=0; BD_CK_SAM=1; PSINO=2; H_PS_PSSID=36548_38105_38093_37907_38177_38171_36807_38034_37926_38089_26350_37881; BDSVRTM=0",
+            "Host": "www.baidu.com",
+            "Pragma": "no-cache",
+            "Referer": "https://www.baidu.com/",
+            "sec-ch-ua": "\"Chromium\";v=\"106\", \"Google Chrome\";v=\"106\", \"Not;A=Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "same-origin",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
         }
 
         try:
             if is_yz == False:
-                response = requests.get(url,headers=headers,timeout=3)
+                response = self.scraper.get(url,headers=headers,timeout=3)
             else:
                 h = copy.deepcopy(headers)
                 del h['Cookie']
-                response = requests.get(url, headers=headers, proxies=self.proxies, timeout=10)
+                response = self.scraper.get(url, headers=h, proxies=self.proxies, timeout=6)
 
             response.encoding = 'utf-8'
             if '百度安全验证' in response.text:
@@ -139,15 +140,16 @@ class BaiDu():
                 print(f'出现百度安全验证 更换代理 {self.proxies}')
                 return self.requests_handler(url1,True)
             elif response.text.strip()=='':
-                return None
+                self.get_proxy()
+                return self.requests_handler(url1, True)
             elif '<div id="__status">' in response.text:
                 return None
             return response
         except Exception as e:
-            # self.get_proxy()
+            self.get_proxy()
             # log.logger.error(f'更换代理 {e}')
-            # return self.requests_handler(url1)
-            return None
+            return self.requests_handler(url1,True)
+            # return None
 
     def get_domain_url(self,baidu_url,count=0):
         try:
@@ -1469,9 +1471,8 @@ if __name__ == '__main__':
 "dd8d.com",
 "nengzan.cn",
 "",]
+    d = BaiDu([1, 0], kuaizhao_time='0', lang_chinese='1', min_gan_word='0')
     for domain in ls:
-
-        d = BaiDu([1,0],kuaizhao_time='0',lang_chinese='1',min_gan_word='0')
         data1 = d.get_info(domain)
         result1 = d.check_baidu(data1,domain)
         print(domain,result1)
