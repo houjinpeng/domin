@@ -148,8 +148,8 @@ class BaiDu():
         except Exception as e:
             self.get_proxy()
             # log.logger.error(f'更换代理 {e}')
-            return self.requests_handler(url1,True)
-            # return None
+            # return self.requests_handler(url1,True)
+            return None
 
     def get_domain_url(self,baidu_url,count=0):
         try:
