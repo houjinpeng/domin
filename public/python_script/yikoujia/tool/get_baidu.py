@@ -30,7 +30,7 @@ words = get_mingan_word()
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 100:
+        if proxy_queue.qsize()> 10:
             time.sleep(2)
             continue
         url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'

@@ -43,7 +43,7 @@ class JmApi():
 
             return response
         except Exception as e:
-            print(f'重新请求  一口价获取列表错误：{e}')
+            # print(f'重新请求  一口价获取列表错误：{e}')
             return self.get_ykj_list(data)
 
     # 获取一口价成交数据

@@ -17,6 +17,7 @@ from tool.get_sogou import GetSougouRecord
 from tool.get_360 import SoCom
 from tool.get_history import GetHistory
 from tool.get_aizhan import AiZhan
+from tool import get_min_gan_word
 import pymongo
 from socketserver import BaseRequestHandler, ThreadingTCPServer
 from functools import partial
@@ -235,13 +236,18 @@ class SearchYmAndFilter():
     #解析数据
     def parse_info(self,resp):
 
+        store_id_list = get_min_gan_word.get_exclude_store_id()
+
         all_data = resp['data']
         # 内存去重 set
         new_data = []
         for data in all_data:
             lens = len(self.ym_set)
             self.ym_set.add(data['ym'])
-            if len(self.ym_set) != lens:
+            if data['sid'] in store_id_list:
+                self.log_queue.put(f'域名：{data["ym"]} 店铺ID为：{data["sid"]}  在我们的黑名单中 已过滤')
+                continue
+            if len(self.ym_set) != lens :
                 new_data.append(data)
 
         # 判断是否检测历史
