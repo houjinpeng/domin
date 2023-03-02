@@ -103,9 +103,10 @@ class BaiDu():
             return "无结果"
 
 
-    def requests_handler(self, url1,is_yz=True):
+    def requests_handler(self, url1,is_yz=True,count=0):
         url = f"https://www.baidu.com/s?f=8&rsv_bp=1&wd=site%3A{url1}"
-
+        if count > 20:
+            return None
 
         headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -138,10 +139,10 @@ class BaiDu():
             if '百度安全验证' in response.text:
                 self.get_proxy()
                 print(f'出现百度安全验证 更换代理 {self.proxies}')
-                return self.requests_handler(url1,True)
+                return self.requests_handler(url1,True,count+1)
             elif response.text.strip()=='':
                 self.get_proxy()
-                return self.requests_handler(url1, True)
+                return self.requests_handler(url1, True,count+1)
             elif '<div id="__status">' in response.text:
                 return None
             return response

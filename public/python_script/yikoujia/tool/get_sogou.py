@@ -201,7 +201,7 @@ class GetSougouRecord():
         except Exception as e:
             return '计算失败'
 
-    def request_hearders(self, url,referer,count=0):
+    def request_hearders(self, url,count=0):
         try:
             headers = {
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -218,7 +218,7 @@ class GetSougouRecord():
                 "Sec-Fetch-Mode": "navigate",
                 "Sec-Fetch-Site": "none",
                 "Sec-Fetch-User": "?1",
-                "Referer": referer,
+                # "Referer": referer,
                 "Upgrade-Insecure-Requests": "1",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
             }
@@ -234,10 +234,14 @@ class GetSougouRecord():
             # r = requests.get(url, headers=headers, timeout=5, proxies=proxies)
             if r.status_code != 200:
                 # print(r.status_code)
+                if count > 20:
+                    return None
                 self.set_proxies()
-                return self.request_hearders(url,referer)
+                return self.request_hearders(url,count+1)
 
             if '请输入图中的验证码' in r.text:
+                if count > 20:
+                    return None
                 # print('请输入图中的验证码')
                 self.set_proxies()
                 # self.s = requests.session()
@@ -245,13 +249,13 @@ class GetSougouRecord():
                 # if resp == False:
                 #     return None
                 # return resp
-                return self.request_hearders(url,referer)
+                return self.request_hearders(url,count+1)
             return r
         except Exception as e:
             if count >= 20:
                 return None
             self.set_proxies()
-            return self.request_hearders(url,referer,count+1)
+            return self.request_hearders(url,count+1)
 
     def check_sogou(self, html, record_count, time_str, domain, sogou_is_com_word, jg='0', jv_now_day=None):
         '''
@@ -377,7 +381,7 @@ class GetSougouRecord():
         # url = f'https://www.sogou.com/web?query=site:{domain}&_ast=1674051198&_asf=www.sogou.com&w=01029901&cid=&s_from=result_up'
         # url = f'https://sogou.com/web?query=site%3A{domain}&_asf=www.sogou.com&_ast=&w=01015002&p=40040108&ie=utf8&from=index-nologin&s_from=index&oq=&ri=0&sourceid=sugg&suguuid=&sut=0&sst0=1674814022234&lkt=0%2C0%2C0&sugsuv=00C3E8BF76FA00FB63D38A0E70ABA902&sugtime=1674814022234'
 
-        r = self.request_hearders(url,'')
+        r = self.request_hearders(url)
         if r == None:
             return self.get_info(domain)
         try:
