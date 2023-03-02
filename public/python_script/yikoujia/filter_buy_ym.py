@@ -231,12 +231,12 @@ class FilterYm():
         cur = conn.cursor()
 
         if is_buy == 1:
-            save_sql1 = "insert into all_buy_ym (main_name,zhi_name,ym,price) values ('%s','%s','%s','%s')" % (main,zhi,domain_data['ym'],price)
+            save_sql1 = "insert into all_buy_ym (main_name,zhi_name,ym,price,`msg`) values ('%s','%s','%s','%s')" % (main,zhi,domain_data['ym'],price,escape_string(msg))
             cur.execute(save_sql1)
             conn.commit()
 
         if '失败' not in main:
-            save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy,`msg`) values ('%s','%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy,escape_string(msg))
+            save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy) values ('%s','%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy)
             cur.execute(save_sql)
             conn.commit()
         conn.close()
