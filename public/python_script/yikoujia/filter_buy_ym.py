@@ -236,7 +236,7 @@ class FilterYm():
             conn.commit()
 
         if '失败' not in main:
-            save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy,msg) values ('%s','%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy,escape_string(msg))
+            save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy,`msg`) values ('%s','%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy,escape_string(msg))
             cur.execute(save_sql)
             conn.commit()
         conn.close()
