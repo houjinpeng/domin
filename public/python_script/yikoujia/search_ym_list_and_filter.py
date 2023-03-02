@@ -306,21 +306,22 @@ class SearchYmAndFilter():
     def save_mysql(self, ym_data, key, value):
         # save_conn = self.db_pool.connection()
         # save_cur = save_conn.cursor()
-        try:
-            data = {
-                'ym': ym_data['ym'],
-                'jg': ym_data.get('jg'),
-                'zcs': ym_data.get('zcs'),
-                'token': ym_data.get('token'),
-                key: value,
-                'create_time': str(datetime.datetime.now())[:19]
-            }
-            self.save_ym.add(json.dumps(data))
-            self.mycol.insert_one(data)
-
-        except Exception as error:
-            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 保存数据库错误:{error}')
-            print(f'保存数据库错误:{error}')
+        pass
+        # try:
+        #     data = {
+        #         'ym': ym_data['ym'],
+        #         'jg': ym_data.get('jg'),
+        #         'zcs': ym_data.get('zcs'),
+        #         'token': ym_data.get('token'),
+        #         key: value,
+        #         'create_time': str(datetime.datetime.now())[:19]
+        #     }
+        #     self.save_ym.add(json.dumps(data))
+        #     self.mycol.insert_one(data)
+        #
+        # except Exception as error:
+        #     self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 保存数据库错误:{error}')
+        #     print(f'保存数据库错误:{error}')
 
 
     #过滤备案
@@ -561,11 +562,11 @@ class SearchYmAndFilter():
         threading.Thread(target=self.save_logs).start()
         #启动刷新黑名单任务
         threading.Thread(target=self.get_hmd).start()
-        self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
-        all_data = self.mycol.find()
-        for data in all_data:
-            self.ym_set.add(data['ym'])
-        del all_data
+        # self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
+        # all_data = self.mycol.find()
+        # for data in all_data:
+        #     self.ym_set.add(data['ym'])
+        # del all_data
 
         if self.filter['cate'] == '一口价':
 

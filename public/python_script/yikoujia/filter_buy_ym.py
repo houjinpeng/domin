@@ -873,7 +873,7 @@ class FilterYm():
 
         self.filter_data = self.get_filter_data(self.filter_id)
         # 主线的mongo库
-        self.mycol = self.mydb[f"ym_data_{self.filter_data['main_filter_id']}"]
+        # self.mycol = self.mydb[f"ym_data_{self.filter_data['main_filter_id']}"]
         # self.log = Logger(f'/logs/支线_{self.filter_data["title"]}.log').logger
         self.filter_data['place_2'] = 9999999999 if self.filter_data['place_2'] == 0 else self.filter_data['place_2']
         self.filter_dict = json.loads(self.filter_data['data'])
