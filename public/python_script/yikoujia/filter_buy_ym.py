@@ -226,7 +226,7 @@ class FilterYm():
         # redis_cli.sadd(f'out_ym_data_{self.filter_data["id"]}', json.dumps(domain_data))
 
     # 保存需要购买的域名
-    def save_buy_ym(self, domain_data,is_buy=0,main = '',zhi='',price='',):
+    def save_buy_ym(self, domain_data,is_buy=0,main = '',zhi='',price='',msg=''):
         conn = db_pool.connection()
         cur = conn.cursor()
 
@@ -236,7 +236,7 @@ class FilterYm():
             conn.commit()
 
         if '失败' not in main:
-            save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy) values ('%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy)
+            save_sql = "insert into ym_yikoujia_buy (buy_filter_id,ym,is_buy,msg) values ('%s','%s','%s','%s')" % (self.filter_data['id'], domain_data['ym'],is_buy,escape_string(msg))
             cur.execute(save_sql)
             conn.commit()
         conn.close()
@@ -307,13 +307,13 @@ class FilterYm():
                         self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'], main=self.main_filter['title'], price=domain_data['jg'])
                     else:
                         self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  购买失败 {resp}')
-                        self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'] + ' 失败',main=self.main_filter['title'] + ' 失败', price=domain_data['jg'])
+                        self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title'] + ' 失败',main=self.main_filter['title'] + ' 失败', price=domain_data['jg'],msg=resp['msg'])
 
                 else:
                     self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  {domain_data["ym"]} 可赎回域名不购买')
 
         else:
-            self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title']+' 失败', main=self.main_filter['title']+' 失败', price=domain_data['jg'])
+            self.save_buy_ym(domain_data, is_buy=1, zhi=self.filter_data['title']+' 失败', main=self.main_filter['title']+' 失败', price=domain_data['jg'],msg=resp['msg'])
             self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  购买失败 {resp}')
 
     # 备案对比
