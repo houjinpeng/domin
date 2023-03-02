@@ -306,22 +306,22 @@ class SearchYmAndFilter():
     def save_mysql(self, ym_data, key, value):
         # save_conn = self.db_pool.connection()
         # save_cur = save_conn.cursor()
-        pass
-        # try:
-        #     data = {
-        #         'ym': ym_data['ym'],
-        #         'jg': ym_data.get('jg'),
-        #         'zcs': ym_data.get('zcs'),
-        #         'token': ym_data.get('token'),
-        #         key: value,
-        #         'create_time': str(datetime.datetime.now())[:19]
-        #     }
-        #     self.save_ym.add(json.dumps(data))
-        #     self.mycol.insert_one(data)
-        #
-        # except Exception as error:
-        #     self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 保存数据库错误:{error}')
-        #     print(f'保存数据库错误:{error}')
+        # pass
+        try:
+            data = {
+                'ym': ym_data['ym'],
+                'jg': ym_data.get('jg'),
+                'zcs': ym_data.get('zcs'),
+                'token': ym_data.get('token'),
+                key: value,
+                'create_time': str(datetime.datetime.now())[:19]
+            }
+            self.save_ym.add(json.dumps(data))
+            # self.mycol.insert_one(data)
+
+        except Exception as error:
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 保存数据库错误:{error}')
+            print(f'保存数据库错误:{error}')
 
 
     #过滤备案
