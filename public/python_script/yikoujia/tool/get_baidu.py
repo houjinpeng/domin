@@ -36,7 +36,7 @@ def get_proxy():
             continue
         url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'
         try:
-            r = requests.get(url, timeout=3)
+            r = requests.get(url, timeout=4)
             if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
                 print('尝试修改提取筛选参数')
                 time.sleep(20)
