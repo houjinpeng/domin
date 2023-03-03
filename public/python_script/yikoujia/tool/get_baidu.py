@@ -5,7 +5,6 @@ import re
 import time
 import requests
 from lxml import etree
-from queue import Queue
 import threading
 from urllib.parse import urlparse
 from tool.get_min_gan_word import get_mingan_word
@@ -31,7 +30,7 @@ words = get_mingan_word()
 proxy_queue = queue.Queue()
 def get_proxy():
     while True:
-        if proxy_queue.qsize()> 10:
+        if proxy_queue.qsize() > 10:
             time.sleep(2)
             continue
         url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=20'
@@ -103,10 +102,8 @@ class BaiDu():
             return "无结果"
 
 
-    def requests_handler(self, url1,is_yz=True,count=0):
+    def requests_handler(self, url1):
         url = f"https://www.baidu.com/s?f=8&rsv_bp=1&wd=site%3A{url1}"
-        if count > 20:
-            return None
 
         headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
