@@ -48,8 +48,8 @@ class Client():
         self.client.sendall(str(self.filter_id).encode())
         error_data = ''
         while True:
+            response = self.client.recv(102400000)
             try:
-                response = self.client.recv(102400000)
                 data = response.decode()
                 if data == '':time.sleep(0.2) ;continue
                 data_list = data.split('||||||')
@@ -81,6 +81,7 @@ class Client():
                 self.log_queue.put(f'{str(datetime.datetime.now())[:19]}  获取数据错误：{e}')
 
 #启动插入日志队列
+
 class FilterYm():
     def __init__(self, filter_id):
         self.filter_id = filter_id
