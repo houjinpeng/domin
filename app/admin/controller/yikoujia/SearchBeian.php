@@ -58,26 +58,14 @@ class SearchBeian extends AdminController
         $ym = $this->request->get('ym');
 
 
-        $list = $this->model->where('ym','=',$ym)->where('type','=','beian')->find();
-        if (empty($list)){
-            $cmd = 'python3 ./python_script/search/search_beian.py '.$ym.'  2>&1';
-            $out = exec($cmd);
-        }
-
-        $list = $this->model->where('ym','=',$ym)->where('type','=','beian')->find();
-        if (empty($list)){
-            $data = [
-                'code'=>1,
-                'msg'=>'未查询到',
-                'data'=>$list
-            ];
-            return json($data);
-        }
-        $list['data'] = json_decode($list['data'],true);
+        $cmd = 'python3 ./python_script/search/search_beian.py '.$ym.'  2>&1';
+        $out = exec($cmd);
+        $result = json_decode($out,true);
         $data = [
             'code'=>0,
             'msg'=>'',
-            'data'=>[$list]
+            'ym'=>$ym,
+            'data'=>[$result]
         ];
         return json($data);
 

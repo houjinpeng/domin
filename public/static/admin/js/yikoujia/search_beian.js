@@ -78,7 +78,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
 
                                     old_data.push({
-                                        ym:item['ym'],
+                                        ym:resp['ym'],
                                         data:d,
                                     })
                                 })
