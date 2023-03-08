@@ -1,8 +1,3 @@
-import faulthandler
-
-import pymysql
-
-faulthandler.enable()
 import time
 import base64
 from io import BytesIO
@@ -14,12 +9,6 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import sys
 from tool import *
-from config import *
-
-
-conn = pymysql.connect(**MYSQL_CONF)
-cur = conn.cursor()
-
 
 class BeiAn():
     '''
@@ -35,25 +24,11 @@ class BeiAn():
         #启动定时任务获取token 4分钟执行一次
 
 
-    def dingshi(self):
-        while True:
-            self.s = requests.session()
-            if self.get_cookie() == None:
-                continue
-            r = self.get_token()
-            if r == None:
-                self.set_proxies()
-                continue
-            self.token = json.loads(r.text)['params']['bussiness']
-            time.sleep(60*4)
-
     def set_proxies(self):
-
         url = 'http://222.186.42.15:7772/SML.aspx?action=GetIPAPI&OrderNumber=a2b676c40f8428c7de191c831cbcda44&poolIndex=1676099678&Split=&Address=&Whitelist=&isp=&qty=1'
         try:
             r = requests.get(url, timeout=1)
             if '尝试修改提取筛选参数' in r.text or '用户异常' in r.text:
-                print(r.text)
                 time.sleep(2)
                 return self.set_proxies()
             ip_list = r.text.split('\r\n')
@@ -70,20 +45,12 @@ class BeiAn():
             return self.set_proxies()
 
 
-
-
     def request_handler(self,url,data,headers,type='data',is_user_proxies = True):
         try:
             if type == 'data':
-                if is_user_proxies == True:
-                    r = self.s.post(url, headers=headers, verify=False, data=data, proxies=self.proxies,timeout=5)
-                else:
-                    r = self.s.post(url, headers=headers, verify=False, data=data, timeout=5)
+                r = self.s.post(url, headers=headers, verify=False, data=data, proxies=self.proxies,timeout=5)
             else:
-                if is_user_proxies == True:
-                    r = self.s.post(url, headers=headers, verify=False, json=data, proxies=self.proxies,timeout=5)
-                else:
-                    r = self.s.post(url, headers=headers, verify=False, json=data, timeout=5)
+                r = self.s.post(url, headers=headers, verify=False, json=data, proxies=self.proxies,timeout=5)
 
             if ('攻击行为' in r.text and '如果您是网站管理员' in r.text) or '您访问频率太高，请稍候再试。' in r.text:
                 is_user_proxies = True
@@ -290,8 +257,6 @@ class BeiAn():
         result = self.get_detail_data(param, token, uuid,domain)
 
 
-        sql = build_sql('ym_search_result', {'ym': domain, 'data': result, 'type': 'beian'})
-        save_data(sql, cur, conn)
 
         return result
 
@@ -300,8 +265,7 @@ class BeiAn():
 
 if __name__ == '__main__':
     ym = sys.argv[1]
-
     c = BeiAn()
-    c.beian_info(ym)
-    print('全部完成')
+    res = c.beian_info(ym)
+    print(json.dumps(res))
 
