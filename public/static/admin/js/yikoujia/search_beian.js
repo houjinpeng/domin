@@ -71,7 +71,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 resp.data.forEach(function (item) {
                                     let d = false
                                     try{
-                                        d =  item['data']['list'][0]
+                                        d =  item['params']['list'][0]
                                     }catch (e) {
 
                                     }
