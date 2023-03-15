@@ -1,0 +1,104 @@
+<input id="all_good" value="{$all_goods}" hidden="hidden">
+
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form" lay-filter="order_form" >
+            <div class="layui-form-item">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label ">供货商</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <select name="supplier_id" lay-verify="required">
+                            <option value=""></option>
+                            {foreach $supplier_list as $item}
+                            <option value="{$item['id']}" {if $data['supplier_id'] == $item['id']} selected{/if}>{$item['name']}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">仓库</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <select name="warehouse_id" lay-verify="required">
+                            <option value=""></option>
+                            {foreach $warehouse_list as $item}
+                            <option value="{$item['id']}" {if $data['warehouse_id'] == $item['id']} selected{/if}>{$item['name']}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">单据日期</label>
+                    <div class="layui-input-inline" style="width: 160px;">
+                        <input name="order_time" value="{$data['order_time']}" autocomplete="off" type="text" required  lay-verify="required" class="layui-input" id="order_time" placeholder="请选择单据日期">
+
+                    </div>
+                </div>
+                <div class="layui-inline">
+
+                    <a class="layui-btn layui-btn-sm" id="crawl_order"  lay-filter="formDemo">导入单据</a>
+                    <a class="layui-btn layui-btn-sm" id="clear_zero"  lay-filter="formDemo">清除为0数据</a>
+
+                </div>
+
+            </div>
+
+            <table id="order_table" lay-filter="order_table"></table>
+
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" id="jk_price" >单据金额</label>
+                    <div class="layui-input-inline" style="width: 230px;">
+                        <input value="{$data['practical_price']}" id="practical_price" name="practical_price" required placeholder="请输入单据金额|点击左侧快捷录入" autocomplete="off" lay-verify="required|number" type="text" class="layui-input" >
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">实付金额</label>
+                    <div class="layui-input-inline" style="width: 160px;">
+                        <input value="{$data['paid_price']}" name="paid_price" required  lay-verify="required|number" placeholder="请输入实付金额" autocomplete="off" type="text" class="layui-input">
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">结算账户</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <select name="account_id" lay-verify="required">
+                            <option value=""></option>
+                            {foreach $account_list as $item}
+                            <option value="{$item['id']}" {if $data['account_id'] == $item['id']} selected{/if}>{$item['name']}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">备注信息</label>
+                    <div class="layui-input-inline" style="width: 260px;">
+                        <input type="text" class="layui-input" name="remark">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="layui-form-item" style="text-align: center">
+                <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="formDemo">提交单据</button>
+            </div>
+
+        </form>
+
+
+
+
+
+
+    </div>
+</div>
+
+<script type="text/html" id="barDemo">
+    <i class="layui-icon layui-icon-addition" lay-event="add"></i>
+    <i class="layui-icon layui-icon-subtraction" lay-event="del"></i>
+
+{/*    <a class="layui-btn layui-btn-xs" lay-event="edit"></a>*/}
+</script>
