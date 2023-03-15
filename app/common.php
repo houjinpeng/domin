@@ -163,8 +163,10 @@ if (!function_exists('auth')) {
 
 if (!function_exists('array_remove')) {
     /**
-     * @param $data 数组
-     * @param $key 删除的key
+     * @param $data
+     * 数组
+     * @param $key
+     * 删除的key
      * @return mixed 返回新的数组
      */
     function array_remove($data, $key){
@@ -177,6 +179,26 @@ if (!function_exists('array_remove')) {
             array_splice($data, $index, 1);
         }
         return $data;
+
+    }
+
+}
+
+if (!function_exists('delete_dict_key')) {
+    /**
+     * @param $data
+     * 数组
+     * @param $key
+     * 删除的key
+     * @return mixed 返回新的数组
+     */
+    function delete_dict_key($dict, $key){
+        $new_dict= [];
+        foreach ($dict as $k=>$v){
+            if ($key ==$k) continue;
+            $new_dict[$k] = $v;
+        }
+        return $new_dict;
 
     }
 
