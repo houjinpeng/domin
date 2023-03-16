@@ -175,10 +175,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     expiration_time: ''
                 }]
                 ,
-                done: function () {
-
-
-                }
             });
 
 
@@ -257,6 +253,20 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 })
 
                 $('#practical_price').val(total_pirce)
+
+            })
+            $('#reset').click(function () {
+                $('input').val('')
+                table.reload('order_table',{data:[{
+                        'index': '1',
+                        'total_price': '',
+                        remark: '',
+                        unit_price: '',
+                        good_name: '',
+                        num: '1',
+                        register_time: '',
+                        expiration_time: ''
+                    }],limit:100000})
 
             })
 

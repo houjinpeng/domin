@@ -259,6 +259,20 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             })
 
+            $('#reset').click(function () {
+                $('input').val('')
+                table.reload('order_table',{data:[{
+                        'index': '1',
+                        'total_price': '',
+                        remark: '',
+                        unit_price: '',
+                        good_name: '',
+                        num: '1',
+                        register_time: '',
+                        expiration_time: ''
+                    }],limit:100000})
+
+            })
             //点击导入单据
             $('#crawl_order').click(function () {
                 let data = form.val("order_form");
