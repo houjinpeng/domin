@@ -256,8 +256,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
             //点击导入单据
             $('#crawl_order').click(function () {
 
+                let data = form.val("order_form");
+                if (!data['order_time']) {
+                    layer.msg('请选择单据时间 根据单据时间导入成交数据~', {icon: 2});
+                    return
+                }
+
+                let crawl_time = data['order_time'].split(' ')[0]
                 ea.request.get({
-                    url: 'crawl_order_data',
+                    url: 'crawl_order_data?crawl_time='+crawl_time,
                 }, function (resp) {
                     console.log(resp)
                     table.reload('order_table', {data: resp.data, limit: 100000})

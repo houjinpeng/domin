@@ -337,13 +337,13 @@ class SaleOrder extends AdminController
     /**
      * @NodeAnotation(title="抓取销货数据")
      */
-    public function crawl_order_data()
+    public function crawl_order_data($crawl_time)
     {
 
         $warehouse_data = $this->warehouse_model->select()->toArray();
-        $start_time = date('Y-m-d',strtotime('-1 day'));
-        $end_time = date('Y-m-d');
-
+//        $start_time = date('Y-m-d',strtotime('-1 day'));
+//        $end_time = date('Y-m-d');
+//        dd($post['order_time']);
         $error_data = [];
         $list = [];
         $index = 0;
@@ -354,15 +354,15 @@ class SaleOrder extends AdminController
             $cookie = $warehouse['cookie'];
             //获取所有域名 信息
             $jm_api = new JvMing($username, $password, $cookie);
-            $all_ym_data = $jm_api->get_sale_ym($start_time,$end_time);
+            $all_ym_data = $jm_api->get_sale_ym($crawl_time,$crawl_time);
             if ($all_ym_data['code'] ==999){
                 $error_data[] = $all_ym_data['msg'];
             }
             foreach ($all_ym_data['data'] as $item){
                 $list[] = [
                     'index'=>$index+1,
-                    'total_price' =>intval($item['qian']),
-                    'unit_price' => intval($item['qian']),
+                    'total_price' =>intval($item['wtqian']),
+                    'unit_price' => intval($item['wtqian']),
                     'num' => '1',
                     'good_name' => $item['ym'],
                     'sale_time' => $item['jssj'],
