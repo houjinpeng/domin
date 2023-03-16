@@ -34,12 +34,7 @@
 
                     </div>
                 </div>
-                <div class="layui-inline">
 
-                    <a class="layui-btn layui-btn-sm" id="crawl_order"  lay-filter="formDemo">导入单据</a>
-                    <a class="layui-btn layui-btn-sm" id="clear_zero"  lay-filter="formDemo">清除为0数据</a>
-
-                </div>
 
             </div>
 
@@ -81,10 +76,13 @@
                 </div>
 
             </div>
+            {if $data['audit_status'] == 0}
 
             <div class="layui-form-item" style="text-align: center">
                 <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="formDemo">提交单据</button>
             </div>
+            {/if}
+
 
         </form>
 

@@ -78,9 +78,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
-                            'edit',
-                            [
-                                {
+                            [ {
+                                text: '编辑查看',
+                                title:'编辑查看',
+                                url: init.edit_url,
+                                method: 'open',
+                                auth: 'edit',
+                                class: 'layui-btn layui-btn-xs',
+                                extend: 'data-full="true"',
+                            },{
                                     text: '撤销',
                                     title:'是否要撤销当前单据？',
                                     url: init.chexiao_url,
@@ -103,7 +109,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     //将抓取过的抓取按钮变灰色
                     $.each(data.data,function (k,v){
                         if (v.audit_status === 1 || v.audit_status === 2){
-                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="编辑信息"]').removeClass('layui-btn-success').addClass('layui-btn-disabled').removeAttr('data-open')
+                            // $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="编辑信息"]').removeClass('layui-btn-success').addClass('layui-btn-disabled').removeAttr('data-open')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
                         }

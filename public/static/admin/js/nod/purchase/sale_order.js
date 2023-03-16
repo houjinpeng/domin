@@ -82,9 +82,17 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
-                            'edit',
+
                             [
                                 {
+                                    text: '编辑查看',
+                                    title:'编辑查看',
+                                    url: init.edit_url,
+                                    method: 'open',
+                                    auth: 'edit',
+                                    class: 'layui-btn layui-btn-xs',
+                                    extend: 'data-full="true"',
+                                },{
                                     text: '撤销',
                                     title:'是否要撤销当前单据？',
                                     url: init.chexiao_url,
@@ -107,7 +115,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     //将抓取过的抓取按钮变灰色
                     $.each(data.data,function (k,v){
                         if (v.audit_status === 1 || v.audit_status === 2){
-                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="编辑信息"]').removeClass('layui-btn-success').addClass('layui-btn-disabled').removeAttr('data-open')
+                            // $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="编辑信息"]').removeClass('layui-btn-success').addClass('layui-btn-disabled').removeAttr('data-open')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
                         }
@@ -123,7 +131,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             var laydate = layui.laydate;
             var table = layui.table;
             var form = layui.form;
-
+            var all_data = null;
             function check_number(value) {
                 return !isNaN(parseFloat(value)) && isFinite(value);
 
@@ -177,8 +185,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             //工具条事件
             table.on('tool(order_table)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
                 var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
-                var all_data = table.cache['order_table']
-                console.log(all_data)
+                all_data = table.cache['order_table']
 
 
                 if (layEvent === 'del') { //删除
@@ -243,7 +250,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             //快捷录入单据金额
             $('#jk_price').click(function () {
-                let all_data = table.cache['order_table']
+                all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
                     total_pirce += item['total_price']
@@ -273,7 +280,81 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             })
 
+            //点击表单导入
+            $('#import_order').click(function () {
+                layer.open({
+                    title: '采购单-表单导入单据',
+                    skin: 'demo-class',
+                    type: 1,
+                    area: ['800px', '500px'],
+                    content: '<div class="layuimini-container">\n' +
+                        '\t    <div class="layuimini-main">\n' +
+                        '<form class="layui-form" action="" lay-filter="import_form">\n' +
+                        '  <div class="layui-form-item layui-form-text">\n' +
+                        '    <label class="layui-form-label">导入表单</label>\n' +
+                        '    <div class="layui-input-block">\n' +
+                        '      <textarea rows="10" name="data" placeholder="输入格式:域名|出售时间|单价|备注   如：baidu.com|2022-12-02|100|我是一个搬运工" class="layui-textarea"></textarea>\n' +
+                        '    </div>\n' +
+                        '  </div>\n' +
+                        '  <div class="layui-form-item">\n' +
+                        '    <div class="layui-input-block">\n' +
+                        '      <a id="import_form" class="layui-btn layui-btn-sm" >立即导入</a>\n' +
+                        '    </div>\n' +
+                        '  </div>\n' +
+                        '</form>\n' +
+                        '</div></div>',
+                    success:function (layero, index) {
+                        //点击导入 导入表单
+                        $('#import_form').click(function () {
 
+
+                            let data = form.val("import_form")['data'].split('\n');
+                            if (data.length ===0) {
+                                layer.msg('不能一个也不导入吧~',{icon:2})
+                            }
+                            let import_data = []
+                            for (let i in data){
+                                let d = $.trim(data[i])
+                                if (d === '')continue
+                                let detail = d.split('|')
+                                let ym = $.trim(detail[0])
+                                let sale_time = $.trim(detail[1])
+                                let unit_price = $.trim(detail[2])
+                                let total_price = $.trim(detail[2])
+                                let remark = $.trim(detail[3])
+
+                                import_data.push({
+                                    remark: remark,
+                                    unit_price: unit_price,
+                                    total_price: total_price,
+                                    good_name:ym,
+                                    num: 1,
+                                    index: parseInt(i)+1,
+                                    sale_time: sale_time,
+                                })
+
+                            }
+
+                            let l = import_data.length
+                            for (let i in all_data){
+                                let d= all_data[i]
+                                d['index'] =parseInt(l)+parseInt(i)+1
+                                import_data.push(d)
+                            }
+
+
+                            table.reload('order_table', {data: import_data, limit: 100000})
+                            layer.msg('导入成功',{icon:1})
+                            layer.close(index)
+                            return false
+                        })
+                    }
+
+
+                });
+
+
+            })
 
             ea.listen(function (data) {
                 data['goods'] = table.cache['order_table']
