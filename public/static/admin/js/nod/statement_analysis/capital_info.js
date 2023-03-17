@@ -4,7 +4,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var show_init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'nod.statement_analysis.warehouse_receive_dispatch/index',
+        index_url: 'nod.statement_analysis.capital_info/index',
 
     };
 
@@ -14,6 +14,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             var warehouse_select_list = ea.getSelectList('NodWarehouse','id,name')
             var account_select_list = ea.getSelectList('NodAccount','id,name')
             var supplier_select_list = ea.getSelectList('NodSupplier','id,name')
+            var customer_select_list = ea.getSelectList('NodCustomerManagement','id,name')
             function bulid_select(select_list,field='name'){
                 let se = {}
                 select_list.forEach(function (item) {
@@ -31,23 +32,18 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limits:[50,100,200],
                 toolbar:['refresh'],
                 cols: [[
-                    {type: "checkbox"},
-                    {field: 'warehouse_id', minWidth: 110, title: '仓库',selectList: bulid_select(warehouse_select_list),templet:function (d) {
-                        if ( d.getWarehouse){
-                            return d.getWarehouse.name
-                        } return ''
+                    {field: 'account_id', minWidth: 110, fixed:'left',title: '账号',selectList: bulid_select(account_select_list),templet:function (d) {
+                            if ( d.getAccount){
+                                return d.getAccount.name
+                            } return ''
+                        }},
+                    {field: 'price', minWidth: 152, title: '收支', fixed:'left',search: false},
+                    {field: 'category', minWidth: 80, title: '类型'},
+                    {field: 'balance_price', minWidth: 152, title: '余额',search: false},
+                    {field: 'operate_time', search:false,minWidth: 168, title: '操作时间'},
 
-                        }},
-                    {field: 'type', minWidth: 80, title: '类型',selectList:{'1':'入库','2':'出库','3':'转移'},templet:function (d) {
-                            if (d.type === 1){
-                                return '入库'
-                            }if (d.type === 2){
-                                return '出库'
-                            }if (d.type === 3){
-                                return '转移'
-                            }
-                        }},
-                    {field: 'pid', minWidth: 180,search: false, title: '单据编号',templet:function (d) {
+
+                    {field: 'pid', minWidth: 180, title: '单据编号',search: false,templet:function (d) {
                             if (d.getOrder){
                                 return d.getOrder.order_batch_num
                             } return ''
@@ -59,16 +55,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             } return ''
 
                         }},
+                    {field: 'warehouse_id', minWidth: 110, title: '仓库',selectList: bulid_select(warehouse_select_list),templet:function (d) {
+                        if ( d.getWarehouse){
+                            return d.getWarehouse.name
+                        } return ''
 
-                    {field: 'good_name', minWidth: 152, title: '商品名称'},
-                    {field: 'expiration_time', search:false,minWidth: 130, title: '过期时间'},
-                    {field: 'register_time', search:false, minWidth: 130, title: '注册时间'},
-                    {field: 'sale_time', search:false, minWidth: 130, title: '出售时间'},
-                    {field: 'unit_price', search:false, minWidth: 100, title: '价格'},
-                    {field: 'account_id', minWidth: 110, title: '账号',selectList: bulid_select(account_select_list),templet:function (d) {
-                            if ( d.getAccount){
-                                return d.getAccount.name
-                            } return ''
                         }},
                     {field: 'supplier_id', minWidth: 110, title: '供应商',selectList: bulid_select(supplier_select_list),templet:function (d) {
                             if ( d.getSupplier){
@@ -76,7 +67,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }
                             return ''
                         }},
-
+                    {field: 'customer_id', minWidth: 110, title: '客户',selectList: bulid_select(customer_select_list),templet:function (d) {
+                            if ( d.getCustomer){
+                                return d.getCustomer.name
+                            }
+                            return ''
+                        }},
                     {field: 'remark', minWidth: 100, title: '备注信息'},
                     {field: 'create_time', minWidth: 180, title: '操作时间',search: 'range'},
 

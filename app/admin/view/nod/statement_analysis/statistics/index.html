@@ -1,0 +1,233 @@
+
+<style>
+    .layui-card {border:1px solid #f2f2f2;border-radius:5px;}
+    .icon {margin-right:10px;color:#1aa094;}
+    .icon-cray {color:#ffb800!important;}
+    .icon-blue {color:#1e9fff!important;}
+    .icon-tip {color:#ff5722!important;}
+    .layuimini-qiuck-module {text-align:center;margin-top: 10px}
+    .layuimini-qiuck-module a i {display:inline-block;width:100%;height:60px;line-height:60px;text-align:center;border-radius:2px;font-size:30px;background-color:#F8F8F8;color:#333;transition:all .3s;-webkit-transition:all .3s;}
+    .layuimini-qiuck-module a cite {position:relative;top:2px;display:block;color:#666;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;font-size:14px;}
+    .welcome-module {width:100%;height:210px;}
+    .panel {background-color:#fff;border:1px solid transparent;border-radius:3px;-webkit-box-shadow:0 1px 1px rgba(0,0,0,.05);box-shadow:0 1px 1px rgba(0,0,0,.05)}
+    .panel-body {padding:10px}
+    .panel-title {margin-top:0;margin-bottom:0;font-size:12px;color:inherit}
+    .label {display:inline;padding:.2em .6em .3em;font-size:75%;font-weight:700;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25em;margin-top: .3em;}
+    .layui-red {color:red}
+    .main_btn > p {height:40px;}
+    .layui-bg-number {background-color:#F8F8F8;}
+    .layuimini-notice:hover {background:#f6f6f6;}
+    .layuimini-notice {padding:7px 16px;clear:both;font-size:12px !important;cursor:pointer;position:relative;transition:background 0.2s ease-in-out;}
+    .layuimini-notice-title,.layuimini-notice-label {
+        padding-right: 70px !important;text-overflow:ellipsis!important;overflow:hidden!important;white-space:nowrap!important;}
+    .layuimini-notice-title {line-height:28px;font-size:14px;}
+    .layuimini-notice-extra {position:absolute;top:50%;margin-top:-8px;right:16px;display:inline-block;height:16px;color:#999;}
+</style>
+<input id="every_chuku_list" value="{$every_chuku_list}" hidden="hidden">
+<input id="every_ruku_list" value="{$every_ruku_list}" hidden="hidden">
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md4">
+                <div class="layui-col-md12">
+                    <div class="layui-card">
+                        <div class="layui-card-header"><i class="fa fa-warning icon"></i>数据统计</div>
+                        <div class="layui-card-body">
+                            <div class="welcome-module">
+                                <div class="layui-row layui-col-space10">
+                                    <div class="layui-col-xs6">
+                                        <div class="panel layui-bg-number">
+                                            <div class="panel-body">
+                                                <div class="panel-title">
+                                                    <span class="label pull-right layui-bg-blue">实时</span>
+                                                    <h5>日销售额</h5>
+                                                </div>
+                                                <div class="panel-content">
+                                                    <h1 class="no-margins">{$day_sales}</h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-col-xs6">
+                                        <div class="panel layui-bg-number">
+                                            <div class="panel-body">
+                                                <div class="panel-title">
+                                                    <span class="label pull-right layui-bg-cyan">实时</span>
+                                                    <h5>日销售毛利</h5>
+                                                </div>
+                                                <div class="panel-content">
+                                                    <h1 class="no-margins">{$day_profit_price}</h1>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-col-xs6">
+                                        <div class="panel layui-bg-number">
+                                            <div class="panel-body">
+                                                <div class="panel-title">
+                                                    <span class="label pull-right layui-bg-orange">实时</span>
+                                                    <h5>日销售笔数</h5>
+                                                </div>
+                                                <div class="panel-content">
+                                                    <h1 class="no-margins">{$day_count}</h1>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-col-xs6">
+                                        <div class="panel layui-bg-number">
+                                            <div class="panel-body">
+                                                <div class="panel-title">
+                                                    <span class="label pull-right layui-bg-green">实时</span>
+                                                    <h5>日资金收入</h5>
+                                                </div>
+                                                <div class="panel-content">
+                                                    <h1 class="no-margins">{$day_shouru}</h1>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="layui-col-md4">
+                <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header"><i class="fa fa-warning icon"></i>汇总信息</div>
+                    <div class="layui-card-body">
+                        <div class="welcome-module">
+                            <div class="layui-row layui-col-space10">
+                                <div class="layui-col-xs6">
+                                    <div class="panel layui-bg-number">
+                                        <div class="panel-body">
+                                            <div class="panel-title">
+                                                <span class="label pull-right layui-bg-blue">实时</span>
+                                                <h5>账户总数</h5>
+                                            </div>
+                                            <div class="panel-content">
+                                                <h1 class="no-margins">{$zh_count}</h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-col-xs6">
+                                    <div class="panel layui-bg-number">
+                                        <div class="panel-body">
+                                            <div class="panel-title">
+                                                <span class="label pull-right layui-bg-cyan">实时</span>
+                                                <h5>客户总数</h5>
+                                            </div>
+                                            <div class="panel-content">
+                                                <h1 class="no-margins">{$customer_count}</h1>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-col-xs6">
+                                    <div class="panel layui-bg-number">
+                                        <div class="panel-body">
+                                            <div class="panel-title">
+                                                <span class="label pull-right layui-bg-orange">实时</span>
+                                                <h5>供应商总数</h5>
+                                            </div>
+                                            <div class="panel-content">
+                                                <h1 class="no-margins">{$gys_count}</h1>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-col-xs6">
+                                    <div class="panel layui-bg-number">
+                                        <div class="panel-body">
+                                            <div class="panel-title">
+                                                <span class="label pull-right layui-bg-green">实时</span>
+                                                <h5>库存总数</h5>
+                                            </div>
+                                            <div class="panel-content">
+                                                <h1 class="no-margins">{$kc_count}</h1>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="layui-col-md4">
+                <div class="layui-col-md6">
+                    <div class="layui-card">
+                        <div class="layui-card-header"><i class="fa fa-warning icon"></i>资产统计</div>
+                        <div class="layui-card-body">
+
+
+                            总资产 {$balance+$kc_cb}<br>
+                            资金余额:{$balance}元<br>
+
+                            库存成本:{$kc_cb}元<br>
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-col-md12">
+                <div class="layui-carousel" id="test1">
+                    <div carousel-item>
+                        <div>
+{/*                            每日入库*/}
+                            <div style="text-align: center;height:300px;width: 1000px" id="main1">
+
+
+                            </div>
+
+                        </div>
+                        <div>
+{/*                            每日出库*/}
+                            <div style="text-align: center;height:300px;width: 1000px" id="main2">
+
+
+                            </div>
+                        </div>
+                        <div>
+{/*                            每日销售额*/}
+                            <div style="text-align: center;height:300px;width: 1000px" id="main3">
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+

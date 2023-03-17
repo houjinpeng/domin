@@ -6,6 +6,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         index_url: 'nod.config.account/index',
         add_url: 'nod.config.account/add',
         edit_url: 'nod.config.account/edit',
+        info_url: 'nod.statement_analysis.capital_info/index',
         delete_url: 'nod.config.account/delete',
 
     };
@@ -34,9 +35,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         operat: [
                             [{
                                 text: '收支明细',
-                                url: init.edit_url,
+                                url: init.info_url,
                                 method: 'open',
-                                auth: 'edit',
+                                auth: 'info_url',
                                 class: 'layui-btn layui-btn-xs layui-btn-primary',
                                 extend: 'data-full="true"',
                             }],'edit',

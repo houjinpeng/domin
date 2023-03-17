@@ -71,8 +71,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.table.render({
                 init: show_init,
                 url:'show?warehouse_id='+$('#warehouse_id').val(),
-                limit:15,
-                limits:[15,30,50],
+                limit:50,
+                limits:[50,100,200],
+                height:'full-40',
                 toolbar:['refresh','add','delete'],
                 cols: [[
                     {type: "checkbox"},

@@ -177,6 +177,7 @@ class SaleOrder extends AdminController
                     'sale_time' => $item['sale_time'],
                     'expiration_time' =>$ym_dict[$item['good_name']]['expiration_time'],
                     'register_time' =>$ym_dict[$item['good_name']]['register_time'],
+                    'order_time' => $post['order_time'],
 
                 ];
                 $insert_all[] = $save_info;

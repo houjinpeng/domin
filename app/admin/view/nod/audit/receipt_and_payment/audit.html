@@ -1,0 +1,88 @@
+
+<input id="all_good" value="{$all_goods}" hidden="hidden">
+<input id="type" value="{$type}" hidden="hidden">
+
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form">
+            <div class="layui-form-item">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label ">客户</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <input readonly name="customer" required placeholder="请输客户名" value="{$data['getCustomer']['name']|default=''}" lay-verify="required" type="text" class="layui-input" >
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">单据日期</label>
+                    <div class="layui-input-inline" style="width: 160px;">
+                        <input readonly class="layui-input" value="{$data['order_time']}">
+
+
+                    </div>
+                </div>
+
+            </div>
+
+            <table id="order_table" lay-filter="order_table"></table>
+
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" id="jk_price" >单据金额</label>
+                    <div class="layui-input-inline" style="width: 230px;">
+                        <input name="practical_price"  id="practical_price" readonly class="layui-input" value="{$data['practical_price']}">
+
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">{if $type=='receipt'}实收金额{else}实付金额{/if}</label>
+                    <div class="layui-input-inline" style="width: 160px;">
+                        <input name="paid_price" class="layui-input" value="{$data['paid_price']}">
+
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">结算账户</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <input readonly class="layui-input" value="{$data['getAccount']['name']}">
+
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">备注信息</label>
+                    <div class="layui-input-inline" style="width: 260px;">
+                        <input type="text" class="layui-input" name="remark" readonly value="{$data['remark']}">
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            <div class="layui-form-item" style="text-align: center">
+                <a class="layui-btn layui-btn-sm" lay-submit  lay-filter="formDemo">完成审核</a>
+
+            </div>
+
+        </form>
+
+
+
+
+
+
+    </div>
+</div>
+
+<script type="text/html" id="barDemo">
+    <i class="layui-icon layui-icon-addition" lay-event="add"></i>
+    <i class="layui-icon layui-icon-subtraction" lay-event="del"></i>
+
+{/*    <a class="layui-btn layui-btn-xs" lay-event="edit"></a>*/}
+</script>

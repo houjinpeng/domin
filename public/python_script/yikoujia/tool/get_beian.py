@@ -74,6 +74,10 @@ class BeiAn():
             'https': f'http://{ip}',
         }
         # self.proxies = {
+        #     "http": "http://user-maiyuan:maiyuan123@gate.dc.visitxiangtan.com:20000",
+        #     "https": "http://user-maiyuan:maiyuan123@gate.dc.visitxiangtan.com:20000",
+        # }
+        # self.proxies = {
         #     'http': f'http://127.0.0.1:7890',
         #     'https': f'http://127.0.0.1:7890'
         # }

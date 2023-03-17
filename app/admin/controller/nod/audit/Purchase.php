@@ -18,7 +18,7 @@ use EasyAdmin\annotation\NodeAnotation;
 use think\App;
 
 /**
- * @ControllerAnnotation(title="审核-采购单")
+ * @ControllerAnnotation(title="审核-采购售货退货单")
  */
 class Purchase extends AdminController
 {
@@ -113,7 +113,7 @@ class Purchase extends AdminController
 
                 $ym_list = [];
                 foreach ($post['goods'] as $item) {
-                    $ym_list[] = $item['good_name'];
+                    $ym_list[] = trim($item['good_name']);
                     intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
                     $item['num'] = intval($item['num']);
@@ -142,7 +142,8 @@ class Purchase extends AdminController
 
 
                 //商品入库
-                $insert_all = [];
+                $insert_warehouse_all = [];
+                $insert_inventory_all = [];
                 foreach ($post['goods'] as $item) {
                     $save_info = [
                         'good_name' => $item['good_name'],
@@ -155,18 +156,48 @@ class Purchase extends AdminController
                         'supplier_id' => $row['supplier_id'],
                         'register_time' => $item['register_time'],
                         'expiration_time' => $item['expiration_time'],
-
                     ];
                     $this->order_info_model->where('id','=',$item['id'])->update($save_info);
-                    $insert_all[] = $save_info;
+
+                    //入库时间  取单据时间
+                    $insert_warehouse_info = [
+                        'good_name'         => $item['good_name'],
+                        'unit_price'        => $item['unit_price'],
+                        'total_price'       => $item['total_price'],
+                        'remark'            => isset($item['remark']) ? $item['remark'] : '',
+                        'pid'               => $id,
+                        'warehouse_id'      => $row['warehouse_id'],
+                        'account_id'        => $row['account_id'],
+                        'supplier_id'       => $row['supplier_id'],
+                        'register_time'     => $item['register_time'],
+                        'expiration_time'   => $item['expiration_time'],
+                        'order_time'        => $item['order_time'],
+                        'type'              => 1,
+                    ];
+                    $insert_inventory_info = [
+                        'good_name'         => $item['good_name'],
+                        'unit_price'        => $item['unit_price'],
+                        'total_price'       => $item['total_price'],
+                        'remark'            => isset($item['remark']) ? $item['remark'] : '',
+                        'pid'               => $id,
+                        'warehouse_id'      => $row['warehouse_id'],
+                        'account_id'        => $row['account_id'],
+                        'supplier_id'       => $row['supplier_id'],
+                        'register_time'     => $item['register_time'],
+                        'expiration_time'   => $item['expiration_time'],
+                        'order_time'    => $item['order_time'],
+                    ];
+
+                    $insert_warehouse_all[] = $insert_warehouse_info;
+                    $insert_inventory_all[] = $insert_inventory_info;
 
                 }
 
                 //商品存入库存明细表
-                $this->warehouse_info_model->insertAll($insert_all);
+                $this->warehouse_info_model->insertAll($insert_warehouse_all);
 
                 //存入库存表
-                $this->inventory_model->insertAll($insert_all);
+                $this->inventory_model->insertAll($insert_inventory_all);
 
                 //扣款
                 $account_data = $this->account_model->find($row['account_id']);
@@ -175,12 +206,15 @@ class Purchase extends AdminController
 
                 //账户记录扣款
                 $this->account_info_model->insert([
-                    'account_id' => $row['account_id'],
-                    'supplier_id' => $row['supplier_id'],
-                    'price'=>$post['paid_price'],
-                    'category'=>'采购',
-                    'balance_price'=>$balance_price,
-                    'operate_time'=>$row['order_time'],
+                    'account_id'        => $row['account_id'],
+                    'supplier_id'       => $row['supplier_id'],
+                    'warehouse_id'      => $row['warehouse_id'],
+                    'order_id'          => $row['pid'],
+                    'price'             =>-$post['paid_price'],
+                    'category'          =>'采购',
+                    'sz_type'           =>2,
+                    'balance_price'     =>$balance_price,
+                    'operate_time'      =>$row['order_time'],
                 ]);
 
                 $account_data->save(['balance_price'=>$balance_price]);
@@ -198,16 +232,19 @@ class Purchase extends AdminController
                 ];
 
 
-
+                $ym_shoujia = [];
                 $ym_list = [];
+                //验证
                 foreach ($post['goods'] as $item) {
                     $ym_list[] = $item['good_name'];
+                    $ym_shoujia[$item['good_name']] = ['unit_price'=>$item['unit_price'],'sale_time'=>$item['sale_time']];
                     intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
                     $item['num'] = intval($item['num']);
                     $item['total_price'] = intval($item['total_price']);
                     $this->validate($item, $rule);
                 }
+                //查询库存中的商品
                 $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
                 $ym_dict = [];
 
@@ -239,33 +276,36 @@ class Purchase extends AdminController
                 //获取pid 修改单据审核状态保存商品详情
                 $update= $row->save($save_order);
                 $update || $this->error('审核失败~');
-                //保存单据详情
 
-                foreach ($post['goods'] as $item) {
-                    $save_info = [
-                        'good_name' => $item['good_name'],
-                        'unit_price' => $item['unit_price'],
-                        'total_price' => $item['total_price'],
-                        'remark' => isset($item['remark']) ? $item['remark'] : '',
-                    ];
-                    $this->order_info_model->where('id','=',$item['id'])->update($save_info);
-
-                }
 
 
 
                //存入库存明细表中
                 $insert_all  = [];
-                $all_goods = $this->order_info_model->where('pid','=',$id)->select()->toArray();
+                $all_goods = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
+
                 foreach ($all_goods as $item){
-                    $item['type'] = '2';
-                    $item = delete_dict_key($item,'num');
-                    $insert_all[] = $item;
+                    //存入库存明细表中
+                    $insert_all[] = [
+                        'pid'                   =>$id,
+                        'good_name'             =>$item['good_name'],
+                        'expiration_time'       =>$item['expiration_time'],
+                        'register_time'         =>$item['register_time'],
+                        'sale_time'             =>$ym_shoujia[$item['good_name']]['sale_time'],
+                        'unit_price'            =>$ym_shoujia[$item['good_name']]['unit_price'], //售价
+                        'total_price'           =>$ym_shoujia[$item['good_name']]['unit_price'], //总价格
+                        'profit_price'          =>$ym_shoujia[$item['good_name']]['unit_price'] - $item['unit_price'],
+                        'remark'                =>$item['remark'],
+                        'warehouse_id'          =>$item['warehouse_id'],
+                        'account_id'            =>$row['account_id'],
+                        'customer_id'           =>$row['customer_id'],
+                        'order_time'            =>$row['order_time'],
+                        'type'                  =>2   //1入库 2出库
+                    ];
                 }
 
                 //减少库存   保存库存明细
                 $this->inventory_model->where('good_name','in',$ym_list)->delete();
-
                 //商品存入库存明细表
                 $this->warehouse_info_model->insertAll($insert_all);
 
@@ -275,17 +315,20 @@ class Purchase extends AdminController
 
                 //账户记录扣款
                 $this->account_info_model->insert([
-                    'account_id' => $row['account_id'],
-                    'supplier_id' => $row['supplier_id'],
-                    'price'=>$post['paid_price'],
-                    'category'=>'销售',
-                    'balance_price'=>$balance_price,
-                    'operate_time'=>$row['order_time'],
+                    'account_id'        => $row['account_id'],
+                    'supplier_id'       => $row['supplier_id'],
+                    'warehouse_id'      => $row['warehouse_id'],
+                    'customer_id'       => $row['customer_id'],
+                    'order_id'          =>$row['pid'],
+                    'price'             =>$post['paid_price'],
+                    'category'          =>'销售',
+                    'sz_type'           =>1,
+                    'balance_price'     =>$balance_price,
+                    'operate_time'      =>$row['order_time'],
                 ]);
 
                 $account_data->save(['balance_price'=>$balance_price]);
             }
-
             $this->success('审核成功~');
 
         }
