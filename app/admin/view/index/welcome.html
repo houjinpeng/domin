@@ -1,5 +1,13 @@
+
+{if auth('nod.statement_analysis.statistics/index')}
+    <script>
+        // local.load('nod.statement_analysis.statistics/index')
+        window.location.href = '/admin/nod.statement_analysis.statistics/index';
+    </script>
+{else}
 <div class="layuimini-container">
     <div class="layuimini-main">
         <a class="layui-btn layui-btn-sm"  href="/place.txt" target="_blank">360需购买域名</a>
     </div>
 </div>
+{/if}
