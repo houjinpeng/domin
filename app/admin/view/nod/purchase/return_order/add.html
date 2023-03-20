@@ -33,10 +33,7 @@
                     </div>
                 </div>
                 <div class="layui-inline">
-
-                    <a class="layui-btn layui-btn-sm" id="crawl_order"  lay-filter="formDemo">导入单据</a>
-                    <a class="layui-btn layui-btn-sm" id="clear_zero"  lay-filter="formDemo">清除为0数据</a>
-
+                    <a class="layui-btn layui-btn-sm" id="import_order"  lay-filter="formDemo">表单导入</a>
                 </div>
 
             </div>
@@ -52,7 +49,7 @@
                     </div>
                 </div>
                 <div class="layui-inline">
-                    <label class="layui-form-label">实付金额</label>
+                    <label class="layui-form-label">退货金额</label>
                     <div class="layui-input-inline" style="width: 160px;">
                         <input name="paid_price" required  lay-verify="required|number" placeholder="请输入实付金额" autocomplete="off" type="text" class="layui-input">
                     </div>
@@ -81,7 +78,7 @@
             </div>
 
             <div class="layui-form-item" style="text-align: center">
-                <button class="layui-btn layui-btn-sm"  lay-submit="nod.purchase.stock_order/add" lay-filter="formDemo">提交单据</button>
+                <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="formDemo">提交单据</button>
             </div>
 
         </form>

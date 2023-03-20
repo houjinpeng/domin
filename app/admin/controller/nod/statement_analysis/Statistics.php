@@ -69,6 +69,10 @@ class Statistics extends AdminController
 
         //总资金余额
         $balance = $this->zh_model->sum('balance_price');
+        $balance1 = $this->model->sum('receivable_price');
+        $balance2 = $this->gys_model->sum('receivable_price');
+        $ys_qiankuan =  $balance1+$balance2;
+
 
         //获取每日入库数
         $every_rukun_data = $this->wareehouse_info_model->field('count(*) as count ,DATE_FORMAT(order_time, "%Y-%m-%d") as order_time')->where('type','=',1)
@@ -114,6 +118,7 @@ class Statistics extends AdminController
         $this->assign('kc_count',$kc_count);
         $this->assign('gys_count',$gys_count);
         $this->assign('day_profit_price',$day_profit_price);
+        $this->assign('ys_qiankuan',$ys_qiankuan);
 
 
         return $this->fetch();

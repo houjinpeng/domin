@@ -140,6 +140,7 @@ class StockOrder extends AdminController
                     'num' => $item['num'],
                     'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
+                    'category' =>'采购',
                     'pid' => $pid,
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
@@ -261,6 +262,9 @@ class StockOrder extends AdminController
 
 
             }
+
+            delete_unnecessary_order_info($id,$post['goods']);
+
             $this->success('修改成功~');
 
         }

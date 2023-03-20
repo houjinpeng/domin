@@ -84,19 +84,18 @@ class Receipt extends AdminController
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户名】' => 'require',
+                'sale_user_id|【销售员】' => 'require',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实收金额】' => 'number|require',
             ];
-
             $this->validate($post, $order_info_rule);
 
             $rule = [
-                'category|【收款类别】' => 'require',
+                'category_id|【收款类别】' => 'number|require',
                 'total_price|【收款金额】' => 'number|require',
 
             ];
-
             if (count($post['goods']) == 0) {
                 $this->error('不能一个也不提交吧~');
             }
@@ -124,6 +123,7 @@ class Receipt extends AdminController
                 'remark' => $post['remark'],
                 'customer_id'=>$customer_id,
                 'account_id'=>$post['account_id'],
+                'sale_user_id'=>$post['sale_user_id'],
                 'type'=>4, //收款单
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
@@ -137,14 +137,14 @@ class Receipt extends AdminController
 
             foreach ($post['goods'] as $item) {
                 $save_info = [
-                    'category' => $item['category'],
+                    'category_id' => $item['category_id'],
+                    'category' => '收款',
                     'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
                     'customer_id'=>$customer_id,
                     'account_id' => $post['account_id'],
-
-
+                    'sale_user_id'=>$post['sale_user_id']
                 ];
                 $insert_all[] = $save_info;
 
@@ -187,13 +187,14 @@ class Receipt extends AdminController
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实收金额】' => 'number|require',
+                'sale_user_id|【销售员】' => 'number|require',
             ];
 
             $this->validate($post, $order_info_rule);
 
 
             $rule = [
-                'category|【收款类别】' => 'require',
+                'category_id|【收款类别】' => 'number|require',
                 'total_price|【收款金额】' => 'number|require',
 
             ];
@@ -225,6 +226,7 @@ class Receipt extends AdminController
                 'account_id' => $post['account_id'],
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
+                'sale_user_id' => $post['sale_user_id'],
 
             ];
             //获取pid   保存商品详情
@@ -233,14 +235,31 @@ class Receipt extends AdminController
 
 
             foreach ($post['goods'] as $item) {
-                $save_info = [
-                    'category' => $item['category'],
-                    'total_price' => $item['total_price'],
-                    'remark' => isset($item['remark']) ? $item['remark'] : '',
-                    'customer_id'=>$customer_id,
-                    'account_id' => $post['account_id'],
-                ];
-                $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+                if (isset($item['id'])){
+                    $save_info = [
+                        'category_id' => $item['category_id'],
+                        'total_price' => $item['total_price'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'customer_id'=>$customer_id,
+                        'account_id' => $post['account_id'],
+                        'sale_user_id' => $post['sale_user_id'],
+                    ];
+                    $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+                }else{
+                    $save_info = [
+                        'category_id' => $item['category_id'],
+                        'category' => '收款',
+                        'total_price' => $item['total_price'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'pid' => $id,
+                        'customer_id'=>$customer_id,
+                        'account_id' => $post['account_id'],
+                        'sale_user_id' => $post['sale_user_id'],
+                    ];
+                    $this->order_info_model->save($save_info);
+                }
+
+
             }
             $this->success('修改成功~');
 

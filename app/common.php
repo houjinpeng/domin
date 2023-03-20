@@ -203,3 +203,29 @@ if (!function_exists('delete_dict_key')) {
     }
 
 }
+
+if (!function_exists('delete_unnecessary_order_info')) {
+    /**
+     * @param $pid
+     * 单据id
+     * @param $save_data
+     * 需要保存的数据
+     * @return mixed 返回新的数组
+     */
+    function delete_unnecessary_order_info($pid, $save_data){
+        $all_id_list = [];
+        $all_data = \app\admin\model\NodOrderInfo::where('pid','=',$pid)->select()->toArray();
+        foreach ($all_data as $item){
+            $all_id_list[] = $item['id'];
+        }
+        $save_id_list = [];
+        foreach ($save_data as $item){
+            $save_id_list[] = $item['id'];
+        }
+        $unnecessary_id = array_diff($all_id_list,$save_id_list);
+        \app\admin\model\NodOrderInfo::where('id','in',$unnecessary_id)->delete();
+
+
+    }
+
+}

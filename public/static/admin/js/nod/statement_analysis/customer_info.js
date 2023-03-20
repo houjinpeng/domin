@@ -4,7 +4,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var show_init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'nod.statement_analysis.capital_info/index',
+        index_url: 'nod.statement_analysis.customer_info/index',
 
     };
 
@@ -32,17 +32,25 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limits:[50,100,200],
                 toolbar:['refresh'],
                 cols: [[
-                    {field: 'account_id', minWidth: 110, fixed:'left',title: '账号',selectList: bulid_select(account_select_list),templet:function (d) {
-                            if ( d.getAccount){
-                                return d.getAccount.name
+                    {field: 'customer_id', minWidth: 110, fixed:'left',title: '客户',selectList: bulid_select(customer_select_list),templet:function (d) {
+                            if ( d.getCustomer){
+                                return d.getCustomer.name
                             } return ''
                         }},
-                    {field: 'price', minWidth: 152, title: '实际金额', fixed:'left',search: false},
-                    {field: 'practical_price', minWidth: 152, title: '单据金额', fixed:'left',search: false},
-                    {field: 'category', minWidth: 120, title: '类型'},
-                    {field: 'balance_price', minWidth: 152, title: '余额',search: false},
-                    {field: 'operate_time', search:false,minWidth: 168, title: '操作时间'},
-
+                    // {field: 'unit_price', minWidth: 152, title: '交易金额', fixed:'left',search: false},
+                    {field: 'total_price', minWidth: 152, title: '交易金额', fixed:'left',search: false},
+                    {field: 'sale_user_id', minWidth: 100, fixed:'left', title: '销售人',templet:function (d) {
+                            if (d.getSaleUser){
+                                return d.getSaleUser.username
+                            }
+                            return d.category
+                        }},
+                    {field: 'category', minWidth: 80, title: '类型',templet:function (d) {
+                            if (d.getCategory){
+                                return d.getCategory.name
+                            }
+                            return d.category
+                        }},
 
                     {field: 'pid', minWidth: 180, title: '单据编号',search: false,templet:function (d) {
                             if (d.getOrder){
@@ -50,7 +58,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             } return ''
 
                         }},
-                    {field: 'pid', minWidth: 182, title: '单据日期',search: false,templet:function (d) {
+                    {field: 'pid', minWidth: 182, title: '单据日期',search: 'range',templet:function (d) {
                             if (d.getOrder){
                                 return d.getOrder.order_time
                             } return ''
@@ -68,14 +76,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }
                             return ''
                         }},
-                    {field: 'customer_id', minWidth: 110, title: '客户',selectList: bulid_select(customer_select_list),templet:function (d) {
-                            if ( d.getCustomer){
-                                return d.getCustomer.name
-                            }
-                            return ''
-                        }},
-                    {field: 'remark', minWidth: 100, title: '备注信息'},
-                    {field: 'create_time', minWidth: 180, title: '操作时间',search: 'range'},
+                    // {field: 'customer_id', minWidth: 110, title: '客户',selectList: bulid_select(customer_select_list),templet:function (d) {
+                    //         if ( d.getCustomer){
+                    //             return d.getCustomer.name
+                    //         }
+                    //         return ''
+                    //     }},
+                    {field: 'remark', minWidth: 100, title: '备注信息',search: false},
 
                 ]],
             });

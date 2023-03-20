@@ -11,15 +11,16 @@ use app\admin\model\NodOrder;
 use app\admin\model\NodOrderInfo;
 use app\admin\model\NodSupplier;
 use app\admin\model\NodWarehouse;
+use app\admin\model\NodWarehouseInfo;
 use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
 use think\App;
 
 /**
- * @ControllerAnnotation(title="财务-销货单")
+ * @ControllerAnnotation(title="财务-销货退货单单")
  */
-class SaleOrder extends AdminController
+class SaleReturnOrder extends AdminController
 {
 
     use \app\admin\traits\Curd;
@@ -31,6 +32,7 @@ class SaleOrder extends AdminController
         $this->model = new NodAccount();
         $this->kehu_model = new NodCustomerManagement();
         $this->warehouse_model = new NodWarehouse();
+        $this->warehouse_info_model = new NodWarehouseInfo();
         $this->account_model = new NodAccount();
         $this->order_model = new NodOrder();
         $this->order_info_model = new NodOrderInfo();
@@ -40,7 +42,7 @@ class SaleOrder extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="销货单列表")
+     * @NodeAnotation(title="销货单退货列表")
      */
     public function index()
     {
@@ -49,7 +51,7 @@ class SaleOrder extends AdminController
 
             list($page, $limit, $where) = $this->buildTableParames();
 
-            $where[] = ['type','=',3];
+            $where[] = ['type','=',6];
 
 
             $list = $this->order_model
@@ -71,7 +73,7 @@ class SaleOrder extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="录入销货单数据")
+     * @NodeAnotation(title="录入销货退货单数据")
      */
     public function add()
     {
@@ -87,20 +89,19 @@ class SaleOrder extends AdminController
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户】' => 'require',
+                'sale_user_id|【销售员】' => 'require',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实收金额】' => 'number|require',
-                'sale_user_id|【销售员】' => 'number|require',
+                'paid_price|【实退金额】' => 'number|require',
             ];
 
             $this->validate($post, $order_info_rule);
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'sale_time|【出售时间】' => 'require|date',
-                'unit_price|【售货单价】' => 'number|require',
-                'num|【售货数量】' => 'number|require',
-                'total_price|【售货金额】' => 'number|require',
+                'unit_price|【退货单价】' => 'number|require',
+                'num|【退货数量】' => 'number|require',
+                'total_price|【退货金额】' => 'number|require',
 
             ];
 
@@ -114,25 +115,40 @@ class SaleOrder extends AdminController
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
                 intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                $item['unit_price'] = intval($item['unit_price']);
+                $item['num'] = intval($item['num']);
+                $item['total_price'] = intval($item['total_price']);
                 $this->validate($item, $rule);
             }
 
+            //查找域名是否已经被销售
+            $sale_good = $this->warehouse_info_model->where('good_category','=',2)->where('good_name','in',$ym_list)->select()->toArray();
+
+
             $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
+            if (count($inventory_data)!=0){
+                $this->error('库存中有此商品，不能再次退货！');
+            }
+
+
             $ym_dict = [];
 
-            foreach ($inventory_data as $it){
+            foreach ($sale_good as $it){
                 $ym_dict[$it['good_name']] = $it;
             }
             //如果不相等 查询差的
-            if (count($inventory_data) != count($ym_list)){
+            if (count($sale_good) != count($ym_list)){
                 $inventory_list = [];
-                foreach ($inventory_data as $it){
+                foreach ($sale_good as $it){
                     $ym_dict[$it['good_name']] = $it;
                     $inventory_list[] = $it['good_name'];
                 }
                 $dif = array_diff($ym_list,$inventory_list);
-                $this->error('下列商品不在库存中，请尽快入库 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
+                $this->error('下列商品没有出售，不能进行退货处理 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
             }
+
+
+
             //判断客户是否存在 不存在添加
             $customer = $this->kehu_model->where('name','=',$post['customer'])->find();
             if (empty($customer)){
@@ -143,7 +159,7 @@ class SaleOrder extends AdminController
 
 
             //单据编号自动生成   XHD+时间戳
-            $order_batch_num = 'XHD' . date('YmdHis');
+            $order_batch_num = 'XSTH' . date('YmdHis');
 
             $save_order = [
                 'order_time' => $post['order_time'],
@@ -155,8 +171,8 @@ class SaleOrder extends AdminController
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
                 'audit_status' => 0,//审核状态
-                'sale_user_id' => $post['sale_user_id'],//销售员
-                'type'=>3,//售货单
+                'type'=>6,//售货退货单
+                'sale_user_id'=>$post['sale_user_id'],
             ];
             //获取pid   保存商品详情
 
@@ -171,18 +187,16 @@ class SaleOrder extends AdminController
                     'num' => $item['num'],
                     'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
-                    'category' =>'销售',
+                    'category' =>'销售退货',
                     'pid' => $pid,
                     'warehouse_id' => $ym_dict[$item['good_name']]['warehouse_id'],
                     'customer_id' => $customer_id,
                     'account_id' => $post['account_id'],
                     'supplier_id' => $ym_dict[$item['good_name']]['supplier_id'],
-                    'sale_time' => $item['sale_time'],
                     'expiration_time' =>$ym_dict[$item['good_name']]['expiration_time'],
                     'register_time' =>$ym_dict[$item['good_name']]['register_time'],
                     'order_time' => $post['order_time'],
-                    'sale_user_id' => $post['sale_user_id'],//销售员
-
+                    'sale_user_id'=>$post['sale_user_id'],
                 ];
                 $insert_all[] = $save_info;
 
@@ -194,12 +208,11 @@ class SaleOrder extends AdminController
         $account_list = $this->account_model->field('id,name')->select()->toArray();
 
         $this->assign('account_list', $account_list);
-        $this->assign('admin', session('admin'));
         return $this->fetch();
     }
 
     /**
-     * @NodeAnotation(title="编辑销货单数据")
+     * @NodeAnotation(title="编辑销货退单数据")
      */
     public function edit($id)
     {
@@ -226,17 +239,16 @@ class SaleOrder extends AdminController
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实收金额】' => 'number|require',
-                'sale_user_id|【销售员】' => 'number|require',
+                'sale_user_id|【销售员】' => 'require',
             ];
 
             $this->validate($post, $order_info_rule);
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'sale_time|【销售时间】' => 'require|date',
-                'unit_price|【购货单价】' => 'number|require',
-                'num|【购货数量】' => 'number|require',
-                'total_price|【购货金额】' => 'number|require',
+                'unit_price|【退货单价】' => 'number|require',
+                'num|【退货数量】' => 'number|require',
+                'total_price|【退货金额】' => 'number|require',
 
             ];
 
@@ -254,21 +266,29 @@ class SaleOrder extends AdminController
                 $this->validate($item, $rule);
             }
 
+            //查找域名是否已经被销售
+            $sale_good = $this->warehouse_info_model->where('good_category','=',2)->where('good_name','in',$ym_list)->select()->toArray();
+
+
             $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
+            if (count($inventory_data)!=0){
+                $this->error('库存中有此商品，不能再次退货！');
+            }
+
             $ym_dict = [];
 
-            foreach ($inventory_data as $it){
+            foreach ($sale_good as $it){
                 $ym_dict[$it['good_name']] = $it;
             }
             //如果不相等 查询差的
-            if (count($inventory_data) != count($ym_list)){
+            if (count($sale_good) != count($ym_list)){
                 $inventory_list = [];
-                foreach ($inventory_data as $it){
+                foreach ($sale_good as $it){
                     $ym_dict[$it['good_name']] = $it;
                     $inventory_list[] = $it['good_name'];
                 }
                 $dif = array_diff($ym_list,$inventory_list);
-                $this->error('下列商品不在库存中，请尽快入库 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
+                $this->error('下列商品没有出售，不能进行退货处理 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
             }
 
 
@@ -288,12 +308,11 @@ class SaleOrder extends AdminController
                 'customer_id' =>$customer_id,
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
-                'audit_status' => 0,//审核状态
-                'sale_user_id' => $post['sale_user_id'],//销售员
+                'sale_user_id'=>$post['sale_user_id'],
             ];
             $data->save($save_order);
 
-            $insert_all = [];
+
 
             foreach ($post['goods'] as $item) {
                 if (isset($item['id'])){
@@ -306,28 +325,35 @@ class SaleOrder extends AdminController
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
                         'sale_time' => $item['sale_time'],
-                        'sale_user_id' => $post['sale_user_id'],//销售员
+                        'sale_user_id'=>$post['sale_user_id'],
                     ];
                     $this->order_info_model->where('id','=',$item['id'])->update($save_info);
-                }else{
+
+                }
+                else{
                     $save_info = [
-                        'pid'=>$id,
                         'good_name' => $item['good_name'],
                         'unit_price' => $item['unit_price'],
                         'num' => $item['num'],
                         'total_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'category' =>'销售退货',
+                        'pid' => $id,
+                        'warehouse_id' => $ym_dict[$item['good_name']]['warehouse_id'],
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
-                        'sale_time' => $item['sale_time'],
-                        'sale_user_id' => $post['sale_user_id'],//销售员
+                        'supplier_id' => $ym_dict[$item['good_name']]['supplier_id'],
+                        'expiration_time' =>$ym_dict[$item['good_name']]['expiration_time'],
+                        'register_time' =>$ym_dict[$item['good_name']]['register_time'],
+                        'order_time' => $post['order_time'],
+                        'sale_user_id'=>$post['sale_user_id'],
                     ];
                     $this->order_info_model->save($save_info);
                 }
 
 
-
             }
+
             delete_unnecessary_order_info($id,$post['goods']);
 
 

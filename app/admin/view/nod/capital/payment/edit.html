@@ -29,6 +29,13 @@
 
             <div class="layui-form-item">
                 <div class="layui-inline">
+                    <label class="layui-form-label">销售员</label>
+                    <div class="layui-input-block">
+                        <select name="sale_user_id" lay-verify="required" data-select="{:url('/admin/ajax/userList')}" data-fields="id,title" data-value="{$data.sale_user_id|default=''}">
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
                     <label class="layui-form-label" id="jk_price" >单据金额</label>
                     <div class="layui-input-inline" style="width: 230px;">
                         <input value="{$data['practical_price']}" id="practical_price" name="practical_price" required placeholder="请输入单据金额|点击左侧快捷录入" autocomplete="off" lay-verify="required|number" type="text" class="layui-input" >

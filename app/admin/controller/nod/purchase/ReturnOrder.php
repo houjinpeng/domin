@@ -39,7 +39,7 @@ class ReturnOrder extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="采购列表")
+     * @NodeAnotation(title="采购退货单列表")
      */
     public function index()
     {
@@ -87,18 +87,16 @@ class ReturnOrder extends AdminController
                 'supplier_id|【供应商】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实付金额】' => 'number|require',
+                'paid_price|【退款金额】' => 'number|require',
             ];
 
             $this->validate($post, $order_info_rule);
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'expiration_time|【过期时间】' => 'require|date',
-                'register_time|【注册时间】' => 'require|date',
-                'unit_price|【购货单价】' => 'number|require',
-                'num|【购货数量】' => 'number|require',
-                'total_price|【购货金额】' => 'number|require',
+                'unit_price|【退货单价】' => 'number|require',
+                'num|【退货数量】' => 'number|require',
+                'total_price|【退货金额】' => 'number|require',
 
             ];
 
@@ -106,14 +104,41 @@ class ReturnOrder extends AdminController
                 $this->error('不能一个也不提交吧~');
             }
             //验证
+            $all_ym_list = [];
+
             foreach ($post['goods'] as $item) {
+                $all_ym_list[] = trim($item['good_name']);
                 intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $this->validate($item, $rule);
             }
 
+            //查询库存中是否存在此商品
+            $inventory_data = $this->inventory_model->where('good_name','in',$all_ym_list)->select()->toArray();
+            $ym_dict = [];
 
-            //单据编号自动生成   GHD+时间戳
-            $order_batch_num = 'GHD' . date('YmdHis');
+            //先查看所有域名并判断或所属一个仓库和是一个供货商
+            foreach ($inventory_data as $it){
+                $ym_dict[$it['good_name']] = $it;
+
+            }
+
+
+
+
+            //如果不相等 查询差的
+            if (count($inventory_data) != count($all_ym_list)){
+                $inventory_list = [];
+                foreach ($inventory_data as $it){
+                    $ym_dict[$it['good_name']] = $it;
+                    $inventory_list[] = $it['good_name'];
+                }
+                $dif = array_diff($all_ym_list,$inventory_list);
+                $this->error('下列商品不在库存中，请删除录入商品 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
+            }
+
+            //单据编号自动生成   CGTHD+时间戳
+            $order_batch_num = 'CGTHD' . date('YmdHis');
+
 
             $save_order = [
                 'order_time' => $post['order_time'],
@@ -126,6 +151,7 @@ class ReturnOrder extends AdminController
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
                 'audit_status' => 0,//审核状态
+                'type' => 2,//采购退货单
             ];
             //获取pid   保存商品详情
 
@@ -135,7 +161,7 @@ class ReturnOrder extends AdminController
 
             foreach ($post['goods'] as $item) {
                 $save_info = [
-                    'good_name' => $item['good_name'],
+                    'good_name' =>trim($item['good_name']),
                     'unit_price' => $item['unit_price'],
                     'num' => $item['num'],
                     'total_price' => $item['total_price'],
@@ -144,15 +170,15 @@ class ReturnOrder extends AdminController
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
-                    'register_time' => $item['register_time'],
-                    'expiration_time' => $item['expiration_time'],
+                    'register_time' => $ym_dict[$item['good_name']]['register_time'],
+                    'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
 
                 ];
                 $insert_all[] = $save_info;
 
             }
             $this->order_info_model->insertAll($insert_all);
-            $this->success('保存成功~');
+            $this->success('保存成功,请去审核吧~');
 
 
         }
@@ -193,18 +219,16 @@ class ReturnOrder extends AdminController
                 'supplier_id|【供应商】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实付金额】' => 'number|require',
+                'paid_price|【退款金额】' => 'number|require',
             ];
 
             $this->validate($post, $order_info_rule);
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'expiration_time|【过期时间】' => 'require|date',
-                'register_time|【注册时间】' => 'require|date',
-                'unit_price|【购货单价】' => 'number|require',
-                'num|【购货数量】' => 'number|require',
-                'total_price|【购货金额】' => 'number|require',
+                'unit_price|【退货单价】' => 'number|require',
+                'num|【退货数量】' => 'number|require',
+                'total_price|【退货金额】' => 'number|require',
 
             ];
 
@@ -212,13 +236,42 @@ class ReturnOrder extends AdminController
                 $this->error('不能一个也不提交吧~');
             }
             //验证
+            $all_ym_list = [];
             foreach ($post['goods'] as $item) {
+
+                $all_ym_list[] = trim($item['good_name']);
                 intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $item['unit_price'] = intval($item['unit_price']);
                 $item['num'] = intval($item['num']);
                 $item['total_price'] = intval($item['total_price']);
                 $this->validate($item, $rule);
             }
+
+            //查询库存中是否存在此商品
+            $inventory_data = $this->inventory_model->where('good_name','in',$all_ym_list)->select()->toArray();
+            $ym_dict = [];
+
+            //先查看所有域名并判断或所属一个仓库和是一个供货商
+            foreach ($inventory_data as $it){
+                $ym_dict[$it['good_name']] = $it;
+
+            }
+
+
+
+
+            //如果不相等 查询差的
+            if (count($inventory_data) != count($all_ym_list)){
+                $inventory_list = [];
+                foreach ($inventory_data as $it){
+                    $ym_dict[$it['good_name']] = $it;
+                    $inventory_list[] = $it['good_name'];
+                }
+                $dif = array_diff($all_ym_list,$inventory_list);
+                $this->error('下列商品不在库存中，请删除录入商品 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
+            }
+
+
 
 
             $save_order = [
@@ -230,13 +283,11 @@ class ReturnOrder extends AdminController
                 'supplier_id' => $post['supplier_id'],
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
-                'audit_status' => 0,//审核状态
             ];
             //获取pid   保存商品详情
 
             $data->save($save_order);
 
-            $insert_all = [];
 
             foreach ($post['goods'] as $item) {
                 $save_info = [
@@ -245,18 +296,18 @@ class ReturnOrder extends AdminController
                     'num' => $item['num'],
                     'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
+                    'category' =>'采购退货',
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
-                    'register_time' => $item['register_time'],
-                    'expiration_time' => $item['expiration_time'],
+                    'register_time' => $ym_dict[$item['good_name']]['register_time'],
+                    'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
                 ];
-
 
                 $this->order_info_model->where('id','=',$item['id'])->update($save_info);
 
-
             }
+            delete_unnecessary_order_info($id,$post['goods']);
             $this->success('修改成功~');
 
         }

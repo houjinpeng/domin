@@ -1,3 +1,11 @@
+
+<style>
+    /*使下拉列表框不被遮挡*/
+    .layui-table-cell {
+        overflow: visible !important;
+    }
+
+</style>
 <input id="all_good" value="{$all_goods}" hidden="hidden">
 
 <div class="layuimini-container">
@@ -25,7 +33,13 @@
             </div>
 
             <table id="order_table" lay-filter="order_table"></table>
-
+            <div class="layui-inline">
+                <label class="layui-form-label">销售员</label>
+                <div class="layui-input-block">
+                    <select name="sale_user_id" lay-verify="required" data-select="{:url('/admin/ajax/userList')}" data-fields="id,title" data-value="{$data.sale_user_id|default=''}">
+                    </select>
+                </div>
+            </div>
 
             <div class="layui-form-item">
                 <div class="layui-inline">

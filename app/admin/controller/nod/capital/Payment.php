@@ -87,12 +87,13 @@ class Payment extends AdminController
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实付金额】' => 'number|require',
+                'sale_user_id|【销售员】' => 'number|require',
             ];
 
             $this->validate($post, $order_info_rule);
 
             $rule = [
-                'category|【收款类别】' => 'require',
+                'category_id|【收款类别】' => 'number|require',
                 'total_price|【收款金额】' => 'number|require',
 
             ];
@@ -128,6 +129,7 @@ class Payment extends AdminController
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
                 'audit_status' => 0,//审核状态
+                'sale_user_id' => $post['sale_user_id'],//审核状态
             ];
             //获取pid   保存商品详情
 
@@ -137,14 +139,14 @@ class Payment extends AdminController
 
             foreach ($post['goods'] as $item) {
                 $save_info = [
-                    'category' => $item['category'],
+                    'category_id' => $item['category_id'],
+                    'category' => '付款',
                     'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
                     'customer_id'=>$customer_id,
+                    'sale_user_id'=>$post['sale_user_id'],
                     'account_id' => $post['account_id'],
-
-
                 ];
                 $insert_all[] = $save_info;
 
@@ -193,7 +195,7 @@ class Payment extends AdminController
 
 
             $rule = [
-                'category|【收款类别】' => 'require',
+                'category_id|【收款类别】' => 'require',
                 'total_price|【收款金额】' => 'number|require',
 
             ];
@@ -235,6 +237,7 @@ class Payment extends AdminController
             foreach ($post['goods'] as $item) {
                 $save_info = [
                     'category' => $item['category'],
+                    'category_id' => $item['category_id'],
                     'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'customer_id'=>$customer_id,

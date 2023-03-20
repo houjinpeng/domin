@@ -41,14 +41,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
-                            [{
-                                text: '出入记录',
-                                url: init.show_url,
-                                method: 'open',
-                                auth: 'edit',
-                                class: 'layui-btn layui-btn-xs layui-btn-primary',
-                                extend: 'data-full="true"',
-                            }],
+                            // [{
+                            //     text: '出入记录',
+                            //     url: init.show_url,
+                            //     method: 'open',
+                            //     auth: 'edit',
+                            //     class: 'layui-btn layui-btn-xs layui-btn-primary',
+                            //     extend: 'data-full="true"',
+                            // }],
                             'edit',
                             'delete'
                         ]

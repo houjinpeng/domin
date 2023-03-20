@@ -3,11 +3,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'nod.purchase.return_order/index',
-        add_url: 'nod.purchase.return_order/add',
-        audit_url: 'nod.audit.return_good/audit?type=stock',
-        edit_url: 'nod.purchase.return_order/edit',
-        chexiao_url: 'nod.purchase.return_order/chexiao',
+        index_url: 'nod.purchase.sale_return_order/index',
+        add_url: 'nod.purchase.sale_return_order/add',
+        audit_url: 'nod.audit.return_good/audit?type=sale',
+        edit_url: 'nod.purchase.sale_return_order/edit',
+        chexiao_url: 'nod.purchase.sale_return_order/chexiao',
 
 
     };
@@ -15,7 +15,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var Controller = {
 
         index: function () {
-            var warehouse_select_list = ea.getSelectList('NodWarehouse','id,name')
+            var customer_select_list = ea.getSelectList('NodCustomerManagement','id,name')
             var account_select_list = ea.getSelectList('NodAccount','id,name')
             var supplier_select_list = ea.getSelectList('NodSupplier','id,name')
             var user_select_list = ea.getSelectList('SystemAdmin','id,username')
@@ -41,22 +41,26 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'order_time', minWidth: 180, title: '单据时间'},
                     {
                         field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
-                            return d.getOrderUser['username']
+                            if ( d.getOrderUser){
+                                return d.getOrderUser['username']
+                            }return ''
+
                         }
                     },
                     {
-                        field: 'supplier_id', minWidth: 100, title: '供货商',selectList: bulid_select(supplier_select_list), templet: function (d) {
-                            return d.getSupplier['name']
-                        }
-                    },
-                    {
-                        field: 'warehouse_id', minWidth: 100, title: '仓库',selectList: bulid_select(warehouse_select_list), templet: function (d) {
-                            return d.getWarehouse['name']
+                        field: 'customer_id', minWidth: 100, title: '客户',selectList: bulid_select(customer_select_list), templet: function (d) {
+                            if ( d.getCustomer){
+                                return d.getCustomer['name']
+                            }return ''
+
                         }
                     },
                     {
                         field: 'account_id', minWidth: 120, title: '结算账户',selectList: bulid_select(account_select_list), templet: function (d) {
-                            return d.getAccount['name']
+                            if ( d.getAccount){
+                                return d.getAccount['name']
+                            }return ''
+
                         }
                     },
                     {field: 'practical_price', minWidth: 100, title: '单据金额',search:false},
@@ -78,15 +82,17 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
-                            [ {
-                                text: '编辑查看',
-                                title:'编辑查看',
-                                url: init.edit_url,
-                                method: 'open',
-                                auth: 'edit',
-                                class: 'layui-btn layui-btn-xs',
-                                extend: 'data-full="true"',
-                            },{
+
+                            [
+                                {
+                                    text: '编辑查看',
+                                    title:'编辑查看',
+                                    url: init.edit_url,
+                                    method: 'open',
+                                    auth: 'edit',
+                                    class: 'layui-btn layui-btn-xs',
+                                    extend: 'data-full="true"',
+                                },{
                                     text: '撤销',
                                     title:'是否要撤销当前单据？',
                                     url: init.chexiao_url,
@@ -120,12 +126,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.listen();
         },
 
+
         add: function () {
             var laydate = layui.laydate;
             var table = layui.table;
             var form = layui.form;
-            var all_data = []
-
+            var all_data = null;
             function check_number(value) {
                 return !isNaN(parseFloat(value)) && isFinite(value);
 
@@ -150,7 +156,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'index', title: '列', width: 70}
                     , {field: 'good_name', title: '商品信息', minWidth: 180, edit: true}
                     , {field: 'unit_price', title: '退货单价', minWidth: 110, edit: true}
-                    , {field: 'num', title: '退货数量', minWidth: 110, edit: true}
+                    , {field: 'num', title: '退货数量', minWidth: 110}
                     , {field: 'total_price', title: '退货金额', minWidth: 110}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
@@ -158,18 +164,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ]]
                 ,
                 data: [{
-                    index: 1,
+                    index: '1',
                     total_price: '',
                     remark: '',
                     unit_price: '',
                     good_name: '',
                     num: '1',
+                    register_time: '',
+                    expiration_time: ''
                 }]
                 ,
-                done: function () {
-
-
-                }
             });
 
 
@@ -208,6 +212,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         unit_price: '',
                         good_name: '',
                         num: '1',
+                        register_time: '',
+                        expiration_time: ''
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 
@@ -230,6 +236,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     //购货金额自动计算
                     let total_price = data['num'] * data['unit_price']
                     obj.update({total_price: total_price})
+                    console.log(obj.data)
                 } catch (e) {
                     layer.msg('无法计算购货金额~ 请仔细核对！')
 
@@ -238,20 +245,53 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             //快捷录入单据金额
             $('#jk_price').click(function () {
-                let all_data = table.cache['order_table']
+                all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += item['total_price']
+                    total_pirce += parseInt(item['total_price'])
                 })
 
                 $('#practical_price').val(total_pirce)
+
+            })
+            $('#reset').click(function () {
+                $('input').val('')
+                table.reload('order_table',{data:[{
+                        index: 1,
+                        total_price: '',
+                        remark: '',
+                        unit_price: '',
+                        good_name: '',
+                        num: 1,
+
+                    }],limit:100000})
+
+            })
+
+            //点击导入单据
+            $('#crawl_order').click(function () {
+
+                let data = form.val("order_form");
+                if (!data['order_time']) {
+                    layer.msg('请选择单据时间 根据单据时间导入成交数据~', {icon: 2});
+                    return
+                }
+
+                let crawl_time = data['order_time'].split(' ')[0]
+                ea.request.get({
+                    url: 'crawl_order_data?crawl_time='+crawl_time,
+                }, function (resp) {
+                    console.log(resp)
+                    table.reload('order_table', {data: resp.data, limit: 100000})
+                })
+
 
             })
 
             //点击表单导入
             $('#import_order').click(function () {
                 layer.open({
-                    title: '采购退货单-表单导入单据',
+                    title: '采购单-表单导入单据',
                     skin: 'demo-class',
                     type: 1,
                     area: ['800px', '500px'],
@@ -286,6 +326,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 if (d === '')continue
                                 let detail = d.split('|')
                                 let ym = $.trim(detail[0])
+
                                 let unit_price = $.trim(detail[1])
                                 let total_price = $.trim(detail[1])
                                 let remark = $.trim(detail[2])
@@ -319,8 +360,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                 });
 
-            })
 
+            })
 
             ea.listen(function (data) {
                 data['goods'] = table.cache['order_table']
@@ -330,9 +371,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
             });
         },
 
+
         edit: function () {
             var laydate = layui.laydate;
             var table = layui.table;
+            var form = layui.form;
 
             function check_number(value) {
                 return !isNaN(parseFloat(value)) && isFinite(value);
@@ -341,7 +384,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             laydate.render({
                 elem: '#order_time' //指定元素
-                ,type: 'datetime'
+                , type: 'datetime'
             });
 
             var good_list = JSON.parse($('#all_good').val())
@@ -351,30 +394,35 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 good_l.push(item)
             })
 
+
             //初始化表格
             table.render({
-                elem: '#order_table'
-                ,height: 'full-300'
-                ,limit:10000
-                ,page: false //开启分页
-                ,cols: [[ //表头
-                    {field: 'index', title: '列', width:70}
-                    ,{field: 'id', title: 'ID', width:70}
-                    ,{field: 'good_name', title: '商品信息', minWidth:180,edit:true}
-                    ,{field: 'unit_price', title: '退货单价', minWidth:110,edit:true}
-                    ,{field: 'num', title: '退货数量', minWidth:110,edit:true}
-                    ,{field: 'total_price', title: '退货金额', minWidth: 110}
-                    ,{field: 'remark', title: '备注信息', minWidth: 110,edit:true}
+                elem: '#order_table',
+                height: 'full-300',
+                limit: 10000,
+                page: false ,
+                cols: [[
+                    {field: 'index', title: '列', width: 70}
+                    , {field: 'id', title: 'ID', minWidth: 80}
+                    , {field: 'good_name', title: '商品信息', minWidth: 180, edit: true}
+                    , {field: 'unit_price', title: '退货单价', minWidth: 110, edit: true}
+                    , {field: 'num', title: '退货数量', minWidth: 110}
+                    , {field: 'total_price', title: '退货金额', minWidth: 110}
+                    , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
-                ]]
-                ,data:good_l
+                ]],
+                data:good_l,
 
             });
+
+
             //工具条事件
             table.on('tool(order_table)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
                 var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
                 var all_data = table.cache['order_table']
+
+
 
                 if (layEvent === 'del') { //删除
                     if (all_data.length === 1) {
@@ -387,7 +435,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     let index = 0
                     ls_data.forEach(function (item) {
                         if (item !== [] && item['LAY_TABLE_INDEX'] !== undefined) {
-                            console.log(index)
+
                             item['index'] = index + 1
                             index += 1
                             new_table_data.push(item)
@@ -405,6 +453,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         unit_price: '',
                         good_name: '',
                         num: '1',
+                        register_time: '',
+                        expiration_time: ''
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 
@@ -413,22 +463,21 @@ define(["jquery", "easy-admin"], function ($, ea) {
             });
 
             //单元格编辑事件
-            table.on('edit(order_table)', function(obj){
+            table.on('edit(order_table)', function (obj) {
                 let data = obj.data
                 // obj.update({good_name:'asdasdasdasd'})
                 let filed = obj.field
-                if (filed === 'good_name' || filed === 'remark')return;
+                if (filed === 'good_name' || filed === 'remark') return;
 
-                if (check_number(obj.value) === false){
-                    layer.msg('重要提醒：请输入数字类型',{icon: 2})
+                if (check_number(obj.value) === false) {
+                    layer.msg('重要提醒：请输入数字类型', {icon: 2})
                     return
                 }
-                try{
+                try {
                     //购货金额自动计算
-                    let total_price = data['num']*data['unit_price']
-                    obj.update({total_price:total_price})
-                    console.log(obj.data)
-                }catch (e){
+                    let total_price = data['num'] * data['unit_price']
+                    obj.update({total_price: total_price})
+                } catch (e) {
                     layer.msg('无法计算购货金额~ 请仔细核对！')
 
                 }
@@ -439,12 +488,27 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 let all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += item['total_price']
+                    total_pirce += parseInt(item['total_price'])
                 })
 
                 $('#practical_price').val(total_pirce)
 
             })
+
+            //点击导入单据
+            $('#crawl_order').click(function () {
+
+                ea.request.get({
+                    url: 'crawl_order_data',
+                }, function (resp) {
+                    console.log(resp)
+                    table.reload('order_table', {data: resp.data, limit: 100000})
+                })
+
+
+            })
+
+
 
             ea.listen(function (data) {
                 data['goods'] = table.cache['order_table']
@@ -453,6 +517,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             });
         },
+
+
 
     };
     return Controller;

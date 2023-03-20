@@ -223,13 +223,16 @@ class Ajax extends AdminController
         $post = $this->request->post();
         $model = new \app\admin\model\SystemAdmin();
 
-        $row = $model->field(['id','username'])->whereLike('auth_ids','%20%')->select()->toArray();
+        $row = $model->field(['id','username'])->select()->toArray();
         $arr = [];
-        $arr['0'] = '所有人';
         foreach ($row as $index => $item) {
-            $arr[$item['id']] = $item['username'];
+            $arr[] = ['id'=>$item['id'],'title'=>$item['username']];
         }
-        return json($arr);
+        $data = [
+          'code'=>1,
+          'data'=>$arr
+        ];
+        return json($data);
     }
 
     /**

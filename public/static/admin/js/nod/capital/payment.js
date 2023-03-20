@@ -11,7 +11,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
 
     };
+    function check_number(value) {
+        return !isNaN(parseFloat(value)) && isFinite(value);
 
+    }
     var Controller = {
 
         index: function () {
@@ -55,7 +58,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'account_id', minWidth: 120, title: '收款账户',selectList: bulid_select(account_select_list), templet: function (d) {
+                        field: 'account_id', minWidth: 120, title: '付款账户',selectList: bulid_select(account_select_list), templet: function (d) {
                             if ( d.getAccount){
                                 return d.getAccount['name']
                             }return ''
@@ -63,7 +66,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {field: 'practical_price', minWidth: 100, title: '单据金额',search:false},
-                    {field: 'paid_price', minWidth: 100, title: '实收金额',search:false},
+                    {field: 'paid_price', minWidth: 100, title: '实付金额',search:false},
                     {field: 'remark', minWidth: 180, title: '备注'},
                     {field: 'audit_status', minWidth: 100, title: '状态',selectList:{'1':'已审核','2':'撤销','0':'未审核'},templet:function (d) {
                             if (d.audit_status === 1){
@@ -129,10 +132,39 @@ define(["jquery", "easy-admin"], function ($, ea) {
             var form = layui.form;
             var all_data = null;
 
-            function check_number(value) {
-                return !isNaN(parseFloat(value)) && isFinite(value);
+            var category_select_list = ea.getSelectList('NodCategory','id,name')
 
+            let html_select = ' <select name="category_id" lay-verify="required">'
+            var select_dict = {}
+
+
+            for (let index in category_select_list){
+
+                let v = category_select_list[index]['id']
+                let name = category_select_list[index]['name']
+                select_dict[name] = v
+                html_select +='<option value="'+v+'">'+name+'</option>'
             }
+
+            html_select +=   '</select>'
+            function get_select(select_name){
+                let h = ' <select name="category_id" lay-verify="required">'
+                for (let index in category_select_list){
+
+                    let v = category_select_list[index]['id']
+                    let name = category_select_list[index]['name']
+                    select_dict[name] = v
+                    if (select_name === name){
+                        h +='<option value="'+v+'" selected>'+name+'</option>'
+                    }else{
+                        h +='<option value="'+v+'" >'+name+'</option>'
+                    }
+
+                }
+                h +=   '</select>'
+                return h
+            }
+
 
             laydate.render({
                 elem: '#order_time' //指定元素
@@ -147,8 +179,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 page: false ,//开启分页,
                 cols: [[ //表头
                     {field: 'index', title: '列', width: 70}
-                    , {field: 'category', title: '收款类别', minWidth: 180, edit: true}
-                    , {field: 'total_price', title: '收款金额', minWidth: 110, edit: true}
+                    // , {field: 'category', title: '付款类别', minWidth: 180, edit: true}
+                    , {field: 'category_id', title: '付款类别', minWidth: 180}
+
+                    , {field: 'total_price', title: '付款金额', minWidth: 110, edit: true}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
@@ -157,10 +191,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 data: [{
                     index: 1,
                     total_price: '',
-                    category: '',
+                    category_id:html_select ,
                     remark: '',
                 }]
-                ,
+                ,done:function (data) {
+
+                    $(".layui-form").parent().css('overflow', 'visible');//sel_action为下拉框class
+
+                    form.render();
+                }
             });
 
 
@@ -169,21 +208,24 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
                 all_data = table.cache['order_table']
 
-
                 if (layEvent === 'del') { //删除
                     if (all_data.length === 1) {
                         layer.msg('不能再删除了，就剩下一行了~~', {icon: 2})
                         return
                     }
                     obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
-                    var ls_data = table.cache['order_table']
+                    let ls_data = table.cache['order_table']
                     let new_table_data = [];
                     let index = 0
-                    ls_data.forEach(function (item) {
+                    ls_data.forEach(function (item,index_c) {
                         if (item !== [] && item['LAY_TABLE_INDEX'] !== undefined) {
-                            console.log(index)
+                            let category = $($($('.layui-table tr').eq(index_c+1)).find('td')[1]).find('.layui-this').html()
+                            let cate_select = get_select(category)
+
                             item['index'] = index + 1
+                            item['category_id'] = cate_select
                             index += 1
+
                             new_table_data.push(item)
                         }
                     })
@@ -191,15 +233,27 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     table.reload('order_table', {data: new_table_data, limit: 10000})
 
                 } else if (layEvent === 'add') {
+                    let ls_data = table.cache['order_table']
+                    let index = 0
+                    let new_table_data = [];
+                    ls_data.forEach(function (item,index_c) {
+                        let category = $($($('.layui-table tr').eq(index_c+1)).find('td')[1]).find('.layui-this').html()
+                        let cate_select = get_select(category)
+                        item['index'] = index + 1
+                        item['category_id'] = cate_select
+                        new_table_data.push(item)
+                        index +=1
+                    })
 
-                    all_data.push({
-                        index: parseInt(all_data[all_data.length - 1]['index']) + 1,
+                    new_table_data.push({
+                        index: index + 1,
                         total_price: '',
                         remark: '',
-                        category: '',
-
+                        category_id: html_select,
                     })
-                    table.reload('order_table', {data: all_data, limit: 10000})
+
+
+                    table.reload('order_table', {data: new_table_data, limit: 10000})
 
 
                 }
@@ -342,11 +396,23 @@ define(["jquery", "easy-admin"], function ($, ea) {
             })
 
             ea.listen(function (data) {
-                data['goods'] = table.cache['order_table']
+                let d = table.cache['order_table']
+                let new_data = []
+                d.forEach(function (item,index_c) {
+                    let category = $($($('.layui-table tr').eq(index_c+1)).find('td')[1]).find('.layui-this').html()
+
+                    item['category_id'] = select_dict[category]
+                    new_data.push(item)
+                })
+
+
+
+                data['goods'] = new_data
 
                 return {data: JSON.stringify(data)}
 
             });
+
         },
 
 
@@ -383,8 +449,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ,cols: [[ //表头
                     {field: 'index', title: '列', width:70}
                     ,{field: 'id', title: 'ID', width:70}
-                    , {field: 'category', title: '收款类别', minWidth: 180, edit: true}
-                    , {field: 'total_price', title: '收款金额', minWidth: 110, edit: true}
+                    , {field: 'category', title: '付款类别', minWidth: 180, edit: true}
+                    , {field: 'total_price', title: '付款金额', minWidth: 110, edit: true}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 

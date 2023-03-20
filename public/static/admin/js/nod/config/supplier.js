@@ -23,6 +23,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'id', width: 80, title: '编号'},
                     {field: 'name', minWidth: 80, title: '仓库名'},
+                    {field: 'receivable_price', minWidth: 80, title: '应收款'},
                     {field: 'linkman', minWidth: 80, title: '联系人',search: false},
                     {field: 'remark', minWidth: 80, title: '备注信息'},
                     {field: 'create_time', minWidth: 200, title: '创建时间', search: 'range'},

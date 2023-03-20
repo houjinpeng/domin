@@ -1,3 +1,12 @@
+
+<style>
+    /*使下拉列表框不被遮挡*/
+    .layui-table-cell {
+        overflow: visible !important;
+    }
+
+</style>
+
 <div class="layuimini-container">
     <div class="layuimini-main">
         <form class="layui-form" lay-filter="order_form" >
@@ -25,6 +34,14 @@
 
 
             <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">销售员</label>
+                    <div class="layui-input-block">
+                        <select name="sale_user_id" lay-verify="required" data-select="{:url('/admin/ajax/userList')}" data-fields="id,title" data-value="{$admin.id|default=''}">
+                        </select>
+                    </div>
+                </div>
+
                 <div class="layui-inline">
                     <label class="layui-form-label" id="jk_price" >单据金额</label>
                     <div class="layui-input-inline" style="width: 230px;">
@@ -80,4 +97,9 @@
     <i class="layui-icon layui-icon-subtraction" lay-event="del"></i>
 
 {/*    <a class="layui-btn layui-btn-xs" lay-event="edit"></a>*/}
+</script>
+
+<script type="text/html" id="selectCategory">
+    <select name="dictName" lay-filter="category_id" data-value="{{d.category_id}}">
+    </select>
 </script>
