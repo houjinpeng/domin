@@ -177,7 +177,7 @@ class Purchase extends AdminController
                         'expiration_time'   => $item['expiration_time'],
                         'order_time'        => $item['order_time'],
                         'type'              => 1,
-                        'good_category'     => 1, //1 采购 2销售 3采购退货 4销售退货
+                        'good_category'     => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
                     ];
                     $insert_inventory_info = [
                         'good_name'         => $item['good_name'],
@@ -323,8 +323,8 @@ class Purchase extends AdminController
                         'customer_id'           =>$row['customer_id'],
                         'order_time'            =>$row['order_time'],
                         'sale_user_id'          =>$row['sale_user_id'],#销售人员
-                        'type'                  =>2,   //1入库 2出库
-                        'good_category'         =>2   //1 采购 2销售 3采购退货 4销售退货
+                        'type'                  =>3,   //1入库 2出库
+                        'good_category'         =>3   //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
                     ];
                 }
 

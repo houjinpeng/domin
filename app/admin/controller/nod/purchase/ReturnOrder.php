@@ -167,6 +167,7 @@ class ReturnOrder extends AdminController
                     'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
+                    'type' => 2,//采购退货单
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
@@ -290,21 +291,40 @@ class ReturnOrder extends AdminController
 
 
             foreach ($post['goods'] as $item) {
-                $save_info = [
-                    'good_name' => $item['good_name'],
-                    'unit_price' => $item['unit_price'],
-                    'num' => $item['num'],
-                    'total_price' => $item['total_price'],
-                    'remark' => isset($item['remark']) ? $item['remark'] : '',
-                    'category' =>'采购退货',
-                    'warehouse_id' => $post['warehouse_id'],
-                    'account_id' => $post['account_id'],
-                    'supplier_id' => $post['supplier_id'],
-                    'register_time' => $ym_dict[$item['good_name']]['register_time'],
-                    'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
-                ];
+              if (isset($item['if'])){
+                  $save_info = [
+                      'good_name' => $item['good_name'],
+                      'unit_price' => $item['unit_price'],
+                      'num' => $item['num'],
+                      'total_price' => $item['total_price'],
+                      'remark' => isset($item['remark']) ? $item['remark'] : '',
+                      'category' =>'采购退货',
+                      'warehouse_id' => $post['warehouse_id'],
+                      'account_id' => $post['account_id'],
+                      'supplier_id' => $post['supplier_id'],
+                      'register_time' => $ym_dict[$item['good_name']]['register_time'],
+                      'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
+                  ];
 
-                $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+                  $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+              }else{
+                  $save_info = [
+                      'good_name' =>trim($item['good_name']),
+                      'unit_price' => $item['unit_price'],
+                      'num' => $item['num'],
+                      'total_price' => $item['total_price'],
+                      'remark' => isset($item['remark']) ? $item['remark'] : '',
+                      'pid' => $id,
+                      'type' => 2,//采购退货单
+                      'warehouse_id' => $post['warehouse_id'],
+                      'account_id' => $post['account_id'],
+                      'supplier_id' => $post['supplier_id'],
+                      'register_time' => $ym_dict[$item['good_name']]['register_time'],
+                      'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
+
+                  ];
+                  $this->order_info_model->save($save_info);
+              }
 
             }
             delete_unnecessary_order_info($id,$post['goods']);

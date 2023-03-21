@@ -187,7 +187,6 @@ class Receipt extends AdminController
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实收金额】' => 'number|require',
-                'sale_user_id|【销售员】' => 'number|require',
             ];
 
             $this->validate($post, $order_info_rule);

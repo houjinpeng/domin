@@ -163,8 +163,8 @@ class ReturnGood extends AdminController
                         'register_time'     => $ym_dict[$item['good_name']]['register_time'],
                         'expiration_time'   => $ym_dict[$item['good_name']]['expiration_time'],
                         'order_time'        => $item['order_time'],
-                        'type'              => 4,
-                        'good_category'     => 3, //1 采购 2销售 3采购退货 4销售退货
+                        'type'              => 2,
+                        'good_category'     => 2, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
                         'sale_user_id'      => $row['sale_user_id'],
                     ];
 
@@ -280,15 +280,15 @@ class ReturnGood extends AdminController
                         'good_name'             => $item['good_name'],
                         'sale_time'             => $ym_dict[$item['good_name']]['sale_time'],
                         'unit_price'            => $ym_dict[$item['good_name']]['unit_price'], //售价
-                        'total_price'           => $ym_dict[$item['good_name']]['unit_price'], //总价格
+                        'total_price'           => $ym_dict[$item['good_name']]['total_price'], //总价格
                         'profit_price'          => $ym_dict[$item['good_name']]['unit_price'] - $item['unit_price'],
                         'remark'                => $item['remark'],
                         'warehouse_id'          => $ym_dict[$item['good_name']]['warehouse_id'],
                         'account_id'            => $row['account_id'],
                         'customer_id'           => $row['customer_id'],
                         'order_time'            => $row['order_time'],
-                        'type'                  => 5 ,  //1入库 2销货 3转移 4采购退货 5销售退货
-                        'good_category'         => 4, //1 采购 2销售 3采购退货 4销售退货
+                        'type'                  => 6 ,
+                        'good_category'         => 6, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
                         'sale_user_id'          => $row['sale_user_id'],
                     ];
                     //增加库存  还原之前卖掉的成本数据
@@ -298,14 +298,15 @@ class ReturnGood extends AdminController
                         'expiration_time'       => $ym_dict[$item['good_name']]['expiration_time'],
                         'register_time'         => $ym_dict[$item['good_name']]['register_time'],
                         'unit_price'            => $ym_dict[$item['good_name']]['unit_price'], //售价
-                        'total_price'           => $ym_dict[$item['good_name']]['unit_price'], //总价格
+                        'total_price'           => $ym_dict[$item['good_name']]['total_price'], //总价格
+                        'profit_price'          => - $item['unit_price'], //利润为退货价格
                         'remark'                => $item['remark'],
                         'warehouse_id'          => $ym_dict[$item['good_name']]['warehouse_id'],
                         'account_id'            => $row['account_id'],
                         'customer_id'           => $row['customer_id'],
                         'order_time'            => $row['order_time'],
-                        'type'                  => 5 ,  //1入库 2销货 3转移 4采购退货 5销售退货
-                        'good_category'         => 4, //1 采购 2销售 3采购退货 4销售退货
+                        'type'                  => 2 ,  //1 采购  2退货 3转移
+//                        'good_category'         => 4, //1 采购 2销售 3采购退货 4销售退货
                         'sale_user_id'          => $row['sale_user_id'],
 
                     ];

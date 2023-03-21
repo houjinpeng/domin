@@ -1,0 +1,65 @@
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form" lay-filter="order_form" >
+            <div class="layui-form-item">
+
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">目标仓库</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <select name="warehouse_id" lay-verify="required">
+                            <option value=""></option>
+                            {foreach $warehouse_list as $item}
+                            <option value="{$item['id']}">{$item['name']}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">单据日期</label>
+                    <div class="layui-input-inline" style="width: 160px;">
+                        <input name="order_time" autocomplete="off" type="text" required  lay-verify="required" class="layui-input" id="order_time" placeholder="请选择单据日期">
+
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <a class="layui-btn layui-btn-sm" id="import_order"  lay-filter="formDemo">表单导入</a>
+                </div>
+
+            </div>
+
+            <table id="order_table" lay-filter="order_table"></table>
+
+
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">备注信息</label>
+                    <div class="layui-input-inline" style="width: 260px;">
+                        <input type="text" class="layui-input" name="remark">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="layui-form-item" style="text-align: center">
+                <a class="layui-btn layui-btn-sm layui-btn-primary" id="reset" >重置单据</a>
+                <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="formDemo">提交单据</button>
+            </div>
+
+        </form>
+
+
+
+
+
+
+    </div>
+</div>
+
+<script type="text/html" id="barDemo">
+    <i class="layui-icon layui-icon-addition" lay-event="add"></i>
+    <i class="layui-icon layui-icon-subtraction" lay-event="del"></i>
+
+{/*    <a class="layui-btn layui-btn-xs" lay-event="edit"></a>*/}
+</script>

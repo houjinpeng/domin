@@ -98,9 +98,9 @@ class SearchYmAndFilter():
             while True:
                 if str(datetime.datetime.now())[11:16] == self.filter['clear_time_str']:
                     if is_delete == False:
+                        self.log_queue.put(f'{str(datetime.datetime.now())[11:16]} 清空任务')
                         self.ym_set.clear()
                         self.save_ym.clear()
-                        self.mycol.delete_many({})
                         self.task_queue.queue.clear()
                         self.out_ym.delete_many({'type': 'main', 'filter_id':self.filter_id})
                     is_delete = True
@@ -114,10 +114,10 @@ class SearchYmAndFilter():
                 t = t + datetime.timedelta(hours=self.filter['clear_time'])
                 if datetime.datetime.now() > t:
                     #删除数据
+                    self.log_queue.put(f'{str(datetime.datetime.now())[11:16]} 清空任务')
                     start_time = str(datetime.datetime.now())[:19]
                     self.ym_set.clear()
                     self.save_ym.clear()
-                    self.mycol.delete_many({})
                     self.out_ym.delete_many({'type':'main','filter_id':self.filter_id})
                     self.update_spider_status('ym_yikoujia_jkt', self.filter['id'], 1)
 
@@ -299,7 +299,7 @@ class SearchYmAndFilter():
                 conn.commit()
                 self.parse_info(info)
 
-            # self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 本次查询任务结束 耗时：{int(time.time())-start_time}秒  本次查询数据总数为：{info["count"]}')
+            self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 本次查询任务结束 耗时：{int(time.time())-start_time}秒  本次查询数据总数为：{info["count"]}')
             time.sleep(0.5)
 
 
@@ -310,6 +310,7 @@ class SearchYmAndFilter():
         try:
             data = {
                 'ym': ym_data['ym'],
+                'sid': ym_data['sid'],
                 'jg': ym_data.get('jg'),
                 'zcs': ym_data.get('zcs'),
                 'token': ym_data.get('token'),
@@ -317,7 +318,6 @@ class SearchYmAndFilter():
                 'create_time': str(datetime.datetime.now())[:19]
             }
             self.save_ym.add(json.dumps(data))
-            # self.mycol.insert_one(data)
 
         except Exception as error:
             self.log_queue.put(f'{str(datetime.datetime.now())[:19]} 保存数据库错误:{error}')
@@ -527,8 +527,9 @@ class SearchYmAndFilter():
     def index(self):
         self.ym_set = set()
         self.db_pool = PooledDB(**mysql_pool_conf)
-        self.myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+        # self.myclient = pymongo.MongoClient("mongodb://localhost:27017/")
         # self.myclient = pymongo.MongoClient('mongodb://myspider:maiyuan123@127.0.0.1:27017/')
+        self.myclient = pymongo.MongoClient(host='127.0.0.1', port=27017, username="root", password="maiyuan123")
 
         self.mydb = self.myclient["domain"]
         self.jm_api = JmApi()
@@ -562,11 +563,7 @@ class SearchYmAndFilter():
         threading.Thread(target=self.save_logs).start()
         #启动刷新黑名单任务
         threading.Thread(target=self.get_hmd).start()
-        # self.mycol = self.mydb[f"ym_data_{self.filter_id}"]
-        # all_data = self.mycol.find()
-        # for data in all_data:
-        #     self.ym_set.add(data['ym'])
-        # del all_data
+
 
         if self.filter['cate'] == '一口价':
 
@@ -608,7 +605,9 @@ class SearchYmAndFilter():
 
         thread_list = []
         # for i in range(self.filter['task_num']):
-        for i in range(100):
+        for i in range(0):
+        # for i in range(100):
+
             if self.filter['main_filter'] == '备案':
                 thread_list.append(threading.Thread(target=self.beian_worker))
 

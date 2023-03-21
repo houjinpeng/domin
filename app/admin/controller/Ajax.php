@@ -221,12 +221,12 @@ class Ajax extends AdminController
     public function userList()
     {
         $post = $this->request->post();
-        $model = new \app\admin\model\SystemAdmin();
+        $model = new \app\admin\model\NodSaleUser();
 
-        $row = $model->field(['id','username'])->select()->toArray();
+        $row = $model->field(['id','name'])->select()->toArray();
         $arr = [];
         foreach ($row as $index => $item) {
-            $arr[] = ['id'=>$item['id'],'title'=>$item['username']];
+            $arr[] = ['id'=>$item['id'],'title'=>$item['name']];
         }
         $data = [
           'code'=>1,

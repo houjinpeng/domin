@@ -668,8 +668,9 @@ class Jkt extends AdminController
             //停止主线程
             kill_task($row['p_id']);
             $row->save(['spider_status'=>3]);
-            $this->success('成功停止全部任务');
         }
+        $this->success('成功停止全部任务');
+
 
     }
 

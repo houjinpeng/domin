@@ -38,17 +38,17 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         } return ''
 
                         }},
-                    {field: 'type', minWidth: 120, title: '类型',selectList:{'1':'入库','2':'出库','3':'转移','4':'采购退货','5':'销售退货'},templet:function (d) {
+                    {field: 'type', minWidth: 120, title: '类型',selectList:{'1':'采购单','2':'采购退货单','3':'销货单','6':'销售退货单','7':'调拨单'},templet:function (d) {
                             if (d.type === 1){
-                                return '入库'
+                                return '采购单'
                             }if (d.type === 2){
-                                return '出库'
+                                return '采购退货单'
                             }if (d.type === 3){
-                                return '转移'
-                            }if (d.type === 4){
-                                return '采购退货'
-                            }if (d.type === 5){
-                                return '销售退货'
+                                return '销货单'
+                            }if (d.type === 6){
+                                return '销售退货单'
+                            }if (d.type === 7){
+                                return '调拨单'
                             }
                         }},
                     {field: 'pid', minWidth: 180,search: false, title: '单据编号',templet:function (d) {
