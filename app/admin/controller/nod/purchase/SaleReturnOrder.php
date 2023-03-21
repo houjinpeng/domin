@@ -122,7 +122,7 @@ class SaleReturnOrder extends AdminController
             }
 
             //查找域名是否已经被销售
-            $sale_good = $this->warehouse_info_model->where('good_category','=',2)->where('good_name','in',$ym_list)->select()->toArray();
+            $sale_good = $this->warehouse_info_model->where('good_category','=',3)->where('good_name','in',$ym_list)->select()->toArray();
 
 
             $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
@@ -267,7 +267,7 @@ class SaleReturnOrder extends AdminController
             }
 
             //查找域名是否已经被销售
-            $sale_good = $this->warehouse_info_model->where('good_category','=',2)->where('good_name','in',$ym_list)->select()->toArray();
+            $sale_good = $this->warehouse_info_model->where('good_category','=',3)->where('good_name','in',$ym_list)->select()->toArray();
 
 
             $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
