@@ -29,7 +29,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 init: show_init,
                 limit:50,
                 height:'full-40',
-                limits:[50,100,200],
+                limits:[50,100,200,500,1000],
                 toolbar:['refresh'],
                 cols: [[
                     {field: 'customer_id', minWidth: 110, fixed:'left',title: '客户',selectList: bulid_select(customer_select_list),templet:function (d) {
