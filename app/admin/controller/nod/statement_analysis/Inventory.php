@@ -58,7 +58,10 @@ class Inventory extends AdminController
 
         }
 
-
+        $total_price = $this->model->sum('total_price');
+        $total_count = $this->model->count();
+        $this->assign('total_price',$total_price);
+        $this->assign('total_count',$total_count);
         return $this->fetch();
     }
 
