@@ -36,18 +36,18 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     // {field: 'expiration_time', search:false,minWidth: 130, title: '过期时间'},
                     // {field: 'register_time', search:false, minWidth: 130, title: '注册时间'},
                     {field: 'unit_price', search:false, minWidth: 100, title: '成本价'},
-                    {field: 'pid', minWidth: 180, title: '单据编号',search: false,templet:function (d) {
-                            if (d.getOrder){
-                                return d.getOrder.order_batch_num
-                            } return ''
-
-                        }},
-                    {field: 'pid', minWidth: 182, title: '单据日期',search: false,templet:function (d) {
-                            if (d.getOrder){
-                                return d.getOrder.order_time
-                            } return ''
-
-                        }},
+                    // {field: 'pid', minWidth: 180, title: '单据编号',search: false,templet:function (d) {
+                    //         if (d.getOrder){
+                    //             return d.getOrder.order_batch_num
+                    //         } return ''
+                    //
+                    //     }},
+                    // {field: 'pid', minWidth: 182, title: '单据日期',search: false,templet:function (d) {
+                    //         if (d.getOrder){
+                    //             return d.getOrder.order_time
+                    //         } return ''
+                    //
+                    //     }},
                     {field: 'warehouse_id', minWidth: 110, title: '仓库',selectList: bulid_select(warehouse_select_list),templet:function (d) {
                         if ( d.getWarehouse){
                             return d.getWarehouse.name
@@ -66,7 +66,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             return ''
                         }},
                     {field: 'remark', minWidth: 100, title: '备注信息'},
-                    {field: 'create_time', minWidth: 180, title: '操作时间',search: 'range'},
+                    // {field: 'create_time', minWidth: 180, title: '操作时间',search: 'range'},
 
                 ]],
                 done:function () {
