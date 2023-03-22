@@ -113,8 +113,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         {field: 'index', title: '列', width:70}
                         ,{field: 'id', title: 'ID', width:70}
                         ,{field: 'good_name', title: '商品信息', minWidth:180,edit:true}
-                        ,{field: 'register_time', title: '注册时间', minWidth:180,edit:true}
-                        ,{field: 'expiration_time', title: '过期时间', minWidth:180,edit:true}
                         ,{field: 'unit_price', title: '购货单价', minWidth:110,edit:true}
                         ,{field: 'num', title: '购货数量', minWidth:110,edit:true}
                         ,{field: 'total_price', title: '购货金额', minWidth: 110}

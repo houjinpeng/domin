@@ -171,8 +171,7 @@ class ReturnOrder extends AdminController
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
-                    'register_time' => $ym_dict[$item['good_name']]['register_time'],
-                    'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
+
 
                 ];
                 $insert_all[] = $save_info;
@@ -302,8 +301,7 @@ class ReturnOrder extends AdminController
                       'warehouse_id' => $post['warehouse_id'],
                       'account_id' => $post['account_id'],
                       'supplier_id' => $post['supplier_id'],
-                      'register_time' => $ym_dict[$item['good_name']]['register_time'],
-                      'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
+
                   ];
 
                   $this->order_info_model->where('id','=',$item['id'])->update($save_info);
@@ -319,8 +317,6 @@ class ReturnOrder extends AdminController
                       'warehouse_id' => $post['warehouse_id'],
                       'account_id' => $post['account_id'],
                       'supplier_id' => $post['supplier_id'],
-                      'register_time' => $ym_dict[$item['good_name']]['register_time'],
-                      'expiration_time' => $ym_dict[$item['good_name']]['expiration_time'],
 
                   ];
                   $this->order_info_model->save($save_info);
@@ -420,8 +416,6 @@ class ReturnOrder extends AdminController
                 'unit_price' => $ym_detail[$ym],
                 'num' => '1',
                 'good_name' => $ym,
-                'register_time' => $all_ym_data[$ym]['zc_time'],
-                'expiration_time' => $all_ym_data[$ym]['dq_time'],
                 'remark' => '',
 
             ];

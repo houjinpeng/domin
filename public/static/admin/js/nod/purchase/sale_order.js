@@ -140,16 +140,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
             laydate.render({
                 elem: '#order_time' //指定元素
                 , type: 'datetime'
+                ,value: new Date() //参数即为：2018-08-20 20:08:08 的时间戳
             });
 
             //初始化表格
             table.render({
-                elem: '#order_table'
-                ,
-                height: 'full-300'
-                ,
-                limit: 10000
-                ,
+                elem: '#order_table',
+                height: 'full-300',
+                limit: 10000,
                 page: false //开启分页
                 ,
                 cols: [[ //表头
@@ -165,14 +163,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ]]
                 ,
                 data: [{
-                    'index': '1',
-                    'total_price': '',
+                    index: '1',
+                    total_price: '',
                     remark: '',
                     unit_price: '',
                     good_name: '',
+                    sale_time: ea.timestampToTime(),
                     num: '1',
-                    register_time: '',
-                    expiration_time: ''
                 }]
                 ,
             });
@@ -207,14 +204,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 } else if (layEvent === 'add') {
 
                     all_data.push({
-                        'index': parseInt(all_data[all_data.length - 1]['index']) + 1,
-                        'total_price': '',
+                        index: parseInt(all_data[all_data.length - 1]['index']) + 1,
+                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
+                        sale_time:ea.timestampToTime()
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 
@@ -258,14 +254,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
             $('#reset').click(function () {
                 $('input').val('')
                 table.reload('order_table',{data:[{
-                        'index': '1',
-                        'total_price': '',
+                        index: '1',
+                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
+                        sale_time:ea.timestampToTime()
+
+
                     }],limit:100000})
 
             })
@@ -451,14 +448,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 } else if (layEvent === 'add') {
 
                     all_data.push({
-                        'index': parseInt(all_data[all_data.length - 1]['index']) + 1,
-                        'total_price': '',
+                        index: parseInt(all_data[all_data.length - 1]['index']) + 1,
+                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
+
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 

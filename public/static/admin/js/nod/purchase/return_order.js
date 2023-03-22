@@ -134,6 +134,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             laydate.render({
                 elem: '#order_time' //指定元素
                 , type: 'datetime'
+                ,value: new Date()
             });
 
             //初始化表格

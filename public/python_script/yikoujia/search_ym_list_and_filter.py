@@ -304,13 +304,10 @@ class SearchYmAndFilter():
 
 
     def save_mysql(self, ym_data, key, value):
-        # save_conn = self.db_pool.connection()
-        # save_cur = save_conn.cursor()
-        # pass
+
         try:
             data = {
                 'ym': ym_data['ym'],
-                'sid': ym_data['sid'],
                 'jg': ym_data.get('jg'),
                 'zcs': ym_data.get('zcs'),
                 'token': ym_data.get('token'),

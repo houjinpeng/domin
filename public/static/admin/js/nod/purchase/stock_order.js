@@ -146,6 +146,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
             laydate.render({
                 elem: '#order_time' //指定元素
                 , type: 'datetime'
+                ,value: new Date()
+
             });
 
             //初始化表格
@@ -157,8 +159,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 cols: [[ //表头
                     {field: 'index', title: '列', width: 70}
                     , {field: 'good_name', title: '商品信息', minWidth: 180, edit: true}
-                    , {field: 'register_time', title: '注册时间', minWidth: 180, edit: true}
-                    , {field: 'expiration_time', title: '过期时间', minWidth: 180, edit: true}
                     , {field: 'unit_price', title: '购货单价', minWidth: 110, edit: true}
                     , {field: 'num', title: '购货数量', minWidth: 110, edit: true}
                     , {field: 'total_price', title: '购货金额', minWidth: 110}
@@ -168,14 +168,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ]]
                 ,
                 data: [{
-                    'index': '1',
-                    'total_price': '',
+                    index: '1',
+                    total_price: '',
                     remark: '',
                     unit_price: '',
                     good_name: '',
                     num: '1',
-                    register_time: '',
-                    expiration_time: ''
                 }]
                 ,
             });
@@ -210,14 +208,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 } else if (layEvent === 'add') {
 
                     all_data.push({
-                        'index': parseInt(all_data[all_data.length - 1]['index']) + 1,
-                        'total_price': '',
+                        index: parseInt(all_data[all_data.length - 1]['index']) + 1,
+                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 
@@ -262,14 +258,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
             $('#reset').click(function () {
                 $('input').val('')
                 table.reload('order_table',{data:[{
-                        'index': '1',
-                        'total_price': '',
+                        index: '1',
+                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
                     }],limit:100000})
 
             })
@@ -305,7 +299,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         '  <div class="layui-form-item layui-form-text">\n' +
                         '    <label class="layui-form-label">导入表单</label>\n' +
                         '    <div class="layui-input-block">\n' +
-                        '      <textarea rows="10" name="data" placeholder="输入格式:域名|注册时间|过期时间|单价|备注   如：baidu.com|2022-12-02|2022-12-02|100|我是一个搬运工" class="layui-textarea"></textarea>\n' +
+                        '      <textarea rows="10" name="data" placeholder="输入格式:域名|单价|备注   如：baidu.com|100|我是一个搬运工" class="layui-textarea"></textarea>\n' +
                         '    </div>\n' +
                         '  </div>\n' +
                         '  <div class="layui-form-item">\n' +
@@ -330,11 +324,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 if (d === '')continue
                                 let detail = d.split('|')
                                 let ym = $.trim(detail[0])
-                                let zc_time = $.trim(detail[1])
-                                let dq_time = $.trim(detail[2])
-                                let unit_price = $.trim(detail[3])
-                                let total_price = $.trim(detail[3])
-                                let remark = $.trim(detail[4])
+
+                                let unit_price = $.trim(detail[1])
+                                let total_price = $.trim(detail[1])
+                                let remark = $.trim(detail[2])
 
                                 import_data.push({
                                     remark: remark,
@@ -343,8 +336,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                     good_name:ym,
                                     num: '1',
                                     index: parseInt(i)+1,
-                                    register_time: zc_time,
-                                    expiration_time: dq_time
+
                                 })
 
                             }
@@ -428,8 +420,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'index', title: '列', width:70}
                     ,{field: 'id', title: 'ID', width:70}
                     ,{field: 'good_name', title: '商品信息', minWidth:180,edit:true}
-                    ,{field: 'register_time', title: '注册时间', minWidth:180,edit:true}
-                    ,{field: 'expiration_time', title: '过期时间', minWidth:180,edit:true}
                     ,{field: 'unit_price', title: '购货单价', minWidth:110,edit:true}
                     ,{field: 'num', title: '购货数量', minWidth:110,edit:true}
                     ,{field: 'total_price', title: '购货金额', minWidth: 110}
@@ -469,14 +459,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 } else if (layEvent === 'add') {
 
                     all_data.push({
-                        'index': parseInt(all_data[all_data.length - 1]['index']) + 1,
-                        'total_price': '',
+                        index: parseInt(all_data[all_data.length - 1]['index']) + 1,
+                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
+
+
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 

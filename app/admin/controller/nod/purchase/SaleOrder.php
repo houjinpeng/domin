@@ -178,8 +178,6 @@ class SaleOrder extends AdminController
                     'account_id' => $post['account_id'],
                     'supplier_id' => $ym_dict[$item['good_name']]['supplier_id'],
                     'sale_time' => $item['sale_time'],
-                    'expiration_time' =>$ym_dict[$item['good_name']]['expiration_time'],
-                    'register_time' =>$ym_dict[$item['good_name']]['register_time'],
                     'order_time' => $post['order_time'],
                     'sale_user_id' => $post['sale_user_id'],//销售员
 

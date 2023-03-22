@@ -33,8 +33,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 cols: [[
                     {type: "checkbox"},
                     {field: 'good_name', minWidth: 152, title: '商品名称'},
-                    {field: 'expiration_time', search:false,minWidth: 130, title: '过期时间'},
-                    {field: 'register_time', search:false, minWidth: 130, title: '注册时间'},
+                    // {field: 'expiration_time', search:false,minWidth: 130, title: '过期时间'},
+                    // {field: 'register_time', search:false, minWidth: 130, title: '注册时间'},
                     {field: 'unit_price', search:false, minWidth: 100, title: '成本价'},
                     {field: 'pid', minWidth: 180, title: '单据编号',search: false,templet:function (d) {
                             if (d.getOrder){

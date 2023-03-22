@@ -94,8 +94,6 @@ class StockOrder extends AdminController
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'expiration_time|【过期时间】' => 'require|date',
-                'register_time|【注册时间】' => 'require|date',
                 'unit_price|【购货单价】' => 'number|require',
                 'num|【购货数量】' => 'number|require',
                 'total_price|【购货金额】' => 'number|require',
@@ -145,8 +143,6 @@ class StockOrder extends AdminController
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
-                    'register_time' => $item['register_time'],
-                    'expiration_time' => $item['expiration_time'],
                     'order_time' => $post['order_time'],
 
 
@@ -204,8 +200,6 @@ class StockOrder extends AdminController
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'expiration_time|【过期时间】' => 'require|date',
-                'register_time|【注册时间】' => 'require|date',
                 'unit_price|【购货单价】' => 'number|require',
                 'num|【购货数量】' => 'number|require',
                 'total_price|【购货金额】' => 'number|require',
@@ -253,8 +247,6 @@ class StockOrder extends AdminController
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
-                    'register_time' => $item['register_time'],
-                    'expiration_time' => $item['expiration_time'],
                 ];
 
 
@@ -357,8 +349,6 @@ class StockOrder extends AdminController
                 'unit_price' => $ym_detail[$ym],
                 'num' => '1',
                 'good_name' => $ym,
-                'register_time' => $all_ym_data[$ym]['zc_time'],
-                'expiration_time' => $all_ym_data[$ym]['dq_time'],
                 'remark' => '',
 
             ];

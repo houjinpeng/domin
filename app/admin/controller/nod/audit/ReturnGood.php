@@ -160,8 +160,7 @@ class ReturnGood extends AdminController
                         'warehouse_id'      => $row['warehouse_id'],
                         'account_id'        => $row['account_id'],
                         'supplier_id'       => $row['supplier_id'],
-                        'register_time'     => $ym_dict[$item['good_name']]['register_time'],
-                        'expiration_time'   => $ym_dict[$item['good_name']]['expiration_time'],
+
                         'order_time'        => $item['order_time'],
                         'type'              => 2,
                         'good_category'     => 2, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
@@ -206,7 +205,7 @@ class ReturnGood extends AdminController
                     'sale_user_id'      => $row['sale_user_id'],#销售人员
                     'supplier_id'       => $row['supplier_id'],
                     'warehouse_id'      => $row['warehouse_id'],
-                    'order_id'          => $row['pid'],
+                    'order_id'          => $row['id'],
                     'price'             => $post['paid_price'],
                     'practical_price'   => $post['practical_price'],
                     'category'          => '采购退货',
@@ -295,8 +294,6 @@ class ReturnGood extends AdminController
                     $insert_inventory_info = [
                         'pid'                   => $id,
                         'good_name'             => $item['good_name'],
-                        'expiration_time'       => $ym_dict[$item['good_name']]['expiration_time'],
-                        'register_time'         => $ym_dict[$item['good_name']]['register_time'],
                         'unit_price'            => $ym_dict[$item['good_name']]['unit_price'], //售价
                         'total_price'           => $ym_dict[$item['good_name']]['total_price'], //总价格
                         'profit_price'          => - $item['unit_price'], //利润为退货价格
@@ -344,7 +341,7 @@ class ReturnGood extends AdminController
                     'supplier_id'       => $row['supplier_id'],
                     'warehouse_id'      => $row['warehouse_id'],
                     'customer_id'       => $row['customer_id'],
-                    'order_id'          => $row['pid'],
+                    'order_id'          => $row['id'],
                     'price'             => $post['paid_price'],
                     'practical_price'   => $post['practical_price'],
                     'category'          => '销售退货',

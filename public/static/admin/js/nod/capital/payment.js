@@ -169,6 +169,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             laydate.render({
                 elem: '#order_time' //指定元素
                 , type: 'datetime'
+                ,value: new Date()
             });
 
             //初始化表格
@@ -282,118 +283,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     }],limit:100000})
 
             })
-            //点击导入单据
-            $('#crawl_order').click(function () {
-                let data = form.val("order_form");
-                if (!data['warehouse_id']) {
-                    layer.msg('请选择仓库~', {icon: 2});
-                    return
-                }
 
-
-                ea.request.get({
-                    url: 'crawl_order_data?warehouse_id=' + data['warehouse_id'],
-                }, function (resp) {
-                    all_data = resp.data
-                    table.reload('order_table', {data: resp.data, limit: 100000})
-                })
-
-
-            })
-
-            //点击表单导入
-            $('#import_order').click(function () {
-                layer.open({
-                    title: '采购单-表单导入单据',
-                    skin: 'demo-class',
-                    type: 1,
-                    area: ['800px', '500px'],
-                    content: '<div class="layuimini-container">\n' +
-                        '\t    <div class="layuimini-main">\n' +
-                        '<form class="layui-form" action="" lay-filter="import_form">\n' +
-                        '  <div class="layui-form-item layui-form-text">\n' +
-                        '    <label class="layui-form-label">导入表单</label>\n' +
-                        '    <div class="layui-input-block">\n' +
-                        '      <textarea rows="10" name="data" placeholder="输入格式:域名|注册时间|过期时间|单价|备注   如：baidu.com|2022-12-02|2022-12-02|100|我是一个搬运工" class="layui-textarea"></textarea>\n' +
-                        '    </div>\n' +
-                        '  </div>\n' +
-                        '  <div class="layui-form-item">\n' +
-                        '    <div class="layui-input-block">\n' +
-                        '      <a id="import_form" class="layui-btn layui-btn-sm" >立即导入</a>\n' +
-                        '    </div>\n' +
-                        '  </div>\n' +
-                        '</form>\n' +
-                        '</div></div>',
-                    success:function (layero, index) {
-                        //点击导入 导入表单
-                        $('#import_form').click(function () {
-
-
-                            let data = form.val("import_form")['data'].split('\n');
-                            if (data.length ===0) {
-                                layer.msg('不能一个也不导入吧~',{icon:2})
-                            }
-                            let import_data = []
-                            for (let i in data){
-                                let d = $.trim(data[i])
-                                if (d === '')continue
-                                let detail = d.split('|')
-                                let ym = $.trim(detail[0])
-                                let zc_time = $.trim(detail[1])
-                                let dq_time = $.trim(detail[2])
-                                let unit_price = $.trim(detail[3])
-                                let total_price = $.trim(detail[3])
-                                let remark = $.trim(detail[4])
-
-                                import_data.push({
-                                    remark: remark,
-                                    unit_price: unit_price,
-                                    total_price: total_price,
-                                    good_name:ym,
-                                    num: '1',
-                                    index: parseInt(i)+1,
-                                    register_time: zc_time,
-                                    expiration_time: dq_time
-                                })
-
-                            }
-
-                            let l = import_data.length
-                            for (let i in all_data){
-                                let d= all_data[i]
-                                d['index'] =parseInt(l)+parseInt(i)+1
-                                import_data.push(d)
-                            }
-
-
-                            table.reload('order_table', {data: import_data, limit: 100000})
-                            layer.msg('导入成功',{icon:1})
-                            layer.close(index)
-                            return false
-                        })
-                    }
-
-
-                });
-
-
-            })
-
-
-            $('#clear_zero').click(function () {
-                let all_data = table.cache['order_table']
-                let new_data = []
-                let index = 1
-                all_data.forEach(function (item) {
-                    if (item['total_price'] !== 0) {
-                        item['index'] = index
-                        new_data.push(item)
-                        index += 1
-                    }
-                })
-                table.reload('order_table', {data: new_data, limit: 100000})
-
-            })
 
             ea.listen(function (data) {
                 let d = table.cache['order_table']
@@ -487,14 +377,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 } else if (layEvent === 'add') {
 
                     all_data.push({
-                        'index': parseInt(all_data[all_data.length - 1]['index']) + 1,
+                        index: parseInt(all_data[all_data.length - 1]['index']) + 1,
                         'total_price': '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
+
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 

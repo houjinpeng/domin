@@ -173,13 +173,13 @@ class ReceiptAndPayment extends AdminController
                 $this->account_info_model->insert([
                     'account_id' => $row['account_id'],
                     'customer_id' => $row['customer_id'],
-                    'order_id' => $row['pid'],
+                    'order_id' => $row['id'],
                     'price'=>$post['paid_price'],
                     'practical_price'=>$post['practical_price'],
                     'receivable_price'=>-$receivable_price,
                     'category'=>'收款',
                     'sz_type'=>1,
-                    'type'=>4,
+                    'type'=>4, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单
                     'balance_price'=>$balance_price,
                     'sale_user_id'=>$row['sale_user_id'],
                     'operate_time'=>$row['order_time'],
@@ -239,7 +239,7 @@ class ReceiptAndPayment extends AdminController
                 $this->account_info_model->insert([
                     'account_id' => $row['account_id'],
                     'customer_id' => $row['customer_id'],
-                    'order_id' => $row['pid'],
+                    'order_id' => $row['id'],
                     'price'=>$post['paid_price'],
                     'practical_price'=>$post['practical_price'],
                     'receivable_price'=>$receivable_price,

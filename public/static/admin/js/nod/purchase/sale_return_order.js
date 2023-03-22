@@ -140,6 +140,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             laydate.render({
                 elem: '#order_time' //指定元素
                 , type: 'datetime'
+                ,value: new Date()
             });
 
             //初始化表格
@@ -170,8 +171,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     unit_price: '',
                     good_name: '',
                     num: '1',
-                    register_time: '',
-                    expiration_time: ''
+
                 }]
                 ,
             });
@@ -212,8 +212,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
+
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 
@@ -453,8 +452,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         unit_price: '',
                         good_name: '',
                         num: '1',
-                        register_time: '',
-                        expiration_time: ''
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 

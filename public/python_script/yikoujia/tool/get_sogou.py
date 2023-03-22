@@ -413,10 +413,21 @@ if __name__ == '__main__':
 
     # y = o.extract_domain('aaa.www.baidu.com')
     # print(y)
-    for i in range(1000):
-        domain = 'maiyuan.com'
+    l = [
+        'skibabrasco.com',
+        'iptvsbest.com',
+        'cretav.com',
+        'spz698.com',
+        'webkinzes.com',
+        'gocohogar.com',
+        'yabigmo.com',
+        'czgweb.com'
+    ]
+
+    for domain in l:
+        # domain = 'iptvsbest.com'
         data = o.get_info(domain)
         # print(data)
         r = o.check_sogou(data['html'],s,tim_str,domain=domain,sogou_is_com_word='1',jg='1',jv_now_day=[0,1234])
-        print(r)
+        print(domain,r)
 

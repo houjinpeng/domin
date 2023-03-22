@@ -104,8 +104,6 @@ class Purchase extends AdminController
 
                 $rule = [
                     'good_name|【商品信息】' => 'require',
-                    'expiration_time|【过期时间】' => 'require|date',
-                    'register_time|【注册时间】' => 'require|date',
                     'unit_price|【购货单价】' => 'number|require',
                     'num|【购货数量】' => 'number|require',
                     'total_price|【购货金额】' => 'number|require',
@@ -158,8 +156,7 @@ class Purchase extends AdminController
                         'warehouse_id' => $row['warehouse_id'],
                         'account_id' => $row['account_id'],
                         'supplier_id' => $row['supplier_id'],
-                        'register_time' => $item['register_time'],
-                        'expiration_time' => $item['expiration_time'],
+
                     ];
                     $this->order_info_model->where('id','=',$item['id'])->update($save_info);
 
@@ -173,8 +170,6 @@ class Purchase extends AdminController
                         'warehouse_id'      => $row['warehouse_id'],
                         'account_id'        => $row['account_id'],
                         'supplier_id'       => $row['supplier_id'],
-                        'register_time'     => $item['register_time'],
-                        'expiration_time'   => $item['expiration_time'],
                         'order_time'        => $item['order_time'],
                         'type'              => 1,
                         'good_category'     => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
@@ -188,8 +183,6 @@ class Purchase extends AdminController
                         'warehouse_id'      => $row['warehouse_id'],
                         'account_id'        => $row['account_id'],
                         'supplier_id'       => $row['supplier_id'],
-                        'register_time'     => $item['register_time'],
-                        'expiration_time'   => $item['expiration_time'],
                         'order_time'    => $item['order_time'],
                     ];
 
@@ -228,11 +221,13 @@ class Purchase extends AdminController
                     'account_id'        => $row['account_id'],
                     'supplier_id'       => $row['supplier_id'],
                     'warehouse_id'      => $row['warehouse_id'],
-                    'order_id'          => $row['pid'],
+                    'order_id'          => $row['id'],
                     'price'             =>-$post['paid_price'], //实际金额
                     'practical_price'   =>-$post['practical_price'], //单据金额
                     'category'          =>'采购',
-                    'sz_type'           =>2,
+                    'sz_type'           => 2,
+                    'type'              => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单
+
                     'balance_price'     =>$balance_price,
                     'operate_time'      =>$row['order_time'],
                     'receivable_price'  => $receivable_price // 欠款金额
@@ -311,8 +306,6 @@ class Purchase extends AdminController
                     $insert_all[] = [
                         'pid'                   =>$id,
                         'good_name'             =>$item['good_name'],
-                        'expiration_time'       =>$item['expiration_time'],
-                        'register_time'         =>$item['register_time'],
                         'sale_time'             =>$ym_shoujia[$item['good_name']]['sale_time'],
                         'unit_price'            =>$ym_shoujia[$item['good_name']]['unit_price'], //售价
                         'total_price'           =>$ym_shoujia[$item['good_name']]['unit_price'], //总价格
@@ -364,11 +357,11 @@ class Purchase extends AdminController
                     'supplier_id'       => $row['supplier_id'],
                     'warehouse_id'      => $row['warehouse_id'],
                     'customer_id'       => $row['customer_id'],
-                    'order_id'          => $row['pid'],
+                    'order_id'          => $row['id'],
                     'price'             => $post['paid_price'],
                     'practical_price'   => $post['practical_price'],
                     'category'          => '销售',
-                    'type'              => 3,
+                    'type'              => 3, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
                     'sz_type'           => 1,
                     'balance_price'     => $balance_price,
                     'operate_time'      => $row['order_time'],
