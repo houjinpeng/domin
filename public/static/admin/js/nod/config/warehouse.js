@@ -100,7 +100,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'account_id', minWidth: 110, title: '账号',templet:function (d) {
                             return d.getAccount.name
                         }},
-                    {field: 'supplier_id', minWidth: 110, title: '供应商',templet:function (d) {
+                    {field: 'supplier_id', minWidth: 110, title: '来源渠道',templet:function (d) {
                             return d.getSupplier.name
                         }},
                     {field: 'remark', minWidth: 100, title: '备注信息'},

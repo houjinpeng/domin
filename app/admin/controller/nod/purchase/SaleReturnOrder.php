@@ -100,9 +100,6 @@ class SaleReturnOrder extends AdminController
             $rule = [
                 'good_name|【商品信息】' => 'require',
                 'unit_price|【退货单价】' => 'number|require',
-                'num|【退货数量】' => 'number|require',
-                'total_price|【退货金额】' => 'number|require',
-
             ];
 
             if (count($post['goods']) == 0) {
@@ -114,10 +111,8 @@ class SaleReturnOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $item['unit_price'] = intval($item['unit_price']);
-                $item['num'] = intval($item['num']);
-                $item['total_price'] = intval($item['total_price']);
                 $this->validate($item, $rule);
             }
 
@@ -184,8 +179,6 @@ class SaleReturnOrder extends AdminController
                 $save_info = [
                     'good_name' => $item['good_name'],
                     'unit_price' => $item['unit_price'],
-                    'num' => $item['num'],
-                    'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'category' =>'销售退货',
                     'pid' => $pid,
@@ -245,8 +238,6 @@ class SaleReturnOrder extends AdminController
             $rule = [
                 'good_name|【商品信息】' => 'require',
                 'unit_price|【退货单价】' => 'number|require',
-                'num|【退货数量】' => 'number|require',
-                'total_price|【退货金额】' => 'number|require',
 
             ];
 
@@ -257,10 +248,8 @@ class SaleReturnOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $item['unit_price'] = intval($item['unit_price']);
-                $item['num'] = intval($item['num']);
-                $item['total_price'] = intval($item['total_price']);
                 $this->validate($item, $rule);
             }
 
@@ -317,8 +306,6 @@ class SaleReturnOrder extends AdminController
                     $save_info = [
                         'good_name' => $item['good_name'],
                         'unit_price' => $item['unit_price'],
-                        'num' => $item['num'],
-                        'total_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
@@ -332,8 +319,6 @@ class SaleReturnOrder extends AdminController
                     $save_info = [
                         'good_name' => $item['good_name'],
                         'unit_price' => $item['unit_price'],
-                        'num' => $item['num'],
-                        'total_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'category' =>'销售退货',
                         'pid' => $id,
@@ -383,61 +368,6 @@ class SaleReturnOrder extends AdminController
             $row->save(['audit_status'=>2]);
             $this->success('撤销成功~ 请重新提交采购数据！');
         }
-    }
-
-
-    /**
-     * @NodeAnotation(title="抓取销货数据")
-     */
-    public function crawl_order_data($crawl_time)
-    {
-
-        $warehouse_data = $this->warehouse_model->select()->toArray();
-//        $start_time = date('Y-m-d',strtotime('-1 day'));
-//        $end_time = date('Y-m-d');
-//        dd($post['order_time']);
-        $error_data = [];
-        $list = [];
-        $index = 0;
-        foreach ($warehouse_data as $warehouse){
-
-            $username = $warehouse['account'];
-            $password = $warehouse['password'];
-            $cookie = $warehouse['cookie'];
-            //获取所有域名 信息
-            $jm_api = new JvMing($username, $password, $cookie);
-            $all_ym_data = $jm_api->get_sale_ym($crawl_time,$crawl_time);
-            if ($all_ym_data['code'] ==999){
-                $error_data[] = $all_ym_data['msg'];
-            }
-            foreach ($all_ym_data['data'] as $item){
-                $list[] = [
-                    'index'=>$index+1,
-                    'total_price' =>intval($item['wtqian']),
-                    'unit_price' => intval($item['wtqian']),
-                    'num' => '1',
-                    'good_name' => $item['ym'],
-                    'sale_time' => $item['jssj'],
-                    'remark' => '',
-
-                ];
-                $index+=1;
-
-            }
-
-
-
-        }
-
-        $data = [
-            'code' => 1,
-            'data' => $list
-
-        ];
-
-        return json($data);
-
-
     }
 
 

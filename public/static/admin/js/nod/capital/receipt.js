@@ -189,7 +189,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'index', title: '列', width: 70}
                     // , {field: 'category_id', title: '收款类别', minWidth: 180,templet:'#selectCategory'}
                     , {field: 'category_id', title: '收款类别', minWidth: 180}
-                    , {field: 'total_price', title: '收款金额', minWidth: 110, edit: true}
+                    , {field: 'unit_price', title: '收款金额', minWidth: 110, edit: true}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
@@ -197,7 +197,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ,
                 data: [{
                     index: 1,
-                    total_price: '',
+                    unit_price: '',
                     category_id:html_select ,
                     remark: '',
                 }]
@@ -254,7 +254,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                     new_table_data.push({
                         index: index + 1,
-                        total_price: '',
+                        unit_price: '',
                         remark: '',
                         category_id: html_select,
                     })
@@ -272,7 +272,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['total_price'])
+                    total_pirce += parseInt(item['unit_price'])
                 })
 
                 $('#practical_price').val(total_pirce)
@@ -378,7 +378,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 good_l.push({
                     index:index+1,
                     id:item['id'],
-                    total_price:item['total_price'],
+                    unit_price:item['unit_price'],
                     remark:item['remark'],
                     category_id:get_select_id(item['category_id']),
                 })
@@ -395,7 +395,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'index', title: '列', width:70}
                     ,{field: 'id', title: 'ID', width:70}
                     , {field: 'category_id', title: '收款类别', minWidth: 180}
-                    , {field: 'total_price', title: '收款金额', minWidth: 110, edit: true}
+                    , {field: 'unit_price', title: '收款金额', minWidth: 110, edit: true}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
@@ -452,7 +452,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                     new_table_data.push({
                         index: index + 1,
-                        total_price: '',
+                        unit_price: '',
                         remark: '',
                         category_id: html_select,
                     })
@@ -469,7 +469,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['total_price'])
+                    total_pirce += parseInt(item['unit_price'])
                 })
 
                 $('#practical_price').val(total_pirce)
@@ -492,9 +492,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             });
         },
-        password: function () {
-            ea.listen();
-        }
+
     };
     return Controller;
 });

@@ -104,14 +104,14 @@ class ReceiptAndPayment extends AdminController
             //付收款单审核
             $rule = [
                 'category_id|【收款类别】' => 'require',
-                'total_price|【收款金额】' => 'number|require',
+                'unit_price|【收款金额】' => 'number|require',
             ];
 
             foreach ($post['goods'] as $item) {
 
-                intval($item['total_price']) == 0 && $this->error('收款类别：【'.$item['category'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('收款类别：【'.$item['category'].'】 总金额不能为0');
 
-                $item['total_price'] = intval($item['total_price']);
+                $item['unit_price'] = intval($item['unit_price']);
                 $this->validate($item, $rule);
             }
 
@@ -198,8 +198,6 @@ class ReceiptAndPayment extends AdminController
                 $account_data = $this->account_model->find($row['account_id']);
 
                 $balance_price = $account_data['balance_price'] - intval($post['paid_price']);
-
-
                 //应付款  如果实际付款金额与订单金额不符合 会产生欠款情况
                 $receivable_price = 0;
                 if ($post['practical_price'] != $post['paid_price']){
@@ -240,7 +238,7 @@ class ReceiptAndPayment extends AdminController
                     'account_id' => $row['account_id'],
                     'customer_id' => $row['customer_id'],
                     'order_id' => $row['id'],
-                    'price'=>$post['paid_price'],
+                    'price'=>-$post['paid_price'],
                     'practical_price'=>$post['practical_price'],
                     'receivable_price'=>$receivable_price,
                     'category'=>'付款',

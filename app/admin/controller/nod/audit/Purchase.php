@@ -105,19 +105,14 @@ class Purchase extends AdminController
                 $rule = [
                     'good_name|【商品信息】' => 'require',
                     'unit_price|【购货单价】' => 'number|require',
-                    'num|【购货数量】' => 'number|require',
-                    'total_price|【购货金额】' => 'number|require',
-
                 ];
 
 
                 $ym_list = [];
                 foreach ($post['goods'] as $item) {
                     $ym_list[] = trim($item['good_name']);
-                    intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
-                    $item['num'] = intval($item['num']);
-                    $item['total_price'] = intval($item['total_price']);
                     $this->validate($item, $rule);
                 }
                 //查询商品是否在库存中
@@ -150,7 +145,6 @@ class Purchase extends AdminController
                     $save_info = [
                         'good_name' => $item['good_name'],
                         'unit_price' => $item['unit_price'],
-                        'total_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'pid' => $id,
                         'warehouse_id' => $row['warehouse_id'],
@@ -164,7 +158,6 @@ class Purchase extends AdminController
                     $insert_warehouse_info = [
                         'good_name'         => $item['good_name'],
                         'unit_price'        => $item['unit_price'],
-                        'total_price'       => $item['total_price'],
                         'remark'            => isset($item['remark']) ? $item['remark'] : '',
                         'pid'               => $id,
                         'warehouse_id'      => $row['warehouse_id'],
@@ -177,7 +170,6 @@ class Purchase extends AdminController
                     $insert_inventory_info = [
                         'good_name'         => $item['good_name'],
                         'unit_price'        => $item['unit_price'],
-                        'total_price'       => $item['total_price'],
                         'remark'            => isset($item['remark']) ? $item['remark'] : '',
                         'pid'               => $id,
                         'warehouse_id'      => $row['warehouse_id'],
@@ -208,7 +200,7 @@ class Purchase extends AdminController
                 if ($post['practical_price'] != $post['paid_price']){
                     $receivable_price =  $post['paid_price'] - $post['practical_price'];
 
-                    //获取供应商id 的欠款记录 更新
+                    //获取来源渠道id 的欠款记录 更新
                     $account_row = $this->supplier_model->find($row['supplier_id']);
                     $account_row->save([
                         'receivable_price'=>$account_row['receivable_price'] + $receivable_price,
@@ -243,8 +235,6 @@ class Purchase extends AdminController
                     'good_name|【商品信息】' => 'require',
                     'sale_time|【销售时间】' => 'require|date',
                     'unit_price|【购货单价】' => 'number|require',
-                    'num|【购货数量】' => 'number|require',
-                    'total_price|【购货金额】' => 'number|require',
 
                 ];
 
@@ -255,10 +245,8 @@ class Purchase extends AdminController
                 foreach ($post['goods'] as $item) {
                     $ym_list[] = $item['good_name'];
                     $ym_shoujia[$item['good_name']] = ['unit_price'=>$item['unit_price'],'sale_time'=>$item['sale_time']];
-                    intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
-                    $item['num'] = intval($item['num']);
-                    $item['total_price'] = intval($item['total_price']);
                     $this->validate($item, $rule);
                 }
                 //查询库存中的商品
@@ -308,7 +296,6 @@ class Purchase extends AdminController
                         'good_name'             =>$item['good_name'],
                         'sale_time'             =>$ym_shoujia[$item['good_name']]['sale_time'],
                         'unit_price'            =>$ym_shoujia[$item['good_name']]['unit_price'], //售价
-                        'total_price'           =>$ym_shoujia[$item['good_name']]['unit_price'], //总价格
                         'profit_price'          =>$ym_shoujia[$item['good_name']]['unit_price'] - $item['unit_price'],
                         'remark'                =>$item['remark'],
                         'warehouse_id'          =>$item['warehouse_id'],

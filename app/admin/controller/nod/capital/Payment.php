@@ -39,7 +39,7 @@ class Payment extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="收款列表")
+     * @NodeAnotation(title="付款列表")
      */
     public function index()
     {
@@ -78,7 +78,7 @@ class Payment extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('收款金额不能为0');
+            $post['paid_price'] == '0'&& $this->error('付款金额不能为0');
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
 
             $order_info_rule = [
@@ -92,8 +92,8 @@ class Payment extends AdminController
             $this->validate($post, $order_info_rule);
 
             $rule = [
-                'category_id|【收款类别】' => 'number|require',
-                'total_price|【收款金额】' => 'number|require',
+                'category_id|【付款类别】' => 'number|require',
+                'unit_price|【付款金额】' => 'number|require',
 
             ];
 
@@ -102,7 +102,8 @@ class Payment extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                intval($item['total_price']) == 0 && $this->error('类型：【'.$item['category'].'】 总金额不能为0');
+                $item['unit_price'] = intval($item['unit_price']);
+                $item['unit_price'] == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -140,7 +141,7 @@ class Payment extends AdminController
                 $save_info = [
                     'category_id' => $item['category_id'],
                     'category' => '付款',
-                    'total_price' => $item['total_price'],
+                    'unit_price' => $item['unit_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
                     'customer_id'=>$customer_id,
@@ -194,8 +195,8 @@ class Payment extends AdminController
 
 
             $rule = [
-                'category_id|【收款类别】' => 'require',
-                'total_price|【收款金额】' => 'number|require',
+                'category_id|【付款类别】' => 'require',
+                'unit_price|【付款金额】' => 'number|require',
 
             ];
 
@@ -204,8 +205,9 @@ class Payment extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                $item['total_price'] = intval($item['total_price']);
-                intval($item['total_price']) == 0 && $this->error('类型：【'.$item['category'].'】 总金额不能为0');
+                $item['unit_price'] = intval($item['unit_price']);
+
+                $item['unit_price'] == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -234,15 +236,29 @@ class Payment extends AdminController
 
 
             foreach ($post['goods'] as $item) {
-                $save_info = [
-                    'category' => $item['category'],
-                    'category_id' => $item['category_id'],
-                    'total_price' => $item['total_price'],
-                    'remark' => isset($item['remark']) ? $item['remark'] : '',
-                    'customer_id'=>$customer_id,
-                    'account_id' => $post['account_id'],
-                ];
-                $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+                if (isset($item['id'])){
+                    $save_info = [
+                        'category_id' => $item['category_id'],
+                        'unit_price' => $item['unit_price'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'customer_id'=>$customer_id,
+                        'account_id' => $post['account_id'],
+                    ];
+                    $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+                }else{
+                    $save_info = [
+                        'category_id' => $item['category_id'],
+                        'category' => '付款',
+                        'unit_price' => $item['unit_price'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'pid' => $id,
+                        'customer_id'=>$customer_id,
+                        'sale_user_id'=>$post['sale_user_id'],
+                        'account_id' => $post['account_id'],
+                    ];
+                    $this->order_info_model->save($save_info);
+                }
+
             }
             $this->success('修改成功~');
 

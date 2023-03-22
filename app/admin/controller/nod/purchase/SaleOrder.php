@@ -99,8 +99,6 @@ class SaleOrder extends AdminController
                 'good_name|【商品信息】' => 'require',
                 'sale_time|【出售时间】' => 'require|date',
                 'unit_price|【售货单价】' => 'number|require',
-                'num|【售货数量】' => 'number|require',
-                'total_price|【售货金额】' => 'number|require',
 
             ];
 
@@ -113,7 +111,7 @@ class SaleOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -168,8 +166,6 @@ class SaleOrder extends AdminController
                 $save_info = [
                     'good_name' => $item['good_name'],
                     'unit_price' => $item['unit_price'],
-                    'num' => $item['num'],
-                    'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'category' =>'销售',
                     'pid' => $pid,
@@ -180,7 +176,6 @@ class SaleOrder extends AdminController
                     'sale_time' => $item['sale_time'],
                     'order_time' => $post['order_time'],
                     'sale_user_id' => $post['sale_user_id'],//销售员
-
                 ];
                 $insert_all[] = $save_info;
 
@@ -233,8 +228,6 @@ class SaleOrder extends AdminController
                 'good_name|【商品信息】' => 'require',
                 'sale_time|【销售时间】' => 'require|date',
                 'unit_price|【购货单价】' => 'number|require',
-                'num|【购货数量】' => 'number|require',
-                'total_price|【购货金额】' => 'number|require',
 
             ];
 
@@ -245,10 +238,8 @@ class SaleOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $item['unit_price'] = intval($item['unit_price']);
-                $item['num'] = intval($item['num']);
-                $item['total_price'] = intval($item['total_price']);
                 $this->validate($item, $rule);
             }
 
@@ -291,15 +282,11 @@ class SaleOrder extends AdminController
             ];
             $data->save($save_order);
 
-            $insert_all = [];
-
             foreach ($post['goods'] as $item) {
                 if (isset($item['id'])){
                     $save_info = [
                         'good_name' => $item['good_name'],
                         'unit_price' => $item['unit_price'],
-                        'num' => $item['num'],
-                        'total_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
@@ -312,8 +299,6 @@ class SaleOrder extends AdminController
                         'pid'=>$id,
                         'good_name' => $item['good_name'],
                         'unit_price' => $item['unit_price'],
-                        'num' => $item['num'],
-                        'total_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
@@ -368,9 +353,7 @@ class SaleOrder extends AdminController
     {
 
         $warehouse_data = $this->warehouse_model->select()->toArray();
-//        $start_time = date('Y-m-d',strtotime('-1 day'));
-//        $end_time = date('Y-m-d');
-//        dd($post['order_time']);
+
         $error_data = [];
         $list = [];
         $index = 0;
@@ -388,26 +371,18 @@ class SaleOrder extends AdminController
             foreach ($all_ym_data['data'] as $item){
                 $list[] = [
                     'index'=>$index+1,
-                    'total_price' =>intval($item['wtqian']),
                     'unit_price' => intval($item['wtqian']),
-                    'num' => '1',
                     'good_name' => $item['ym'],
                     'sale_time' => $item['jssj'],
                     'remark' => '',
-
                 ];
                 $index+=1;
-
             }
-
-
-
         }
 
         $data = [
             'code' => 1,
             'data' => $list
-
         ];
 
         return json($data);

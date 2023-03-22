@@ -84,7 +84,7 @@ class StockOrder extends AdminController
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'warehouse_id|【仓库】' => 'require|number',
-                'supplier_id|【供应商】' => 'require|number',
+                'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实付金额】' => 'number|require',
@@ -95,9 +95,6 @@ class StockOrder extends AdminController
             $rule = [
                 'good_name|【商品信息】' => 'require',
                 'unit_price|【购货单价】' => 'number|require',
-                'num|【购货数量】' => 'number|require',
-                'total_price|【购货金额】' => 'number|require',
-
             ];
 
             if (count($post['goods']) == 0) {
@@ -105,7 +102,7 @@ class StockOrder extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -135,8 +132,6 @@ class StockOrder extends AdminController
                 $save_info = [
                     'good_name' => $item['good_name'],
                     'unit_price' => $item['unit_price'],
-                    'num' => $item['num'],
-                    'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'category' =>'采购',
                     'pid' => $pid,
@@ -190,7 +185,7 @@ class StockOrder extends AdminController
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'warehouse_id|【仓库】' => 'require|number',
-                'supplier_id|【供应商】' => 'require|number',
+                'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实付金额】' => 'number|require',
@@ -201,8 +196,6 @@ class StockOrder extends AdminController
             $rule = [
                 'good_name|【商品信息】' => 'require',
                 'unit_price|【购货单价】' => 'number|require',
-                'num|【购货数量】' => 'number|require',
-                'total_price|【购货金额】' => 'number|require',
 
             ];
 
@@ -211,10 +204,8 @@ class StockOrder extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $item['unit_price'] = intval($item['unit_price']);
-                $item['num'] = intval($item['num']);
-                $item['total_price'] = intval($item['total_price']);
                 $this->validate($item, $rule);
             }
 
@@ -237,20 +228,35 @@ class StockOrder extends AdminController
             $insert_all = [];
 
             foreach ($post['goods'] as $item) {
-                $save_info = [
-                    'order_time' => $post['order_time'],
-                    'good_name' => $item['good_name'],
-                    'unit_price' => $item['unit_price'],
-                    'num' => $item['num'],
-                    'total_price' => $item['total_price'],
-                    'remark' => isset($item['remark']) ? $item['remark'] : '',
-                    'warehouse_id' => $post['warehouse_id'],
-                    'account_id' => $post['account_id'],
-                    'supplier_id' => $post['supplier_id'],
-                ];
+                if (isset($item['id'])){
+                    $save_info = [
+                        'order_time' => $post['order_time'],
+                        'good_name' => $item['good_name'],
+                        'unit_price' => $item['unit_price'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'warehouse_id' => $post['warehouse_id'],
+                        'account_id' => $post['account_id'],
+                        'supplier_id' => $post['supplier_id'],
+                    ];
+                    $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+                }else{
+                    $save_info = [
+                        'pid'=>$id,
+                        'order_time' => $post['order_time'],
+                        'good_name' => $item['good_name'],
+                        'unit_price' => $item['unit_price'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'warehouse_id' => $post['warehouse_id'],
+                        'account_id' => $post['account_id'],
+                        'supplier_id' => $post['supplier_id'],
+                    ];
+                    $this->order_info_model->save($save_info);
+
+                }
 
 
-                $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+
+
 
 
             }
@@ -340,14 +346,11 @@ class StockOrder extends AdminController
                 $ym_detail[$ym] = 0;
             }
         }
-        //{'index':'1','total_price':'',remark:'',unit_price:'',good_name:'',num:'1',register_time:'',expiration_time:''}
         $list = [];
         foreach ($search_list as $index=>$ym) {
             $list[] = [
                 'index'=>$index+1,
-                'total_price' => $ym_detail[$ym],
                 'unit_price' => $ym_detail[$ym],
-                'num' => '1',
                 'good_name' => $ym,
                 'remark' => '',
 

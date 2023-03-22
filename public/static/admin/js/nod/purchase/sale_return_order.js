@@ -132,10 +132,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             var table = layui.table;
             var form = layui.form;
             var all_data = null;
-            function check_number(value) {
-                return !isNaN(parseFloat(value)) && isFinite(value);
 
-            }
 
             laydate.render({
                 elem: '#order_time' //指定元素
@@ -157,8 +154,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'index', title: '列', width: 70}
                     , {field: 'good_name', title: '商品信息', minWidth: 180, edit: true}
                     , {field: 'unit_price', title: '退货单价', minWidth: 110, edit: true}
-                    , {field: 'num', title: '退货数量', minWidth: 110}
-                    , {field: 'total_price', title: '退货金额', minWidth: 110}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
@@ -166,11 +161,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ,
                 data: [{
                     index: '1',
-                    total_price: '',
                     remark: '',
                     unit_price: '',
                     good_name: '',
-                    num: '1',
 
                 }]
                 ,
@@ -194,7 +187,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     let index = 0
                     ls_data.forEach(function (item) {
                         if (item !== [] && item['LAY_TABLE_INDEX'] !== undefined) {
-                            console.log(index)
                             item['index'] = index + 1
                             index += 1
                             new_table_data.push(item)
@@ -207,11 +199,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                     all_data.push({
                         index: parseInt(all_data[all_data.length - 1]['index']) + 1,
-                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
-                        num: '1',
 
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
@@ -220,34 +210,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 }
             });
 
-            //单元格编辑事件
-            table.on('edit(order_table)', function (obj) {
-                let data = obj.data
-                // obj.update({good_name:'asdasdasdasd'})
-                let filed = obj.field
-                if (filed === 'good_name' || filed === 'remark') return;
 
-                if (check_number(obj.value) === false) {
-                    layer.msg('重要提醒：请输入数字类型', {icon: 2})
-                    return
-                }
-                try {
-                    //购货金额自动计算
-                    let total_price = data['num'] * data['unit_price']
-                    obj.update({total_price: total_price})
-                    console.log(obj.data)
-                } catch (e) {
-                    layer.msg('无法计算购货金额~ 请仔细核对！')
-
-                }
-            });
 
             //快捷录入单据金额
             $('#jk_price').click(function () {
                 all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['total_price'])
+                    total_pirce += parseInt(item['unit_price'])
                 })
 
                 $('#practical_price').val(total_pirce)
@@ -257,11 +227,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 $('input').val('')
                 table.reload('order_table',{data:[{
                         index: 1,
-                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
-                        num: 1,
 
                     }],limit:100000})
 
@@ -376,10 +344,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             var table = layui.table;
             var form = layui.form;
 
-            function check_number(value) {
-                return !isNaN(parseFloat(value)) && isFinite(value);
 
-            }
 
             laydate.render({
                 elem: '#order_time' //指定元素
@@ -405,8 +370,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     , {field: 'id', title: 'ID', minWidth: 80}
                     , {field: 'good_name', title: '商品信息', minWidth: 180, edit: true}
                     , {field: 'unit_price', title: '退货单价', minWidth: 110, edit: true}
-                    , {field: 'num', title: '退货数量', minWidth: 110}
-                    , {field: 'total_price', title: '退货金额', minWidth: 110}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
                     , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
@@ -447,11 +410,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                     all_data.push({
                         index: parseInt(all_data[all_data.length - 1]['index']) + 1,
-                        total_price: '',
                         remark: '',
                         unit_price: '',
                         good_name: '',
-                        num: '1',
                     })
                     table.reload('order_table', {data: all_data, limit: 10000})
 
@@ -459,51 +420,21 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 }
             });
 
-            //单元格编辑事件
-            table.on('edit(order_table)', function (obj) {
-                let data = obj.data
-                // obj.update({good_name:'asdasdasdasd'})
-                let filed = obj.field
-                if (filed === 'good_name' || filed === 'remark') return;
 
-                if (check_number(obj.value) === false) {
-                    layer.msg('重要提醒：请输入数字类型', {icon: 2})
-                    return
-                }
-                try {
-                    //购货金额自动计算
-                    let total_price = data['num'] * data['unit_price']
-                    obj.update({total_price: total_price})
-                } catch (e) {
-                    layer.msg('无法计算购货金额~ 请仔细核对！')
-
-                }
-            });
 
             //快捷录入单据金额
             $('#jk_price').click(function () {
                 let all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['total_price'])
+                    total_pirce += parseInt(item['unit_price'])
                 })
 
                 $('#practical_price').val(total_pirce)
 
             })
 
-            //点击导入单据
-            $('#crawl_order').click(function () {
 
-                ea.request.get({
-                    url: 'crawl_order_data',
-                }, function (resp) {
-                    console.log(resp)
-                    table.reload('order_table', {data: resp.data, limit: 100000})
-                })
-
-
-            })
 
 
 

@@ -74,7 +74,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 return d.getAccount.name
                             } return ''
                         }},
-                    {field: 'supplier_id', minWidth: 110, title: '供应商',selectList: bulid_select(supplier_select_list),templet:function (d) {
+                    {field: 'supplier_id', minWidth: 110, title: '来源渠道',selectList: bulid_select(supplier_select_list),templet:function (d) {
                             if ( d.getSupplier){
                                 return d.getSupplier.name
                             }

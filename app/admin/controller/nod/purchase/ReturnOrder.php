@@ -84,7 +84,7 @@ class ReturnOrder extends AdminController
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'warehouse_id|【仓库】' => 'require|number',
-                'supplier_id|【供应商】' => 'require|number',
+                'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【退款金额】' => 'number|require',
@@ -95,8 +95,6 @@ class ReturnOrder extends AdminController
             $rule = [
                 'good_name|【商品信息】' => 'require',
                 'unit_price|【退货单价】' => 'number|require',
-                'num|【退货数量】' => 'number|require',
-                'total_price|【退货金额】' => 'number|require',
 
             ];
 
@@ -108,7 +106,7 @@ class ReturnOrder extends AdminController
 
             foreach ($post['goods'] as $item) {
                 $all_ym_list[] = trim($item['good_name']);
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -116,7 +114,7 @@ class ReturnOrder extends AdminController
             $inventory_data = $this->inventory_model->where('good_name','in',$all_ym_list)->select()->toArray();
             $ym_dict = [];
 
-            //先查看所有域名并判断或所属一个仓库和是一个供货商
+            //先查看所有域名并判断或所属一个仓库和是一个来源渠道
             foreach ($inventory_data as $it){
                 $ym_dict[$it['good_name']] = $it;
 
@@ -163,11 +161,9 @@ class ReturnOrder extends AdminController
                 $save_info = [
                     'good_name' =>trim($item['good_name']),
                     'unit_price' => $item['unit_price'],
-                    'num' => $item['num'],
-                    'total_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
-                    'type' => 2,//采购退货单
+//                    'type' => 2,//采购退货单
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
@@ -216,7 +212,7 @@ class ReturnOrder extends AdminController
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'warehouse_id|【仓库】' => 'require|number',
-                'supplier_id|【供应商】' => 'require|number',
+                'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【退款金额】' => 'number|require',
@@ -227,8 +223,6 @@ class ReturnOrder extends AdminController
             $rule = [
                 'good_name|【商品信息】' => 'require',
                 'unit_price|【退货单价】' => 'number|require',
-                'num|【退货数量】' => 'number|require',
-                'total_price|【退货金额】' => 'number|require',
 
             ];
 
@@ -240,10 +234,8 @@ class ReturnOrder extends AdminController
             foreach ($post['goods'] as $item) {
 
                 $all_ym_list[] = trim($item['good_name']);
-                intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $item['unit_price'] = intval($item['unit_price']);
-                $item['num'] = intval($item['num']);
-                $item['total_price'] = intval($item['total_price']);
                 $this->validate($item, $rule);
             }
 
@@ -251,7 +243,7 @@ class ReturnOrder extends AdminController
             $inventory_data = $this->inventory_model->where('good_name','in',$all_ym_list)->select()->toArray();
             $ym_dict = [];
 
-            //先查看所有域名并判断或所属一个仓库和是一个供货商
+            //先查看所有域名并判断或所属一个仓库和是一个来源渠道
             foreach ($inventory_data as $it){
                 $ym_dict[$it['good_name']] = $it;
 
@@ -294,8 +286,6 @@ class ReturnOrder extends AdminController
                   $save_info = [
                       'good_name' => $item['good_name'],
                       'unit_price' => $item['unit_price'],
-                      'num' => $item['num'],
-                      'total_price' => $item['total_price'],
                       'remark' => isset($item['remark']) ? $item['remark'] : '',
                       'category' =>'采购退货',
                       'warehouse_id' => $post['warehouse_id'],
@@ -309,11 +299,9 @@ class ReturnOrder extends AdminController
                   $save_info = [
                       'good_name' =>trim($item['good_name']),
                       'unit_price' => $item['unit_price'],
-                      'num' => $item['num'],
-                      'total_price' => $item['total_price'],
                       'remark' => isset($item['remark']) ? $item['remark'] : '',
                       'pid' => $id,
-                      'type' => 2,//采购退货单
+//                      'type' => 2,//采购退货单
                       'warehouse_id' => $post['warehouse_id'],
                       'account_id' => $post['account_id'],
                       'supplier_id' => $post['supplier_id'],
@@ -358,79 +346,6 @@ class ReturnOrder extends AdminController
         }
     }
 
-
-    /**
-     * @NodeAnotation(title="抓取订单数据")
-     */
-    public function crawl_order_data($warehouse_id)
-    {
-
-        $warehouse_data = $this->warehouse_model->find($warehouse_id);
-        $username = $warehouse_data['account'];
-        $password = $warehouse_data['password'];
-        $cookie = $warehouse_data['cookie'];
-        //获取所有域名 信息
-        $this->jm_api = new JvMing($username, $password, $cookie);
-        $all_ym_data = $this->jm_api->download_sales_ym();
-        $search_list = [];
-        foreach ($all_ym_data as $k => $v) $search_list[] = $k;
-
-
-        //查找库存 找出没有在库存里的域名
-        $all_inventory = $this->inventory_model->select()->toArray();
-        $good_name_list = [];
-        foreach ($all_inventory as $item) $good_name_list[] = $item['good_name'];
-
-        //对比出可添加的域名
-        $search_list = array_diff($search_list, $good_name_list);
-        $all_detail = $this->jm_api->get_financial_details($search_list);
-
-        //将每个域名的成交价计算出来  没有的成交价为0
-        $ym_detail = [];
-        foreach ($search_list as $ym) {
-            //如果资金账户不存在
-            if (!isset($all_detail[$ym])) {
-                $ym_detail[$ym] = 0;
-                continue;
-            }
-            try {
-                $d = $all_detail[$ym];
-                $price = 0;
-                foreach ($d as $v) {
-                    //如果是出售的就过滤掉
-                    if (strstr($v['sm'], '出售')) continue;
-                    $price += $v['qian'];
-                }
-
-                $ym_detail[$ym] = -$price;
-            } catch (\Exception $e) {
-                $ym_detail[$ym] = 0;
-            }
-        }
-        //{'index':'1','total_price':'',remark:'',unit_price:'',good_name:'',num:'1',register_time:'',expiration_time:''}
-        $list = [];
-        foreach ($search_list as $index=>$ym) {
-            $list[] = [
-                'index'=>$index+1,
-                'total_price' => $ym_detail[$ym],
-                'unit_price' => $ym_detail[$ym],
-                'num' => '1',
-                'good_name' => $ym,
-                'remark' => '',
-
-            ];
-        }
-
-        $data = [
-            'code' => 1,
-            'data' => $list
-
-        ];
-
-        return json($data);
-
-
-    }
 
 
 }

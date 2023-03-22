@@ -52,11 +52,12 @@ class Statistics extends AdminController
         $kc_count = $this->kc_model->count();
         //账户数
         $zh_count = $this->zh_model->count();
-        //供应商数
+        //来源渠道数
         $gys_count = $this->gys_model->count();
 
         //计算日销售额
-        $day_sales = $this->wareehouse_info_model->where('type','=',2)->whereRaw('to_days(order_time) = to_days(now())')->sum('total_price');
+        $day_sales = $this->wareehouse_info_model->where('type','=',2)->whereRaw('to_days(order_time) = to_days(now())')->sum('unit_price');
+        //日毛利
         $day_profit_price = $this->wareehouse_info_model->where('type','=',2)->whereRaw('to_days(order_time) = to_days(now())')->sum('profit_price');
         //日订单数
         $day_count = $this->wareehouse_info_model->where('type','=',2)->whereRaw('to_days(order_time) = to_days(now())')->count();
@@ -64,7 +65,7 @@ class Statistics extends AdminController
         $day_shouru = $this->account_info_model->whereRaw('to_days(operate_time) = to_days(now())')->sum('price');
 
         //库存成本
-        $kc_cb = $this->kc_model->sum('total_price');
+        $kc_cb = $this->kc_model->sum('unit_price');
 
 
         //总资金余额
@@ -84,7 +85,7 @@ class Statistics extends AdminController
             $every_ruku_list['list'][] = $item['count'];
         }
         //获取每日出库数
-        $every_chuku_data = $this->wareehouse_info_model->field('sum(profit_price) as profit_price,sum(total_price) as total_price,count(*) as count ,DATE_FORMAT(order_time, "%Y-%m-%d") as order_time')
+        $every_chuku_data = $this->wareehouse_info_model->field('sum(profit_price) as profit_price,sum(unit_price) as unit_price,count(*) as count ,DATE_FORMAT(order_time, "%Y-%m-%d") as order_time')
             ->where('type','=',2)
             ->group("DATE_FORMAT(order_time, '%Y-%m-%d')")
             ->select()->toArray();
@@ -93,7 +94,7 @@ class Statistics extends AdminController
         foreach ($every_chuku_data as $item){
             //日销售额
             $every_chuku_list['day_sales']['time'][] = $item['order_time'];
-            $every_chuku_list['day_sales']['list'][] = $item['total_price'];
+            $every_chuku_list['day_sales']['list'][] = $item['unit_price'];
             //日毛利
             $every_chuku_list['day_profit']['time'][] = $item['order_time'];
             $every_chuku_list['day_profit']['list'][] = $item['profit_price'];

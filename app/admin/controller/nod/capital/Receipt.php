@@ -93,7 +93,7 @@ class Receipt extends AdminController
 
             $rule = [
                 'category_id|【收款类别】' => 'number|require',
-                'total_price|【收款金额】' => 'number|require',
+                'unit_price|【收款金额】' => 'number|require',
 
             ];
             if (count($post['goods']) == 0) {
@@ -101,7 +101,7 @@ class Receipt extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                intval($item['total_price']) == 0 && $this->error('类型：【'.$item['category'].'】 总金额不能为0');
+                intval($item['unit_price']) == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -139,7 +139,7 @@ class Receipt extends AdminController
                 $save_info = [
                     'category_id' => $item['category_id'],
                     'category' => '收款',
-                    'total_price' => $item['total_price'],
+                    'unit_price' => $item['total_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
                     'customer_id'=>$customer_id,
@@ -194,7 +194,7 @@ class Receipt extends AdminController
 
             $rule = [
                 'category_id|【收款类别】' => 'number|require',
-                'total_price|【收款金额】' => 'number|require',
+                'unit_price|【收款金额】' => 'number|require',
 
             ];
 
@@ -203,8 +203,8 @@ class Receipt extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                $item['total_price'] = intval($item['total_price']);
-                intval($item['total_price']) == 0 && $this->error('类型：【'.$item['category'].'】 总金额不能为0');
+                $item['unit_price'] = intval($item['unit_price']);
+                intval($item['unit_price']) == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -237,7 +237,7 @@ class Receipt extends AdminController
                 if (isset($item['id'])){
                     $save_info = [
                         'category_id' => $item['category_id'],
-                        'total_price' => $item['total_price'],
+                        'unit_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'customer_id'=>$customer_id,
                         'account_id' => $post['account_id'],
@@ -248,7 +248,7 @@ class Receipt extends AdminController
                     $save_info = [
                         'category_id' => $item['category_id'],
                         'category' => '收款',
-                        'total_price' => $item['total_price'],
+                        'unit_price' => $item['total_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'pid' => $id,
                         'customer_id'=>$customer_id,

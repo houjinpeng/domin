@@ -15,7 +15,7 @@ use EasyAdmin\annotation\NodeAnotation;
 use think\App;
 
 /**
- * @ControllerAnnotation(title="财务-供货商管理")
+ * @ControllerAnnotation(title="财务-来源渠道管理")
  */
 class Supplier extends AdminController
 {

@@ -23,7 +23,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'order_user_id', minWidth: 90, title: '制单人',templet: function (d) {
                             return d.getOrderUser['username']
                         }},
-                    {field: 'supplier_id', minWidth: 100, title: '供货商',templet: function (d) {
+                    {field: 'supplier_id', minWidth: 100, title: '来源渠道',templet: function (d) {
                             return d.getSupplier['name']
                         }},
                     {field: 'warehouse_id', minWidth: 100, title: '仓库',templet: function (d) {
@@ -91,7 +91,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         {field: 'index', title: '列', width:70}
                         ,{field: 'id', title: 'ID', width:70}
                         , {field: 'category', title: '收款类别', minWidth: 180, edit: true}
-                        , {field: 'total_price', title: '收款金额', minWidth: 110, edit: true}
+                        , {field: 'unit_price', title: '收款金额', minWidth: 110, edit: true}
                         , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
 
                     ]]
@@ -110,7 +110,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         {field: 'index', title: '列', width:70}
                         ,{field: 'id', title: 'ID', width:70}
                         , {field: 'category', title: '付款类别', minWidth: 180, edit: true}
-                        , {field: 'total_price', title: '付款金额', minWidth: 110, edit: true}
+                        , {field: 'unit_price', title: '付款金额', minWidth: 110, edit: true}
                         , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
 
                     ]]
@@ -126,7 +126,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 let all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['total_price'])
+                    total_pirce += parseInt(item['unit_price'])
                 })
 
                 $('#practical_price').val(total_pirce)
@@ -143,16 +143,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         },
 
 
-        add: function () {
 
-            ea.listen();
-        },
-        edit: function () {
-            ea.listen();
-        },
-        password: function () {
-            ea.listen();
-        }
     };
     return Controller;
 });

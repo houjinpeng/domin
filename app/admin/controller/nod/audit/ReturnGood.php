@@ -82,8 +82,6 @@ class ReturnGood extends AdminController
                 $rule = [
                     'good_name|【商品信息】' => 'require',
                     'unit_price|【退货单价】' => 'number|require',
-                    'num|【退货数量】' => 'number|require',
-                    'total_price|【退货金额】' => 'number|require',
 
                 ];
 
@@ -91,10 +89,8 @@ class ReturnGood extends AdminController
                 $all_ym_list = [];
                 foreach ($post['goods'] as $item) {
                     $all_ym_list[] = trim($item['good_name']);
-                    intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
-                    $item['num'] = intval($item['num']);
-                    $item['total_price'] = intval($item['total_price']);
                     //验证
                     $this->validate($item, $rule);
                 }
@@ -103,7 +99,7 @@ class ReturnGood extends AdminController
                 $inventory_data = $this->inventory_model->where('good_name','in',$all_ym_list)->select()->toArray();
 
 
-                //先查看所有域名并判断或所属一个仓库和是一个供货商
+                //先查看所有域名并判断或所属一个仓库和是一个来源渠道
                 foreach ($inventory_data as $it){
                     $ym_dict[$it['good_name']] = $it;
                 }
@@ -139,7 +135,6 @@ class ReturnGood extends AdminController
                     $save_info = [
                         'good_name'         => $item['good_name'],
                         'unit_price'        => $item['unit_price'],
-                        'total_price'       => $item['total_price'],
                         'remark'            => isset($item['remark']) ? $item['remark'] : '',
                         'pid'               => $id,
                         'warehouse_id'      => $row['warehouse_id'],
@@ -154,13 +149,11 @@ class ReturnGood extends AdminController
                     $insert_warehouse_info = [
                         'good_name'         => $item['good_name'],
                         'unit_price'        => $item['unit_price'],
-                        'total_price'       => $item['total_price'],
                         'remark'            => isset($item['remark']) ? $item['remark'] : '',
                         'pid'               => $id,
                         'warehouse_id'      => $row['warehouse_id'],
                         'account_id'        => $row['account_id'],
                         'supplier_id'       => $row['supplier_id'],
-
                         'order_time'        => $item['order_time'],
                         'type'              => 2,
                         'good_category'     => 2, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
@@ -189,7 +182,7 @@ class ReturnGood extends AdminController
                 if ($post['practical_price'] != $post['paid_price']){
                     $receivable_price =  $post['paid_price'] - $post['practical_price'];
 
-                    //获取供应商id 的欠款记录 更新
+                    //获取来源渠道id 的欠款记录 更新
                     $account_row = $this->account_model->find($row['account_id']);
                     $account_row->save([
                         'receivable_price'=>$account_row['receivable_price'] - $receivable_price,
@@ -225,8 +218,6 @@ class ReturnGood extends AdminController
                 $rule = [
                     'good_name|【商品信息】' => 'require',
                     'unit_price|【退货单价】' => 'number|require',
-                    'num|【退货数量】' => 'number|require',
-                    'total_price|【退货金额】' => 'number|require',
 
                 ];
 
@@ -236,10 +227,8 @@ class ReturnGood extends AdminController
                 //验证
                 foreach ($post['goods'] as $item) {
                     $ym_shoujia[$item['good_name']] = ['unit_price'=>$item['unit_price'],'sale_time'=>$item['sale_time']];
-                    intval($item['total_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
-                    $item['num'] = intval($item['num']);
-                    $item['total_price'] = intval($item['total_price']);
                     $this->validate($item, $rule);
                 }
                 $not_ym_list = [];
@@ -279,7 +268,6 @@ class ReturnGood extends AdminController
                         'good_name'             => $item['good_name'],
                         'sale_time'             => $ym_dict[$item['good_name']]['sale_time'],
                         'unit_price'            => $ym_dict[$item['good_name']]['unit_price'], //售价
-                        'total_price'           => $ym_dict[$item['good_name']]['total_price'], //总价格
                         'profit_price'          => $ym_dict[$item['good_name']]['unit_price'] - $item['unit_price'],
                         'remark'                => $item['remark'],
                         'warehouse_id'          => $ym_dict[$item['good_name']]['warehouse_id'],
@@ -295,7 +283,6 @@ class ReturnGood extends AdminController
                         'pid'                   => $id,
                         'good_name'             => $item['good_name'],
                         'unit_price'            => $ym_dict[$item['good_name']]['unit_price'], //售价
-                        'total_price'           => $ym_dict[$item['good_name']]['total_price'], //总价格
                         'profit_price'          => - $item['unit_price'], //利润为退货价格
                         'remark'                => $item['remark'],
                         'warehouse_id'          => $ym_dict[$item['good_name']]['warehouse_id'],
