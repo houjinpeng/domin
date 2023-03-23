@@ -48,11 +48,11 @@ class Inventory extends AdminController
                 if ($item[0] == 'dqsj'){
                     //判断大于小于
                     if ($item[1] == '>=') {
-                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Days"));
-                        $where[] = ['expiration_time', '<=', $t];
-                    } else {
-                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Days"));
+                        $t = date("Y-m-d H:i:s", strtotime("+" . $item[2] . " Days"));
                         $where[] = ['expiration_time', '>=', $t];
+                    } else {
+                        $t = date("Y-m-d H:i:s", strtotime("+" . $item[2] . " Days"));
+                        $where[] = ['expiration_time', '<=', $t];
                     }
                     continue;
                 }elseif ($item[0] == 'register_time'){
