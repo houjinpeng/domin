@@ -52,9 +52,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }
                             return ''
                         }},
-                    {field: 'remark', minWidth: 180, title: '备案'},
-                    {field: 'remark', minWidth: 80, title: '百度'},
-                    {field: 'remark', minWidth: 80, title: '搜狗'},
+                    {field: 'beian', minWidth: 180, title: '备案'},
+                    {field: 'baidu', minWidth: 80, title: '百度'},
+                    {field: 'sogou', minWidth: 80, title: '搜狗'},
                     {field: 'remark', minWidth: 100, title: '备注信息'},
                     // {field: 'create_time', minWidth: 180, title: '操作时间',search: 'range'},
 
