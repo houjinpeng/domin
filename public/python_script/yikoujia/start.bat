@@ -1,1 +1,0 @@
-python3 ./yikoujia_diaodu.py
