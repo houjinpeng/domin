@@ -48,10 +48,10 @@ class Inventory extends AdminController
                 if ($item[0] == 'dqsj'){
                     //判断大于小于
                     if ($item[1] == '>=') {
-                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Months"));
+                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Days"));
                         $where[] = ['expiration_time', '<=', $t];
                     } else {
-                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Months"));
+                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Days"));
                         $where[] = ['expiration_time', '>=', $t];
                     }
                     continue;
@@ -61,7 +61,6 @@ class Inventory extends AdminController
                 }
                 $where[] = $item;
             }
-
             $list = $this->model
                 ->with(['getSupplier','getWarehouse'],'left')
                 ->where($where)
