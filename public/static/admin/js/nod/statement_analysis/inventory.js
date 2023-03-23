@@ -44,7 +44,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'good_name', minWidth: 152, title: '商品名称',search: 'batch'},
                     {field: 'unit_price', search:'section', minWidth: 100, title: '成本价'},
-                    {field: 'dqsj', search:'section', minWidth: 100, title: '到期天数',hied:true},
+                    {field: 'dqsj', search:'section', minWidth: 100, title: '到期天数',hide:true},
                     {field: 'register_time', search:'range', minWidth: 140, title: '注册时间'},
                     {field: 'expiration_time', search:false, minWidth: 140, title: '到期时间'},
                     {field: 'zcs', minWidth: 140, title: '注册商'},
