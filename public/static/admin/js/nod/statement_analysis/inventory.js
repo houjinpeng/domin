@@ -36,35 +36,25 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     // {field: 'expiration_time', search:false,minWidth: 130, title: '过期时间'},
                     // {field: 'register_time', search:false, minWidth: 130, title: '注册时间'},
                     {field: 'unit_price', search:false, minWidth: 100, title: '成本价'},
-                    // {field: 'pid', minWidth: 180, title: '单据编号',search: false,templet:function (d) {
-                    //         if (d.getOrder){
-                    //             return d.getOrder.order_batch_num
-                    //         } return ''
-                    //
-                    //     }},
-                    // {field: 'pid', minWidth: 182, title: '单据日期',search: false,templet:function (d) {
-                    //         if (d.getOrder){
-                    //             return d.getOrder.order_time
-                    //         } return ''
-                    //
-                    //     }},
+                    {field: 'register_time', search:false, minWidth: 140, title: '注册时间'},
+                    {field: 'expiration_time', search:false, minWidth: 140, title: '到期时间'},
+                    {field: 'unit_price', search:false, minWidth: 140, title: '注册商'},
                     {field: 'warehouse_id', minWidth: 110, title: '仓库',selectList: bulid_select(warehouse_select_list),templet:function (d) {
                         if ( d.getWarehouse){
                             return d.getWarehouse.name
                         } return ''
 
                         }},
-                    // {field: 'account_id', minWidth: 110, title: '账号',selectList: bulid_select(account_select_list),templet:function (d) {
-                    //         if ( d.getAccount){
-                    //             return d.getAccount.name
-                    //         } return ''
-                    //     }},
+
                     {field: 'supplier_id', minWidth: 110, title: '来源渠道',selectList: bulid_select(supplier_select_list),templet:function (d) {
                             if ( d.getSupplier){
                                 return d.getSupplier.name
                             }
                             return ''
                         }},
+                    {field: 'remark', minWidth: 180, title: '备案'},
+                    {field: 'remark', minWidth: 80, title: '百度'},
+                    {field: 'remark', minWidth: 80, title: '搜狗'},
                     {field: 'remark', minWidth: 100, title: '备注信息'},
                     // {field: 'create_time', minWidth: 180, title: '操作时间',search: 'range'},
 
