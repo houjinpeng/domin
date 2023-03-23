@@ -370,6 +370,13 @@ class SaleOrder extends AdminController
         if ($all_ym_data['code'] ==999){
             $error_data[] = $all_ym_data['msg'];
         }
+        if ($all_ym_data['code'] != 1){
+            return json(['code'=>0,
+                'msg'=>$all_ym_data['msg'],
+                'data'=>[]
+            ]);
+        }
+
         foreach ($all_ym_data['data'] as $item){
             $list[] = [
                 'index'=>$index+1,

@@ -255,7 +255,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ea.request.get({
                     url: 'crawl_order_data?crawl_time='+crawl_time+'&warehouse_id='+data['warehouse_id'],
                 }, function (resp) {
-                    console.log(resp)
+
                     table.reload('order_table', {data: resp.data, limit: 100000})
                 })
 

@@ -183,6 +183,23 @@ if (!function_exists('array_remove')) {
     }
 
 }
+if (!function_exists('delete_where_filter')) {
+    /**
+     * @param $where
+     * where 条件
+     * @param $field
+     * @return mixed 返回新的where
+     */
+    function delete_where_filter($where, $field){
+        $new_where = [];
+        foreach ($where as $item){
+            if ($item[0] != $field) $new_where[] = $item;
+        }
+        return $new_where;
+
+    }
+
+}
 
 if (!function_exists('delete_dict_key')) {
     /**

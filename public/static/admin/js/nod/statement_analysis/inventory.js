@@ -12,7 +12,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
         index: function () {
             var warehouse_select_list = ea.getSelectList('NodWarehouse','id,name')
-            var account_select_list = ea.getSelectList('NodAccount','id,name')
             var supplier_select_list = ea.getSelectList('NodSupplier','id,name')
             function bulid_select(select_list,field='name'){
                 let se = {}
@@ -22,7 +21,18 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 return se
 
             }
-
+            // 验证输入是否是数字
+            layui.form.verify({
+                number: function (val) {
+                    if (val === "" || val == null) {
+                        return false;
+                    }
+                    if (!isNaN(val)) {
+                    } else {
+                        return '请填写数字'
+                    }
+                }
+            })
 
             ea.table.render({
                 init: show_init,
@@ -32,13 +42,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 toolbar:['refresh'],
                 cols: [[
                     {type: "checkbox"},
-                    {field: 'good_name', minWidth: 152, title: '商品名称'},
-                    // {field: 'expiration_time', search:false,minWidth: 130, title: '过期时间'},
-                    // {field: 'register_time', search:false, minWidth: 130, title: '注册时间'},
-                    {field: 'unit_price', search:false, minWidth: 100, title: '成本价'},
-                    {field: 'register_time', search:false, minWidth: 140, title: '注册时间'},
+                    {field: 'good_name', minWidth: 152, title: '商品名称',search: 'batch'},
+                    {field: 'unit_price', search:'section', minWidth: 100, title: '成本价'},
+                    {field: 'dqsj', search:'section', minWidth: 100, title: '到期天数',hied:true},
+                    {field: 'register_time', search:'range', minWidth: 140, title: '注册时间'},
                     {field: 'expiration_time', search:false, minWidth: 140, title: '到期时间'},
-                    {field: 'unit_price', search:false, minWidth: 140, title: '注册商'},
+                    {field: 'zcs', minWidth: 140, title: '注册商'},
                     {field: 'warehouse_id', minWidth: 110, title: '仓库',selectList: bulid_select(warehouse_select_list),templet:function (d) {
                         if ( d.getWarehouse){
                             return d.getWarehouse.name

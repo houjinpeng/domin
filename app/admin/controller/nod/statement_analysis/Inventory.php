@@ -5,6 +5,7 @@
 namespace app\admin\controller\nod\statement_analysis;
 
 
+use app\admin\controller\Tool;
 use app\admin\model\NodInventory;
 use app\admin\model\NodWarehouse;
 
@@ -28,7 +29,7 @@ class Inventory extends AdminController
     {
         parent::__construct($app);
         $this->model = new NodInventory();
-
+        $this->tool = new Tool();
 
     }
 
@@ -40,12 +41,34 @@ class Inventory extends AdminController
 
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
+            $w = $this->tool->build_select_where($where);
+
+            $where = [];
+            foreach ($w as $item){
+                if ($item[0] == 'dqsj'){
+                    //判断大于小于
+                    if ($item[1] == '>=') {
+                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Months"));
+                        $where[] = ['expiration_time', '<=', $t];
+                    } else {
+                        $t = date("Y-m-d H:i:s", strtotime("-" . $item[2] . " Months"));
+                        $where[] = ['expiration_time', '>=', $t];
+                    }
+                    continue;
+                }elseif ($item[0] == 'register_time'){
+                    $where[] = [$item[0],$item[1],date('Y-m-d H:i:s',$item[2])];
+                    continue;
+                }
+                $where[] = $item;
+            }
 
             $list = $this->model
-                ->with(['getOrder','getAccount','getSupplier','getWarehouse'],'left')
+                ->with(['getSupplier','getWarehouse'],'left')
                 ->where($where)
                 ->page($page,$limit)
                 ->order('id','desc')->select()->toArray();
+
+
 
             $count = $this->model->where($where)->count();
             $data = [
