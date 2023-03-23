@@ -185,8 +185,10 @@ class SaleOrder extends AdminController
 
         }
         $account_list = $this->account_model->field('id,name')->select()->toArray();
+        $warehouse_list = $this->warehouse_model->field('id,name')->select()->toArray();
 
         $this->assign('account_list', $account_list);
+        $this->assign('warehouse_list', $warehouse_list);
         $this->assign('admin', session('admin'));
         return $this->fetch();
     }
@@ -349,36 +351,36 @@ class SaleOrder extends AdminController
     /**
      * @NodeAnotation(title="抓取销货数据")
      */
-    public function crawl_order_data($crawl_time)
+    public function crawl_order_data($crawl_time,$warehouse_id)
     {
 
-        $warehouse_data = $this->warehouse_model->select()->toArray();
+        $warehouse = $this->warehouse_model->find($warehouse_id);
 
         $error_data = [];
         $list = [];
         $index = 0;
-        foreach ($warehouse_data as $warehouse){
 
-            $username = $warehouse['account'];
-            $password = $warehouse['password'];
-            $cookie = $warehouse['cookie'];
-            //获取所有域名 信息
-            $jm_api = new JvMing($username, $password, $cookie);
-            $all_ym_data = $jm_api->get_sale_ym($crawl_time,$crawl_time);
-            if ($all_ym_data['code'] ==999){
-                $error_data[] = $all_ym_data['msg'];
-            }
-            foreach ($all_ym_data['data'] as $item){
-                $list[] = [
-                    'index'=>$index+1,
-                    'unit_price' => intval($item['wtqian']),
-                    'good_name' => $item['ym'],
-                    'sale_time' => $item['jssj'],
-                    'remark' => '',
-                ];
-                $index+=1;
-            }
+
+        $username = $warehouse['account'];
+        $password = $warehouse['password'];
+        $cookie = $warehouse['cookie'];
+        //获取所有域名 信息
+        $jm_api = new JvMing($username, $password, $cookie);
+        $all_ym_data = $jm_api->get_sale_ym($crawl_time,$crawl_time);
+        if ($all_ym_data['code'] ==999){
+            $error_data[] = $all_ym_data['msg'];
         }
+        foreach ($all_ym_data['data'] as $item){
+            $list[] = [
+                'index'=>$index+1,
+                'unit_price' => intval($item['wtqian']),
+                'good_name' => $item['ym'],
+                'sale_time' => $item['jssj'],
+                'remark' => '',
+            ];
+            $index+=1;
+        }
+
 
         $data = [
             'code' => 1,

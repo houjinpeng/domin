@@ -12,6 +12,18 @@
                 </div>
 
                 <div class="layui-inline">
+                    <label class="layui-form-label">仓库</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <select name="warehouse_id" lay-verify="required">
+                            <option value=""></option>
+                            {foreach $warehouse_list as $item}
+                            <option value="{$item['id']}">{$item['name']}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
                     <label class="layui-form-label">单据日期</label>
                     <div class="layui-input-inline" style="width: 160px;">
                         <input name="order_time" autocomplete="off" type="text" required  lay-verify="required" class="layui-input" id="order_time" placeholder="请选择单据日期">
