@@ -41,6 +41,11 @@ class NodWarehouseInfo extends TimeModel
     {
         return $this->belongsTo(NodSupplier::class, 'supplier_id', 'id');
     }
+//    //关联来源渠道
+//    public function getOrderUser()
+//    {
+//        return $this->belongsTo(NodSupplier::class, 'supplier_id', 'id');
+//    }
 
 
 }

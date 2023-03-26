@@ -98,8 +98,8 @@ class ReceiptAndPayment extends AdminController
                 'paid_price|【实付金额】' => 'number|require',
             ];
             $this->validate($post, $order_info_rule);
-            if (count($post['goods']) == 0) {
-                $this->error('不能一个也不提交吧~');
+            if (count($post['goods']) == 0 || count($post['goods']) >1 ) {
+                $this->error('只能录入一单哦~');
             }
             //付收款单审核
             $rule = [
@@ -115,9 +115,7 @@ class ReceiptAndPayment extends AdminController
                 $this->validate($item, $rule);
             }
 
-//            Db::transaction(function (){
-//
-//            });
+
             $save_order = [
                 'practical_price'=>$post['practical_price'],
                 'paid_price'=>$post['paid_price'],
@@ -128,80 +126,21 @@ class ReceiptAndPayment extends AdminController
             $update = $row->save($save_order);
             $update || $this->error('审核失败~');
 
+            //增加账户钱
+            $account_data = $this->account_model->find($row['account_id']);
+
+            //获取总账户余额
+            $all_balance_price = $this->account_model->sum('balance_price');
+
+            $balance_price = $account_data['balance_price'];
+
             //判断是收款还是付款    收款
             if ($type=='receipt'){
-                //增加账户钱
-                $account_data = $this->account_model->find($row['account_id']);
-                //账户余额等于 实付金额加上余额
-                $balance_price = $account_data['balance_price'] + intval($post['paid_price']);
 
                 //应收款  如果实际付款金额与订单金额不符合 会产生欠款情况
                 $receivable_price = 0;
                 if ($post['practical_price'] != $post['paid_price']){
-                    $receivable_price =  $post['paid_price'] - $post['practical_price'];
-
-                    //获取客户id 的欠款记录 更新
-                    $customer_row = $this->customer_model->find($row['customer_id']);
-                    $customer_row->save([
-                        'receivable_price'=>$customer_row['receivable_price'] - $receivable_price,
-                    ]);
-
-
-                }
-//
-//                //遍历说有收款单 将每一个都放到资金明细中
-//                foreach ($post['goods'] as $item){
-//                    //账户记录收款
-//                    $this->account_info_model->insert([
-//                        'account_id' => $row['account_id'],
-//                        'customer_id' => $row['customer_id'],
-//                        'category_id' => $item['category_id'],
-//                        'order_id' => $row['pid'],
-//                        'price'=>$item['total_price'],
-//                        'receivable_price'=>$receivable_price,
-////                        'price'=>$post['paid_price'],
-//                        'category'=>'收款',
-//                        'sz_type'=>1,
-//                        'type'=>4,
-//                        'balance_price'=>$balance_price,
-//                        'operate_time'=>$row['order_time'],
-//                        'remark'=>$post['remark']
-//                    ]);
-//
-//                }
-                //账户记录收款
-                $this->account_info_model->insert([
-                    'account_id' => $row['account_id'],
-                    'customer_id' => $row['customer_id'],
-                    'order_id' => $row['id'],
-                    'price'=>$post['paid_price'],
-                    'practical_price'=>$post['practical_price'],
-                    'receivable_price'=>-$receivable_price,
-                    'category'=>'收款',
-                    'sz_type'=>1,
-                    'type'=>4, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单
-                    'balance_price'=>$balance_price,
-                    'sale_user_id'=>$row['sale_user_id'],
-                    'operate_time'=>$row['order_time'],
-                    'remark'=>$post['remark']
-                ]);
-
-
-
-                //修改账户余额
-                $account_data->save(['balance_price'=>$balance_price]);
-
-
-            }
-            elseif ($type=='payment'){
-                //增加账户钱
-                $account_data = $this->account_model->find($row['account_id']);
-
-                $balance_price = $account_data['balance_price'] - intval($post['paid_price']);
-                //应付款  如果实际付款金额与订单金额不符合 会产生欠款情况
-                $receivable_price = 0;
-                if ($post['practical_price'] != $post['paid_price']){
-                    $receivable_price =  $post['paid_price'] - $post['practical_price'];
+                    $receivable_price = $post['practical_price'] - $post['paid_price'];
 
                     //获取客户id 的欠款记录 更新
                     $customer_row = $this->customer_model->find($row['customer_id']);
@@ -212,48 +151,99 @@ class ReceiptAndPayment extends AdminController
 
                 }
 
-//                //遍历说有收款单 将每一个都放到资金明细中
-//                foreach ($post['goods'] as $item){
-//                    //账户记录扣款
-//                    $this->account_info_model->insert([
-//                        'account_id' => $row['account_id'],
-//                        'customer_id' => $row['customer_id'],
-//                        'category_id' => $item['category_id'],
-//                        'order_id' => $row['pid'],
-//                        'price'=>-$item['total_price'],
-//                        'price'=>$post['paid_price'],
-//                        'practical_price'=>$post['practical_price'],
-//                        'category'=>'付款',
-//                        'sz_type'=>2,
-//                        'type'=>5,
-//                        'balance_price'=>$balance_price,
-//                        'operate_time'=>$row['order_time'],
-//                        'remark'=>$post['remark']
-//                    ]);
-//
-//                }
+                //遍历说有收款单 将每一个都放到资金明细中
+                foreach ($post['goods'] as $item){
+                    $balance_price += intval($item['unit_price']);
+                    $all_balance_price += intval($item['unit_price']);
 
-                //账户记录扣款
-                $this->account_info_model->insert([
-                    'account_id' => $row['account_id'],
-                    'customer_id' => $row['customer_id'],
-                    'order_id' => $row['id'],
-                    'price'=>-$post['paid_price'],
-                    'practical_price'=>$post['practical_price'],
-                    'receivable_price'=>$receivable_price,
-                    'category'=>'付款',
-                    'sz_type'=>2,
-                    'type'=>5,
-                    'balance_price'=>$balance_price,
-                    'operate_time'=>$row['order_time'],
-                    'remark'=>$post['remark'],
-                    'sale_user_id'=>$row['sale_user_id'],
-                ]);
+                    if ( $row['sale_user_id'] == 0 ||  $row['sale_user_id'] == null){
+                        $profit_price = 0;
+                    }else{
+                        $profit_price = $item['unit_price'];
+                    }
 
-                $account_data->save(['balance_price'=>$balance_price]);
+
+
+                    //账户记录收款
+                    $this->account_info_model->insert([
+                        'account_id'        => $row['account_id'],
+                        'customer_id'       => $row['customer_id'],
+                        'sale_user_id'      => $row['sale_user_id'],
+                        'order_user_id'     => $row['order_user_id'],
+                        'category_id'       => $item['category_id'],
+                        'order_id'          => $row['id'],
+                        'price'             => $item['unit_price'],
+                        'profit_price'      => $profit_price, //利润
+                        'category'          => '收款单',
+                        'sz_type'           => 1,
+                        'type'              => 4,
+                        'operate_time'      => $row['order_time'],
+                        'remark'            => $item['remark'],
+                        'balance_price'     => $balance_price, //账户余额
+                        'all_balance_price' => $all_balance_price,//总账户余额
+                        'receivable_price'  => $receivable_price,//对方欠咱们的钱
+                    ]);
+
+                }
+
+
+
+            }
+
+            elseif ($type=='payment'){
+                //应付款  如果实际付款金额与订单金额不符合 会产生欠款情况
+                $receivable_price = 0;
+                if ($post['practical_price'] != $post['paid_price']){
+                    $receivable_price = $post['practical_price'] - $post['paid_price'];
+
+                    //获取客户id 的欠款记录 更新
+                    $customer_row = $this->customer_model->find($row['customer_id']);
+                    $customer_row->save([
+                        'receivable_price'=>$customer_row['receivable_price'] - $receivable_price,
+                    ]);
+
+
+                }
+
+                //遍历说有付款单 将每一个都放到资金明细中
+                foreach ($post['goods'] as $item){
+                    $balance_price -= intval($item['unit_price']);
+                    $all_balance_price -= intval($item['unit_price']);
+                    //账户记录扣款
+                    if ( $row['sale_user_id'] == 0 ||  $row['sale_user_id'] == null){
+                        $profit_price = 0;
+                    }else{
+                        $profit_price = -$item['unit_price'];
+                    }
+
+                    $this->account_info_model->insert([
+                        'sale_user_id'      => $row['sale_user_id'],
+                        'order_user_id'     => $row['order_user_id'],
+                        'account_id'        => $row['account_id'],
+                        'customer_id'       => $row['customer_id'],
+                        'category_id'       => $item['category_id'],
+                        'order_id'          => $row['id'],
+                        'price'             =>-$item['unit_price'],
+                        'profit_price'      => $profit_price, //利润
+                        'category'          => '付款单',
+                        'sz_type'           => 2,
+                        'type'              => 5,
+                        'operate_time'      => $row['order_time'],
+                        'remark'            => $item['remark'],
+                        'balance_price'     => $balance_price, //账户余额
+                        'all_balance_price' => $all_balance_price,//总账户余额
+                        'receivable_price'  => $receivable_price,//对方欠咱们的钱
+                    ]);
+
+                }
+
+
+
             }
 
 
+            //修改账户余额
+            $account_data->save(['balance_price'=>$balance_price]);
 
             $this->success('审核成功~');
 

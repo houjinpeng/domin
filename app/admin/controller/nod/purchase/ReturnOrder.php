@@ -163,11 +163,11 @@ class ReturnOrder extends AdminController
                     'unit_price' => $item['unit_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
-//                    'type' => 2,//采购退货单
+                    'category' =>'采购退货',
                     'warehouse_id' => $post['warehouse_id'],
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
-
+                    'order_user_id' => session('admin.id'),
 
                 ];
                 $insert_all[] = $save_info;
@@ -301,10 +301,11 @@ class ReturnOrder extends AdminController
                       'unit_price' => $item['unit_price'],
                       'remark' => isset($item['remark']) ? $item['remark'] : '',
                       'pid' => $id,
-//                      'type' => 2,//采购退货单
+                      'category' =>'采购退货',
                       'warehouse_id' => $post['warehouse_id'],
                       'account_id' => $post['account_id'],
                       'supplier_id' => $post['supplier_id'],
+                      'order_user_id' => session('admin.id'),
 
                   ];
                   $this->order_info_model->save($save_info);

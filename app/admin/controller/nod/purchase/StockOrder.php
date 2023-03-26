@@ -139,6 +139,7 @@ class StockOrder extends AdminController
                     'account_id' => $post['account_id'],
                     'supplier_id' => $post['supplier_id'],
                     'order_time' => $post['order_time'],
+                    'order_user_id' => session('admin.id'),
 
 
                 ];
@@ -245,10 +246,12 @@ class StockOrder extends AdminController
                         'order_time' => $post['order_time'],
                         'good_name' => $item['good_name'],
                         'unit_price' => $item['unit_price'],
+                        'category' =>'采购',
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'warehouse_id' => $post['warehouse_id'],
                         'account_id' => $post['account_id'],
                         'supplier_id' => $post['supplier_id'],
+                        'order_user_id' => session('admin.id'),
                     ];
                     $this->order_info_model->save($save_info);
 

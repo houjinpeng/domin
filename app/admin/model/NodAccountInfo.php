@@ -45,6 +45,22 @@ class NodAccountInfo extends TimeModel
     //关联客户
     public function getCustomer()
     {
-        return $this->belongsTo(NodCustomerManagement::class, 'customer', 'id');
+        return $this->belongsTo(NodCustomerManagement::class, 'customer_id', 'id');
+    }
+    //关联制单人
+    public function getOrderUser()
+    {
+        return $this->belongsTo(SystemAdmin::class, 'order_user_id', 'id');
+    }
+    //关联销售人
+    public function getSaleUser()
+    {
+        return $this->belongsTo(NodSaleUser::class, 'sale_user_id', 'id');
+    }
+
+    //关联收付款类型
+    public function getCategory()
+    {
+        return $this->belongsTo(NodCategory::class, 'category_id', 'id');
     }
 }

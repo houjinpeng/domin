@@ -97,8 +97,8 @@ class Payment extends AdminController
 
             ];
 
-            if (count($post['goods']) == 0) {
-                $this->error('不能一个也不提交吧~');
+            if (count($post['goods']) == 0 || count($post['goods']) >1 ) {
+                $this->error('只能录入一单哦~');
             }
             //验证
             foreach ($post['goods'] as $item) {
@@ -146,6 +146,8 @@ class Payment extends AdminController
                     'pid' => $pid,
                     'customer_id'=>$customer_id,
                     'sale_user_id'=>$post['sale_user_id'],
+                    'order_user_id' => session('admin.id'),
+
                     'account_id' => $post['account_id'],
                 ];
                 $insert_all[] = $save_info;
@@ -200,8 +202,8 @@ class Payment extends AdminController
 
             ];
 
-            if (count($post['goods']) == 0) {
-                $this->error('不能一个也不提交吧~');
+            if (count($post['goods']) == 0 || count($post['goods']) >1 ) {
+                $this->error('只能录入一单哦~');
             }
             //验证
             foreach ($post['goods'] as $item) {
@@ -255,6 +257,8 @@ class Payment extends AdminController
                         'customer_id'=>$customer_id,
                         'sale_user_id'=>$post['sale_user_id'],
                         'account_id' => $post['account_id'],
+                        'order_user_id' => session('admin.id'),
+
                     ];
                     $this->order_info_model->save($save_info);
                 }

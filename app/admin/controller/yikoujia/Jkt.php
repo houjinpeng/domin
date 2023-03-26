@@ -600,24 +600,22 @@ class Jkt extends AdminController
                 kill_task($row['p_id']);
                 $row ->save(['spider_status'=>0,'p_id'=>null]);
                 //删除之前数据 重新运行
-                $this->success('主线等待运行中~');
-            }
 
+            }
+            $this->success('主线等待运行中~');
 
 
         }else{
             if (is_array($id)){
                 foreach ($id as $ids){
                     //查询进程号
-                    $row = $this->model->find($ids);
+                    $row = $this->filter_model->where('main_filter_id','=',$ids)->update(['spider_status'=>0,'pid'=>null]);
                     empty($row) && $this->error('没有该数据 无法重启~');
-                    //查询主线是否在运行
-                    kill_task($row['p_id']);
 
-                    $row ->save(['spider_status'=>0,'p_id'=>null]);
-                    //删除之前数据 重新运行
-                    $this->success('主线等待运行中~');
+
                 }
+                //删除之前数据 重新运行
+                $this->success('支线等待运行中~');
 
             }else{
                 //查询进程号

@@ -43,4 +43,9 @@ class NodInventory extends TimeModel
         return $this->belongsTo(NodSupplier::class, 'supplier_id', 'id');
     }
 
+    //关联来源渠道
+    public function getOrderUser()
+    {
+        return $this->belongsTo(SystemAdmin::class, 'order_user_id', 'id');
+    }
 }

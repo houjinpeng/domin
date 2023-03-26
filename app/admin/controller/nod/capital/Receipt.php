@@ -84,7 +84,6 @@ class Receipt extends AdminController
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户名】' => 'require',
-                'sale_user_id|【销售员】' => 'require',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实收金额】' => 'number|require',
@@ -96,8 +95,8 @@ class Receipt extends AdminController
                 'unit_price|【收款金额】' => 'number|require',
 
             ];
-            if (count($post['goods']) == 0) {
-                $this->error('不能一个也不提交吧~');
+            if (count($post['goods']) == 0 || count($post['goods']) >1 ) {
+                $this->error('只能录入一单哦~');
             }
             //验证
             foreach ($post['goods'] as $item) {
@@ -139,12 +138,13 @@ class Receipt extends AdminController
                 $save_info = [
                     'category_id' => $item['category_id'],
                     'category' => '收款',
-                    'unit_price' => $item['total_price'],
+                    'unit_price' => $item['unit_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
                     'customer_id'=>$customer_id,
                     'account_id' => $post['account_id'],
-                    'sale_user_id'=>$post['sale_user_id']
+                    'sale_user_id'=>$post['sale_user_id'],
+                    'order_user_id' => session('admin.id'),
                 ];
                 $insert_all[] = $save_info;
 
@@ -198,9 +198,10 @@ class Receipt extends AdminController
 
             ];
 
-            if (count($post['goods']) == 0) {
-                $this->error('不能一个也不提交吧~');
+            if (count($post['goods']) == 0 || count($post['goods']) >1 ) {
+                $this->error('只能录入一单哦~');
             }
+
             //验证
             foreach ($post['goods'] as $item) {
                 $item['unit_price'] = intval($item['unit_price']);
@@ -237,7 +238,7 @@ class Receipt extends AdminController
                 if (isset($item['id'])){
                     $save_info = [
                         'category_id' => $item['category_id'],
-                        'unit_price' => $item['total_price'],
+                        'unit_price' => $item['unit_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'customer_id'=>$customer_id,
                         'account_id' => $post['account_id'],
@@ -248,12 +249,13 @@ class Receipt extends AdminController
                     $save_info = [
                         'category_id' => $item['category_id'],
                         'category' => '收款',
-                        'unit_price' => $item['total_price'],
+                        'unit_price' => $item['unit_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'pid' => $id,
                         'customer_id'=>$customer_id,
                         'account_id' => $post['account_id'],
                         'sale_user_id' => $post['sale_user_id'],
+                        'order_user_id' => session('admin.id'),
                     ];
                     $this->order_info_model->save($save_info);
                 }

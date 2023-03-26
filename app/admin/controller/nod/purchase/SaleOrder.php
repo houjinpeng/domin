@@ -97,7 +97,6 @@ class SaleOrder extends AdminController
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'sale_time|【出售时间】' => 'require|date',
                 'unit_price|【售货单价】' => 'number|require',
 
             ];
@@ -131,6 +130,9 @@ class SaleOrder extends AdminController
                 $dif = array_diff($ym_list,$inventory_list);
                 $this->error('下列商品不在库存中，请尽快入库 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
             }
+
+
+
             //判断客户是否存在 不存在添加
             $customer = $this->kehu_model->where('name','=',$post['customer'])->find();
             if (empty($customer)){
@@ -155,6 +157,7 @@ class SaleOrder extends AdminController
                 'audit_status' => 0,//审核状态
                 'sale_user_id' => $post['sale_user_id'],//销售员
                 'type'=>3,//售货单
+
             ];
             //获取pid   保存商品详情
 
@@ -173,9 +176,11 @@ class SaleOrder extends AdminController
                     'customer_id' => $customer_id,
                     'account_id' => $post['account_id'],
                     'supplier_id' => $ym_dict[$item['good_name']]['supplier_id'],
-                    'sale_time' => $item['sale_time'],
+                    'sale_time' => $post['order_time'],
                     'order_time' => $post['order_time'],
                     'sale_user_id' => $post['sale_user_id'],//销售员
+                    'order_user_id' => session('admin.id'),
+
                 ];
                 $insert_all[] = $save_info;
 
@@ -228,7 +233,6 @@ class SaleOrder extends AdminController
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'sale_time|【销售时间】' => 'require|date',
                 'unit_price|【购货单价】' => 'number|require',
 
             ];
@@ -292,7 +296,7 @@ class SaleOrder extends AdminController
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
-                        'sale_time' => $item['sale_time'],
+                        'sale_time' => $post['order_time'],
                         'sale_user_id' => $post['sale_user_id'],//销售员
                     ];
                     $this->order_info_model->where('id','=',$item['id'])->update($save_info);
@@ -304,8 +308,9 @@ class SaleOrder extends AdminController
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
-                        'sale_time' => $item['sale_time'],
+                        'sale_time' => $post['order_time'],
                         'sale_user_id' => $post['sale_user_id'],//销售员
+                        'order_user_id' => session('admin.id'),
                     ];
                     $this->order_info_model->save($save_info);
                 }
@@ -382,7 +387,6 @@ class SaleOrder extends AdminController
                 'index'=>$index+1,
                 'unit_price' => intval($item['wtqian']),
                 'good_name' => $item['ym'],
-                'sale_time' => $item['jssj'],
                 'remark' => '',
             ];
             $index+=1;

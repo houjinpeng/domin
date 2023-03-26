@@ -1,10 +1,10 @@
 define(["jquery", "easy-admin"], function ($, ea) {
 
-
-    var show_init = {
+    var init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'nod.statement_analysis.inventory/index',
+        index_url: 'nod.good_warning/index',
+
 
     };
 
@@ -35,7 +35,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             })
 
             ea.table.render({
-                init: show_init,
+                init: init,
                 limit:50,
                 height:'full-40',
                 limits:[50,100,200,500,1000],
@@ -44,8 +44,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'good_name', minWidth: 152, title: '商品名称',search: 'batch'},
                     {field: 'unit_price', search:'section', minWidth: 100, title: '成本价'},
-                    {field: 'dqsj', search:'section', minWidth: 100, title: '到期天数',hide:true},
-                    {field: 'register_time', search:'range', minWidth: 140, title: '注册时间'},
+                    {field: 'dqsj', search:false, minWidth: 100, title: '到期天数',hide:true},
+                    {field: 'register_time', search:false, minWidth: 140, title: '注册时间'},
                     {field: 'expiration_time', search:false, minWidth: 140, title: '到期时间',templet:function (d) {
                             if (!d['expiration_time']) return ''
                             var date1=new Date();
@@ -54,12 +54,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {field: 'zcs', minWidth: 140, title: '注册商'},
                     {field: 'warehouse_id', minWidth: 110, title: '仓库',selectList: bulid_select(warehouse_select_list),templet:function (d) {
-                        if ( d.getWarehouse){
-                            return d.getWarehouse.name
-                        } return ''
+                            if ( d.getWarehouse){
+                                return d.getWarehouse.name
+                            } return ''
 
                         }},
-
                     {field: 'supplier_id', minWidth: 110, title: '来源渠道',selectList: bulid_select(supplier_select_list),templet:function (d) {
                             if ( d.getSupplier){
                                 return d.getSupplier.name
@@ -82,21 +81,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
         },
 
 
-        add: function () {
-
-            ea.listen();
-        },
-        edit: function () {
-            ea.listen();
-        },
-        show: function () {
-
-
-
-
-
-            ea.listen();
-        }
     };
     return Controller;
 });
