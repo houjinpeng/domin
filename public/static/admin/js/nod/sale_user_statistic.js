@@ -54,8 +54,6 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         type: 'value',
                         name: '销售数',
                         min: 0,
-
-                        interval: 50,
                         axisLabel: {
                             formatter: '{value} 条'
                         }
@@ -65,7 +63,6 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         name: '利润',
                         min: 0,
 
-                        interval: 5,
                         axisLabel: {
                             formatter: '{value} 元'
                         }
