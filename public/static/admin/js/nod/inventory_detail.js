@@ -7,6 +7,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
 
     };
+    function copyText(text) {
+        var oInput = document.createElement('textarea');
+        oInput.value = text;
+        document.body.appendChild(oInput);
+        oInput.select();
+        document.execCommand("Copy");
+        oInput.className = 'oInput';
+        oInput.style.display = 'none';
+    }
 
     var Controller = {
 
@@ -50,8 +59,20 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     layer.open({
                         title: data['name'] +' 详情'
                         ,area: ['500px', '300px']
+                        ,  btn: ['复制', '关闭'] //可以无限个按钮
                         , skin: 'demo-class'
                         ,content: all_data.join('<br>')
+                        ,yes: function(index, layero){
+                            //按钮【按钮一】的回调
+                            copyText(all_data.join("\n"))
+                            // layer.msg('复制成功~',{icon:1})
+                            return false
+                        }
+                        ,btn2: function(index, layero){
+                            //按钮【按钮二】的回调
+
+                            //return false 开启该代码可禁止点击该按钮关闭
+                        }
                     });
 
 
