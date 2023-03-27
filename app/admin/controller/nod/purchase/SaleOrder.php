@@ -79,7 +79,7 @@ class SaleOrder extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('实收金额不能为0');
+
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
 
 
@@ -215,7 +215,6 @@ class SaleOrder extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('实收金额不能为0');
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
             $post['practical_price'] = intval($post['practical_price'] );
             $post['paid_price'] = intval($post['paid_price'] );
