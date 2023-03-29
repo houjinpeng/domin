@@ -36,7 +36,7 @@ class SaleProfit extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="库存判断列表")
+     * @NodeAnotation(title="销售利润表列表")
      */
     public function index()
     {

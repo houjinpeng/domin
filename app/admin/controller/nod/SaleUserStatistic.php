@@ -59,10 +59,10 @@ class SaleUserStatistic extends AdminController
             if (!empty($cate)){
 
                 //计算利润
-                $profit_price = $this->account_info_model->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6 or category_id='.$cate['id'].')')->sum('profit_price');//销售单
+                $profit_price = $this->account_info_model->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6 or type=9 or category_id='.$cate['id'].')')->sum('profit_price');//销售单
             }else{
                 //计算利润
-                $profit_price = $this->account_info_model->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6)')->sum('profit_price');//销售单
+                $profit_price = $this->account_info_model->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6 or type=9)')->sum('profit_price');//销售单
             }
 
 

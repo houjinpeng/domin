@@ -6,6 +6,7 @@ namespace app\admin\controller\nod;
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
 use app\admin\model\NodAccountInfo;
+use app\admin\model\NodCategory;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
 use app\admin\model\NodOrderInfo;
@@ -30,18 +31,24 @@ class CostDeail extends AdminController
         parent::__construct($app);
         $this->model = new NodInventory();
         $this->account_info_model = new NodAccountInfo();
+        $this->category_model = new NodCategory();
 
     }
 
     /**
-     * @NodeAnotation(title="库存判断列表")
+     * @NodeAnotation(title="费用明细列表")
      */
     public function index()
     {
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
-            $whereOr = [['type','=',4],['type','=',5],['type','=',8],['type','=',9]];
-
+//            $whereOr = [['type','=',4],['type','=',5],['type','=',8],['type','=',9]];
+            $whereOr = [['type','=',1],['type','=',2],['type','=',3],['type','=',6]];
+            //查询销售费用单id
+            $cate = $this->category_model->where('name','=','销售费用')->find();
+            if (!empty($cate)){
+                $whereOr[] = ['category_id','=',$cate['id']];
+            }
             $list = $this->account_info_model
                 ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser','getCategory'],'left')
                 ->where($where)
