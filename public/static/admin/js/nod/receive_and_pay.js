@@ -28,6 +28,24 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'remark', minWidth: 180, title: '备注'},
 
                 ]],
+                done:function (data) {
+                    let s = 0;
+                    let f = 0;
+                    data.data.forEach(function (item) {
+                        if (parseInt(item['receivable_price'])>0){
+                            s += parseInt(item['receivable_price'])
+                        }
+                        if (parseInt(item['receivable_price']) < 0){
+                            f += parseInt(-item['receivable_price'])
+                        }
+                    })
+
+
+                    $('#layui-table-page1').append(' <font color="red">总应收款余额:'+s+'  | 总应付款余额:'+f+'</font>')
+
+
+                }
+
             });
 
             ea.listen();

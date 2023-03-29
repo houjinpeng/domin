@@ -28,9 +28,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ea.table.render({
                     init: init,
                     url:'/admin/nod.purchase_detail/index?type=sale',
-                    limit:15,
+                    limit:30,
+                    page:true,
                     toolbar:['refresh','add'],
-                    limits:[15,30,50],
+                    limits:[30,50,100],
                     cols: [[
                         {field: 'operate_time', search:false,minWidth: 168, fixed:'left', title: '操作时间'},
                         {field: 'order_user_id', minWidth: 110, title: '经手人',selectList: bulid_select(user_select_list,'username'),templet:function (d) {
