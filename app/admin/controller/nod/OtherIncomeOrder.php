@@ -370,6 +370,7 @@ class OtherIncomeOrder extends AdminController
             $all_balance_price += intval($order_info['unit_price']);
             //利润
             $profit_price = 0;
+            $total_profit_price = 0;
             if ($post['sale_user_id']){
                 $profit_price = $order_info['unit_price'];
                 //获取销售员的总利润
