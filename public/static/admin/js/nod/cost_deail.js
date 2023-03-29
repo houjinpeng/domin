@@ -46,15 +46,23 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {field: 'category', minWidth: 180, title: '类型'},
                     {field: 'sm', minWidth: 400, title: '说明',search:false,align:'left',templet:function (d) {
-                          if (d.category === '付款单'){
+                            if (d.category === '采购单'){
+                                return 'ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+-d.price+'元'
+                            }else if (d.category === '销售单'){
+                                return 'ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+d.price+'元'
+                            }else if (d.category === '付款单'){
                                 return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
                             }else if (d.category === '收款单'){
                                 return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                            }else if (d.category === '采购退货单'){
+                                return '退款 ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+d.price+'元'
+                            }else if (d.category === '销售退货单'){
+                                return '退款 ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+-d.price+'元'
                             }else if (d.category === '费用单'){
-                              return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
-                          }else if (d.category === '其他收入单'){
-                              return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
-                          }
+                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
+                            }else if (d.category === '其他收入单'){
+                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                            }
                         }},
                     {field: 'price', minWidth: 152, title: '变动',search: false,templet:function (d) {
                             if (d.category === '采购单' || d.category === '付款单' || d.category === '销售退货单'|| d.category === '费用单'){
