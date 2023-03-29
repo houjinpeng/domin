@@ -48,12 +48,12 @@ class BrandDetail extends AdminController
                 $data['name'] = $item['name'];
                 //计算收入  收款或销售  采购退货
                 $data['sr'] = $this->account_info_model->where(function ($query){
-                    $query->whereOr([['type','=',3],['type','=',4],['type','=',2]]);
+                    $query->whereOr([['type','=',3],['type','=',4],['type','=',2],['type','=',9]]);
                 })->where('account_id','=',$item['id'])->sum('price');
 
                 //计算支出  付款 采购 或退货
                 $data['zc'] = $this->account_info_model->where(function ($query){
-                    $query->whereOr([['type','=',5],['type','=',1],['type','=',6]]);
+                    $query->whereOr([['type','=',5],['type','=',1],['type','=',6],['type','=',8]]);
                 })->where('account_id','=',$item['id'])->sum('price');
                 $data['balance_price'] = $item['balance_price'];
                 $list[] = $data;

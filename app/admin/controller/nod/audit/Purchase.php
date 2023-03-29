@@ -308,23 +308,25 @@ class Purchase extends AdminController
                //存入库存明细表中
                 $insert_all  = [];
                 foreach ($post['goods'] as $item){
+
+
                     //存入仓库出入明细表中
                     $insert_all[] = [
-                        'pid'                   =>$id,
-                        'good_name'             =>$item['good_name'],
-                        'sale_time'             =>$row['order_time'],
+                        'pid'                   => $id,
+                        'good_name'             => $item['good_name'],
+                        'sale_time'             => $row['order_time'],
                         'unit_price'            => $item['unit_price'], //售价
                         'cost_price'            => $ym_dict[$item['good_name']]['unit_price'], //成本价
                         'profit_price'          => $item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//利润
-                        'remark'                =>$item['remark'],
-                        'warehouse_id'          =>$item['warehouse_id'],
-                        'account_id'            =>$row['account_id'],
-                        'customer_id'           =>$row['customer_id'],
-                        'order_time'            =>$row['order_time'],
-                        'sale_user_id'          =>$row['sale_user_id'],#销售人员
-                        'order_user_id'         =>$row['order_user_id'],
-                        'type'                  =>3,   //1入库 2出库
-                        'good_category'         =>3   //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                        'remark'                => $item['remark'],
+                        'warehouse_id'          => $item['warehouse_id'],
+                        'account_id'            => $row['account_id'],
+                        'customer_id'           => $row['customer_id'],
+                        'order_time'            => $row['order_time'],
+                        'sale_user_id'          => $row['sale_user_id'],#销售人员
+                        'order_user_id'         => $row['order_user_id'],
+                        'type'                  => 3,   //1入库 2出库
+                        'good_category'         => 3   //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
                     ];
                 }
 
@@ -358,13 +360,16 @@ class Purchase extends AdminController
                 }
 
 
-                $insert_account_info = [];
                 //遍历所有单据 录入明细中
                 $balance_price = $account_data['balance_price'];
                 foreach ($post['goods'] as $item){
+                    //获取销售员的总利润
+                    $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
+
+
                     $balance_price += intval($item['unit_price']);
                     $all_balance_price += intval($item['unit_price']);
-                    $insert_account_info[] = [
+                    $insert_account_info = [
                         'sz_type'           => 1, //1收入 2支出
                         'category'          => '销售单',
                         'type'              => 3, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
@@ -373,6 +378,7 @@ class Purchase extends AdminController
                         'price'             => $item['unit_price'], //价格
                         'cost_price'        => $ym_dict[$item['good_name']]['unit_price'], //成本价
                         'profit_price'      => $item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//利润
+                        'total_profit_price'=> $total_profit_price +$item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//总利润
                         'account_id'        => $row['account_id'], // 账户id
                         'sale_user_id'      => $row['sale_user_id'],//销售人员
                         'supplier_id'       => $row['supplier_id'],//渠道id
@@ -387,11 +393,12 @@ class Purchase extends AdminController
                         'order_user_id'     => $row['order_user_id'],
                     ];
 
+                    $this->account_info_model->insert($insert_account_info);
+
                 }
 
                 //修改余额
                 $account_data->save(['balance_price'=>$balance_price]);
-                $this->account_info_model->insertAll($insert_account_info);
 
             }
             $this->success('审核成功~');

@@ -44,26 +44,25 @@ class Receipt extends AdminController
     public function index()
     {
 
-        if ($this->request->isAjax()){
+        if ($this->request->isAjax()) {
 
             list($page, $limit, $where) = $this->buildTableParames();
 
-            $where[] = ['type','=',4];
+            $where[] = ['type', '=', 4];
 
 
             $list = $this->order_model
-                ->with(['getCustomer','getAccount','getOrderUser'],'left')
-                ->where($where)->page($page,$limit)->order('id','desc')->select()->toArray();
-            $count = $this->order_model->where($where)->order('id','desc')->count();
+                ->with(['getCustomer', 'getAccount', 'getOrderUser'], 'left')
+                ->where($where)->page($page, $limit)->order('id', 'desc')->select()->toArray();
+            $count = $this->order_model->where($where)->order('id', 'desc')->count();
             $data = [
-                'code'=>0,
-                'data'=>$list,
-                'count'=>$count,
+                'code' => 0,
+                'data' => $list,
+                'count' => $count,
             ];
             return json($data);
 
         }
-
 
 
         return $this->fetch();
@@ -77,10 +76,9 @@ class Receipt extends AdminController
         if ($this->request->isAjax()) {
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
-            $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('收款金额不能为0');
-            $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-
+            $post = (json_decode($post, true));
+            $post['practical_price'] == '0' && $this->error('单据金额不能为0');
+            $post['paid_price'] = $post['practical_price'];
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户名】' => 'require',
@@ -95,20 +93,24 @@ class Receipt extends AdminController
                 'unit_price|【收款金额】' => 'number|require',
 
             ];
-            if (count($post['goods']) == 0 || count($post['goods']) >1 ) {
+            if (count($post['goods']) == 0 || count($post['goods']) > 1) {
                 $this->error('只能录入一单哦~');
             }
+
             //验证
             foreach ($post['goods'] as $item) {
                 intval($item['unit_price']) == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
+            if ($post['practical_price'] != intval($post['goods'][0]['unit_price'])) {
+                $this->error('单据金额和项目金额不相等');
+            }
 
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer']]);
-            }else{
+            $customer = $this->kehu_model->where('user_id', '=', session('admin.id'))->where('user_id', '=', session('admin.id'))->where('name', '=', $post['customer'])->find();
+            if (empty($customer)) {
+                $customer_id = $this->kehu_model->insertGetId(['name' => $post['customer'], 'user_id' => session('admin.id')]);
+            } else {
                 $customer_id = $customer['id'];
             }
 
@@ -120,10 +122,10 @@ class Receipt extends AdminController
                 'order_batch_num' => $order_batch_num,
                 'order_user_id' => session('admin.id'),
                 'remark' => $post['remark'],
-                'customer_id'=>$customer_id,
-                'account_id'=>$post['account_id'],
-                'sale_user_id'=>$post['sale_user_id'],
-                'type'=>4, //收款单
+                'customer_id' => $customer_id,
+                'account_id' => $post['account_id'],
+                'sale_user_id' => $post['sale_user_id'],
+                'type' => 4, //收款单
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
                 'audit_status' => 0,//审核状态
@@ -137,13 +139,13 @@ class Receipt extends AdminController
             foreach ($post['goods'] as $item) {
                 $save_info = [
                     'category_id' => $item['category_id'],
-                    'category' => '收款',
+                    'category' => '收款单',
                     'unit_price' => $item['unit_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
-                    'customer_id'=>$customer_id,
+                    'customer_id' => $customer_id,
                     'account_id' => $post['account_id'],
-                    'sale_user_id'=>$post['sale_user_id'],
+                    'sale_user_id' => $post['sale_user_id'],
                     'order_user_id' => session('admin.id'),
                 ];
                 $insert_all[] = $save_info;
@@ -168,19 +170,18 @@ class Receipt extends AdminController
 
         //查询为审核的订单
         $data = $this->order_model
-            ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
+            ->with(['getWarehouse', 'getAccount', 'getSupplier', 'getOrderUser'], 'left')
             ->find($id);
-        if ($this->request->isAjax()){
+        if ($this->request->isAjax()) {
             $data['audit_status'] != 0 && $this->error('不是可编辑状态，不能再次编辑~');
 
 
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
-            $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('实付金额不能为0');
-            $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price'] );
-            $post['paid_price'] = intval($post['paid_price'] );
+            $post = (json_decode($post, true));
+            $post['practical_price'] == '0' && $this->error('单据金额不能为0');
+            $post['practical_price'] = intval($post['practical_price']);
+            $post['paid_price'] = $post['practical_price'];
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户名】' => 'require',
@@ -198,22 +199,26 @@ class Receipt extends AdminController
 
             ];
 
-            if (count($post['goods']) == 0 || count($post['goods']) >1 ) {
+            if (count($post['goods']) == 0 || count($post['goods']) > 1) {
                 $this->error('只能录入一单哦~');
             }
 
             //验证
             foreach ($post['goods'] as $item) {
                 $item['unit_price'] = intval($item['unit_price']);
-                intval($item['unit_price']) == 0 && $this->error('总金额不能为0');
+                $item['unit_price'] == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
 
+            if ($post['practical_price'] != intval($post['goods'][0]['unit_price'])) {
+                $this->error('单据金额和项目金额不相等');
+            }
+
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer']]);
-            }else{
+            $customer = $this->kehu_model->where('user_id', '=', session('admin.id'))->where('name', '=', $post['customer'])->find();
+            if (empty($customer)) {
+                $customer_id = $this->kehu_model->insertGetId(['name' => $post['customer'], 'user_id' => session('admin.id')]);
+            } else {
                 $customer_id = $customer['id'];
             }
 
@@ -234,34 +239,17 @@ class Receipt extends AdminController
             $data->save($save_order);
 
 
-            foreach ($post['goods'] as $item) {
-                if (isset($item['id'])){
-                    $save_info = [
-                        'category_id' => $item['category_id'],
-                        'unit_price' => $item['unit_price'],
-                        'remark' => isset($item['remark']) ? $item['remark'] : '',
-                        'customer_id'=>$customer_id,
-                        'account_id' => $post['account_id'],
-                        'sale_user_id' => $post['sale_user_id'],
-                    ];
-                    $this->order_info_model->where('id','=',$item['id'])->update($save_info);
-                }else{
-                    $save_info = [
-                        'category_id' => $item['category_id'],
-                        'category' => '收款',
-                        'unit_price' => $item['unit_price'],
-                        'remark' => isset($item['remark']) ? $item['remark'] : '',
-                        'pid' => $id,
-                        'customer_id'=>$customer_id,
-                        'account_id' => $post['account_id'],
-                        'sale_user_id' => $post['sale_user_id'],
-                        'order_user_id' => session('admin.id'),
-                    ];
-                    $this->order_info_model->save($save_info);
-                }
+            $item = $post['goods'][0];
+            $save_info = [
+                'category_id' => $item['category_id'],
+                'unit_price' => $item['unit_price'],
+                'remark' => isset($item['remark']) ? $item['remark'] : '',
+                'customer_id' => $customer_id,
+                'account_id' => $post['account_id'],
+                'sale_user_id' => $post['sale_user_id'],
+            ];
+            $this->order_info_model->where('id', '=', $item['id'])->update($save_info);
 
-
-            }
             $this->success('修改成功~');
 
         }
@@ -270,9 +258,9 @@ class Receipt extends AdminController
         $account_list = $this->account_model->field('id,name')->select()->toArray();
 
         //获取所有订单详情中的数据
-        $all_goods= $this->order_info_model->where('pid','=',$id)->select()->toArray();
-        $this->assign('all_goods',json_encode($all_goods));
-        $this->assign('data',$data);
+        $all_goods = $this->order_info_model->where('pid', '=', $id)->select()->toArray();
+        $this->assign('all_goods', json_encode($all_goods));
+        $this->assign('data', $data);
 
 
         $this->assign('supplier_list', $supplier_list);
@@ -285,13 +273,14 @@ class Receipt extends AdminController
     /**
      * @NodeAnotation(title="撤销收款单数据")
      */
-    public function chexiao($id){
-        if ($this->request->isAjax()){
+    public function chexiao($id)
+    {
+        if ($this->request->isAjax()) {
             $row = $this->order_model->find($id);
-            if ($row['audit_status'] !==0){
+            if ($row['audit_status'] !== 0) {
                 $this->error('当前状态不能撤销');
             }
-            $row->save(['audit_status'=>2]);
+            $row->save(['audit_status' => 2]);
             $this->success('撤销成功~ 请重新提交采购数据！');
         }
     }

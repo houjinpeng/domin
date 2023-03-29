@@ -6,6 +6,7 @@ namespace app\admin\controller\nod;
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
 use app\admin\model\NodAccountInfo;
+use app\admin\model\NodCategory;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
 use app\admin\model\NodOrderInfo;
@@ -13,6 +14,7 @@ use app\admin\model\NodSaleUser;
 use app\admin\model\NodSupplier;
 use app\admin\model\NodWarehouse;
 use app\admin\model\NodWarehouseInfo;
+use app\admin\model\SystemAdmin;
 use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
@@ -29,8 +31,9 @@ class SaleUserStatistic extends AdminController
     public function __construct(App $app)
     {
         parent::__construct($app);
-        $this->model = new NodSaleUser();
+        $this->model = new SystemAdmin();
         $this->account_info_model = new NodAccountInfo();
+        $this->category_model = new NodCategory();
 
 
     }
@@ -46,13 +49,23 @@ class SaleUserStatistic extends AdminController
         $sale_count_list = [];
         $sale_user_list = [];
         foreach ($all_sale_user as $user){
-            $sale_user_list[] = $user['name'];
+            $sale_user_list[] = $user['username'];
             //获取销售员的销售条数及利润
             $count = $this->account_info_model->where('sale_user_id','=',$user['id'])->where('type','=','3')->count();//销售单
             $th_count = $this->account_info_model->where('sale_user_id','=',$user['id'])->where('type','=','6')->count();//退货单销售单
             $sale_count_list[] = $count-$th_count;
-            //计算利润
-            $profit_price = $this->account_info_model->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6)')->sum('profit_price');//销售单
+
+            $cate = $this->category_model->where('name','=','销售费用')->find();
+            if (!empty($cate)){
+
+                //计算利润
+                $profit_price = $this->account_info_model->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6 or category_id='.$cate['id'].')')->sum('profit_price');//销售单
+            }else{
+                //计算利润
+                $profit_price = $this->account_info_model->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6)')->sum('profit_price');//销售单
+            }
+
+
             $profit_price_list[] = $profit_price;
 
         }

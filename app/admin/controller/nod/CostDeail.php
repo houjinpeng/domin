@@ -40,7 +40,7 @@ class CostDeail extends AdminController
     {
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
-            $whereOr = [['type','=',4],['type','=',5]];
+            $whereOr = [['type','=',4],['type','=',5],['type','=',8],['type','=',9]];
 
             $list = $this->account_info_model
                 ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser','getCategory'],'left')

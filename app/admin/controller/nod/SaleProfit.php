@@ -6,6 +6,7 @@ namespace app\admin\controller\nod;
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
 use app\admin\model\NodAccountInfo;
+use app\admin\model\NodCategory;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
 use app\admin\model\NodOrderInfo;
@@ -29,6 +30,7 @@ class SaleProfit extends AdminController
     {
         parent::__construct($app);
         $this->model = new NodAccountInfo();
+        $this->category_model = new NodCategory();
 
 
     }
@@ -40,14 +42,14 @@ class SaleProfit extends AdminController
     {
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
-            $whereOr = [['type','=',3],['type','=',4],['type','=',5],['type','=',6]];
+            $whereOr = [['type','=',3],['type','=',6]];
 
-            //计算总销售利润
-            $profit_price = $this->model
-                ->where(function ($query) use ($whereOr){
-                    $query->whereOr($whereOr);
-                })
-                ->sum('profit_price');
+            //查询销售费用单id
+            $cate = $this->category_model->where('name','=','销售费用')->find();
+            if (!empty($cate)){
+                $whereOr[] = ['category_id','=',$cate['id']];
+            }
+
 
             $list = $this->model
                 ->with(['getOrder','getAccount','getSupplier','getWarehouse','getOrderUser','getCustomer','getCategory','getSaleUser'],'left')
@@ -61,15 +63,9 @@ class SaleProfit extends AdminController
                 $query->whereOr($whereOr);
             })->count();
 
-            $new_list = [];
-            foreach ($list as $item){
-                $item['total_profit_price'] = $profit_price;
-                $new_list[]= $item;
-            }
-
             $data = [
                 'code'=>0,
-                'data'=>$new_list,
+                'data'=>$list,
                 'count'=>$count,
                 'msg'=>''
             ];

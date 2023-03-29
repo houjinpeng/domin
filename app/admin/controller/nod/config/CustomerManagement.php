@@ -57,5 +57,19 @@ class CustomerManagement extends AdminController
         return $this->fetch();
     }
 
+    /**
+     * @NodeAnotation(title="添加客户")
+     */
+    public function add(){
+        if ($this->request->isAjax()){
+            $post = $this->request->post();
+            $post['user_id'] = session('admin.id');
+            $save= $this->model->save($post);
 
+            $save? $this->success('保存成功'):$this->error('保存失败');
+
+
+        }
+        return $this->fetch();
+    }
 }

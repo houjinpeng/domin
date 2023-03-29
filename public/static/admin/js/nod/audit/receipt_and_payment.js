@@ -121,17 +121,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
             }
 
 
-            //快捷录入单据金额
-            $('#jk_price').click(function () {
-                let all_data = table.cache['order_table']
-                let total_pirce = 0
-                all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['unit_price'])
-                })
 
-                $('#practical_price').val(total_pirce)
+            table.on('edit(order_table)', function(obj){
+                $('#practical_price').val(obj.value)
 
-            })
+            });
 
 
             ea.listen(function (data) {

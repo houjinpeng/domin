@@ -6,6 +6,7 @@ namespace app\admin\controller\nod;
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
 use app\admin\model\NodAccountInfo;
+use app\admin\model\NodCategory;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
 use app\admin\model\NodOrderInfo;
@@ -29,6 +30,7 @@ class PurchaseDetail extends AdminController
     {
         parent::__construct($app);
         $this->model = new NodAccountInfo();
+        $this->category_model = new NodCategory();
 
 
     }
@@ -47,9 +49,14 @@ class PurchaseDetail extends AdminController
                 $whereOr = [['type','=',1],['type','=',2]];
             }else{
                 $whereOr = [['type','=',3],['type','=',6]];
+                //查询销售费用单id
+                $cate = $this->category_model->where('name','=','销售费用')->find();
+                if (!empty($cate)){
+                    $whereOr[] = ['category_id','=',$cate['id']];
+                }
             }
             $list = $this->model
-                ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser'],'left')
+                ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser','getCategory'],'left')
                 ->where($where)
                 ->where(function ($query) use ($whereOr){
                     $query->whereOr($whereOr);

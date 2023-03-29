@@ -134,9 +134,9 @@ class SaleOrder extends AdminController
 
 
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('name','=',$post['customer'])->find();
+            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
             if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer']]);
+                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
             }else{
                 $customer_id = $customer['id'];
             }
@@ -267,9 +267,9 @@ class SaleOrder extends AdminController
 
 
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('name','=',$post['customer'])->find();
+            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
             if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer']]);
+                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
             }else{
                 $customer_id = $customer['id'];
             }

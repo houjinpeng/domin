@@ -304,8 +304,8 @@ class ReturnGood extends AdminController
                         'good_name'             => $item['good_name'],
                         'sale_time'             => $row['order_time'],
                         'unit_price'            => $item['unit_price'], //退货价格
-                        'cost_price'            => $ym_xiaoshou_data[$item['good_name']]['profit_price'], //成本价= 销售价的利润
-                        'profit_price'          => $item['unit_price']-$ym_xiaoshou_data[$item['good_name']]['profit_price'] ,//利润
+                        'cost_price'            => $ym_caigou_data[$item['good_name']]['unit_price'], //成本价
+                        'profit_price'          => $item['unit_price']-$ym_caigou_data[$item['good_name']]['unit_price'] ,//利润
                         'remark'                => $item['remark'],
                         'warehouse_id'          => $ym_xiaoshou_data[$item['good_name']]['warehouse_id'],
                         'account_id'            => $row['account_id'],
@@ -363,7 +363,11 @@ class ReturnGood extends AdminController
                 }
                 //遍历说有收款单 将每一个都放到资金明细中
 
+
+
                 foreach ($post['goods'] as $item){
+                    //获取销售员的总利润
+                    $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
                     $balance_price -= intval($item['unit_price']);
                     $all_balance_price -= intval($item['unit_price']);
                     //账户记录扣款
@@ -374,8 +378,9 @@ class ReturnGood extends AdminController
                         'sale_user_id'      => $post['sale_user_id'],
                         'order_user_id'     => $row['order_user_id'],
                         'order_id'          => $row['id'],
-                        'cost_price'        => $ym_xiaoshou_data[$item['good_name']]['profit_price'], //成本价= 销售价的利润
-                        'profit_price'      => $item['unit_price']-$ym_xiaoshou_data[$item['good_name']]['profit_price'],//利润
+                        'cost_price'        => $ym_caigou_data[$item['good_name']]['unit_price'], //成本价
+                        'profit_price'      => $item['unit_price']-$ym_caigou_data[$item['good_name']]['unit_price'],//利润
+                        'total_profit_price'=> $total_profit_price + $item['unit_price']-$ym_caigou_data[$item['good_name']]['unit_price'],//总利润
                         'price'             => -$item['unit_price'],//退货价格
                         'category'          => '销售退货单',
                         'sz_type'           => 1,

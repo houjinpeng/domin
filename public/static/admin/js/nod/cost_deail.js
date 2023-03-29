@@ -41,7 +41,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {field: 'sale_user_id', minWidth: 180, title: '销售员',selectList: bulid_select(sale_select_list),templet:function (d) {
                             if (d.getSaleUser){
-                                return d.getSaleUser.name
+                                return d.getSaleUser.username
                             } return ''
                         }},
                     {field: 'category', minWidth: 180, title: '类型'},
@@ -50,10 +50,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
                             }else if (d.category === '收款单'){
                                 return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
-                            }
+                            }else if (d.category === '费用单'){
+                              return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
+                          }else if (d.category === '其他收入单'){
+                              return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                          }
                         }},
                     {field: 'price', minWidth: 152, title: '变动',search: false,templet:function (d) {
-                            if (d.category === '采购单' || d.category === '付款单' || d.category === '销售退货单'){
+                            if (d.category === '采购单' || d.category === '付款单' || d.category === '销售退货单'|| d.category === '费用单'){
                                 return '<font color="red">'+(d.price)+'</font>'
                             }
                             return d.price

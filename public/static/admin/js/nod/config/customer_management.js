@@ -23,7 +23,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'id', width: 80, title: '编号'},
                     {field: 'name', minWidth: 80, title: '客户名'},
-                    {field: 'receivable_price', minWidth: 80, title: '应收款'},
+                    // {field: 'receivable_price', minWidth: 80, title: '应收款'},
                     {field: 'phone', minWidth: 80, title: '联系方式'},
                     {field: 'remark', minWidth: 80, title: '备注信息'},
                     {

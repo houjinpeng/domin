@@ -66,7 +66,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {field: 'practical_price', minWidth: 100, title: '单据金额',search:false},
-                    {field: 'paid_price', minWidth: 100, title: '实付金额',search:false},
                     {field: 'remark', minWidth: 180, title: '备注'},
                     {field: 'audit_status', minWidth: 100, title: '状态',selectList:{'1':'已审核','2':'撤销','0':'未审核'},templet:function (d) {
                             if (d.audit_status === 1){
@@ -186,7 +185,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                     , {field: 'unit_price', title: '付款金额', minWidth: 110, edit: true}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
-                    , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
+                    // , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
                 ]]
                 ,
@@ -262,17 +261,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
             });
 
 
-            //快捷录入单据金额
-            $('#jk_price').click(function () {
-                all_data = table.cache['order_table']
-                let total_pirce = 0
-                all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['unit_price'])
-                })
+            table.on('edit(order_table)', function(obj){
+                $('#practical_price').val(obj.value)
 
-                $('#practical_price').val(total_pirce)
-
-            })
+            });
 
             $('#reset').click(function () {
                 $('input').val('')
@@ -394,7 +386,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     , {field: 'category_id', title: '付款类别', minWidth: 180}
                     , {field: 'unit_price', title: '付款金额', minWidth: 110, edit: true}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
-                    , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
+                    // , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
                 ]]
                 ,data:good_l
@@ -462,16 +454,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
             });
 
             //快捷录入单据金额
-            $('#jk_price').click(function () {
-                all_data = table.cache['order_table']
-                let total_pirce = 0
-                all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['unit_price'])
-                })
+            table.on('edit(order_table)', function(obj){
+                $('#practical_price').val(obj.value)
 
-                $('#practical_price').val(total_pirce)
-
-            })
+            });
 
             ea.listen(function (data) {
                 let d = table.cache['order_table']

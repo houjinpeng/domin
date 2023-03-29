@@ -55,7 +55,7 @@ class NodAccountInfo extends TimeModel
     //关联销售人
     public function getSaleUser()
     {
-        return $this->belongsTo(NodSaleUser::class, 'sale_user_id', 'id');
+        return $this->belongsTo(SystemAdmin::class, 'sale_user_id', 'id');
     }
 
     //关联收付款类型

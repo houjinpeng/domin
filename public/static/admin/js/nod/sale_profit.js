@@ -42,7 +42,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                     {field: 'sale_user_id', search:false,minWidth: 168,  title: '销售员',templet:function (d) {
                             if (d.getSaleUser){
-                                return d.getSaleUser.name
+                                return d.getSaleUser.username
                             }
                             return ''
                         }},
@@ -67,6 +67,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 return '退款 ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+d.price+'元'
                             }else if (d.category === '销售退货单'){
                                 return '退款 ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+-d.price+'元'
+                            }else if (d.category === '费用单'){
+                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
+                            }else if (d.category === '其他收入单'){
+                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
                             }
                         }},
 

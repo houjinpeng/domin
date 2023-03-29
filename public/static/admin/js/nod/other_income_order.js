@@ -3,11 +3,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'nod.capital.receipt/index',
-        add_url: 'nod.capital.receipt/add',
-        audit_url: 'nod.audit.receipt_and_payment/audit?type=receipt',
-        edit_url: 'nod.capital.receipt/edit',
-        chexiao_url: 'nod.capital.receipt/chexiao',
+        index_url: 'nod.other_income_order/index',
+        add_url: 'nod.other_income_order/add',
+        audit_url: 'nod.other_income_order/audit',
+        edit_url: 'nod.other_income_order/edit',
+        chexiao_url: 'nod.other_income_order/chexiao',
 
 
     };
@@ -15,12 +15,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
         return !isNaN(parseFloat(value)) && isFinite(value);
 
     }
-
     var Controller = {
 
-
-
         index: function () {
+            var warehouse_select_list = ea.getSelectList('NodWarehouse','id,name')
             var account_select_list = ea.getSelectList('NodAccount','id,name')
             var supplier_select_list = ea.getSelectList('NodSupplier','id,name')
             var user_select_list = ea.getSelectList('SystemAdmin','id,username')
@@ -134,11 +132,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
             var form = layui.form;
             var all_data = null;
 
-
-
             var category_select_list = ea.getSelectList('NodCategory','id,name')
 
-            let html_select = '<select name="category_id" lay-verify="required">'
+            let html_select = ' <select name="category_id" lay-verify="required">'
             var select_dict = {}
 
 
@@ -151,9 +147,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
             }
 
             html_select +=   '</select>'
-
-            // html_select = get_select('')
-
             function get_select(select_name){
                 let h = ' <select name="category_id" lay-verify="required">'
                 for (let index in category_select_list){
@@ -187,10 +180,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 page: false ,//开启分页,
                 cols: [[ //表头
                     {field: 'index', title: '列', width: 70}
-                    // , {field: 'category_id', title: '收款类别', minWidth: 180,templet:'#selectCategory'}
                     , {field: 'category_id', title: '收款类别', minWidth: 180}
+
                     , {field: 'unit_price', title: '收款金额', minWidth: 110, edit: true}
                     , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
+                    // , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
 
                 ]]
                 ,
@@ -266,22 +260,22 @@ define(["jquery", "easy-admin"], function ($, ea) {
             });
 
 
-            $('#reset').click(function () {
-                $('input').val('')
-                table.reload('order_table',{data:[{
-                        index: 1,
-                        category: html_select,
-                        remark: '',
-                        total_price: '',
-                    }],limit:100000})
-
-            })
-
-
             table.on('edit(order_table)', function(obj){
                 $('#practical_price').val(obj.value)
 
             });
+
+            $('#reset').click(function () {
+                $('input').val('')
+                table.reload('order_table',{data:[{
+                        index: 1,
+                        category: '',
+                        remark: '',
+                        unit_price: '',
+                    }],limit:100000})
+
+            })
+
 
             ea.listen(function (data) {
                 let d = table.cache['order_table']
@@ -296,9 +290,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
 
                 data['goods'] = new_data
+
                 return {data: JSON.stringify(data)}
 
             });
+
         },
 
 
@@ -462,7 +458,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             });
 
-
             ea.listen(function (data) {
                 let d = table.cache['order_table']
 
@@ -480,6 +475,183 @@ define(["jquery", "easy-admin"], function ($, ea) {
             });
         },
 
+
+        audit:function () {
+            var laydate = layui.laydate;
+            var table = layui.table;
+            var all_data = null;
+            var form = layui.form;
+
+            var category_select_list = ea.getSelectList('NodCategory','id,name')
+
+            var select_dict_v = {}
+            let html_select = '<select name="category_id">'
+            var select_dict = {}
+
+
+            for (let index in category_select_list){
+
+                let v = category_select_list[index]['id']
+                let name =  category_select_list[index]['name']
+                select_dict[v] = name
+                select_dict_v[name] = v
+                html_select +='<option value="'+v+'">'+name+'</option>'
+            }
+            html_select +=   '</select>'
+            function get_select_id(select_id){
+                let h = ' <select name="category_id" lay-verify="required">'
+                for (let index in category_select_list){
+                    let v = category_select_list[index]['id']
+                    let name = category_select_list[index]['name']
+
+                    if (select_id === v){
+                        h +='<option value="'+v+'" selected>'+name+'</option>'
+                    }else{
+                        h +='<option value="'+v+'" >'+name+'</option>'
+                    }
+
+                }
+                h +=   '</select>'
+                return h
+            }
+            function get_select(select_name){
+                let h = ' <select name="category_id" lay-verify="required">'
+                for (let index in category_select_list){
+
+                    let v = category_select_list[index]['id']
+                    let name = category_select_list[index]['name']
+                    select_dict[name] = v
+                    if (select_name === name){
+                        h +='<option value="'+v+'" selected>'+name+'</option>'
+                    }else{
+                        h +='<option value="'+v+'" >'+name+'</option>'
+                    }
+
+                }
+                h +=   '</select>'
+                return h
+            }
+            laydate.render({
+                elem: '#order_time' //指定元素
+                ,type: 'datetime'
+            });
+
+            var good_list = JSON.parse($('#all_good').val())
+
+
+            var good_l = []
+            good_list.forEach(function (item,index) {
+                good_l.push({
+                    index:index+1,
+                    id:item['id'],
+                    unit_price:item['unit_price'],
+                    remark:item['remark'],
+                    category_id:get_select_id(item['category_id']),
+                })
+            })
+
+
+            //初始化表格
+            table.render({
+                elem: '#order_table'
+                ,height: 'full-300'
+                ,limit:10000
+                ,page: false //开启分页
+                ,cols: [[ //表头
+                    {field: 'index', title: '列', width:70}
+                    ,{field: 'id', title: 'ID', width:70}
+                    , {field: 'category_id', title: '收款类别', minWidth: 180}
+                    , {field: 'unit_price', title: '收款金额', minWidth: 110, edit: true}
+                    , {field: 'remark', title: '备注信息', minWidth: 110, edit: true}
+                    // , {field: '#', title: '操作', width: 70, toolbar: '#barDemo'}
+
+                ]]
+                ,data:good_l
+                ,done:function (data) {
+
+                    $(".layui-form").parent().css('overflow', 'visible');//sel_action为下拉框class
+
+                    form.render('select');
+                }
+            });
+            //工具条事件
+            table.on('tool(order_table)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                all_data = table.cache['order_table']
+
+                if (layEvent === 'del') { //删除
+                    if (all_data.length === 1) {
+                        layer.msg('不能再删除了，就剩下一行了~~', {icon: 2})
+                        return
+                    }
+                    obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                    let ls_data = table.cache['order_table']
+                    let new_table_data = [];
+                    let index = 0
+                    ls_data.forEach(function (item,index_c) {
+                        if (item !== [] && item['LAY_TABLE_INDEX'] !== undefined) {
+                            let category = $($($('.layui-table tr').eq(index_c+1)).find('td')[2]).find('.layui-this').html()
+                            let cate_select = get_select(category)
+
+                            item['index'] = index + 1
+                            item['category_id'] = cate_select
+                            index += 1
+
+                            new_table_data.push(item)
+                        }
+                    })
+
+                    table.reload('order_table', {data: new_table_data, limit: 10000})
+
+                } else if (layEvent === 'add') {
+                    let ls_data = table.cache['order_table']
+                    let index = 0
+                    let new_table_data = [];
+                    ls_data.forEach(function (item,index_c) {
+                        let category = $($($('.layui-table tr').eq(index_c+1)).find('td')[2]).find('.layui-this').html()
+                        let cate_select = get_select(category)
+                        item['index'] = index + 1
+                        item['category_id'] = cate_select
+                        new_table_data.push(item)
+                        index +=1
+                    })
+
+                    new_table_data.push({
+                        index: index + 1,
+                        unit_price: '',
+                        remark: '',
+                        category_id: html_select,
+                    })
+
+
+                    table.reload('order_table', {data: new_table_data, limit: 10000})
+
+
+                }
+            });
+
+            //快捷录入单据金额
+            table.on('edit(order_table)', function(obj){
+                $('#practical_price').val(obj.value)
+
+            });
+
+            ea.listen(function (data) {
+                let d = table.cache['order_table']
+
+                let new_data = []
+                d.forEach(function (item,index_c) {
+                    let category = $($($('.layui-table tr').eq(index_c+1)).find('td')[2]).find('.layui-this').html()
+                    item['category_id'] = select_dict_v[category]
+                    new_data.push(item)
+                })
+
+                data['goods'] = new_data
+
+                return {data: JSON.stringify(data)}
+
+            });
+        }
     };
     return Controller;
 });
