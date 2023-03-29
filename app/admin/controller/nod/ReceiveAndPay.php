@@ -51,7 +51,7 @@ class ReceiveAndPay extends AdminController
                 ->order($this->sort)
                 ->select()->toArray();
 
-            $list2 = $this->model
+            $list2 = $this->supplier_model
                 ->where($where)
                 ->page($page, $limit)
                 ->order($this->sort)
