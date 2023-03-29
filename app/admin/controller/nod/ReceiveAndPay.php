@@ -30,6 +30,7 @@ class ReceiveAndPay extends AdminController
     {
         parent::__construct($app);
         $this->model = new NodCustomerManagement();
+        $this->supplier_model = new NodSupplier();
 
 
     }
@@ -41,19 +42,45 @@ class ReceiveAndPay extends AdminController
     {
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
-            $count = $this->model
-                ->where($where)
-                ->count();
-            $list = $this->model
-                ->withoutField('password')
+
+
+
+            $list1 = $this->model
                 ->where($where)
                 ->page($page, $limit)
                 ->order($this->sort)
-                ->select();
+                ->select()->toArray();
+
+            $list2 = $this->model
+                ->where($where)
+                ->page($page, $limit)
+                ->order($this->sort)
+                ->select()->toArray();
+
+
+            $list = [];
+            foreach ($list1 as $item){
+                if ($item['receivable_price'] == 0) continue;
+                $list[] = [
+                    'name'=>'客户 '.$item['name'],
+                    'receivable_price'=>$item['receivable_price'],
+
+                ];
+            }
+            foreach ($list2 as $item){
+                if ($item['receivable_price'] == 0) continue;
+                $list[] = [
+                    'name'=>'渠道 '.$item['name'],
+                    'receivable_price'=>$item['receivable_price'],
+
+                ];
+            }
+
+
             $data = [
                 'code'  => 0,
                 'msg'   => '',
-                'count' => $count,
+                'count' => count($list),
                 'data'  => $list,
             ];
 

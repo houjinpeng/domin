@@ -18,7 +18,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 toolbar:['refresh'],
                 limits:[15,30,50],
                 cols: [[
-                    {field: 'name', minWidth: 180, title: '客户名'},
+                    {field: 'name', minWidth: 180, title: '渠道|名字'},
                     {field: 'receivable_price', minWidth: 180, title: '应收款',templet:function (d) {
                             if (d.receivable_price < 0){
                                 return '<font color="red">'+d.receivable_price+'</font>'
