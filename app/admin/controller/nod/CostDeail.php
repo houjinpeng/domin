@@ -43,26 +43,22 @@ class CostDeail extends AdminController
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
 //            $whereOr = [['type','=',4],['type','=',5],['type','=',8],['type','=',9]];
-            $whereOr = [['type','=',1],['type','=',2],['type','=',3],['type','=',6]];
+//            $whereOr = [['type','=',1],['type','=',2],['type','=',3],['type','=',6]];
+            $where[] = ['type','=',8];
             //查询销售费用单id
-            $cate = $this->category_model->where('name','=','销售费用')->find();
-            if (!empty($cate)){
-                $whereOr[] = ['category_id','=',$cate['id']];
-            }
+//            $cate = $this->category_model->where('name','=','销售费用')->find();
+//            if (!empty($cate)){
+//                $where[] = ['category_id','<>',$cate['id']];
+//            }
             $list = $this->account_info_model
                 ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser','getCategory'],'left')
                 ->where($where)
                 ->page($page, $limit)
                 ->order('id','desc')
-                ->where(function ($query) use ($whereOr){
-                    $query->whereOr($whereOr);
-                })
+
                 ->select()->toArray();
 
             $count = $this->account_info_model->where($where)
-                ->where(function ($query) use ($whereOr){
-                    $query->whereOr($whereOr);
-                })
                 ->count();
 
 
