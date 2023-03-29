@@ -377,6 +377,7 @@ class ExpenseList extends AdminController
             $all_balance_price -= intval($order_info['unit_price']);
             //利润
             $profit_price = 0;
+            $total_profit_price = 0;
             //费用如果带上销售员就扣利润
             if ($post['sale_user_id']){
 //                判断是否是销售费用 如果是要在销售员利润中扣除
@@ -415,7 +416,8 @@ class ExpenseList extends AdminController
                 'receivable_price'  => $receivable_price,//对方欠咱们的钱
             ]);
 
-
+            //修改余额
+            $account_data->save(['balance_price'=>$balance_price]);
 
             $this->success('审核成功~');
 

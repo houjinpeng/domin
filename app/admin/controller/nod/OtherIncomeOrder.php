@@ -401,7 +401,8 @@ class OtherIncomeOrder extends AdminController
                 'receivable_price'  => $receivable_price,//对方欠咱们的钱
             ]);
 
-
+            //修改余额
+            $account_data->save(['balance_price'=>$balance_price]);
             $this->success('审核成功~');
 
         }
