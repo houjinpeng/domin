@@ -42,7 +42,7 @@ class SaleProfit extends AdminController
     {
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
-            $whereOr = [['type','=',3],['type','=',6],['type','=',9]];
+            $whereOr = [['type','=',3],['type','=',6],['type','=',8],['type','=',9]];
             $where[] = ['sale_user_id','<>','null'];
             //查询销售费用单id
             $cate = $this->category_model->where('name','=','销售费用')->find();
