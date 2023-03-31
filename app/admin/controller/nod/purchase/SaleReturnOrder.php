@@ -93,6 +93,7 @@ class SaleReturnOrder extends AdminController
                 'customer|【客户】' => 'require',
                 'sale_user_id|【销售员】' => 'require',
                 'account_id|【账户】' => 'require|number',
+                'warehouse_id|【仓库】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实退金额】' => 'number|require',
             ];
@@ -175,6 +176,7 @@ class SaleReturnOrder extends AdminController
                 'remark' => $post['remark'],
                 'account_id' => $post['account_id'],
                 'customer_id' =>$customer_id,
+                'warehouse_id' => $post['warehouse_id'],
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
                 'audit_status' => 0,//审核状态
@@ -194,7 +196,7 @@ class SaleReturnOrder extends AdminController
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'category' =>'销售退货',
                     'pid' => $pid,
-                    'warehouse_id' => $ym_caigou_data[$item['good_name']]['warehouse_id'],
+                    'warehouse_id' => $post['warehouse_id'],
                     'customer_id' => $customer_id,
                     'account_id' => $post['account_id'],
                     'supplier_id' => $ym_caigou_data[$item['good_name']]['supplier_id'],
@@ -211,6 +213,10 @@ class SaleReturnOrder extends AdminController
         }
         $account_list = $this->account_model->field('id,name')->select()->toArray();
         $this->assign('admin', session('admin'));
+
+        $warehouse_list = $this->warehouse_model->field('id,name')->select()->toArray();
+
+        $this->assign('warehouse_list', $warehouse_list);
 
         $this->assign('account_list', $account_list);
         return $this->fetch();
@@ -242,6 +248,7 @@ class SaleReturnOrder extends AdminController
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户】' => 'require',
                 'account_id|【账户】' => 'require|number',
+                'warehouse_id|【仓库】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实收金额】' => 'number|require',
                 'sale_user_id|【销售员】' => 'require',
@@ -320,6 +327,7 @@ class SaleReturnOrder extends AdminController
                 'remark' => $post['remark'],
                 'account_id' => $post['account_id'],
                 'customer_id' =>$customer_id,
+                'warehouse_id' => $post['warehouse_id'],
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
                 'sale_user_id'=>$post['sale_user_id'],
@@ -337,6 +345,7 @@ class SaleReturnOrder extends AdminController
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
                         'sale_time' => $item['sale_time'],
+                        'warehouse_id' => $post['warehouse_id'],
                         'sale_user_id'=>$post['sale_user_id'],
                     ];
                     $this->order_info_model->where('id','=',$item['id'])->update($save_info);
@@ -349,7 +358,7 @@ class SaleReturnOrder extends AdminController
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'category' =>'销售退货',
                         'pid' => $id,
-                        'warehouse_id' => $ym_caigou_data[$item['good_name']]['warehouse_id'],
+                        'warehouse_id' => $post['warehouse_id'],
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
                         'supplier_id' => $ym_caigou_data[$item['good_name']]['supplier_id'],
@@ -376,6 +385,9 @@ class SaleReturnOrder extends AdminController
         $all_goods= $this->order_info_model->where('pid','=',$id)->select()->toArray();
         $this->assign('all_goods',json_encode($all_goods));
         $this->assign('data',$data);
+        $warehouse_list = $this->warehouse_model->field('id,name')->select()->toArray();
+
+        $this->assign('warehouse_list', $warehouse_list);
 
 
         $this->assign('account_list', $account_list);

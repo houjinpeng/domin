@@ -2,7 +2,17 @@
     <div class="layuimini-main">
         <form class="layui-form" lay-filter="order_form" >
             <div class="layui-form-item">
-
+                <div class="layui-inline">
+                    <label class="layui-form-label">仓库</label>
+                    <div class="layui-input-inline" style="width: 130px;">
+                        <select name="warehouse_id" lay-verify="required">
+                            <option value=""></option>
+                            {foreach $warehouse_list as $item}
+                            <option value="{$item['id']}">{$item['name']}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
                 <div class="layui-inline">
                     <label class="layui-form-label ">客户</label>
                     <div class="layui-input-inline" style="width: 130px;">

@@ -74,6 +74,10 @@ class ReturnGood extends AdminController
                 'paid_price|【实付金额】' => 'number|require',
             ];
             $this->validate($post, $order_info_rule);
+
+            //检查单据金额是否与内容一样
+            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
+
             if (count($post['goods']) == 0) {
                 $this->error('不能一个也不提交吧~');
             }
@@ -516,7 +520,7 @@ class ReturnGood extends AdminController
                         'practical_price'   => $item['unit_price'],//单据实际价格
                         'account_id'        => $row['account_id'], // 账户id
                         'sale_user_id'      => $row['sale_user_id'],//销售人员
-                        'supplier_id'       => $row['supplier_id'],//渠道id
+                        'supplier_id'       => $ym_caigou_data[$item['good_name']]['supplier_id'],//渠道id
                         'warehouse_id'      => $row['warehouse_id'],//仓库id
                         'customer_id'       => $row['customer_id'],//客户id
                         'order_id'          => $row['id'],//订单id
@@ -718,7 +722,9 @@ class ReturnGood extends AdminController
 
 
 
+        $warehouse_list = $this->warehouse_model->field('id,name')->select()->toArray();
 
+        $this->assign('warehouse_list', $warehouse_list);
         //查询为审核的订单
         $data = $this->order_model
             ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer'],'left')

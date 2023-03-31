@@ -8,6 +8,18 @@
             <div class="layui-form-item">
                 {if $type=='sale'}
                     <div class="layui-inline">
+                        <label class="layui-form-label">仓库</label>
+                        <div class="layui-input-inline" style="width: 130px;">
+                            <select name="warehouse_id" lay-verify="required">
+                                <option value=""></option>
+                                {foreach $warehouse_list as $item}
+                                <option value="{$item['id']}" {if $data['warehouse_id'] == $item['id'] }selected{/if}>{$item['name']}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
                         <label class="layui-form-label ">客户</label>
                         <div class="layui-input-inline" style="width: 130px;">
                             <input readonly name="customer" required placeholder="请输客户名" value="{$data['getCustomer']['name']|default=''}" lay-verify="required" type="text" class="layui-input" >

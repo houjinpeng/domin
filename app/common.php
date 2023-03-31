@@ -263,3 +263,21 @@ if (!function_exists('get_total_receivable_price')) {
     }
 
 }
+
+if (!function_exists('check_practical_price')) {
+    /**
+     * @return mixed
+     * 检查单据金额和订单金额是否一样
+     */
+    function check_practical_price($practical_price,$item){
+        $price = 0;
+
+        foreach ($item as $v){
+            $price += intval($v['unit_price']);
+        }
+        return intval($practical_price) == $price;
+
+
+    }
+
+}

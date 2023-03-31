@@ -98,6 +98,9 @@ class Purchase extends AdminController
                 'paid_price|【实付金额】' => 'number|require',
             ];
             $this->validate($post, $order_info_rule);
+            //检查单据金额是否与内容一样
+            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
+
             if (count($post['goods']) == 0) {
                 $this->error('不能一个也不提交吧~');
             }
@@ -498,8 +501,8 @@ class Purchase extends AdminController
                                 'total_profit_price'=> $total_profit_price,//总利润
                                 'account_id'        => $row['account_id'], // 账户id
                                 'sale_user_id'      => $row['sale_user_id'],//销售人员
-                                'supplier_id'       => $row['supplier_id'],//渠道id
-                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'supplier_id'       => $ym_dict[$it['good_name']]['supplier_id'],//渠道id
+                                'warehouse_id'      => $ym_dict[$it['good_name']]['warehouse_id'],//仓库id
                                 'customer_id'       => $row['customer_id'],//客户id
                                 'order_id'          => $row['id'],//订单id
                                 'practical_price'   => $item['unit_price'],
@@ -533,8 +536,8 @@ class Purchase extends AdminController
                                 'total_profit_price'=> $total_profit_price,//总利润
                                 'account_id'        => $row['account_id'], // 账户id
                                 'sale_user_id'      => $row['sale_user_id'],//销售人员
-                                'supplier_id'       => $row['supplier_id'],//渠道id
-                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'supplier_id'       =>  $ym_dict[$it['good_name']]['supplier_id'],//渠道id
+                                'warehouse_id'      =>  $ym_dict[$it['good_name']]['warehouse_id'],//仓库id
                                 'customer_id'       => $row['customer_id'],//客户id
                                 'order_id'          => $row['id'],//订单id
                                 'practical_price'   => $item['unit_price'],//实际金额
@@ -571,8 +574,8 @@ class Purchase extends AdminController
                                 'total_profit_price'=> $total_profit_price ,//总利润
                                 'account_id'        => $row['account_id'], // 账户id
                                 'sale_user_id'      => $row['sale_user_id'],//销售人员
-                                'supplier_id'       => $row['supplier_id'],//渠道id
-                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'supplier_id'       =>  $ym_dict[$it['good_name']]['supplier_id'],//渠道id
+                                'warehouse_id'      =>  $ym_dict[$it['good_name']]['warehouse_id'],//仓库id
                                 'customer_id'       => $row['customer_id'],//客户id
                                 'order_id'          => $row['id'],//订单id
                                 'practical_price'   => $item['unit_price'],
@@ -607,8 +610,8 @@ class Purchase extends AdminController
                             'total_profit_price'=> $is_compute_profit == 0 ? $total_profit_price:$total_profit_price +$item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//总利润
                             'account_id'        => $row['account_id'], // 账户id
                             'sale_user_id'      => $row['sale_user_id'],//销售人员
-                            'supplier_id'       => $row['supplier_id'],//渠道id
-                            'warehouse_id'      => $row['warehouse_id'],//仓库id
+                            'supplier_id'       =>  $ym_dict[$it['good_name']]['supplier_id'],//渠道id
+                            'warehouse_id'      =>  $ym_dict[$it['good_name']]['warehouse_id'],//仓库id
                             'customer_id'       => $row['customer_id'],//客户id
                             'order_id'          => $row['id'],//订单id
                             'practical_price'   => $item['unit_price'],

@@ -89,7 +89,8 @@ class Payment extends AdminController
             ];
 
             $this->validate($post, $order_info_rule);
-
+            //检查单据金额是否与内容一样
+            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
             $rule = [
                 'category_id|【付款类别】' => 'number|require',
                 'unit_price|【付款金额】' => 'number|require',
@@ -190,7 +191,8 @@ class Payment extends AdminController
             ];
 
             $this->validate($post, $order_info_rule);
-
+            //检查单据金额是否与内容一样
+            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
 
             $rule = [
                 'category_id|【付款类别】' => 'require',
