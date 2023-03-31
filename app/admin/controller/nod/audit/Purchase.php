@@ -319,7 +319,7 @@ class Purchase extends AdminController
                             'good_name'         => $item['good_name'], //商品名称
                             'remark'            => $item['remark'], //备注
                             'price'             => -$item['unit_price'], //实际付款价格
-                            'practical_price'   => $post['unit_price'],//单据实际价格
+                            'practical_price'   => $item['unit_price'],//单据实际价格
                             'cost_price'        => $item['unit_price'], //成本价格
                             'account_id'        => $row['account_id'], // 账户id
                             'sale_user_id'      => $row['sale_user_id'],//销售人员
