@@ -7,12 +7,27 @@
         <form class="layui-form">
             <div class="layui-form-item">
 
-                <div class="layui-inline">
-                    <label class="layui-form-label ">客户</label>
-                    <div class="layui-input-inline" style="width: 130px;">
-                        <input readonly name="customer" required placeholder="请输客户名" value="{$data['getCustomer']['name']|default=''}" lay-verify="required" type="text" class="layui-input" >
+
+                {if $type =='payment'}
+                    <div class="layui-inline">
+                        <label class="layui-form-label ">来源渠道</label>
+                        <div class="layui-input-inline" style="width: 130px;">
+                            <select name="supplier_id" lay-verify="required">
+                                <option value=""></option>
+                                {foreach $supplier_list as $item}
+                                <option value="{$item['id']}" {if $data['supplier_id'] == $item['id']} selected{/if}>{$item['name']}</option>
+                                {/foreach}
+                            </select>
+                        </div>
                     </div>
-                </div>
+                {else}
+                    <div class="layui-inline">
+                        <label class="layui-form-label ">客户</label>
+                        <div class="layui-input-inline" style="width: 130px;">
+                            <input readonly name="customer" required placeholder="请输客户名" value="{$data['getCustomer']['name']|default=''}" lay-verify="required" type="text" class="layui-input" >
+                        </div>
+                    </div>
+                {/if}
 
 
                 <div class="layui-inline">

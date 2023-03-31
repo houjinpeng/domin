@@ -5,6 +5,7 @@ namespace app\admin\controller\nod\purchase;
 
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
+use app\admin\model\NodAccountInfo;
 use app\admin\model\NodCustomerManagement;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
@@ -32,8 +33,8 @@ class SaleReturnOrder extends AdminController
         $this->model = new NodAccount();
         $this->kehu_model = new NodCustomerManagement();
         $this->warehouse_model = new NodWarehouse();
-        $this->warehouse_info_model = new NodWarehouseInfo();
         $this->account_model = new NodAccount();
+        $this->account_info_model = new NodAccountInfo();
         $this->order_model = new NodOrder();
         $this->order_info_model = new NodOrderInfo();
         $this->inventory_model = new NodInventory();
@@ -81,9 +82,10 @@ class SaleReturnOrder extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('实收金额不能为0');
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-
+            $post['practical_price'] = intval($post['practical_price'] );
+            $post['paid_price'] = intval($post['paid_price'] );
+            if ($post['practical_price'] != $post['paid_price']) $this->error('实际金额和单据金额不等！');
 
 
             $order_info_rule = [
@@ -116,49 +118,16 @@ class SaleReturnOrder extends AdminController
                 $this->validate($item, $rule);
             }
 
-//            //查找域名是否已经被销售
-//            $sale_good = $this->warehouse_info_model->where('good_category','=',3)->where('good_name','in',$ym_list)->select()->toArray();
-//
-//
-//            $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
-//            if (count($inventory_data)!=0){
-//                $this->error('库存中有此商品，不能再次退货！');
-//            }
-//
-//
-//            $ym_dict = [];
-//
-//            foreach ($sale_good as $it){
-//                $ym_dict[$it['good_name']] = $it;
-//            }
-//            //如果不相等 查询差的
-//            if (count($sale_good) != count($ym_list)){
-//                $inventory_list = [];
-//                foreach ($sale_good as $it){
-//                    $ym_dict[$it['good_name']] = $it;
-//                    $inventory_list[] = $it['good_name'];
-//                }
-//                $dif = array_diff($ym_list,$inventory_list);
-//                $this->error('下列商品没有出售，不能进行退货处理 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
-//            }
 
-            $ym_list = [];
-            //验证
-            foreach ($post['goods'] as $item) {
-                $ym_list[] = $item['good_name'];
-                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
-                $item['unit_price'] = intval($item['unit_price']);
-                $this->validate($item, $rule);
-            }
             $not_ym_list = [];
             $ym_caigou_data = [];//采购数据
             $ym_xiaoshou_data = [];//销售数据
             //查询库存明细中的商品 判断是否已销售
             foreach ($post['goods'] as $item){
                 //查询域名成本价
-                $ym_data = $this->warehouse_info_model->where('good_name','=',$item['good_name'])->where('good_category','=',1)->order('id','desc')->find();
+                $ym_data = $this->account_info_model->where('good_name','=',$item['good_name'])->where('type','=',3)->order('id','desc')->find();
                 //域名销售数据
-                $ym_sale_data = $this->warehouse_info_model->where('good_name','=',$item['good_name'])->where('good_category','=',3)->order('id','desc')->find();
+                $ym_sale_data = $this->account_info_model->where('good_name','=',$item['good_name'])->where('type','=',3)->order('id','desc')->find();
                 if (empty($ym_data) || empty($ym_sale_data)){
                     $not_ym_list[] = $item['good_name'];
                     continue;
@@ -180,10 +149,10 @@ class SaleReturnOrder extends AdminController
                 $this->error('库存中有此商品，不能再次退货！');
             }
 
-            //判断退货价是否大于售货价
+            //判断退货价是否等于售货价
             foreach ($post['goods'] as $item){
-                if ($ym_xiaoshou_data[$ym_sale_data['good_name']]['unit_price'] < $item['unit_price']){
-                    $this->error('域名【'.$item['good_name'].'】销售价:'.$ym_xiaoshou_data[$ym_sale_data['good_name']]['unit_price'].'退货价:'.$item['unit_price'].'  退货价不能高于销售价！');
+                if ($ym_xiaoshou_data[$item['good_name']]['practical_price'] != $item['unit_price']){
+                    $this->error('域名【'.$item['good_name'].'】销售价:'.$ym_xiaoshou_data[$item['good_name']]['practical_price'].'退货价:'.$item['unit_price'].'  退货价与销售价不等！');
                 }
             }
 
@@ -264,10 +233,10 @@ class SaleReturnOrder extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('实收金额不能为0');
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
             $post['practical_price'] = intval($post['practical_price'] );
             $post['paid_price'] = intval($post['paid_price'] );
+            if ($post['practical_price'] != $post['paid_price']) $this->error('实际金额不能大于单据金额！');
 
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
@@ -299,28 +268,41 @@ class SaleReturnOrder extends AdminController
             }
 
             //查找域名是否已经被销售
-            $sale_good = $this->warehouse_info_model->where('good_category','=',3)->where('good_name','in',$ym_list)->select()->toArray();
+            $not_ym_list = [];
+            $ym_caigou_data = [];//采购数据
+            $ym_xiaoshou_data = [];//销售数据
+            //查询库存明细中的商品 判断是否已销售
+            foreach ($post['goods'] as $item){
+                //查询域名成本价
+                $ym_data = $this->account_info_model->where('good_name','=',$item['good_name'])->where('type','=',3)->order('id','desc')->find();
+                //域名销售数据
+                $ym_sale_data = $this->account_info_model->where('good_name','=',$item['good_name'])->where('type','=',3)->order('id','desc')->find();
+                if (empty($ym_data) || empty($ym_sale_data)){
+                    $not_ym_list[] = $item['good_name'];
+                    continue;
+                }
+                //域名采购时的数据
+                $ym_caigou_data[$ym_data['good_name']] = $ym_data->toArray();
+                //域名销售数据
+                $ym_xiaoshou_data[$ym_sale_data['good_name']] = $ym_sale_data->toArray();
+            }
+
+
+
+            if (count($not_ym_list) != 0){
+                $this->error('下列商品没有出售过不能退货~ 共：'.count($not_ym_list).'个<br>'.join("<br>",$not_ym_list),wait: 10);
+            }
 
 
             $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
             if (count($inventory_data)!=0){
                 $this->error('库存中有此商品，不能再次退货！');
             }
-
-            $ym_dict = [];
-
-            foreach ($sale_good as $it){
-                $ym_dict[$it['good_name']] = $it;
-            }
-            //如果不相等 查询差的
-            if (count($sale_good) != count($ym_list)){
-                $inventory_list = [];
-                foreach ($sale_good as $it){
-                    $ym_dict[$it['good_name']] = $it;
-                    $inventory_list[] = $it['good_name'];
+            //判断退货价是否等于售货价
+            foreach ($post['goods'] as $item){
+                if ($ym_xiaoshou_data[$item['good_name']]['practical_price'] != $item['unit_price']){
+                    $this->error('域名【'.$item['good_name'].'】销售价:'.$ym_xiaoshou_data[$item['good_name']]['practical_price'].'退货价:'.$item['unit_price'].'  退货价和销售价不等！');
                 }
-                $dif = array_diff($ym_list,$inventory_list);
-                $this->error('下列商品没有出售，不能进行退货处理 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
             }
 
 
@@ -367,10 +349,10 @@ class SaleReturnOrder extends AdminController
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'category' =>'销售退货',
                         'pid' => $id,
-                        'warehouse_id' => $ym_dict[$item['good_name']]['warehouse_id'],
+                        'warehouse_id' => $ym_caigou_data[$item['good_name']]['warehouse_id'],
                         'customer_id' => $customer_id,
                         'account_id' => $post['account_id'],
-                        'supplier_id' => $ym_dict[$item['good_name']]['supplier_id'],
+                        'supplier_id' => $ym_caigou_data[$item['good_name']]['supplier_id'],
 
                         'order_time' => $post['order_time'],
                         'sale_user_id'=>$post['sale_user_id'],

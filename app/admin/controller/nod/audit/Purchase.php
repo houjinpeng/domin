@@ -4,6 +4,7 @@
 
 namespace app\admin\controller\nod\audit;
 
+use app\admin\controller\Tool;
 use app\admin\model\NodAccount;
 use app\admin\model\NodAccountInfo;
 use app\admin\model\NodCustomerManagement;
@@ -41,7 +42,6 @@ class Purchase extends AdminController
         $this->order_info_model = new NodOrderInfo();
         $this->inventory_model = new NodInventory();
         $this->customer_model = new NodCustomerManagement();
-
     }
 
     /**
@@ -89,9 +89,12 @@ class Purchase extends AdminController
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
             $post['practical_price'] = intval($post['practical_price']);
             $post['paid_price'] = intval($post['paid_price']);
+            if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
+
+
             //验证
             $order_info_rule = [
-                'practical_price|【实际金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实付金额】' => 'number|require',
             ];
             $this->validate($post, $order_info_rule);
@@ -100,7 +103,6 @@ class Purchase extends AdminController
             }
             //采购单审核
             if ($type=='stock'){
-
                 $rule = [
                     'good_name|【商品信息】' => 'require',
                     'unit_price|【购货单价】' => 'number|require',
@@ -121,9 +123,6 @@ class Purchase extends AdminController
                 if (count($exist)!== 0) $this->error('有商品已经在库存中~ 不能再次添加 审核失败！');
 
 
-
-
-
                 $save_order = [
                     'practical_price'=>$post['practical_price'],
                     'paid_price'=>$post['paid_price'],
@@ -133,8 +132,6 @@ class Purchase extends AdminController
                 //获取pid 修改单据审核状态保存商品详情
                 $update = $row->save($save_order);
                 $update || $this->error('审核失败~');
-
-                //判断是采购审批还是销货审批
 
 
                 //商品入库
@@ -191,57 +188,156 @@ class Purchase extends AdminController
                 //存入库存表
                 $this->inventory_model->insertAll($insert_inventory_all);
 
-                //扣款
+                //获取账户余额
                 $account_data = $this->account_model->find($row['account_id']);
-
+                $balance_price = $account_data['balance_price'];
                 //获取总账户余额
                 $all_balance_price = $this->account_model->sum('balance_price');
 
-                //应收款  如果实际付款金额与订单金额不符合 会产生欠款情况
-                $receivable_price = 0;
-                if ($post['practical_price'] != $post['paid_price']){
-                    $receivable_price =  $post['paid_price'] - $post['practical_price'];
 
-                    //获取来源渠道id 的欠款记录 更新
-                    $account_row = $this->supplier_model->find($row['supplier_id']);
-                    $account_row->save([
-                        'receivable_price'=>$account_row['receivable_price'] + $receivable_price,
-                    ]);
+                //每次入库金额减去支付金额 如果小于0 则是应付款
+                $paid_price = $post['paid_price'];
+                // 单据 100  实付 1
 
-
-                }
-
-                $insert_account_info = [];
                 //遍历所有单据 录入明细中
-                $balance_price = $account_data['balance_price'];
                 foreach ($post['goods'] as $item){
-                    $balance_price -= intval($item['unit_price']);
-                    $all_balance_price -= intval($item['unit_price']);
-                    $insert_account_info[] = [
-                        'sz_type'           => 2, //1收入 2支出
-                        'category'          => '采购单',
-                        'type'              => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
-                        'good_name'         => $item['good_name'], //商品名称
-                        'remark'            => $item['remark'], //备注
-                        'price'             => -$item['unit_price'], //价格
-                        'account_id'        => $row['account_id'], // 账户id
-                        'sale_user_id'      => $row['sale_user_id'],//销售人员
-                        'supplier_id'       => $row['supplier_id'],//渠道id
-                        'warehouse_id'      => $row['warehouse_id'],//仓库id
-                        'customer_id'       => $row['customer_id'],//客户id
-                        'order_id'          => $row['id'],//订单id
-                        'practical_price'   => $post['practical_price'],
-                        'balance_price'     => $balance_price, //账户余额
-                        'all_balance_price' => $all_balance_price,//总账户余额
-                        'operate_time'      => $row['order_time'],
-                        'receivable_price'  => $receivable_price,
-                        'order_user_id'     => $row['order_user_id'],
-                    ];
+                    //获取供应商id 的欠款记录
+                    $supplier_row = $this->supplier_model->find($row['supplier_id']);
+                    //获取所有供应商应收的金额
+                    $total_supplier_receivable_price = get_total_receivable_price();
+
+                    //每次入库金额减去支付金额 如果小于0 则是应付款
+                    $paid_price -= intval($item['unit_price']);
+                    // 1 -100 = -99
+                    // 支付 单据 = 结果
+                    if ($paid_price < 0){
+                        //判断差了多少钱 补一单 然后补一单应收款
+                        if (intval($item['unit_price']) != -$paid_price){
+                            //正常数据 收款
+                            $save_price = intval($item['unit_price']) + $paid_price;
+                            $balance_price -= $save_price;
+                            $all_balance_price -= intval($save_price);
+
+                            //增加渠道的应付款金额
+                            $supplier_receivable_price = $supplier_row['receivable_price'] + ($paid_price);
+                            $supplier_row->save(['receivable_price'=>$supplier_receivable_price,]);
+
+                            $this->account_info_model->insert( [
+                                'sz_type'           => 2, //1收入 2支出
+                                'category'          => '采购单',
+                                'type'              => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                                'good_name'         => $item['good_name'], //商品名称
+                                'remark'            => $item['remark'], //备注
+                                'price'             => -$save_price, //价格
+                                'cost_price'        => $item['unit_price'], //成本价格
+                                'account_id'        => $row['account_id'], // 账户id
+                                'sale_user_id'      => $row['sale_user_id'],//销售人员
+                                'supplier_id'       => $row['supplier_id'],//渠道id
+                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'customer_id'       => $row['customer_id'],//客户id
+                                'order_id'          => $row['id'],//订单id
+                                'practical_price'   => $item['unit_price'],
+                                'balance_price'     => $balance_price, //账户余额
+                                'all_balance_price' => $all_balance_price,//总账户余额
+                                'operate_time'      => $row['order_time'],// 操作时间
+                                'receivable_price'  => $paid_price, // 应付款 为负数
+                                'order_user_id'     => $row['order_user_id'],
+                                'customer_receivable_price' => $supplier_receivable_price, // 渠道应收应付款金额
+                                'total_customer_receivable_price' =>$total_supplier_receivable_price+$paid_price, // 所有渠道应收应付款金额
+                            ]);
+
+
+                            //补充应付款数据
+                            $this->account_info_model->insert( [
+                                'sz_type'           => 2, //1收入 2支出
+                                'category'          => '应付款',
+                                'type'              => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                                'good_name'         => $item['good_name'], //商品名称
+                                'remark'            => $item['remark'], //备注
+                                'price'             => $paid_price, //实际付款价格
+                                'cost_price'        => $item['unit_price'], //成本价格
+                                'practical_price'   => $item['unit_price'],//单据实际价格
+                                'account_id'        => $row['account_id'], // 账户id
+                                'sale_user_id'      => $row['sale_user_id'],//销售人员
+                                'supplier_id'       => $row['supplier_id'],//渠道id
+                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'customer_id'       => $row['customer_id'],//客户id
+                                'order_id'          => $row['id'],//订单id
+
+                                'balance_price'     => $balance_price, //账户余额
+                                'all_balance_price' => $all_balance_price,//总账户余额
+                                'operate_time'      => $row['order_time'],// 操作时间
+                                'receivable_price'  => $paid_price, // 应付款 为负数
+                                'order_user_id'     => $row['order_user_id'],
+                                'customer_receivable_price' => $supplier_receivable_price, // 渠道应收应付款金额
+                                'total_customer_receivable_price' =>$total_supplier_receivable_price+$paid_price, // 所有渠道应收应付款金额
+                            ]);
+
+                            $paid_price = 0;
+
+                        }
+                        //全部是为0 的 直接全部是付款单
+                        else{
+                            //增加渠道的应付款金额
+                            $supplier_receivable_price = $supplier_row['receivable_price'] + ($paid_price);
+                            $supplier_row->save(['receivable_price'=>$supplier_receivable_price,]);
+                            //补充应付款数据
+                            $this->account_info_model->insert( [
+                                'sz_type'           => 2, //1收入 2支出
+                                'category'          => '应付款',
+                                'type'              => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                                'good_name'         => $item['good_name'], //商品名称
+                                'remark'            => $item['remark'], //备注
+                                'price'             => $paid_price, //实付价
+                                'practical_price'   => $item['unit_price'],//实际单据价格
+                                'cost_price'        => $item['unit_price'], //成本价格
+                                'account_id'        => $row['account_id'], // 账户id
+                                'sale_user_id'      => $row['sale_user_id'],//销售人员
+                                'supplier_id'       => $row['supplier_id'],//渠道id
+                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'customer_id'       => $row['customer_id'],//客户id
+                                'order_id'          => $row['id'],//订单id
+
+                                'balance_price'     => $balance_price, //账户余额
+                                'all_balance_price' => $all_balance_price,//总账户余额
+                                'operate_time'      => $row['order_time'],// 操作时间
+                                'receivable_price'  => $paid_price, // 应付款 为负数
+                                'order_user_id'     => $row['order_user_id'],
+                                'customer_receivable_price' => $supplier_receivable_price, // 渠道应收应付款金额
+                                'total_customer_receivable_price' =>$total_supplier_receivable_price+$paid_price, // 所有渠道应收应付款金额
+                            ]);
+                            $paid_price = 0;
+                        }
+
+                    }
+                    //全部正常采购单
+                    else{
+                        $this->account_info_model->insert( [
+                            'sz_type'           => 2, //1收入 2支出
+                            'category'          => '采购单',
+                            'type'              => 1, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                            'good_name'         => $item['good_name'], //商品名称
+                            'remark'            => $item['remark'], //备注
+                            'price'             => -$item['unit_price'], //实际付款价格
+                            'practical_price'   => $post['unit_price'],//单据实际价格
+                            'cost_price'        => $item['unit_price'], //成本价格
+                            'account_id'        => $row['account_id'], // 账户id
+                            'sale_user_id'      => $row['sale_user_id'],//销售人员
+                            'supplier_id'       => $row['supplier_id'],//渠道id
+                            'warehouse_id'      => $row['warehouse_id'],//仓库id
+                            'customer_id'       => $row['customer_id'],//客户id
+                            'order_id'          => $row['id'],//订单id
+                            'balance_price'     => $balance_price, //账户余额
+                            'all_balance_price' => $all_balance_price,//总账户余额
+                            'operate_time'      => $row['order_time'],// 操作时间
+                            'receivable_price'  => 0, // 应付款 为负数
+                            'order_user_id'     => $row['order_user_id'],
+                        ]);
+                    }
+
 
                 }
 
-                //账户记录扣款
-                $this->account_info_model->insertAll($insert_account_info);
 
                 //修改账户余额
                 $account_data->save(['balance_price'=>$balance_price]);
@@ -251,7 +347,10 @@ class Purchase extends AdminController
             }
             //销货单审核
             elseif ($type =='sale'){
-
+                $customer = $this->customer_model->find($row['customer_id']);
+                if ($customer['receivable_price'] > 0){
+                    $this->error('当前客户应收款：'.$customer['receivable_price'].'元  请先结清上一笔款项！！');
+                }
 
                 $rule = [
                     'good_name|【商品信息】' => 'require',
@@ -309,6 +408,18 @@ class Purchase extends AdminController
                 $insert_all  = [];
                 foreach ($post['goods'] as $item){
 
+                    $save_info = [
+                        'good_name' => $item['good_name'],
+                        'unit_price' => $item['unit_price'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'pid' => $id,
+                        'warehouse_id' => $row['warehouse_id'],
+                        'account_id' => $row['account_id'],
+                        'supplier_id' => $row['supplier_id'],
+
+                    ];
+                    $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+
 
                     //存入仓库出入明细表中
                     $insert_all[] = [
@@ -347,53 +458,171 @@ class Purchase extends AdminController
 
                 //应收款  如果实际付款金额与订单金额不符合 会产生欠款情况
                 $receivable_price = 0;
-                if ($post['practical_price'] != $post['paid_price']){
-                    $receivable_price =  $post['practical_price'] -  $post['paid_price'];
-
-                    //获取客户id 的欠款记录 更新
-                    $customer_row = $this->customer_model->find($row['customer_id']);
-                    $customer_row->save([
-                        'receivable_price'=>$customer_row['receivable_price'] + $receivable_price,
-                    ]);
-
-
-                }
+                #是否计算利润
+                $is_compute_profit = $post['practical_price'] > $post['paid_price'] ? 0:1;
 
 
                 //遍历所有单据 录入明细中
                 $balance_price = $account_data['balance_price'];
+
+                $paid_price = $post['paid_price'];
+
                 foreach ($post['goods'] as $item){
+                    //获取客户id 的欠款记录
+                    $customer_row = $this->customer_model->find($row['customer_id']);
+                    //获取总应收金额
+                    $total_customer_receivable_price = get_total_receivable_price();
+
                     //获取销售员的总利润
                     $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
+                    //每次出库金额减去支付金额 如果小于0 则是应收款
+                    $paid_price -= intval($item['unit_price']);
+
+                    if ($paid_price < 0){
+                        //判断差了多少钱 补一单 然后补一单应收款
+                        if (intval($item['unit_price']) != -$paid_price){
+                            //正常数据 收款
+                            $save_price = intval($item['unit_price']) + $paid_price;
+                            $balance_price += $save_price;
+                            $all_balance_price += $save_price;
+                            $this->account_info_model->insert( [
+                                'sz_type'           => 1, //1收入 2支出
+                                'category'          => '销售单',
+                                'type'              => 3, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                                'good_name'         => $item['good_name'], //商品名称
+                                'remark'            => $item['remark'], //备注
+                                'price'             => $save_price, //价格
+//                                'cost_price'        => $ym_dict[$item['good_name']]['unit_price'], //成本价
+                                'cost_price'        => 0, //成本价
+                                'profit_price'      => 0,//利润
+                                'total_profit_price'=> $total_profit_price,//总利润
+                                'account_id'        => $row['account_id'], // 账户id
+                                'sale_user_id'      => $row['sale_user_id'],//销售人员
+                                'supplier_id'       => $row['supplier_id'],//渠道id
+                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'customer_id'       => $row['customer_id'],//客户id
+                                'order_id'          => $row['id'],//订单id
+                                'practical_price'   => $item['unit_price'],
+                                'balance_price'     => $balance_price, //账户余额
+                                'all_balance_price' => $all_balance_price,//总账户余额
+                                'operate_time'      => $row['order_time'],
+                                'receivable_price'  => $receivable_price,
+                                'order_user_id'     => $row['order_user_id'],
+                                'is_compute_profit' =>$is_compute_profit
+
+                            ]);
+
+                            //计算当前客户的应收款
+
+                            //增加客户的欠款金额
+                            $customer_receivable_price = $customer_row['receivable_price'] + (-$paid_price);
+                            $customer_row->save(['receivable_price'=>$customer_receivable_price,]);
 
 
-                    $balance_price += intval($item['unit_price']);
-                    $all_balance_price += intval($item['unit_price']);
-                    $insert_account_info = [
-                        'sz_type'           => 1, //1收入 2支出
-                        'category'          => '销售单',
-                        'type'              => 3, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
-                        'good_name'         => $item['good_name'], //商品名称
-                        'remark'            => $item['remark'], //备注
-                        'price'             => $item['unit_price'], //价格
-                        'cost_price'        => $ym_dict[$item['good_name']]['unit_price'], //成本价
-                        'profit_price'      => $item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//利润
-                        'total_profit_price'=> $total_profit_price +$item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//总利润
-                        'account_id'        => $row['account_id'], // 账户id
-                        'sale_user_id'      => $row['sale_user_id'],//销售人员
-                        'supplier_id'       => $row['supplier_id'],//渠道id
-                        'warehouse_id'      => $row['warehouse_id'],//仓库id
-                        'customer_id'       => $row['customer_id'],//客户id
-                        'order_id'          => $row['id'],//订单id
-                        'practical_price'   => $post['practical_price'],
-                        'balance_price'     => $balance_price, //账户余额
-                        'all_balance_price' => $all_balance_price,//总账户余额
-                        'operate_time'      => $row['order_time'],
-                        'receivable_price'  => $receivable_price,
-                        'order_user_id'     => $row['order_user_id'],
-                    ];
 
-                    $this->account_info_model->insert($insert_account_info);
+                            //补充应收款
+                            $this->account_info_model->insert( [
+                                'sz_type'           => 1, //1收入 2支出
+                                'category'          => '应收款',
+                                'type'              => 3, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                                'good_name'         => $item['good_name'], //商品名称
+                                'remark'            => $item['remark'], //备注
+                                'price'             => -$paid_price, //价格
+                                'cost_price'        => $ym_dict[$item['good_name']]['unit_price'], //成本价
+                                'profit_price'      => 0,//利润
+                                'total_profit_price'=> $total_profit_price,//总利润
+                                'account_id'        => $row['account_id'], // 账户id
+                                'sale_user_id'      => $row['sale_user_id'],//销售人员
+                                'supplier_id'       => $row['supplier_id'],//渠道id
+                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'customer_id'       => $row['customer_id'],//客户id
+                                'order_id'          => $row['id'],//订单id
+                                'practical_price'   => $item['unit_price'],//实际金额
+                                'balance_price'     => $balance_price, //账户余额
+                                'all_balance_price' => $all_balance_price,//总账户余额
+                                'operate_time'      => $row['order_time'], //操作时间
+                                'receivable_price'  => -$paid_price, //应收款 为正数
+                                'order_user_id'     => $row['order_user_id'], //操作人 经手人
+                                'is_compute_profit' => $is_compute_profit, //是否计算利润
+                                'customer_receivable_price' =>$customer_receivable_price, // 客户应收应付款金额
+                                'total_customer_receivable_price' =>$total_customer_receivable_price+(-$paid_price), // 所有客户应收应付款金额
+                            ]);
+
+                            $paid_price = 0;
+
+                        }
+
+                        else{
+
+                            //增加客户的欠款金额
+                            $customer_receivable_price = $customer_row['receivable_price'] + (-$paid_price);
+                            $customer_row->save(['receivable_price'=>$customer_receivable_price,]);
+
+                            //全部是应收款
+                            $this->account_info_model->insert( [
+                                'sz_type'           => 1, //1收入 2支出
+                                'category'          => '应收款',
+                                'type'              => 3, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                                'good_name'         => $item['good_name'], //商品名称
+                                'remark'            => $item['remark'], //备注
+                                'price'             => -$paid_price, //价格
+                                'cost_price'        => $ym_dict[$item['good_name']]['unit_price'], //成本价
+                                'profit_price'      => 0,//利润
+                                'total_profit_price'=> $total_profit_price ,//总利润
+                                'account_id'        => $row['account_id'], // 账户id
+                                'sale_user_id'      => $row['sale_user_id'],//销售人员
+                                'supplier_id'       => $row['supplier_id'],//渠道id
+                                'warehouse_id'      => $row['warehouse_id'],//仓库id
+                                'customer_id'       => $row['customer_id'],//客户id
+                                'order_id'          => $row['id'],//订单id
+                                'practical_price'   => $item['unit_price'],
+                                'balance_price'     => $balance_price, //账户余额
+                                'all_balance_price' => $all_balance_price,//总账户余额
+                                'operate_time'      => $row['order_time'], //操作时间
+                                'receivable_price'  => -$paid_price, //应收款
+                                'order_user_id'     => $row['order_user_id'], //操作人 经手人
+                                'is_compute_profit' => $is_compute_profit, //是否计算利润
+                                'customer_receivable_price' =>$customer_receivable_price, // 客户应收应付款金额
+                                'total_customer_receivable_price' =>$total_customer_receivable_price+(-$paid_price), // 所有客户应收应付款金额
+                            ]);
+                            $paid_price = 0;
+
+                        }
+
+
+                    }
+                    else{
+                        //入库
+                        $balance_price += intval($item['unit_price']);
+                        $all_balance_price += intval($item['unit_price']);
+                        $this->account_info_model->insert( [
+                            'sz_type'           => 1, //1收入 2支出
+                            'category'          => '销售单',
+                            'type'              => 3, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
+                            'good_name'         => $item['good_name'], //商品名称
+                            'remark'            => $item['remark'], //备注
+                            'price'             => $item['unit_price'], //价格
+                            'cost_price'        => $ym_dict[$item['good_name']]['unit_price'], //成本价
+                            'profit_price'      => $is_compute_profit == 0 ? 0:$item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//利润
+                            'total_profit_price'=> $is_compute_profit == 0 ? $total_profit_price:$total_profit_price +$item['unit_price'] - $ym_dict[$item['good_name']]['unit_price'],//总利润
+                            'account_id'        => $row['account_id'], // 账户id
+                            'sale_user_id'      => $row['sale_user_id'],//销售人员
+                            'supplier_id'       => $row['supplier_id'],//渠道id
+                            'warehouse_id'      => $row['warehouse_id'],//仓库id
+                            'customer_id'       => $row['customer_id'],//客户id
+                            'order_id'          => $row['id'],//订单id
+                            'practical_price'   => $item['unit_price'],
+                            'balance_price'     => $balance_price, //账户余额
+                            'all_balance_price' => $all_balance_price,//总账户余额
+                            'operate_time'      => $row['order_time'],
+                            'receivable_price'  => 0, //应收款
+                            'order_user_id'     => $row['order_user_id'],
+                            'is_compute_profit' => $is_compute_profit,
+                            'customer_receivable_price' => $customer_row['receivable_price'],
+                            'total_customer_receivable_price' => $total_customer_receivable_price
+
+                        ]);
+                    }
 
                 }
 

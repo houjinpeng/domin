@@ -81,6 +81,7 @@ class SaleOrder extends AdminController
             $post = (json_decode($post,true));
 
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
+            if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
 
 
 
@@ -138,6 +139,9 @@ class SaleOrder extends AdminController
             if (empty($customer)){
                 $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
             }else{
+                if ($customer['receivable_price'] > 0){
+                    $this->error('当前客户应收款：'.$customer['receivable_price'].'元  请先结清上一笔款项！！');
+                }
                 $customer_id = $customer['id'];
             }
 

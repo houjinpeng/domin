@@ -82,7 +82,7 @@ class Payment extends AdminController
             $post['paid_price'] = $post['practical_price'];
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
-                'customer|【客户名】' => 'require',
+                'supplier_id|【渠道名】' => 'require',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实付金额】' => 'number|require',
@@ -108,13 +108,7 @@ class Payment extends AdminController
             if ($post['practical_price'] != intval($post['goods'][0]['unit_price'])) {
                 $this->error('单据金额和项目金额不相等');
             }
-            //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
-            }else{
-                $customer_id = $customer['id'];
-            }
+
 
             //单据编号自动生成   FKD+时间戳
             $order_batch_num = 'FKD' . date('YmdHis');
@@ -124,7 +118,7 @@ class Payment extends AdminController
                 'order_batch_num' => $order_batch_num,
                 'order_user_id' => session('admin.id'),
                 'remark' => $post['remark'],
-                'customer_id'=>$customer_id,
+                'supplier_id'=>$post['supplier_id'],
                 'account_id'=>$post['account_id'],
                 'type'=>5, //付款单
                 'practical_price' => $post['practical_price'],
@@ -145,7 +139,7 @@ class Payment extends AdminController
                     'unit_price' => $item['unit_price'],
                     'remark' => isset($item['remark']) ? $item['remark'] : '',
                     'pid' => $pid,
-                    'customer_id'=>$customer_id,
+                    'supplier_id'=>$post['supplier_id'],
                     'sale_user_id'=>$post['sale_user_id'],
                     'order_user_id' => session('admin.id'),
 
@@ -160,6 +154,8 @@ class Payment extends AdminController
 
         }
         $account_list = $this->account_model->field('id,name')->select()->toArray();
+        $supplier_list = $this->supplier_model->field('id,name')->select()->toArray();
+        $this->assign('supplier_list', $supplier_list);
 
         $this->assign('account_list', $account_list);
         return $this->fetch();
@@ -187,7 +183,7 @@ class Payment extends AdminController
             $post['paid_price'] = $post['practical_price'];
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
-                'customer|【客户名】' => 'require',
+                'supplier_id|【渠道名称】' => 'require',
                 'account_id|【账户】' => 'require|number',
                 'practical_price|【单据金额】' => 'number|require',
                 'paid_price|【实付金额】' => 'number|require',
@@ -216,20 +212,14 @@ class Payment extends AdminController
                 $this->error('单据金额和项目金额不相等');
             }
 
-            //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
-            }else{
-                $customer_id = $customer['id'];
-            }
+
 
 
             $save_order = [
                 'order_time' => $post['order_time'],
                 'order_user_id' => session('admin.id'),
                 'remark' => $post['remark'],
-                'customer_id' => $customer_id,
+                'supplier_id'=>$post['supplier_id'],
                 'account_id' => $post['account_id'],
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
@@ -246,7 +236,7 @@ class Payment extends AdminController
                         'category_id' => $item['category_id'],
                         'unit_price' => $item['unit_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
-                        'customer_id'=>$customer_id,
+                        'supplier_id'=>$post['supplier_id'],
                         'account_id' => $post['account_id'],
                     ];
                     $this->order_info_model->where('id','=',$item['id'])->update($save_info);

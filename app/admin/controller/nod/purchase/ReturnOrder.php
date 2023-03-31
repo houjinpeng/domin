@@ -78,8 +78,9 @@ class ReturnOrder extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['paid_price'] == '0'&& $this->error('实付金额不能为0');
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
+            if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
+
 
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',

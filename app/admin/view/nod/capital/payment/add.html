@@ -13,10 +13,14 @@
             <div class="layui-form-item">
 
                 <div class="layui-inline">
-                    <label class="layui-form-label ">客户</label>
+                    <label class="layui-form-label ">来源渠道</label>
                     <div class="layui-input-inline" style="width: 130px;">
-                        <input  name="customer" required placeholder="请输客户名" lay-verify="required" type="text" class="layui-input" >
-
+                        <select name="supplier_id" lay-verify="required">
+                            <option value=""></option>
+                            {foreach $supplier_list as $item}
+                            <option value="{$item['id']}">{$item['name']}</option>
+                            {/foreach}
+                        </select>
                     </div>
                 </div>
 

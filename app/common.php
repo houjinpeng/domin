@@ -1,6 +1,8 @@
 <?php
 // 应用公共文件
 
+use app\admin\model\NodCustomerManagement;
+use app\admin\model\NodSupplier;
 use app\common\service\AuthService;
 use think\facade\Cache;
 use Ramsey\Uuid\Uuid;
@@ -241,6 +243,21 @@ if (!function_exists('delete_unnecessary_order_info')) {
         }
         $unnecessary_id = array_diff($all_id_list,$save_id_list);
         \app\admin\model\NodOrderInfo::where('id','in',$unnecessary_id)->delete();
+
+
+    }
+
+}
+
+if (!function_exists('get_total_receivable_price')) {
+    /**
+     * @return mixed
+     * 获取总应收款金额
+     */
+    function get_total_receivable_price(){
+        $customer_price = NodCustomerManagement::sum('receivable_price');
+        $supplier_price = NodSupplier::sum('receivable_price');
+        return $supplier_price+$customer_price;
 
 
     }

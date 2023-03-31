@@ -51,7 +51,7 @@ class SaleUserStatistic extends AdminController
         foreach ($all_sale_user as $user){
             $sale_user_list[] = $user['username'];
             //获取销售员的销售条数及利润
-            $count = $this->account_info_model->where('sale_user_id','=',$user['id'])->where('type','=','3')->count();//销售单
+            $count = $this->account_info_model->where('sale_user_id','=',$user['id'])->where('type','=','3')->group('good_name')->count();//销售单
             $th_count = $this->account_info_model->where('sale_user_id','=',$user['id'])->where('type','=','6')->count();//退货单销售单
             $sale_count_list[] = $count-$th_count;
 

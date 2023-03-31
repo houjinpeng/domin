@@ -40,21 +40,21 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {field: 'category', minWidth: 120, title: '类型',selectList:{'采购单':'采购单','采购退货单':'采购退货单','销售单':'销售单','付款单':'付款单','收款单':'收款单','销售退货单':'销售退货单'}},
                     {field: 'sm', minWidth: 400, title: '说明',search: false,align:'left',templet:function (d) {
-                            if (d.category === '采购单'){
+                            if (d.type === 1){
                                 return 'ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+-d.price+'元'
-                            }else if (d.category === '销售单'){
+                            }else if (d.type === 3){
                                 return 'ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+d.price+'元'
-                            }else if (d.category === '付款单'){
+                            }else if (d.type === 5){
                                 return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
-                            }else if (d.category === '收款单'){
+                            }else if (d.type === 4){
                                 return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
-                            }else if (d.category === '采购退货单'){
+                            }else if (d.type === 2){
                                 return '退款 ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+d.price+'元'
-                            }else if (d.category === '销售退货单'){
+                            }else if (d.type === 6){
                                 return '退款 ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+-d.price+'元'
-                            }else if (d.category === '费用单'){
+                            }else if (d.type === 8){
                                 return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
-                            }else if (d.category === '其他收入单'){
+                            }else if (d.type === 9){
                                 return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
                             }
                         }},

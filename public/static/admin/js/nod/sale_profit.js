@@ -53,33 +53,38 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             return ''
                         }},
 
-                    {field: 'category', minWidth: 120, title: '类型',selectList:{'销售单':'销售单','销售退货单':'销售退货单'}},
+                    {field: 'category', minWidth: 120, title: '类型',selectList:{'销售单':'销售单','销售退货单':'销售退货单'},templet:function (d) {
+                            if (d.category === '应收款'){
+                                return '销售单'
+                            }
+                            return d.category
+                        }},
                     {field: 'sm', minWidth: 400, title: '说明',search: false,align:'left',templet:function (d) {
-                            if (d.category === '采购单'){
-                                return 'ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+-d.price+'元'
-                            }else if (d.category === '销售单'){
-                                return 'ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+d.price+'元'
+                            if (d.category === '采购单'  || d.category === '应付款'){
+                                return 'ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+-d.practical_price+'元'
+                            }else if (d.category === '销售单'  || d.category === '应收款'){
+                                return 'ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+d.practical_price+'元'
                             }else if (d.category === '付款单'){
-                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
+                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.practical_price+'元 '
                             }else if (d.category === '收款单'){
-                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.practical_price+'元 '
                             }else if (d.category === '采购退货单'){
                                 return '退款 ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+d.price+'元'
                             }else if (d.category === '销售退货单'){
                                 return '退款 ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+-d.price+'元'
                             }else if (d.category === '费用单'){
-                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
+                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.practical_price+'元 '
                             }else if (d.category === '其他收入单'){
-                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.practical_price+'元 '
                             }
                         }},
 
                     {field: 'cost_price', search:false,minWidth: 168,  title: '成本价'},
-                    {field: 'price', search:false,minWidth: 168,  title: '销售价',templet:function (d) {
+                    {field: 'practical_price', search:false,minWidth: 168,  title: '销售价',templet:function (d) {
                             if (d.category === '销售退货单'){
-                                return '<font color="red">'+d.price+'</font>'
+                                return '<font color="red">'+d.practical_price+'</font>'
                             }
-                            return  d.price
+                            return  d.practical_price
                         }},
                     {field: 'profit_price', search:false,minWidth: 168,  title: '利润',templet:function (d) {
                             if (d.category === '销售退货单'){
