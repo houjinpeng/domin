@@ -45,7 +45,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                     return d.getOrderUser.username
                                 } return ''
                             }},
-                        {field: 'sale_user_id', minWidth: 180, title: '销售员',selectList: bulid_select(sale_select_list),templet:function (d) {
+                        {field: 'sale_user_id', minWidth: 180, title: '销售员',selectList: bulid_select(user_select_list),templet:function (d) {
                                 if (d.getSaleUser){
                                     return d.getSaleUser.username
                                 } return ''
