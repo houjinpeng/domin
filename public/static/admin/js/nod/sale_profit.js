@@ -12,7 +12,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
         index: function () {
             var table = layui.table
-            var account_select_list = ea.getSelectList('NodAccount','id,name')
             var admin_list = ea.getSelectList('SystemAdmin','id,username')
             function bulid_select(select_list,field='name'){
                 let se = {}
@@ -40,7 +39,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             } return ''
                         }},
 
-                    {field: 'sale_user_id', search:false,minWidth: 168,  title: '销售员',templet:function (d) {
+                    {field: 'sale_user_id',selectList: bulid_select(admin_list,'username'),minWidth: 168,  title: '销售员',templet:function (d) {
                             if (d.getSaleUser){
                                 return d.getSaleUser.username
                             }
