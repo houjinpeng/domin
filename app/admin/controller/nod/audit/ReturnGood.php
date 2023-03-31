@@ -712,7 +712,6 @@ class ReturnGood extends AdminController
 
 
 
-            dd(1);
             $this->success('审核成功~');
 
         }
