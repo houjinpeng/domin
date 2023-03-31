@@ -13,9 +13,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
         index:function () {
             ea.table.render({
                 init: init,
-                limit:15,
+                limit:30,
                 toolbar:['refresh'],
-                limits:[15,30,50],
+                limits:[30,50,100],
                 cols: [[
                     {type: "checkbox"},
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},

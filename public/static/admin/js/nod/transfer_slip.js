@@ -28,9 +28,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
             }
             ea.table.render({
                 init: init,
-                limit:15,
+                limit:30,
                 toolbar:['refresh','add'],
-                limits:[15,30,50],
+                limits:[30,50,100],
                 cols: [[
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间'},

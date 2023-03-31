@@ -13,10 +13,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
         index: function () {
             ea.table.render({
                 init: init,
-                limit:15,
+                limit:30,
                 search:false,
                 toolbar:['refresh','add'],
-                limits:[15,30,50],
+                limits:[30,50,100],
                 cols: [[
                     {field: 'name', minWidth: 180, title: '账号名称'},
                     {field: 'sr', minWidth: 180, title: '收入'},

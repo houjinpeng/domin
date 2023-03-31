@@ -38,7 +38,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 return d.getOrderUser.username
                             } return ''
                         }},
-                    {field: 'category', minWidth: 120, title: '类型',selectList:{'采购单':'采购单','采购退货单':'采购退货单','销售单':'销售单','付款单':'付款单','收款单':'收款单','销售退货单':'销售退货单'}},
+                    {field: 'type', minWidth: 120, title: '类型',selectList:{'1':'采购单','2':'采购退货单','3':'销售单','4':'付款单','5':'收款单','6':'销售退货单','9':'其他收入单'
+                            ,'8':'费用单','10':'提现转移单'}},
                     {field: 'sm', minWidth: 400, title: '说明',search: false,align:'left',templet:function (d) {
                             if (d.type === 1){
                                 return 'ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+-d.price+'元'
@@ -56,6 +57,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
                             }else if (d.type === 9){
                                 return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                            }else if (d.type === 10){
+                                return 'ID:'+ d.getAccount.name+' 收到转移 '+d.price+'元 '
                             }
                         }},
                     {field: 'price', minWidth: 152, title: '变动',search: false,templet:function (d) {

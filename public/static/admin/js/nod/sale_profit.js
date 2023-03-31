@@ -26,9 +26,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.table.render({
                 init:init,
                 elem: '#currentTable',
-                limit:15,
+                limit:30,
                 toolbar:['refresh'],
-                limits:[15,30,50],
+                limits:[30,50,100],
                 cols: [[
 
                     {field: 'operate_time', search:false,minWidth: 168, fixed:'left', title: '操作时间'},

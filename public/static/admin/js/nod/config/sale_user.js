@@ -16,9 +16,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.table.render({
                 init: init,
-                limit:15,
+                limit:30,
                 toolbar:['refresh','add','delete'],
-                limits:[15,30,50],
+                limits:[30,50,100],
                 cols: [[
                     {type: "checkbox"},
                     {field: 'id', width: 80, title: '编号'},

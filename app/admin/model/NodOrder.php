@@ -43,6 +43,16 @@ class NodOrder extends TimeModel
     {
         return $this->belongsTo(NodAccount::class, 'account_id', 'id');
     }
+    //关联账户
+    public function getFromAccount()
+    {
+        return $this->belongsTo(NodAccount::class, 'from_account', 'id');
+    }
+    //关联账户
+    public function getToAccount()
+    {
+        return $this->belongsTo(NodAccount::class, 'to_account', 'id');
+    }
 
     //关联来源渠道
     public function getSupplier()

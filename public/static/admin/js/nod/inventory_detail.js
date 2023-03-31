@@ -25,9 +25,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
             table.render({
                 elem: '#currentTable',
                 url:'index',
-                limit:15,
+                limit:30,
                 toolbar:['refresh'],
-                limits:[15,30,50],
+                limits:[30,50,100],
                 cols: [[
 
                     {field: 'name', minWidth: 180, title: '仓库名'},

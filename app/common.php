@@ -264,6 +264,20 @@ if (!function_exists('get_total_receivable_price')) {
 
 }
 
+if (!function_exists('get_total_account_price')) {
+    /**
+     * @return mixed
+     * 获取总应收款金额
+     */
+    function get_total_account_price(){
+        $price = \app\admin\model\NodAccount::sum('balance_price');
+        return $price;
+
+
+    }
+
+}
+
 if (!function_exists('check_practical_price')) {
     /**
      * @return mixed
