@@ -56,11 +56,11 @@ class Statistics extends AdminController
         $gys_count = $this->gys_model->count();
 
         //计算日销售额
-        $day_sales = $this->wareehouse_info_model->where('type','=',2)->whereRaw('to_days(order_time) = to_days(now())')->sum('unit_price');
+        $day_sales = $this->account_info_model->where('type','=',3)->whereRaw('to_days(operate_time) = to_days(now())')->sum('practical_price');
         //日毛利
-        $day_profit_price = $this->wareehouse_info_model->where('type','=',2)->whereRaw('to_days(order_time) = to_days(now())')->sum('profit_price');
+        $day_profit_price = $this->account_info_model->where('type','=',3)->whereRaw('to_days(operate_time) = to_days(now())')->sum('profit_price');
         //日订单数
-        $day_count = $this->wareehouse_info_model->where('type','=',2)->whereRaw('to_days(order_time) = to_days(now())')->count();
+        $day_count = $this->account_info_model->where('type','=',3)->whereRaw('to_days(operate_time) = to_days(now())')->count();
         //日资金收入
         $day_shouru = $this->account_info_model->whereRaw('to_days(operate_time) = to_days(now())')->sum('price');
 
@@ -76,8 +76,8 @@ class Statistics extends AdminController
 
 
         //获取每日入库数
-        $every_rukun_data = $this->wareehouse_info_model->field('count(*) as count ,DATE_FORMAT(order_time, "%Y-%m-%d") as order_time')->where('type','=',1)
-            ->group("DATE_FORMAT(order_time, '%Y-%m-%d')")
+        $every_rukun_data = $this->kc_model->field('count(*) as count ,DATE_FORMAT(create_time, "%Y-%m-%d") as order_time')
+            ->group("DATE_FORMAT(create_time, '%Y-%m-%d')")
             ->select()->toArray();
         $every_ruku_list = ['time'=>[],'list'=>[]];
         foreach ($every_rukun_data as $item){
