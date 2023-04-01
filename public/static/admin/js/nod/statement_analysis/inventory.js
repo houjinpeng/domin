@@ -5,6 +5,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
         index_url: 'nod.statement_analysis.inventory/index',
+        export_url: 'nod.statement_analysis.inventory/export',
 
     };
 
@@ -39,7 +40,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limit:50,
                 height:'full-40',
                 limits:[50,100,200,500,1000],
-                toolbar:['refresh'],
+                toolbar:['refresh','export'],
                 cols: [[
                     {type: "checkbox"},
                     {field: 'good_name', minWidth: 152, title: '商品名称',search: 'batch'},

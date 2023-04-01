@@ -14,7 +14,10 @@ use app\admin\model\NodWarehouseInfo;
 use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
+use EasyAdmin\tool\CommonTool;
+use jianyan\excel\Excel;
 use think\App;
+use think\facade\Db;
 
 /**
  * @ControllerAnnotation(title="报表 库存")
@@ -87,6 +90,54 @@ class Inventory extends AdminController
         return $this->fetch();
     }
 
+
+    /**
+     * @NodeAnotation(title="导出域名")
+     */
+    public function export(){
+        list($page, $limit, $where) = $this->buildTableParames();
+//        $tableName = $this->model->getName();
+//        $tableName = CommonTool::humpToLine(lcfirst($tableName));
+//        $prefix = config('database.connections.mysql.prefix');
+//        $dbList = Db::query("show full columns from {$prefix}{$tableName}");
+//        $header = [];
+//        foreach ($dbList as $vo) {
+//            $comment = !empty($vo['Comment']) ? $vo['Comment'] : $vo['Field'];
+//            if (!in_array($vo['Field'], $this->noExportFields)) {
+//                $header[] = [$comment, $vo['Field']];
+//            }
+//        }
+        $list = $this->model->where($where)->with(['getWarehouse'],'left')->select()->toArray();
+
+        $header = [
+            ['商品名称','good_name'],
+            ['成本价','unit_price'],
+            ['注册时间','register_time'],
+            ['过期时间','expiration_time'],
+            ['仓库','warehouse'],
+            ['备案','beian'],
+            ['百度','baidu'],
+            ['搜狗','sogou'],
+        ];
+        $new_list = [];
+        foreach ($list as $item){
+            $new_list[] = [
+                'good_name'=>$item['good_name']? $item['good_name']:'',
+                'unit_price'=>$item['unit_price']?$item['unit_price']:'',
+                'register_time'=>$item['register_time']?$item['register_time']: '',
+                'expiration_time'=>$item['expiration_time']?$item['expiration_time']: '',
+                'warehouse'=>$item['getWarehouse']?$item['getWarehouse']['name']:'',
+                'beian'=>$item['beian']?$item['beian']: '',
+                'baidu'=>$item['baidu']?$item['baidu']: '',
+                'sogou'=>$item['sogou']?$item['sogou']: '',
+            ];
+        }
+        $fileName = time();
+        return Excel::exportData($new_list, $header, $fileName, 'xlsx');
+
+
+
+    }
 
 
 }
