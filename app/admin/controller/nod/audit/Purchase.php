@@ -315,6 +315,8 @@ class Purchase extends AdminController
                     }
                     //全部正常采购单
                     else{
+                        $balance_price -= $item['unit_price'];
+                        $all_balance_price -= intval($item['unit_price']);
                         $this->account_info_model->insert( [
                             'sz_type'           => 2, //1收入 2支出
                             'category'          => '采购单',
