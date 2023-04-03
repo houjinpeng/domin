@@ -60,4 +60,10 @@ class NodOrder extends TimeModel
         return $this->belongsTo(NodSupplier::class, 'supplier_id', 'id');
     }
 
+    //订单详情
+    public function getOrderInfo()
+    {
+        return $this->hasMany(NodOrderInfo::class, 'pid', 'id');
+    }
+
 }

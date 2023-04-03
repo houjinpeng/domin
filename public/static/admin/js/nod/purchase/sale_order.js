@@ -39,6 +39,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     // {type: "checkbox"},
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间'},
+                    {field: 'order_info', minWidth: 120, title: '域名',searchOp:'=',templet:function (d) {
+                            return d.order_info[0].good_name
+                        }},
+                    {field: 'order_count', minWidth: 100, title: '数量',search: false},
                     {
                         field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
                             if ( d.getOrderUser){

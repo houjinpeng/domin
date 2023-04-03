@@ -54,11 +54,31 @@ class SaleReturnOrder extends AdminController
 
             $where[] = ['type','=',6];
 
+            $is_search_ym = false;
+            foreach ($where as $w){
+                if ($w[0] == 'order_info') $is_search_ym = $w[2];
+            }
+            $where = delete_where_filter($where,'order_info');
+            //判断是否查询了域名
+            if ($is_search_ym == false){
+                $list = $this->order_model->where($where)
+                    ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
+                    ->select()->toArray();
 
-            $list = $this->order_model
-                ->with(['getCustomer','getAccount','getSupplier','getOrderUser'],'left')
-                ->where($where)->page($page,$limit)->order('id','desc')->select()->toArray();
-            $count = $this->order_model->where($where)->order('id','desc')->count();
+                $count = $this->order_model->where($where)->order('id','desc')->count();
+            }else{
+                $list = $this->order_model->where($where)
+                    ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
+                    ->hasWhere('getOrderInfo',['good_name'=>$is_search_ym])
+                    ->select()->toArray();
+                $count = $this->order_model->where($where)->hasWhere('getOrderInfo',['good_name'=>$is_search_ym])->order('id','desc')->count();
+            }
+
+
+            foreach ($list as &$item){
+                $item['order_info'] = $this->order_info_model->where('pid','=',$item['id'])->select()->toArray();
+                $item['order_count'] = count($item['order_info']);
+            }
             $data = [
                 'code'=>0,
                 'data'=>$list,
