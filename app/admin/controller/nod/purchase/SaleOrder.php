@@ -61,6 +61,7 @@ class SaleOrder extends AdminController
             if ($is_search_ym == false){
                 $list = $this->order_model->where($where)
                     ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getCustomer','getSaleUser'],'left')
+                    ->order('id','desc')
                     ->select()->toArray();
 
                 $count = $this->order_model->where($where)->order('id','desc')->count();
@@ -68,6 +69,7 @@ class SaleOrder extends AdminController
                 $list = $this->order_model->where($where)
                     ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser'],'left')
                     ->hasWhere('getOrderInfo',['good_name'=>$is_search_ym])
+                    ->order('id','desc')
                     ->select()->toArray();
                 $count = $this->order_model->where($where)->hasWhere('getOrderInfo',['good_name'=>$is_search_ym])->order('id','desc')->count();
             }
