@@ -50,7 +50,15 @@ define(["jquery", "tableSelect", "ckeditor"], function ($, tableSelect, undefine
             return Y+M+D+h+m+s;
         },
 
-
+        copyText:function (text) {
+            var oInput = document.createElement('textarea');
+            oInput.value = text;
+            document.body.appendChild(oInput);
+            oInput.select();
+            document.execCommand("Copy");
+            oInput.className = 'oInput';
+            oInput.style.display = 'none';
+        },
 
         parame: function (param, defaultParam) {
             return param !== undefined ? param : defaultParam;
