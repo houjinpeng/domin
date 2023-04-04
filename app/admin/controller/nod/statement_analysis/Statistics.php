@@ -85,7 +85,7 @@ class Statistics extends AdminController
             $every_ruku_list['list'][] = $item['count'];
         }
         //获取每日出库数
-        $every_chuku_data = $this->wareehouse_info_model->field('sum(profit_price) as profit_price,sum(unit_price) as unit_price,count(*) as count ,DATE_FORMAT(order_time, "%Y-%m-%d") as order_time')
+        $every_chuku_data = $this->account_info_model->field('sum(profit_price) as profit_price,sum(price) as unit_price,count(*) as count ,DATE_FORMAT(operate_time, "%Y-%m-%d") as order_time')
             ->where('type','=',2)
             ->group("DATE_FORMAT(order_time, '%Y-%m-%d')")
             ->select()->toArray();
