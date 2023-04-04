@@ -45,16 +45,15 @@ class GoodWarning extends AdminController
             $w = $this->tool->build_select_where($where);
 
             $where = [];
-            $t = date("Y-m-d H:i:s", strtotime("-20 Days"));
+            $t = date("Y-m-d H:i:s", strtotime("+20 Days"));
             //2023-03-15
             //2023-04-06  expiration_time
-            $where[] = ['expiration_time', '>=', $t];
+            $where[] = ['expiration_time', '<=', $t];
             $list = $this->model
                 ->with(['getSupplier','getWarehouse'],'left')
                 ->where($where)
                 ->page($page,$limit)
                 ->order('id','desc')->select()->toArray();
-
 
 
             $count = $this->model->where($where)->count();
