@@ -121,6 +121,9 @@ class Transfer extends AdminController
         empty($row) && $this->error('次单据不存在');
         if ($this->request->isAjax()) {
             $post = $this->request->post();
+            if ($row['audit_status'] != 0){
+                $this->error('此状态不能再次修改！');
+            }
 
 
             $order_info_rule = [
