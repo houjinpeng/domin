@@ -201,7 +201,7 @@ class Transfer extends AdminController
 
 
             $from_data_balance = $from_data['balance_price']-$row['paid_price'];
-            $to_data_balance = $to_data['balance_price']-$row['paid_price'];
+            $to_data_balance = $to_data['balance_price']+$row['paid_price'];
 
             $from_data->save(['balance_price'=>$from_data_balance]);
             $to_data->save(['balance_price'=>$to_data_balance]);
