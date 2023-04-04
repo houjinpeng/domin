@@ -26,6 +26,11 @@ class NodOrder extends TimeModel
     {
         return $this->belongsTo(SystemAdmin::class, 'order_user_id', 'id');
     }
+    //关联销售员
+    public function getSaleUser()
+    {
+        return $this->belongsTo(SystemAdmin::class, 'sale_user_id', 'id');
+    }
 
     //关联客户
     public function getCustomer()

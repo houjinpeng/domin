@@ -60,13 +60,13 @@ class SaleOrder extends AdminController
             //判断是否查询了域名
             if ($is_search_ym == false){
                 $list = $this->order_model->where($where)
-                    ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
+                    ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getCustomer','getSaleUser'],'left')
                     ->select()->toArray();
 
                 $count = $this->order_model->where($where)->order('id','desc')->count();
             }else{
                 $list = $this->order_model->where($where)
-                    ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
+                    ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser'],'left')
                     ->hasWhere('getOrderInfo',['good_name'=>$is_search_ym])
                     ->select()->toArray();
                 $count = $this->order_model->where($where)->hasWhere('getOrderInfo',['good_name'=>$is_search_ym])->order('id','desc')->count();

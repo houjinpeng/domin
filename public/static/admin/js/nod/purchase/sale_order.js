@@ -60,6 +60,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }return ''
 
                         }
+                    }, {
+                        field: 'sale_user_id', minWidth: 90, title: '销售员',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
+                            if ( d.getSaleUser){
+                                return d.getSaleUser['username']
+                            }return ''
+
+                        }
                     },
                     {
                         field: 'customer_id', minWidth: 100, title: '客户',selectList: bulid_select(customer_select_list), templet: function (d) {
