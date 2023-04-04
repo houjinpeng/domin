@@ -352,10 +352,7 @@ class Purchase extends AdminController
             }
             //销货单审核
             elseif ($type =='sale'){
-                $customer = $this->customer_model->find($row['customer_id']);
-                if ($customer['receivable_price'] > 0){
-                    $this->error('当前客户应收款：'.$customer['receivable_price'].'元  请先结清上一笔款项！！');
-                }
+
 
                 $rule = [
                     'good_name|【商品信息】' => 'require',
@@ -465,7 +462,10 @@ class Purchase extends AdminController
                 $receivable_price = 0;
                 #是否计算利润
                 $is_compute_profit = $post['practical_price'] > $post['paid_price'] ? 0:1;
-
+                $customer = $this->customer_model->find($row['customer_id']);
+                if ($customer['receivable_price'] > 0){
+                    $is_compute_profit = 0;
+                }
 
                 //遍历所有单据 录入明细中
                 $balance_price = $account_data['balance_price'];
