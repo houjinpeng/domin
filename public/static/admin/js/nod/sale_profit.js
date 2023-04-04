@@ -86,7 +86,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             return  d.practical_price
                         }},
                     {field: 'profit_price', search:false,minWidth: 168,  title: '利润',templet:function (d) {
-                            if (d.category === '销售退货单'){
+                            // if (d.category === '销售退货单'){
+                            if (d.profit_price < 0){
                                 return '<font color="red">'+d.profit_price+'</font>'
                             }
                             return  d.profit_price
