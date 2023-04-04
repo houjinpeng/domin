@@ -190,7 +190,7 @@ class Transfer extends AdminController
         if ($this->request->isAjax()) {
             //判断转移的账户是否有钱
             $from_data = $this->model->where('id','=',$row['from_account'])->find();
-            $to_data = $this->model->where('id','=',$row['from_account'])->find();
+            $to_data = $this->model->where('id','=',$row['to_account'])->find();
             $from_data['balance_price'] < $row['paid_price'] && $this->error('账户余额不足！不能转移');
             if ($row['audit_status'] !=0){
                 $this->error('此状态不能再次审核！');
