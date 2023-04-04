@@ -192,8 +192,13 @@ class Transfer extends AdminController
             $from_data = $this->model->where('id','=',$row['from_account'])->find();
             $to_data = $this->model->where('id','=',$row['from_account'])->find();
             $from_data['balance_price'] < $row['paid_price'] && $this->error('账户余额不足！不能转移');
+            if ($row['audit_status'] !=0){
+                $this->error('此状态不能再次审核！');
+            }
 
             //账号扣钱 加钱
+            $row->save(['audit_status'=>1,'audit_user_id'=>session('admin.id')]);
+
 
             $from_data_balance = $from_data['balance_price']-$row['paid_price'];
             $to_data_balance = $to_data['balance_price']-$row['paid_price'];
