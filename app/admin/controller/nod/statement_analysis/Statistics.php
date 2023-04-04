@@ -86,8 +86,8 @@ class Statistics extends AdminController
         }
         //获取每日出库数
         $every_chuku_data = $this->account_info_model->field('sum(profit_price) as profit_price,sum(price) as unit_price,count(*) as count ,DATE_FORMAT(operate_time, "%Y-%m-%d") as order_time')
-            ->where('type','=',2)
-            ->group("DATE_FORMAT(order_time, '%Y-%m-%d')")
+            ->where('type','=',3)
+            ->group("DATE_FORMAT(operate_time, '%Y-%m-%d')")
             ->select()->toArray();
 
         $every_chuku_list = ['time'=>[],'list'=>[],'day_sales'=>[['time'=>[],'list'=>[]]],'day_profit'=>[['time'=>[],'list'=>[]]]];
