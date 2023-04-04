@@ -46,8 +46,9 @@ class GoodWarning extends AdminController
 
             $where = [];
             $t = date("Y-m-d H:i:s", strtotime("-20 Days"));
-            $where[] = ['expiration_time', '<=', $t];
-
+            //2023-03-15
+            //2023-04-06  expiration_time
+            $where[] = ['expiration_time', '>=', $t];
             $list = $this->model
                 ->with(['getSupplier','getWarehouse'],'left')
                 ->where($where)
