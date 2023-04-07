@@ -164,7 +164,7 @@ class SaleOrder extends AdminController
                 $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
             }else{
                 if ($customer['receivable_price'] > 0){
-                    $this->error('当前客户应收款：'.$customer['receivable_price'].'元  请先结清上一笔款项！！');
+//                    $this->error('当前客户应收款：'.$customer['receivable_price'].'元  请先结清上一笔款项！！');
                 }
                 $customer_id = $customer['id'];
             }
