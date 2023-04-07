@@ -45,8 +45,9 @@ class JvMing  extends AdminController
             return $resp;
 
         }catch (\Exception $e){
-            dd($e);
-            return $this->request($url,$headers);
+            $data = ['code'=>999,'msg'=>'账号【'.$this->username.'】 错误：'.$e->getMessage()];
+            return $data;
+//            return $this->request($url,$headers);
         }
 
 
