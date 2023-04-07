@@ -5,6 +5,7 @@ namespace app\admin\controller\nod\purchase;
 
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
+use app\admin\model\NodAccountInfo;
 use app\admin\model\NodCustomerManagement;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
@@ -32,6 +33,7 @@ class SaleOrder extends AdminController
         $this->kehu_model = new NodCustomerManagement();
         $this->warehouse_model = new NodWarehouse();
         $this->account_model = new NodAccount();
+        $this->account_info_model = new NodAccountInfo();
         $this->order_model = new NodOrder();
         $this->order_info_model = new NodOrderInfo();
         $this->inventory_model = new NodInventory();
@@ -410,7 +412,23 @@ class SaleOrder extends AdminController
             ]);
         }
 
+        $sale_good_data = $this->account_info_model->field('good_name')
+            ->whereRaw("DATE_FORMAT(operate_time,'%Y-%m-%d') = ".$crawl_time)
+//            ->where('operate_time','=',$crawl_time)
+            ->group('good_name')->select()->toArray();
+
+        $sale_data = [];
+        foreach ($sale_good_data as $item){
+            $sale_data[] = $item['good_name'];
+        }
+
+
         foreach ($all_ym_data['data'] as $item){
+            //今日审核过的销售域名过滤
+            if (in_array($item['ym'],$sale_data)){
+                continue;
+            }
+
             $list[] = [
                 'index'=>$index+1,
                 'unit_price' => intval($item['wtqian']),
