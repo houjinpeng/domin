@@ -24,10 +24,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'order_batch_num', minWidth: 180, title: '订单编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {field: 'from_account', minWidth: 180, title: '转移账号',templet: function (d) {
+                        if (d.getFromAccount){
                             return d.getFromAccount.name
+                        }
+                            return ''
                         }},
                     {field: 'to_account', minWidth: 180, title: '目标账号',templet: function (d) {
-                            return d.getToAccount.name
+                            if (d.getToAccount){
+                                return d.getToAccount.name
+                            }
+                            return ''
                         }},
                     {field: 'practical_price', minWidth: 180, title: '转移金额'},
 

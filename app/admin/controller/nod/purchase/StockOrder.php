@@ -427,9 +427,13 @@ class StockOrder extends AdminController
         //获取每个账户的资金明细  查询指定日期购买的域名 按照类型分类
         $caigou_order = 0;
         $diaobo_order = 0;
+        $zhuanyi_order =0 ;
         $other_receipt_order = 0;
         try {
             foreach ($all_warehouse_data as $warehouse_data) {
+                //获取账号id
+                $account = $this->account_model->where('name','=',$warehouse_data['name'])->find();
+
                 $username = $warehouse_data['account'];
                 $password = $warehouse_data['password'];
                 $cookie = $warehouse_data['cookie'];
@@ -450,7 +454,7 @@ class StockOrder extends AdminController
 //                if (in_array($item['ym'], $inventory_list)) continue;
                     if ($item['lx_txt'] == '退款') continue;
                     if ($item['lx_txt'] == '充值') { //开提现转存单
-
+                        $zhuanyi_order += 1;
                         //单据编号自动生成   ZCTX+时间戳
                         $order_batch_num = 'ZCTX' . date('YmdHis');
 
@@ -518,8 +522,7 @@ class StockOrder extends AdminController
 
                 ];
 
-                //获取账号id
-                $account = $this->account_model->where('name','=',$warehouse_data['name'])->find();
+
 
                 //所有金额
 
@@ -593,7 +596,6 @@ class StockOrder extends AdminController
 
 
                 $insert_all = [];
-                $sale_order_info = [];
                 foreach ($pull_list['data']  as $item){
                     if ($item['zt_txt'] == '请求已取消'){ continue;}
 
@@ -749,14 +751,14 @@ class StockOrder extends AdminController
                 save_jvming_order_log($pull_list['data'],'收到的请求',$username,$crawl_time);
             }
         }catch (\Exception  $e){
-            $this->error($e->getMessage());
+            $this->error($e->getLine().'行 错误:'.$e->getMessage());
         }
 
 
         $result_data = [
             'code'=>1,
             'data'=>[],
-            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>调拨单：'.strval($diaobo_order).'个<br>其它收入单：'.strval($other_receipt_order).'个 '
+            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>调拨单：'.strval($diaobo_order).'个<br>其它收入单：'.strval($other_receipt_order).'个<br>转存提现单：'.strval($zhuanyi_order).'个'
 
         ];
         return json($result_data);
