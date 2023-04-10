@@ -577,12 +577,28 @@ class StockOrder extends AdminController
                 $insert_all = [];
                 $sale_order_info = [];
                 foreach ($push_list['data']  as $item){
+                    if ($item['zt_txt'] == '请求已取消'){ continue;}
+
                     $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','调拨单')->find();
                     if (!empty($log_data)) continue;
                     //需要获取目标仓库的id
                     $mubiao_werahouse = $this->warehouse_model->where('name','=',$item['puid'])->find();
                     //如果不存在 生成销售单 金额为0
                     if (empty($mubiao_werahouse)){
+                        //保存一个销售单的数据
+                        $sale_order = [
+                            'order_time' => $order_time,
+                            'order_batch_num'=>'XSD' . date('YmdHis'),
+                            'order_user_id' => session('admin.id'),
+                            'remark' =>'程序批量生成转移销售单 转移到：'.$item['puid'],
+                            'account_id' => $account['id'],
+                            'practical_price' =>0,
+                            'paid_price' => 0,
+                            'type' => 3, //销售单
+                            'audit_status' => 0,//审核状态
+
+                        ];
+                        $pid = $this->order_model->insertGetId($sale_order);
                         $c_list =explode(',',$item['ymlbx']);
                         foreach ($c_list as $ym){
                             $sale_order_info[] = [
@@ -590,8 +606,13 @@ class StockOrder extends AdminController
                                 'remark' => isset($item['remark']) ? $item['remark'] : '',
                                 'account_id' =>$account['id'],
                                 'sale_time' => $order_time,
+                                'pid' => $pid,
+
                             ];
                         }
+
+                        $this->order_info_model->insertAll($sale_order_info);
+                        $xiaoshou_order+=1;
 
                         continue;
                     }
@@ -641,28 +662,7 @@ class StockOrder extends AdminController
                     $this->order_info_model->insertAll($insert_all);
                 }
 
-                //判断是否有销售单
-                if ($sale_order_info != []){
-                    //保存一个销售单的数据
-                    $sale_order = [
-                        'order_time' => $order_time,
-                        'order_batch_num'=>'XSD' . date('YmdHis'),
-                        'order_user_id' => session('admin.id'),
-                        'remark' =>'程序批量生成转移销售单',
-                        'practical_price' =>0,
-                        'paid_price' => 0,
-                        'type' => 3, //调拨单
-                        'audit_status' => 0,//审核状态
 
-                    ];
-                    $pid = $this->order_model->insertGetId($sale_order);
-
-                    foreach ($sale_order_info as &$item){
-                        $item['pid'] = $pid;
-                    };
-                    $this->order_info_model->insertAll($sale_order_info);
-                    $xiaoshou_order+=1;
-                }
 
                 //生成其它收款单
                 foreach ($other_receipt_data as $ym=>$price){

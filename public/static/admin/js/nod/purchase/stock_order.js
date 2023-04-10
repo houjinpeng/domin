@@ -12,6 +12,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
     };
 
+
     var Controller = {
 
         index: function () {
@@ -191,7 +192,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 laydate.render({
                                     elem: '#carwl_time'
                                     ,format: 'yyyy-MM-dd'
-                                    ,value: ''
+                                    ,value: ea.GetDateStr(0)
                                     ,max: 0
                                 });
 
