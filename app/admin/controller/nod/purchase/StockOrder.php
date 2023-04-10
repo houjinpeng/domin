@@ -630,7 +630,7 @@ class StockOrder extends AdminController
                             'order_time' =>$order_time,
                             'order_batch_num' => 'GHD' . date('YmdHis'),
                             'order_user_id' => session('admin.id'),
-                            'remark' => '收到的请求',
+                            'remark' => '收到的请求 来自:'.$item['uid'],
                             'warehouse_id' => $warehouse_data['id'],
                             'account_id'=> empty($account) ?'':$account['id'],
                             'supplier_id'=> empty($supplier) ?'':$supplier['id'],
