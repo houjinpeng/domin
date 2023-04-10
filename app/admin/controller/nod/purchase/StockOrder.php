@@ -426,7 +426,6 @@ class StockOrder extends AdminController
         $all_warehouse_data = $this->warehouse_model->select();
         //获取每个账户的资金明细  查询指定日期购买的域名 按照类型分类
         $caigou_order = 0;
-        $xiaoshou_order = 0;
         $diaobo_order = 0;
         $other_receipt_order = 0;
         try {
@@ -450,6 +449,25 @@ class StockOrder extends AdminController
                     //判断是否在库存中 如果存在的话过滤
 //                if (in_array($item['ym'], $inventory_list)) continue;
                     if ($item['lx_txt'] == '退款') continue;
+                    if ($item['lx_txt'] == '充值') { //开提现转存单
+
+                        //单据编号自动生成   ZCTX+时间戳
+                        $order_batch_num = 'ZCTX' . date('YmdHis');
+
+                        $save_order = [
+                            'to_account' => $account['id'],
+                            'order_batch_num' => $order_batch_num,
+                            'order_time' => date('Y-m-d H:i:s'),
+                            'order_user_id' => session('admin.id'),
+                            'practical_price' => $item['qian'],
+                            'paid_price' =>  $item['qian'],
+                            'remark' => $item['zu'],
+                            'type' => 10, //转存提现
+                            'audit_status' => 0,//审核状态
+                        ];
+                        $this->order_model->save($save_order);
+
+                    }
                     if ($item['zu'] == '域名得标') {
                         if (!isset($jingjia_data[$item['ym']])) {
                             $jingjia_data[$item['ym']] = $item['qian'];
