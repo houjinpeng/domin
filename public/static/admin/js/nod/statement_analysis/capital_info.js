@@ -31,7 +31,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limits:[50,100,200],
                 toolbar:['refresh'],
                 cols: [[
-                    {field: 'operate_time', search:false,minWidth: 168, fixed:'left', title: '操作时间'},
+                    {field: 'operate_time', search:'range',minWidth: 168, fixed:'left', title: '操作时间'},
 
                     {field: 'order_user_id', minWidth: 110, title: '经手人',selectList: bulid_select(admin_list,'username'),templet:function (d) {
                             if ( d.getOrderUser){

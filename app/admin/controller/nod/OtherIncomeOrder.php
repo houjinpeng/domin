@@ -52,7 +52,7 @@ class OtherIncomeOrder extends AdminController
 
             $where[] = ['type','=',9];
 
-
+            $where = format_where_datetime($where,'order_time');
             $list = $this->order_model
                 ->with(['getCustomer','getAccount','getOrderUser'],'left')
                 ->where($where)->page($page,$limit)->order('id','desc')->select()->toArray();
@@ -116,7 +116,7 @@ class OtherIncomeOrder extends AdminController
             }
 
             //单据编号自动生成   FYD+时间戳
-            $order_batch_num = 'FYD' . date('YmdHis');
+            $order_batch_num = 'QTSRD' . date('YmdHis');
 
             $save_order = [
                 'order_time' => $post['order_time'],

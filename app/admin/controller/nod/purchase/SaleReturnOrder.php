@@ -59,6 +59,7 @@ class SaleReturnOrder extends AdminController
                 if ($w[0] == 'order_info') $is_search_ym = $w[2];
             }
             $where = delete_where_filter($where,'order_info');
+            $where = format_where_datetime($where,'order_time');
             //判断是否查询了域名
             if ($is_search_ym == false){
                 $list = $this->order_model->where($where)

@@ -33,7 +33,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limits:[30,50,100],
                 cols: [[
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
-                    {field: 'order_time', minWidth: 180, title: '单据时间'},
+                    {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {
                         field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
                             if ( d.getOrderUser){
@@ -43,14 +43,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'warehouse_id', minWidth: 100, title: '仓库',selectList: bulid_select(warehouse_select_list), templet: function (d) {
+                        field: 'warehouse_id', minWidth: 100, title: '目标仓库',selectList: bulid_select(warehouse_select_list), templet: function (d) {
                             if (d.getWarehouse){
                                 return d.getWarehouse['name']
                             }return ''
 
                         }
                     },
-                    {field: 'remark', minWidth: 180, title: '备注'},
+                    {field: 'remark', minWidth: 280, title: '备注',align:'left'},
                     {field: 'audit_status', minWidth: 100, title: '状态',selectList:{'1':'已审核','2':'撤销','0':'未审核'},templet:function (d) {
                             if (d.audit_status === 1){
                                 return'已审核'

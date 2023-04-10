@@ -50,6 +50,7 @@ class CostDeail extends AdminController
 //            if (!empty($cate)){
 //                $where[] = ['category_id','<>',$cate['id']];
 //            }
+            $where = format_where_datetime($where,'operate_time');
             $list = $this->account_info_model
                 ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser','getCategory'],'left')
                 ->where($where)

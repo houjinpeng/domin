@@ -43,7 +43,7 @@ class Transfer extends AdminController
 
             $where[] = ['type','=',10];
 
-
+            $where = format_where_datetime($where,'order_time');
             $list = $this->order_model
                 ->with(['getFromAccount','getToAccount','getOrderUser'],'left')
                 ->where($where)->page($page,$limit)->order('id','desc')->select()->toArray();

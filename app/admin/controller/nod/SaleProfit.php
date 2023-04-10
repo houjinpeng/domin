@@ -50,6 +50,7 @@ class SaleProfit extends AdminController
                 $whereOr[] = ['category_id','=',$cate['id']];
             }
 
+            $where = format_where_datetime($where,'operate_time');
 
             $list = $this->model
                 ->with(['getOrder','getAccount','getSupplier','getWarehouse','getOrderUser','getCustomer','getCategory','getSaleUser'],'left')

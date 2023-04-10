@@ -49,6 +49,7 @@ class Receipt extends AdminController
             list($page, $limit, $where) = $this->buildTableParames();
 
             $where[] = ['type', '=', 4];
+            $where = format_where_datetime($where,'order_time');
 
 
             $list = $this->order_model

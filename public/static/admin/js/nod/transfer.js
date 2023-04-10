@@ -17,11 +17,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.table.render({
                 init: init,
                 limit:30,
-                search:false,
+                // search:false,
                 toolbar:['refresh','add'],
                 limits:[30,50,100],
                 cols: [[
                     {field: 'order_batch_num', minWidth: 180, title: '订单编号'},
+                    {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {field: 'from_account', minWidth: 180, title: '转移账号',templet: function (d) {
                             return d.getFromAccount.name
                         }},
@@ -35,7 +36,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'order_user_id', minWidth: 180, title: '操作人',templet:function (d) {
                             return d.getOrderUser.username
                         }},
-                    {field: 'order_time', minWidth: 180, title: '订单时间'},
 
                     {
                         fixed: 'right',

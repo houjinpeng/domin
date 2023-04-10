@@ -54,7 +54,7 @@ class ExpenseList extends AdminController
 
             $where[] = ['type','=',8];
 
-
+            $where = format_where_datetime($where,'order_time');
             $list = $this->order_model
                 ->with(['getCustomer','getAccount','getOrderUser'],'left')
                 ->where($where)->page($page,$limit)->order('id','desc')->select()->toArray();

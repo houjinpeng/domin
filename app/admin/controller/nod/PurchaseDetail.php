@@ -55,6 +55,8 @@ class PurchaseDetail extends AdminController
                     $whereOr[] = ['category_id','=',$cate['id']];
                 }
             }
+            $where = format_where_datetime($where,'operate_time');
+
             $list = $this->model
                 ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser','getCategory'],'left')
                 ->where($where)

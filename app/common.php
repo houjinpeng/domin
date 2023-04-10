@@ -278,6 +278,27 @@ if (!function_exists('get_total_account_price')) {
 
 }
 
+if (!function_exists('get_inventory')) {
+    /**
+     * @return mixed
+     * 获取总应收款金额
+     */
+    function get_inventory(){
+        $all_data = \app\admin\model\NodInventory::select()->toArray();
+        $list = [];
+        foreach ($all_data as $item){
+            $list[] = $item['good_name'];
+        }
+
+
+        return $list;
+
+
+    }
+
+}
+
+
 if (!function_exists('check_practical_price')) {
     /**
      * @return mixed
@@ -290,8 +311,89 @@ if (!function_exists('check_practical_price')) {
             $price += intval($v['unit_price']);
         }
         return intval($practical_price) == $price;
+    }
+}
+
+
+
+if (!function_exists('calculator_paid_price')) {
+    /**
+     * @return mixed
+     * 计算单据金额
+     */
+    function calculator_paid_price($data){
+        $price = 0;
+
+        foreach ($data as $v){
+            $price += intval($v);
+        }
+        return $price;
+    }
+}
+
+if (!function_exists('get_warehouse_ym')) {
+    /**
+     * @return mixed
+     * 根据仓库名字获取仓库下所有的域名
+     */
+    function get_warehouse_ym($warehouse_name){
+        $list = [];
+        $all = \app\admin\model\NodWarehouse::where('name','=',$warehouse_name)->select();
+
+        foreach ($all as $item){
+            $list[] = $item['good_name'];
+        }
+
+
+        return $list;
+    }
+}
+
+if (!function_exists('save_jvming_order_log')) {
+    /**
+     * @return mixed
+     * 保存聚名订单日志
+     */
+    function save_jvming_order_log($data,$cate,$account,$search_time){
+
+        $insert_all_data = [];
+        foreach ($data as $item){
+            $insert_all_data[] = [
+                'order_id'=>$item['id'],
+                'cate'=>$cate,
+                'account'=>$account,
+                'search_time'=>$search_time,
+                'order_data'=>json_encode($item),
+            ];
+        }
+        if ($insert_all_data ==[]) return;
+        try {
+            \app\admin\model\NodJvMingOrderLog::insertAll($insert_all_data);
+        }catch (\Exception $e){
+            dd($e->getMessage(),$insert_all_data);
+        }
 
 
     }
+}
 
+if (!function_exists('format_where_datetime')) {
+    /**
+     * @return mixed
+     * 保存聚名订单日志
+     */
+    function format_where_datetime($where,$filed): mixed
+    {
+        $w = [];
+        foreach ($where as $item){
+            if ($item[0] == $filed){
+                $item[2] = date('Y-m-d H:i:s',$item[2]);
+                $w[] = $item;
+                continue;
+            }
+            $w[] = $item;
+        }
+
+        return $w;
+    }
 }

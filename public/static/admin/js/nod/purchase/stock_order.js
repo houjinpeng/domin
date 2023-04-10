@@ -34,23 +34,31 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.table.render({
                 init: init,
 
-                toolbar: ['refresh', 'add'],
+                toolbar: ['refresh', 'add',[{
+                    title:'采集单据',
+                    url:init.add_url,
+                    auth:'crawl_order',
+                    method:'open',
+                    icon:'fa fa-android',
+                    class: 'layui-btn layui-btn-sm',
+                }]],
                 limit: 30,
                 limits: [30, 50, 100],
                 cols: [[
                     // {type: "checkbox"},
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
-                    {field: 'order_time', minWidth: 180, title: '单据时间'},
+                    {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {field: 'order_info', minWidth: 120, title: '域名',searchOp:'=' ,templet:function (d) {
+                        if (d.order_info.length !== 0){
                             return d.order_info[0].good_name
+                        }
+                          return  ''
                         }},
                     {field: 'order_count', minWidth: 100, title: '数量',search: false,templet:function (d) {
                             let all_data = [];
                             d.order_info.forEach(function (item) {
                                 all_data.push(item['good_name'])
                             })
-
-
                             let html = '<div batch_num="'+d.order_batch_num+'" class="show_detail" goods_name = "'+all_data.join(',')+'" >'+d.order_count+'</div>'
                             return html
 
@@ -168,7 +176,64 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     })
 
 
+                    $('[data-title=采集单据]').click(function (d) {
 
+
+                        layer.open({
+                            title: '自动采集订单'
+                            ,area: ['500px', '300px']
+                            ,btn: ['开始采集', '关闭'] //可以无限个按钮
+                            ,skin: 'demo-class'
+                            ,content: ' 请选择采集日期：<input autocomplete="off" required name="carwl_time" type="text" class="layui-input" id="carwl_time">'
+                            ,success:function () {
+                                var laydate = layui.laydate;
+                                //执行一个laydate实例
+                                laydate.render({
+                                    elem: '#carwl_time'
+                                    ,format: 'yyyy-MM-dd'
+                                    ,value: ''
+                                    ,max: 0
+                                });
+
+                            }
+                            ,yes: function(index, layero){
+                                let carwl_time = $('#carwl_time').val()
+                                if (carwl_time ===''){
+                                    alert('请选择采集日期')
+                                    return false
+                                }
+
+                                // $.ajax({
+                                //     url:'crawl_all_order?crawl_time='+carwl_time,
+                                //     success:function (resp) {
+                                //         console.log(resp)
+                                //     }
+                                // })
+                                ea.request.post({
+                                    url:'crawl_all_order?crawl_time='+carwl_time,
+
+                                },function (resp) {
+                                    layer.msg(resp.msg,{icon:1})
+
+                                    layer.open({
+                                        title: '自动采集订单结果'
+                                        ,area: ['500px', '300px']
+                                        ,skin: 'demo-class'
+                                        ,'content':resp.msg +'<br> 请刷新页面'
+                                    })
+
+
+                                    // parent.table.reload('currentTableRenderId')
+                                })
+
+
+                                return false
+                            }
+                        })
+
+                        console.log(123)
+                        return false
+                    })
 
 
                 }

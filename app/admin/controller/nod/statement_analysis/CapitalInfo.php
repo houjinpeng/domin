@@ -41,6 +41,7 @@ class CapitalInfo extends AdminController
 
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
+            $where = format_where_datetime($where,'operate_time');
 
             $list = $this->model
                 ->with(['getOrder','getAccount','getSupplier','getWarehouse','getOrderUser','getCustomer','getCategory'],'left')

@@ -50,6 +50,7 @@ class Payment extends AdminController
 
             $where[] = ['type','=',5];
 
+            $where = format_where_datetime($where,'order_time');
 
             $list = $this->order_model
                 ->with(['getCustomer','getAccount','getOrderUser'],'left')
