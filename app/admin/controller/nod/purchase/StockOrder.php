@@ -568,95 +568,126 @@ class StockOrder extends AdminController
 
 
                 //获取调拨单
-                $push_list = $this->jm_api->get_push_list($start_time,$end_time);
-                if ($push_list['code'] == 999){
+                $pull_list = $this->jm_api->get_pull_list($start_time,$end_time);
+                if ($pull_list['code'] == 999){
                     $this->error('部分采集成功 ！  当前错误:'.$push_data['msg']);
                 }
 
 
                 $insert_all = [];
                 $sale_order_info = [];
-                foreach ($push_list['data']  as $item){
+                foreach ($pull_list['data']  as $item){
                     if ($item['zt_txt'] == '请求已取消'){ continue;}
 
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','调拨单')->find();
+                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','收到的请求')->find();
                     if (!empty($log_data)) continue;
-                    //需要获取目标仓库的id
-                    $mubiao_werahouse = $this->warehouse_model->where('name','=',$item['puid'])->find();
-                    //如果不存在 生成销售单 金额为0
-                    if (empty($mubiao_werahouse)){
-                        //保存一个销售单的数据
-                        $sale_order = [
-                            'order_time' => $order_time,
-                            'order_batch_num'=>'XSD' . date('YmdHis'),
-                            'order_user_id' => session('admin.id'),
-                            'remark' =>'程序批量生成转移销售单 转移到：'.$item['puid'],
-                            'account_id' => $account['id'],
-                            'practical_price' =>0,
-                            'paid_price' => 0,
-                            'type' => 3, //销售单
-                            'audit_status' => 0,//审核状态
+//                    //需要获取目标仓库的id
+//                    $mubiao_werahouse = $this->warehouse_model->where('name','=',$item['puid'])->find();
+//                    //如果不存在 生成销售单 金额为0
+//                    if (empty($mubiao_werahouse)){
+//                        //保存一个销售单的数据
+//                        $sale_order = [
+//                            'order_time' => $order_time,
+//                            'order_batch_num'=>'XSD' . date('YmdHis'),
+//                            'order_user_id' => session('admin.id'),
+//                            'remark' =>'程序批量生成转移销售单 转移到：'.$item['puid'],
+//                            'account_id' => $account['id'],
+//                            'practical_price' =>0,
+//                            'paid_price' => 0,
+//                            'type' => 3, //销售单
+//                            'audit_status' => 0,//审核状态
+//
+//                        ];
+//                        $pid = $this->order_model->insertGetId($sale_order);
+//                        $c_list =explode(',',$item['ymlbx']);
+//                        foreach ($c_list as $ym){
+//                            $sale_order_info[] = [
+//                                'good_name' =>$ym,
+//                                'remark' => isset($item['remark']) ? $item['remark'] : '',
+//                                'account_id' =>$account['id'],
+//                                'sale_time' => $order_time,
+//                                'pid' => $pid,
+//
+//                            ];
+//                        }
+//
+//                        $this->order_info_model->insertAll($sale_order_info);
+//                        $xiaoshou_order+=1;
+//
+//                        continue;
+//                    }
 
-                        ];
-                        $pid = $this->order_model->insertGetId($sale_order);
-                        $c_list =explode(',',$item['ymlbx']);
-                        foreach ($c_list as $ym){
-                            $sale_order_info[] = [
-                                'good_name' =>$ym,
-                                'remark' => isset($item['remark']) ? $item['remark'] : '',
-                                'account_id' =>$account['id'],
-                                'sale_time' => $order_time,
-                                'pid' => $pid,
 
-                            ];
-                        }
-
-                        $this->order_info_model->insertAll($sale_order_info);
-                        $xiaoshou_order+=1;
-
-                        continue;
-                    }
-
-
-                    //判断域名是否已经在此仓库下 如果在则不转移了
-                    $zy_ym_list = [];
-                    $warehouse_ym_list = get_warehouse_ym($item['puid']);
+                    //判断是调拨单还是采购单   调拨单（在自己账号下） 采购单 不属于自己账号的
+                    $from_werahouse = $this->warehouse_model->where('name','=',$item['uid'])->find();
                     $c_list =explode(',',$item['ymlbx']);
-                    foreach ($c_list as $ym){
-                        if (in_array($ym,$warehouse_ym_list))continue;
-                        $zy_ym_list[] = $ym;
-                    }
+                    $one_good_price = $item['qian']/count($c_list);
 
-
-                    //如果没有过滤掉
-                    if ($zy_ym_list ==[])continue;
-                    //生成调拨单
-                    $push_order = [
-                        'order_time' => $order_time,
-                        'order_batch_num' => 'DBD' . date('YmdHis'),
-                        'order_user_id' => session('admin.id'),
-                        'remark' => '程序批量生成 .'.$warehouse_data['name'] .' 发送到：'.$item['puid'],
-                        'warehouse_id' => $mubiao_werahouse['id'],
-                        'type' => 7, //调拨单
-                        'audit_status' => 0,//审核状态
-                    ];
-                    //插入调拨单 获取插入id
-                    $diaobo_order += 1;
-                    $pid = $this->order_model->insertGetId($push_order);
-
-
-                    foreach ($zy_ym_list as $ym) {
-                        $save_info = [
-                            'good_name' => $ym,
-                            'remark' => '',
-                            'category' =>'调拨单',
-                            'pid' => $pid,
-                            'warehouse_id' => $mubiao_werahouse['id'],
-                            'order_time' => $order_time,
+                    if (empty($from_werahouse)){
+                        //采购单
+                        $caigou_order += 1;
+                        $insert_order = [
+                            'order_time' =>$order_time,
+                            'order_batch_num' => 'GHD' . date('YmdHis'),
+                            'order_user_id' => session('admin.id'),
+                            'remark' => '收到的请求',
+                            'warehouse_id' => $warehouse_data['id'],
+                            'account_id'=> empty($account) ?'':$account['id'],
+                            'supplier_id'=> empty($supplier) ?'':$supplier['id'],
+                            'practical_price'=>$item['qian'],
+                            'paid_price'=>$item['qian'],
+                            'audit_status' => 0,//审核状态
                         ];
-                        $insert_all[] = $save_info;
+                        $pid = $this->order_model->insertGetId($insert_order);
+                        foreach ($c_list as $ym){
+                            $save_yikoujia_info = [
+                                'good_name' => $ym,
+                                'unit_price' => $one_good_price,
+                                'remark' => '',
+                                'category' => '采购',
+                                'pid' => $pid,
+                                'warehouse_id' => $warehouse_data['id'],
+                                'account_id' =>empty($account) ?'':$account['id'],
+                                'supplier_id' => empty($supplier) ?'':$supplier['id'],
+                                'order_time' => $order_time,
+                                'order_user_id' => session('admin.id'),
+                            ];
+                            $this->order_info_model->insert($save_yikoujia_info);
+                        }
+                    }else{
+                        //调拨单
+                        $zy_ym_list = [];
+                        foreach ($c_list as $ym){
+                            $zy_ym_list[] = $ym;
+                        }
+                        if ($zy_ym_list ==[])continue;
+                        //生成调拨单
+                        $push_order = [
+                            'order_time' => $order_time,
+                            'order_batch_num' => 'DBD' . date('YmdHis'),
+                            'order_user_id' => session('admin.id'),
+                            'remark' => '程序批量生成 .'.$item['uid'] .' 发送到：'.$warehouse_data['name'],
+                            'warehouse_id' => $warehouse_data['id'],
+                            'type' => 7, //调拨单
+                            'audit_status' => 0,//审核状态
+                        ];
+                        //插入调拨单 获取插入id
+                        $diaobo_order += 1;
+                        $pid = $this->order_model->insertGetId($push_order);
+                        foreach ($zy_ym_list as $ym) {
+                            $save_info = [
+                                'good_name' => $ym,
+                                'remark' => '',
+                                'category' =>'调拨单',
+                                'pid' => $pid,
+                                'warehouse_id' => $warehouse_data['id'],
+                                'order_time' => $order_time,
+                            ];
+                            $insert_all[] = $save_info;
 
+                        }
                     }
+
                 }
                 if ($insert_all != []){
                     $this->order_info_model->insertAll($insert_all);
@@ -697,17 +728,17 @@ class StockOrder extends AdminController
                 //保存log
                 save_jvming_order_log($all_push_data,'同行push',$username,$crawl_time);
                 save_jvming_order_log($financial_data,'资金明细',$username,$crawl_time);
-                save_jvming_order_log($push_list['data'],'调拨单',$username,$crawl_time);
+                save_jvming_order_log($pull_list['data'],'收到的请求',$username,$crawl_time);
             }
         }catch (\Exception  $e){
-            dd($e->getMessage());
+            $this->error($e->getMessage());
         }
 
 
         $result_data = [
             'code'=>1,
             'data'=>[],
-            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>销售单：'.strval($xiaoshou_order).'个<br>调拨单：'.strval($diaobo_order).'个<br>其它收入单：'.strval($other_receipt_order).'个 '
+            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>调拨单：'.strval($diaobo_order).'个<br>其它收入单：'.strval($other_receipt_order).'个 '
 
         ];
         return json($result_data);
