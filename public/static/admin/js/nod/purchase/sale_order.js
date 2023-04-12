@@ -32,7 +32,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.table.render({
                 init: init,
-                toolbar: ['refresh', 'add'],
+                toolbar: ['refresh', 'add',[{
+                    title:'采集单据',
+                    url:init.add_url,
+                    auth:'crawl_order',
+                    method:'open',
+                    icon:'fa fa-android',
+                    class: 'layui-btn layui-btn-sm',
+                }]],
                 limit: 30,
                 limits: [30, 50, 100],
                 cols: [[
@@ -162,6 +169,65 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                             }
                         });
+                    })
+
+                    $('[data-title=采集单据]').click(function (d) {
+
+
+                        layer.open({
+                            title: '自动采集订单'
+                            ,area: ['500px', '300px']
+                            ,btn: ['开始采集', '关闭'] //可以无限个按钮
+                            ,skin: 'demo-class'
+                            ,content: ' 请选择采集日期：<input autocomplete="off" required name="carwl_time" type="text" class="layui-input" id="carwl_time">'
+                            ,success:function () {
+                                var laydate = layui.laydate;
+                                //执行一个laydate实例
+                                laydate.render({
+                                    elem: '#carwl_time'
+                                    ,format: 'yyyy-MM-dd'
+                                    ,value: ea.GetDateStr(0)
+                                    ,max: 0
+                                });
+
+                            }
+                            ,yes: function(index, layero){
+                                let carwl_time = $('#carwl_time').val()
+                                if (carwl_time ===''){
+                                    alert('请选择采集日期')
+                                    return false
+                                }
+
+                                // $.ajax({
+                                //     url:'crawl_all_order?crawl_time='+carwl_time,
+                                //     success:function (resp) {
+                                //         console.log(resp)
+                                //     }
+                                // })
+                                ea.request.post({
+                                    url:'crawl_all_order?crawl_time='+carwl_time,
+
+                                },function (resp) {
+                                    layer.msg(resp.msg,{icon:1})
+
+                                    layer.open({
+                                        title: '自动采集订单结果'
+                                        ,area: ['500px', '300px']
+                                        ,skin: 'demo-class'
+                                        ,'content':resp.msg +'<br> 请刷新页面'
+                                    })
+
+
+                                    // parent.table.reload('currentTableRenderId')
+                                })
+
+
+                                return false
+                            }
+                        })
+
+                        console.log(123)
+                        return false
                     })
                 }
             });

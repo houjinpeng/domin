@@ -8,6 +8,7 @@ use app\admin\model\NodAccount;
 use app\admin\model\NodAccountInfo;
 use app\admin\model\NodCustomerManagement;
 use app\admin\model\NodInventory;
+use app\admin\model\NodJvMingOrderLog;
 use app\admin\model\NodOrder;
 use app\admin\model\NodOrderInfo;
 use app\admin\model\NodSupplier;
@@ -37,7 +38,7 @@ class SaleOrder extends AdminController
         $this->order_model = new NodOrder();
         $this->order_info_model = new NodOrderInfo();
         $this->inventory_model = new NodInventory();
-
+        $this->jvming_log = new NodJvMingOrderLog();
 
     }
 
@@ -450,5 +451,238 @@ class SaleOrder extends AdminController
 
     }
 
+    /**
+     * @NodeAnotation(title="抓取所有销售订单数据")
+     */
+    public function crawl_all_order($crawl_time)
+    {
 
+        $rule = [
+            'start_time|起始时间' => 'date',
+            'end_time|结束时间' => 'date',
+        ];
+        $start_time = $crawl_time;
+        $end_time = $crawl_time;
+
+        $data = [
+            'start_time' => $start_time,
+            'end_time' => $end_time,
+        ];
+
+        $this->validate($data, $rule);
+
+
+        //获取所有账户名字
+        $all_warehouse_data = $this->warehouse_model->select();
+        //获取每个账户的资金明细  查询指定日期购买的域名 按照类型分类
+        $sale_order = 0;
+        $warehouse_name_list = [];
+        foreach ($all_warehouse_data as $w) {
+            $warehouse_name_list[] = $w['name'];
+        }
+        try {
+            foreach ($all_warehouse_data as $warehouse_data) {
+                //获取账号id
+                $account = $this->account_model->where('name','=',$warehouse_data['name'])->find();
+                if (empty($account)){
+                    continue;
+                }
+                $username = $warehouse_data['account'];
+                $password = $warehouse_data['password'];
+                $cookie = $warehouse_data['cookie'];
+                $this->jm_api = new JvMing($username, $password, $cookie);
+                //获取资金明细单
+                $financial_data = $this->jm_api->get_financial_detailss(start_time: $start_time, end_time: $end_time);
+                $yikoujia_data = []; //一口价 销售购单
+                //获取域名竞价得标单
+                foreach ($financial_data as $item) {
+                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-资金明细')->find();
+                    if (!empty($log_data)) continue;
+                    //判断是否在库存中 如果存在的话过滤
+                    if ($item['zu'] == '一口价出售') {
+                        $yikoujia_data[$item['ym']] = $item['qian'];
+
+                    }
+                }
+                //生成销售单
+                $paid_price = calculator_paid_price($yikoujia_data);
+                $order_time = $crawl_time;
+                //单据编号自动生成   XHD+时间戳
+                $save_order = [
+                    'order_time' => $order_time,
+                    'order_batch_num' => 'XHD' . date('YmdHis'),
+                    'order_user_id' => session('admin.id'),
+                    'remark' => '程序自动生成销售单',
+                    'account_id' => $account['id'],
+                    'practical_price' => $paid_price,
+                    'paid_price' => $paid_price,
+                    'audit_status' => 0,//审核状态
+                    'sale_user_id' => session('admin.id'),//销售员
+                    'type'=>3,//售货单
+                ];
+                if ($yikoujia_data != []){
+                    $sale_order +=1;
+                    $pid = $this->order_model->insertGetId($save_order);
+
+                    $insert_all = [];
+                    foreach ($yikoujia_data as $ym=>$price) {
+                        $save_info = [
+                            'good_name' => $ym,
+                            'unit_price' => $price,
+                            'remark' => '',
+                            'category' =>'销售',
+                            'pid' => $pid,
+                            'warehouse_id' => $warehouse_data['id'],
+                            'account_id' => $account['id'],
+                            'sale_time' => $order_time,
+                            'order_time' => $order_time,
+                            'sale_user_id' => session('admin.id'),//销售员
+                            'order_user_id' => session('admin.id'),
+
+                        ];
+                        $insert_all[] = $save_info;
+
+                    }
+
+                    $this->order_info_model->insertAll($insert_all);
+                    save_jvming_order_log($yikoujia_data,'销售-资金明细',$username,$crawl_time);
+
+                }
+
+
+
+                //获取发送的域名
+                $push_data = $this->jm_api->get_push_list($start_time,$end_time);
+                //遍历 判断是否在 自己的仓库列表中
+                foreach ($push_data['data'] as $item){
+                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-push域名')->find();
+                    if (!empty($log_data)) continue;
+                    //如果在自己的仓库列表中  过滤掉
+
+                    if (in_array($item['puid'],$warehouse_name_list)) continue;
+                    $sale_order +=1;
+
+                    //一行一单
+                    $save_order = [
+                        'order_time' => $order_time,
+                        'order_batch_num' => 'XHD' . date('YmdHis'),
+                        'order_user_id' => session('admin.id'),
+                        'remark' => '发送的域名 发送到：'.$item['puid'],
+                        'account_id' => $account['id'],
+                        'practical_price' => $item['qian'],
+                        'paid_price' => $item['qian'],
+                        'audit_status' => 0,//审核状态
+                        'sale_user_id' => session('admin.id'),//销售员
+                        'type'=>3,//售货单
+                    ];
+
+                    $pid = $this->order_model->insertGetId($save_order);
+                    $c_list = explode(',',$item['ymlbx']);
+                    $one_good_price = $item['qian']/count($c_list);
+
+                    foreach ($c_list as $ym) {
+                        $save_info = [
+                            'good_name' => $ym,
+                            'unit_price' => $one_good_price,
+                            'remark' => '',
+                            'category' =>'销售',
+                            'pid' => $pid,
+                            'warehouse_id' => $warehouse_data['id'],
+                            'account_id' => $account['id'],
+                            'sale_time' => $order_time,
+                            'order_time' => $order_time,
+                            'sale_user_id' => session('admin.id'),//销售员
+                            'order_user_id' => session('admin.id'),
+
+                        ];
+                        $insert_all[] = $save_info;
+
+                    }
+                    if ($insert_all != []){
+                        $this->order_info_model->insertAll($insert_all);
+
+                    }
+
+                }
+                save_jvming_order_log($push_data['data'],'销售-push域名',$username,$crawl_time);
+
+                //获取转出域名列表
+                $zhuanchu_data = $this->jm_api->get_zhuanchu_list($start_time,$end_time);
+                //遍历
+                $insert_zhuanchu_data = [];
+                foreach ($zhuanchu_data['data'] as $item){
+                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-转出域名列表')->find();
+                    if (!empty($log_data)) continue;
+                    //如果在自己的仓库列表中  过滤掉
+                    if ($item['zt_txt']!='转出成功'){
+                        continue;
+                    }
+
+
+
+                    $save_info = [
+                        'good_name' => $item['ym'],
+                        'unit_price' => 0,
+                        'remark' => '转出方式：'.$item['fs'],
+                        'category' =>'销售',
+                        'warehouse_id' => $warehouse_data['id'],
+                        'account_id' => $account['id'],
+                        'sale_time' => $order_time,
+                        'order_time' => $order_time,
+                        'sale_user_id' => session('admin.id'),//销售员
+                        'order_user_id' => session('admin.id'),
+                    ];
+                    $insert_zhuanchu_data[] = $save_info;
+
+
+
+
+                }
+
+                //保存转出域名
+                if ($insert_zhuanchu_data != []){
+                    $sale_order += 1;
+                    $save_order = [
+                        'order_time' => $order_time,
+                        'order_batch_num' => 'XHD' . date('YmdHis'),
+                        'order_user_id' => session('admin.id'),
+                        'remark' => '程序生成转出域名',
+                        'account_id' => $account['id'],
+                        'practical_price' => 0,
+                        'paid_price' => 0,
+                        'audit_status' => 0,//审核状态
+                        'sale_user_id' => session('admin.id'),//销售员
+                        'type'=>3,//售货单
+                    ];
+
+                    $pid = $this->order_model->insertGetId($save_order);
+                    foreach ($insert_zhuanchu_data as &$item){
+                        $item['pid'] = $pid;
+                    }
+                    $this->order_info_model->insertAll($insert_zhuanchu_data);
+
+                    save_jvming_order_log($zhuanchu_data['data'],'销售-转出域名列表',$username,$crawl_time);
+                }
+
+
+            }
+
+
+
+
+        }catch (\Exception  $e){
+            $this->error($e->getLine().'行 错误:'.$e->getMessage());
+        }
+
+
+        $result_data = [
+            'code'=>1,
+            'data'=>[],
+            'msg'=>'采集成功 销售单：'.strval($sale_order).'个'
+
+        ];
+        return json($result_data);
+//        $this->success('采集成功,请刷新页面~');
+
+    }
 }

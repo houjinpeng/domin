@@ -363,7 +363,7 @@ class JvMing  extends AdminController
 
     }
 
-    //获取push域名
+    //获取发送域名 push域名
     public function get_push_list($start_time='',$end_time=''){
         $url = 'http://7a08c112cda6a063.juming.com:9696/user_ym/push_list?page=1&limit=500';
         $result = $this->request($url,$this->headers);
@@ -420,5 +420,30 @@ class JvMing  extends AdminController
 
     }
 
+    //获取转出域名列表
+    public function get_zhuanchu_list($start_time='',$end_time=''){
+        $url = 'http://7a08c112cda6a063.juming.com:9696/user_ym/zhuanchu_list?page=1&limit=500';
+        $result = $this->request($url,$this->headers);
+        if ($result['code'] == 999){
+            return $result;
+        }
+        //获取每个订单中的所有信息  ['目标账户'=>['域名1','域名2']]
+        $data = [];
+        foreach ($result['data'] as $item){
+            $t = explode(' ',$item['sj'])[0];
+            //对比时间
+            if ($start_time =='' || $end_time ==''){
+                $data[] = $item;
+                continue;
+            }
+            if ( $start_time == $t){
+                $data[] = $item;
+            }
+
+
+        }
+        $result['data']= $data;
+        return $result;
+    }
 
 }
