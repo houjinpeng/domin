@@ -387,13 +387,18 @@ if (!function_exists('format_where_datetime')) {
         $w = [];
         foreach ($where as $item){
             if ($item[0] == $filed){
-                $item[2] = date('Y-m-d H:i:s',$item[2]);
+                if ($item[1] == '<='){
+                    $item[2] = date('Y-m-d',$item[2]).' 23:59:59';
+
+                }else{
+                    $item[2] = date('Y-m-d H:i:s',$item[2]);
+
+                }
                 $w[] = $item;
                 continue;
             }
             $w[] = $item;
         }
-
         return $w;
     }
 }
