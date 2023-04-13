@@ -8,6 +8,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         audit_url: 'nod.audit.return_good/audit?type=stock',
         edit_url: 'nod.purchase.return_order/edit',
         chexiao_url: 'nod.purchase.return_order/chexiao',
+        delete_url: 'nod.purchase.return_order/delete',
 
 
     };
@@ -88,7 +89,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {
                         fixed: 'right',
-                        width: 180,
+                        width: 240,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
@@ -100,22 +101,30 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 auth: 'edit',
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
-                            },{
-                                    text: '撤销',
-                                    title:'是否要撤销当前单据？',
-                                    url: init.chexiao_url,
-                                    method: 'request',
-                                    auth: 'chexiao',
-                                    class: 'layui-btn layui-btn-xs layui-btn-danger',
-                                    extend: 'data-full="true"',
-                                }, {
+                            }, {
                                 text: '审核',
                                 url: init.audit_url,
                                 method: 'open',
                                 auth: 'audit',
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
-                            }]
+                            },{
+                                text: '撤销',
+                                title:'是否要撤销当前单据？',
+                                url: init.chexiao_url,
+                                method: 'request',
+                                auth: 'chexiao',
+                                class: 'layui-btn layui-btn-xs layui-btn-danger',
+                                extend: 'data-full="true"',
+                            },{
+                                text: '删除',
+                                title:'是否要删除当前单据？',
+                                url: init.delete_url,
+                                method: 'request',
+                                auth: 'delete',
+                                class: 'layui-btn layui-btn-xs layui-btn-danger',
+                                extend: 'data-full="true"',
+                            },]
                         ]
                     }
                 ]],
@@ -125,6 +134,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         if (v.audit_status === 1 || v.audit_status === 2){
                             // $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="编辑信息"]').removeClass('layui-btn-success').addClass('layui-btn-disabled').removeAttr('data-open')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要删除当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
                         }
 

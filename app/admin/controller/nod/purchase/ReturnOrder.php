@@ -374,6 +374,19 @@ class ReturnOrder extends AdminController
         }
     }
 
+    /**
+     * @NodeAnotation(title="删除单据信息")
+     */
+    public function delete($id)
+    {
+        $row = $this->order_model->find($id);
+        empty($row) && $this->error('没有该数据,不能删除');
+        if ($this->request->isAjax()){
+            $row['audit_status'] != 0 && $this->error('当前状态不能删除！');
+            $this->order_info_model->where('pid','=',$row['id'])->delete();
+            $row->delete();
+            $this->success('删除成功~');
+        }
 
-
+    }
 }
