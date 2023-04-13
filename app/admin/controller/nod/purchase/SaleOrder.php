@@ -491,15 +491,22 @@ class SaleOrder extends AdminController
                 $password = $warehouse_data['password'];
                 $cookie = $warehouse_data['cookie'];
                 $this->jm_api = new JvMing($username, $password, $cookie);
-                //获取资金明细单
-                $financial_data = $this->jm_api->get_financial_detailss(start_time: $start_time, end_time: $end_time);
+
+
+                //获取出售订单
+                $all_sale_data = $this->jm_api->get_sale_ym($start_time,$end_time);
+                if ($all_sale_data['code'] ==999){
+                    $this->error($all_sale_data['msg']);
+                }
+
+
                 $yikoujia_data = []; //一口价 销售购单
                 //获取域名竞价得标单
-                foreach ($financial_data as $item) {
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-资金明细')->find();
+                foreach ($all_sale_data as $item) {
+                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-已出售域名')->find();
                     if (!empty($log_data)) continue;
                     //判断是否在库存中 如果存在的话过滤
-                    if ($item['zu'] == '一口价出售') {
+                    if ($item['zt_txt'] == '出售') {
                         $yikoujia_data[$item['ym']] = $item['qian'];
 
                     }
@@ -579,7 +586,7 @@ class SaleOrder extends AdminController
                     $pid = $this->order_model->insertGetId($save_order);
                     $c_list = explode(',',$item['ymlbx']);
                     $one_good_price = $item['qian']/count($c_list);
-
+                    $insert_all = [];
                     foreach ($c_list as $ym) {
                         $save_info = [
                             'good_name' => $ym,
