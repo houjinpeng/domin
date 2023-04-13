@@ -499,14 +499,13 @@ class SaleOrder extends AdminController
                     $this->error($all_sale_data['msg']);
                 }
 
-
                 $yikoujia_data = []; //一口价 销售购单
                 //获取域名竞价得标单
-                foreach ($all_sale_data as $item) {
+                foreach ($all_sale_data['data'] as $item) {
                     $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-已出售域名')->find();
                     if (!empty($log_data)) continue;
                     //判断是否在库存中 如果存在的话过滤
-                    if ($item['zt_txt'] == '出售') {
+                    if ($item['zt_txt'] == '已出售') {
                         $yikoujia_data[$item['ym']] = $item['qian'];
 
                     }
@@ -552,7 +551,7 @@ class SaleOrder extends AdminController
                     }
 
                     $this->order_info_model->insertAll($insert_all);
-                    save_jvming_order_log($yikoujia_data,'销售-资金明细',$username,$crawl_time);
+                    save_jvming_order_log($all_sale_data['data'],'销售-已出售域名',$username,$crawl_time);
 
                 }
 
