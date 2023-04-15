@@ -33,6 +33,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.table.render({
                 init: init,
+                height:'full-40',
                 toolbar: ['refresh', 'add'],
                 limit: 30,
                 limits: [30, 50, 100],

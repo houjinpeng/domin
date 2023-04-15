@@ -34,7 +34,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.table.render({
                 init: init,
-
+                height:'full-40',
                 toolbar: ['refresh', 'add',[{
                     title:'采集单据',
                     url:init.add_url,

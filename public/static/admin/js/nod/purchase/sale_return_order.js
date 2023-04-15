@@ -34,6 +34,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 init: init,
                 toolbar: ['refresh', 'add'],
                 limit: 30,
+                height:'full-40',
                 limits: [30, 50, 100],
                 cols: [[
                     // {type: "checkbox"},

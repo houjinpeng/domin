@@ -41,6 +41,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     class: 'layui-btn layui-btn-sm',
                 }]],
                 limit: 30,
+                height:'full-40',
                 limits: [30, 50, 100],
                 cols: [[
                     // {type: "checkbox"},
