@@ -518,7 +518,7 @@ class SaleOrder extends AdminController
                     'order_time' => $order_time,
                     'order_batch_num' => 'XHD' . date('YmdHis'),
                     'order_user_id' => session('admin.id'),
-                    'remark' => '程序自动生成销售单',
+                    'remark' => '程序自动生成销售单 销售日期为：'.$start_time,
                     'account_id' => $account['id'],
                     'practical_price' => $paid_price,
                     'paid_price' => $paid_price,
@@ -535,7 +535,7 @@ class SaleOrder extends AdminController
                         $save_info = [
                             'good_name' => $ym,
                             'unit_price' => $price,
-                            'remark' => '',
+                            'remark' => '时间:'.$start_time.' 一口价销售',
                             'category' =>'销售',
                             'pid' => $pid,
                             'warehouse_id' => $warehouse_data['id'],
@@ -573,7 +573,7 @@ class SaleOrder extends AdminController
                         'order_time' => $order_time,
                         'order_batch_num' => 'XHD' . date('YmdHis'),
                         'order_user_id' => session('admin.id'),
-                        'remark' => '发送的域名 发送到：'.$item['puid'],
+                        'remark' => '时间：'.$start_time.' 发送的域名 发送到：'.$item['puid'],
                         'account_id' => $account['id'],
                         'practical_price' => $item['qian'],
                         'paid_price' => $item['qian'],
@@ -590,7 +590,7 @@ class SaleOrder extends AdminController
                         $save_info = [
                             'good_name' => $ym,
                             'unit_price' => $one_good_price,
-                            'remark' => '',
+                            'remark' => '时间：'.$start_time.' 发送域名到：'.$item['puid'],
                             'category' =>'销售',
                             'pid' => $pid,
                             'warehouse_id' => $warehouse_data['id'],
@@ -629,7 +629,7 @@ class SaleOrder extends AdminController
                     $save_info = [
                         'good_name' => $item['ym'],
                         'unit_price' => 0,
-                        'remark' => '转出方式：'.$item['fs'],
+                        'remark' => '时间：'.$start_time.' 转出方式：'.$item['fs'],
                         'category' =>'销售',
                         'warehouse_id' => $warehouse_data['id'],
                         'account_id' => $account['id'],
@@ -641,8 +641,6 @@ class SaleOrder extends AdminController
                     $insert_zhuanchu_data[] = $save_info;
 
 
-
-
                 }
 
                 //保存转出域名
@@ -652,7 +650,7 @@ class SaleOrder extends AdminController
                         'order_time' => $order_time,
                         'order_batch_num' => 'XHD' . date('YmdHis'),
                         'order_user_id' => session('admin.id'),
-                        'remark' => '程序生成转出域名',
+                        'remark' =>  '时间：'.$start_time.' 程序生成转出域名',
                         'account_id' => $account['id'],
                         'practical_price' => 0,
                         'paid_price' => 0,

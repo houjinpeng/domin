@@ -463,7 +463,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             //快捷录入单据金额
             table.on('edit(order_table)', function(obj){
-                $('#practical_price').val(obj.value)
+                //获取所有单据数据  然后相加
+                let all_data = table.cache['order_table']
+                let total_price = 0;
+                all_data.forEach(function (item) {
+                    total_price += parseInt(item['unit_price'])
+                })
+
+
+                $('#practical_price').val(total_price)
 
             });
 
@@ -641,7 +649,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             //快捷录入单据金额
             table.on('edit(order_table)', function(obj){
-                $('#practical_price').val(obj.value)
+                //获取所有单据数据  然后相加
+                let all_data = table.cache['order_table']
+                let total_price = 0;
+                all_data.forEach(function (item) {
+                    total_price += parseInt(item['unit_price'])
+                })
+
+
+                $('#practical_price').val(total_price)
 
             });
 
