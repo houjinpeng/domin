@@ -449,6 +449,43 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             })
 
+            //批量修改单价
+            $('#batch_set_price').click(function () {
+                layer.open({
+                    title: '采购单-表单导入单据',
+                    skin: 'demo-class',
+                    type: 1,
+                    area: ['260px', '132px'],
+                    content: '<div class="layuimini-container">请输入要修改的价格：<input autocomplete="off"  id="price" value="" ><button id="sub_price">确定</button></div> ',
+                    success:function (layero, index) {
+                        //点击导入 导入表单
+                        $('#sub_price').click(function () {
+
+
+                            let price = $('#price').val()
+
+                            let import_data = []
+                            let all_data = table.cache['order_table']
+                            all_data.forEach(function (item) {
+                                item['unit_price'] = price
+                                import_data.push(item)
+                            })
+
+
+
+
+                            table.reload('order_table', {data: import_data, limit: 100000})
+                            layer.msg('修改成功',{icon:1})
+                            layer.close(index)
+                            return false
+                        })
+                    }
+
+
+                });
+            })
+
+
             ea.listen(function (data) {
                 data['goods'] = table.cache['order_table']
 
@@ -561,6 +598,42 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 })
 
 
+            })
+
+            //批量修改单价
+            $('#batch_set_price').click(function () {
+                layer.open({
+                    title: '采购单-表单导入单据',
+                    skin: 'demo-class',
+                    type: 1,
+                    area: ['260px', '132px'],
+                    content: '<div class="layuimini-container">请输入要修改的价格：<input autocomplete="off"  id="price" value="" ><button id="sub_price">确定</button></div> ',
+                    success:function (layero, index) {
+                        //点击导入 导入表单
+                        $('#sub_price').click(function () {
+
+
+                            let price = $('#price').val()
+
+                            let import_data = []
+                            let all_data = table.cache['order_table']
+                            all_data.forEach(function (item) {
+                                item['unit_price'] = price
+                                import_data.push(item)
+                            })
+
+
+
+
+                            table.reload('order_table', {data: import_data, limit: 100000})
+                            layer.msg('修改成功',{icon:1})
+                            layer.close(index)
+                            return false
+                        })
+                    }
+
+
+                });
             })
 
 
