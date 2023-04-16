@@ -76,5 +76,56 @@ class SaleUserStatistic extends AdminController
         return $this->fetch();
     }
 
+    public function get_sale_user_profit($time){
+
+        $t = explode(' - ',$time);
+
+        //获取所有销售员
+        $all_sale_user = $this->model->select()->toArray();
+        $profit_price_list = [];
+        $sale_count_list = [];
+        $sale_user_list = [];
+        foreach ($all_sale_user as $user){
+            $sale_user_list[] = $user['username'];
+            //获取销售员的销售条数及利润
+            $count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('sale_user_id','=',$user['id'])->where('type','=','3')->group('good_name')->count();//销售单
+            $th_count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('sale_user_id','=',$user['id'])
+                ->where('type','=','6')->count();//退货单销售单
+
+
+            $sale_count_list[] = $count-$th_count;
+
+            $cate = $this->category_model->where('name','=','销售费用')->find();
+            if (!empty($cate)){
+
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6 or type=9  or type=8 or category_id='.$cate['id'].')')->sum('profit_price');//销售单
+            }else{
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('sale_user_id','=',$user['id'])->whereRaw('(type=3 or type=6 or type=9  or type=8)')->sum('profit_price');//销售单
+            }
+
+
+            $profit_price_list[] = $profit_price;
+
+        }
+
+        $data = [
+            'code'=>1,
+            'data'=>['profit_price_list'=>$profit_price_list,
+                'sale_count_list'=>$sale_count_list,
+                'sale_user_list'=>$sale_user_list,]
+        ];
+        return json($data);
+    }
+
 
 }
