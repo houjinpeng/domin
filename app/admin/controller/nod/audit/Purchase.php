@@ -91,7 +91,6 @@ class Purchase extends AdminController
             $post['paid_price'] = intval($post['paid_price']);
             if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
 
-
             //验证
             $order_info_rule = [
                 'practical_price|【单据金额】' => 'number|require',
@@ -140,6 +139,7 @@ class Purchase extends AdminController
                 //商品入库
                 $insert_warehouse_all = [];
                 $insert_inventory_all = [];
+                unset($item);
                 foreach ($post['goods'] as $item) {
                     $save_info = [
                         'good_name' => $item['good_name'],
@@ -182,7 +182,6 @@ class Purchase extends AdminController
                     $insert_inventory_all[] = $insert_inventory_info;
 
                 }
-
                 delete_unnecessary_order_info($id,$post['goods']);
 
                 //商品存入库存明细表

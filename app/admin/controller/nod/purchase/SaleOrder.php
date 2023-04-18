@@ -512,7 +512,7 @@ class SaleOrder extends AdminController
                     if (!empty($log_data)) continue;
                     //判断是否在库存中 如果存在的话过滤
                     if ($item['zt_txt'] == '已出售') {
-                        $yikoujia_data[$item['ym']] = $item['qian'];
+                        $yikoujia_data[$item['ym']] = $item['wtqian'];
 
                     }
                 }

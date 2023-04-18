@@ -133,7 +133,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.listen(function (data) {
                 data['goods'] = table.cache['order_table']
-
+                console.log(data)
                 return {data:JSON.stringify(data)}
 
             });

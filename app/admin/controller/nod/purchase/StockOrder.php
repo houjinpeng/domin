@@ -427,10 +427,6 @@ class StockOrder extends AdminController
         ];
 
         $this->validate($data, $rule);
-        //获取库存
-        $inventory_list = get_inventory();
-
-
 
 
         //获取所有账户名字
@@ -485,6 +481,12 @@ class StockOrder extends AdminController
                     }
                     if ($item['zu'] == '域名得标') {
                         if ($item['lx_txt'] == '退款') {
+                            //如果活动在sm中 开其他收入单
+                            if (strstr($item['sm'],'活动')){
+                                $other_receipt_data[$item['sm']] = $item['qian'];
+                                continue;
+                            }
+
                             $return_stock_order_data[$item['id']] = $item;
                             continue;
                         };
@@ -509,6 +511,11 @@ class StockOrder extends AdminController
                     elseif($item['zu'] =='竞价活动' ){
                         //如果是退款单  跳过
                         if ($item['lx_txt'] == '退款') {
+                            //如果活动在sm中 开其他收入单
+                            if (strstr($item['sm'],'活动')){
+                                $other_receipt_data[$item['sm']] = $item['qian'];
+                                continue;
+                            }
                             $return_stock_order_data[$item['id']] = $item;
                             continue;
                         }
@@ -627,6 +634,7 @@ class StockOrder extends AdminController
                     $one_good_price = $item['qian']/count($c_list);
 
                     if (empty($from_werahouse)){
+                        $supplier = $this->supplier_model->where('name','=','同行push')->find();
                         //采购单
                         $caigou_order += 1;
                         $insert_order = [
