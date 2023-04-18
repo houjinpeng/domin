@@ -57,22 +57,36 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {
                         field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
-                            return d.getOrderUser['username']
+                            if (d.getOrderUser){
+                                return d.getOrderUser['username']
+                            }
+                            return ''
+
                         }
                     },
                     {
                         field: 'supplier_id', minWidth: 100, title: '来源渠道',selectList: bulid_select(supplier_select_list), templet: function (d) {
-                            return d.getSupplier['name']
+                            if (d.getSupplier){
+                                return d.getSupplier['name']
+                            }
+                            return ''
                         }
                     },
                     {
                         field: 'warehouse_id', minWidth: 100, title: '仓库',selectList: bulid_select(warehouse_select_list), templet: function (d) {
-                            return d.getWarehouse['name']
+                            if (d.getWarehouse){
+                                return d.getWarehouse['name']
+                            }
+                            return ''
+
                         }
                     },
                     {
                         field: 'account_id', minWidth: 120, title: '结算账户',selectList: bulid_select(account_select_list), templet: function (d) {
-                            return d.getAccount['name']
+                            if (d.getAccount){
+                                return d.getAccount['name']
+                            }
+                            return ''
                         }
                     },
                     {field: 'practical_price', minWidth: 100, title: '单据金额',search:false},
@@ -437,7 +451,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             })
 
             ea.listen(function (data) {
-                data['goods'] = table.cache['unit_price']
+                data['goods'] = table.cache['order_table']
 
                 return {data: JSON.stringify(data)}
 

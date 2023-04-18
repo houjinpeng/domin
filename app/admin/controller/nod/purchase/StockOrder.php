@@ -46,6 +46,9 @@ class StockOrder extends AdminController
     public function index()
     {
 
+
+//        preg_match('/竞价域名[\w+\.]+/', '订单号:145128174退款,竞价域名51zmjs.com[活动],原因:原持有者赎回', $matches);
+//        dd($matches);
         if ($this->request->isAjax()) {
 
             list($page, $limit, $where) = $this->buildTableParames();
@@ -423,12 +426,13 @@ class StockOrder extends AdminController
 
 
         //获取所有账户名字
-        $all_warehouse_data = $this->warehouse_model->select();
+        $all_warehouse_data = $this->warehouse_model->where('status','=',1)->select();
         //获取每个账户的资金明细  查询指定日期购买的域名 按照类型分类
         $caigou_order = 0;
         $diaobo_order = 0;
         $zhuanyi_order =0 ;
         $other_receipt_order = 0;
+        $return_stock_order = 0 ;//采购退货单
         try {
             foreach ($all_warehouse_data as $warehouse_data) {
                 //获取账号id
@@ -445,13 +449,13 @@ class StockOrder extends AdminController
                 $push_data = []; //同行push 开采购单
                 $quan_data = []; //券 开采购单
                 $other_receipt_data = []; //竞价活动   开成其它收款单
+                $return_stock_order_data = []; //竞价活动 域名得标    开成退货单
                 //获取域名竞价得标单
                 $last_quan_price = $this->jm_api->get_quan_price();
                 foreach ($financial_data as $item) {
                     $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','资金明细')->find();
                     if (!empty($log_data)) continue;
                     //判断是否在库存中 如果存在的话过滤
-                    if ($item['lx_txt'] == '退款') continue;
                     if ($item['lx_txt'] == '充值') { //开提现转存单
                         $zhuanyi_order += 1;
                         //单据编号自动生成   ZCTX+时间戳
@@ -472,6 +476,10 @@ class StockOrder extends AdminController
 
                     }
                     if ($item['zu'] == '域名得标') {
+                        if ($item['lx_txt'] == '退款') {
+                            $return_stock_order_data[$item['id']] = $item;
+                            continue;
+                        };
                         if (!isset($jingjia_data[$item['ym']])) {
                             $jingjia_data[$item['ym']] = $item['qian'];
                         } else {
@@ -490,14 +498,17 @@ class StockOrder extends AdminController
                     elseif ($item['zu'] == '域名注册(券)' ) {
                         $quan_data[$item['ym']] = -$last_quan_price;
                     }
-                    elseif($item['zu'] =='竞价活动'){
+                    elseif($item['zu'] =='竞价活动' ){
+                        //如果是退款单  跳过
+                        if ($item['lx_txt'] == '退款') {
+                            $return_stock_order_data[$item['id']] = $item;
+                            continue;
+                        }
+
                         $other_receipt_data[$item['ym']] = $item['qian'];
                     }
 
                 }
-
-
-
 
 
                 //获取同行push数据
@@ -525,7 +536,7 @@ class StockOrder extends AdminController
 
                 //所有金额
 
-                $order_time =  date('Y-m-d H:i:s');
+                $order_time = $start_time;
                 //遍历所有分类数据  插入订单
                 $supplier = '';
                 $remark = '';
@@ -599,41 +610,7 @@ class StockOrder extends AdminController
 
                     $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','收到的请求')->find();
                     if (!empty($log_data)) continue;
-//                    //需要获取目标仓库的id
-//                    $mubiao_werahouse = $this->warehouse_model->where('name','=',$item['puid'])->find();
-//                    //如果不存在 生成销售单 金额为0
-//                    if (empty($mubiao_werahouse)){
-//                        //保存一个销售单的数据
-//                        $sale_order = [
-//                            'order_time' => $order_time,
-//                            'order_batch_num'=>'XSD' . date('YmdHis'),
-//                            'order_user_id' => session('admin.id'),
-//                            'remark' =>'程序批量生成转移销售单 转移到：'.$item['puid'],
-//                            'account_id' => $account['id'],
-//                            'practical_price' =>0,
-//                            'paid_price' => 0,
-//                            'type' => 3, //销售单
-//                            'audit_status' => 0,//审核状态
-//
-//                        ];
-//                        $pid = $this->order_model->insertGetId($sale_order);
-//                        $c_list =explode(',',$item['ymlbx']);
-//                        foreach ($c_list as $ym){
-//                            $sale_order_info[] = [
-//                                'good_name' =>$ym,
-//                                'remark' => isset($item['remark']) ? $item['remark'] : '',
-//                                'account_id' =>$account['id'],
-//                                'sale_time' => $order_time,
-//                                'pid' => $pid,
-//
-//                            ];
-//                        }
-//
-//                        $this->order_info_model->insertAll($sale_order_info);
-//                        $xiaoshou_order+=1;
-//
-//                        continue;
-//                    }
+
 
 
                     //判断是调拨单还是采购单   调拨单（在自己账号下） 采购单 不属于自己账号的
@@ -749,14 +726,58 @@ class StockOrder extends AdminController
                 }
 
 
+                //生成退货单
+                if ($return_stock_order_data != []){
+                    $return_stock_order += 1;
 
+                    $pid = $this->order_model->insertGetId(
+                        [
+                            'order_time' =>$order_time,
+                            'order_batch_num' => 'CGTHD' . date('YmdHis'),
+                            'order_user_id' => session('admin.id'),
+                            'remark' => '时间：'.$start_time .' 采购退货单',
+                            'account_id' => $account['id'],
+                            'practical_price' => 0,
+                            'paid_price' => 0,
+                            'audit_status' => 0,//审核状态
+                            'type' => 2,//采购退货单
+                        ]
+                    );
+
+                    foreach ($return_stock_order_data as $return_item){
+                        try {
+                            if (strstr($return_item['sm'],'竞价域名')){
+                                preg_match('/竞价域名[\w+\.]+/', $return_item['sm'], $matches);
+                                $good_name = explode('竞价域名',$matches[0])[1];
+                            }else{
+                                preg_match('/得标域名[\w+\.]+/', $return_item['sm'], $matches);
+                                $good_name = explode('得标域名',$matches[0])[1];
+                            }
+                            //插入采购退货单数据
+                            $save_info = [
+                                'good_name' =>$good_name,
+                                'unit_price' => -$return_item['qian'],
+                                'remark' => $return_item['sm'],
+                                'pid' => $pid,
+                                'category' =>'采购退货',
+                                'account_id' => $account['id'],
+                                'order_user_id' => session('admin.id'),
+                            ];
+                            $this->order_info_model->insert($save_info);
+                        }catch (\Exception $e){
+                            continue;
+                        }
+
+                    }
+
+                }
 
                 //保存log
                 save_jvming_order_log($all_push_data,'同行push',$username,$crawl_time);
                 save_jvming_order_log($financial_data,'资金明细',$username,$crawl_time);
                 save_jvming_order_log($pull_list['data'],'收到的请求',$username,$crawl_time);
             }
-        }catch (\Exception  $e){
+        }catch (\Exception $e){
             $this->error($e->getLine().'行 错误:'.$e->getMessage());
         }
 
@@ -764,7 +785,7 @@ class StockOrder extends AdminController
         $result_data = [
             'code'=>1,
             'data'=>[],
-            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>调拨单：'.strval($diaobo_order).'个<br>其它收入单：'.strval($other_receipt_order).'个<br>转存提现单：'.strval($zhuanyi_order).'个'
+            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>采购退货单：'.$return_stock_order.'个<br>调拨单：'.strval($diaobo_order).'个<br>其它收入单：'.strval($other_receipt_order).'个<br>转存提现单：'.strval($zhuanyi_order).'个'
 
         ];
         return json($result_data);
