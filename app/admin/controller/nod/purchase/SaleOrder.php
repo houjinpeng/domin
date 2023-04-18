@@ -570,7 +570,7 @@ class SaleOrder extends AdminController
                     $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-push域名')->find();
                     if (!empty($log_data)) continue;
                     //如果在自己的仓库列表中  过滤掉
-
+                    if ($item['zt_txt'] != '已接受')continue;
                     if (in_array($item['puid'],$warehouse_name_list)) continue;
                     $sale_order +=1;
 

@@ -47,7 +47,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     // {type: "checkbox"},
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
-                    {field: 'order_info', minWidth: 120, title: '域名',search:'batch',searchOp:'in',templet:function (d) {
+                    {field: 'order_info', minWidth: 140,align:'left', title: '域名',search:'batch',searchOp:'in',templet:function (d) {
                             return d.order_info[0].good_name
                         }},
                     {field: 'order_count', minWidth: 100, title: '数量',search: false,templet:function (d) {
@@ -62,14 +62,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                         }},
                     {
-                        field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
+                        field: 'order_user_id',align:'left', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
                             if ( d.getOrderUser){
                                 return d.getOrderUser['username']
                             }return ''
 
                         }
                     }, {
-                        field: 'sale_user_id', minWidth: 90, title: '销售员',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
+                        field: 'sale_user_id',align:'left', minWidth: 90, title: '销售员',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
                             if ( d.getSaleUser){
                                 return d.getSaleUser['username']
                             }return ''
@@ -77,7 +77,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'customer_id', minWidth: 100, title: '客户',selectList: bulid_select(customer_select_list), templet: function (d) {
+                        field: 'customer_id',align:'left', minWidth: 100, title: '客户',selectList: bulid_select(customer_select_list), templet: function (d) {
                             if ( d.getCustomer){
                                 return d.getCustomer['name']
                             }return ''
@@ -85,17 +85,17 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {
-                        field: 'account_id', minWidth: 120, title: '结算账户',selectList: bulid_select(account_select_list), templet: function (d) {
+                        field: 'account_id',align:'left', minWidth: 120, title: '结算账户',selectList: bulid_select(account_select_list), templet: function (d) {
                             if ( d.getAccount){
                                 return d.getAccount['name']
                             }return ''
 
                         }
                     },
-                    {field: 'practical_price', minWidth: 100, title: '单据金额',search:false},
-                    {field: 'paid_price', minWidth: 100, title: '实付金额',search:false},
-                    {field: 'remark', minWidth: 180, title: '备注'},
-                    {field: 'audit_status', minWidth: 100, title: '状态',selectList:{'1':'已审核','2':'撤销','0':'未审核'},templet:function (d) {
+                    {field: 'practical_price',align:'left', minWidth: 100, title: '单据金额',search:false},
+                    {field: 'paid_price',align:'left', minWidth: 100, title: '实付金额',search:false},
+                    {field: 'remark',align:'left', minWidth: 180, title: '备注'},
+                    {field: 'audit_status',align:'left', minWidth: 100, title: '状态',selectList:{'1':'已审核','2':'撤销','0':'未审核'},templet:function (d) {
                             if (d.audit_status === 1){
                                 return'已审核'
                             }if (d.audit_status === 0){
