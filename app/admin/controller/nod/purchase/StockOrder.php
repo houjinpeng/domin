@@ -70,11 +70,19 @@ class StockOrder extends AdminController
                 $count = $this->order_model->where($where)->order('id', 'desc')->count();
             } else {
                 $list = $this->order_model->where($where)
+
                     ->with(['getWarehouse', 'getAccount', 'getSupplier', 'getOrderUser'], 'left')
                     ->order('id', 'desc')
-                    ->hasWhere('getOrderInfo', ['good_name' => $is_search_ym])
+                    ->hasWhere('getOrderInfo',function($query) use ($is_search_ym) {
+                        $query->where('good_name', 'in', $is_search_ym);
+                    })
                     ->select()->toArray();
-                $count = $this->order_model->where($where)->hasWhere('getOrderInfo', ['good_name' => $is_search_ym])->order('id', 'desc')->count();
+
+                $count = $this->order_model->where($where)
+                    ->hasWhere('getOrderInfo',function($query) use ($is_search_ym) {
+                        $query->where('good_name', 'in', $is_search_ym);
+                    })
+                    ->order('id', 'desc')->count();
             }
 
 
