@@ -385,7 +385,10 @@ class Purchase extends AdminController
                         $inventory_list[] = $it['good_name'];
                     }
                     $dif = array_diff($ym_list,$inventory_list);
-                    $this->error('下列商品不在库存中，请尽快入库 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
+                    if (count($dif)!= 0){
+                        $this->error('下列商品不在库存中，请尽快入库 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
+
+                    }
                 }
 
 
