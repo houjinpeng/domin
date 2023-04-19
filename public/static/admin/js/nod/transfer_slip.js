@@ -32,7 +32,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 toolbar:['refresh','add'],
                 limits:[30,50,100],
                 cols: [[
-                    {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
+                    {field: 'order_batch_num', minWidth: 220, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {
                         field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {

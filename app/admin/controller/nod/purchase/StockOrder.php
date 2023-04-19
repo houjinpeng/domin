@@ -46,9 +46,6 @@ class StockOrder extends AdminController
     public function index()
     {
 
-
-//        preg_match('/竞价域名[\w+\.]+/', '订单号:145128174退款,竞价域名51zmjs.com[活动],原因:原持有者赎回', $matches);
-//        dd($matches);
         if ($this->request->isAjax()) {
 
             list($page, $limit, $where) = $this->buildTableParames();
@@ -146,7 +143,7 @@ class StockOrder extends AdminController
 
 
             //单据编号自动生成   GHD+时间戳
-            $order_batch_num = 'GHD' . date('YmdHis');
+            $order_batch_num = 'GHD' . now_time();
 
             $save_order = [
                 'order_time' => $post['order_time'],
@@ -235,7 +232,7 @@ class StockOrder extends AdminController
             check_practical_price($post['practical_price'], $post['goods']) || $this->error('单据中的内容与单据金额不付~ 请重新计算');
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'unit_price|【购货单价】' => 'number|require',
+                'unit_price|【购货单价】' => 'float|require',
 
             ];
 
@@ -457,14 +454,17 @@ class StockOrder extends AdminController
                 //获取域名竞价得标单
                 $last_quan_price = $this->jm_api->get_quan_price();
                 foreach ($financial_data as $item) {
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','资金明细')->find();
-                    if (!empty($log_data)) continue;
                     //判断是否在库存中 如果存在的话过滤
                     if ($item['lx_txt'] == '充值') { //开提现转存单
+
+                        //如果存在过滤
+                        $is_exist = $this->order_model->whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = '.$start_time)
+                            ->where('type','=',10)
+                            ->where('to_account','=',$account['id'])->where('remark','=',$item['zu'])->find();
+                        if (!empty($is_exist)) continue;
                         $zhuanyi_order += 1;
                         //单据编号自动生成   ZCTX+时间戳
-                        $order_batch_num = 'ZCTX' . date('YmdHis');
-
+                        $order_batch_num = 'ZCTX' .now_time();
                         $save_order = [
                             'to_account' => $account['id'],
                             'order_batch_num' => $order_batch_num,
@@ -487,9 +487,22 @@ class StockOrder extends AdminController
                                 continue;
                             }
 
+                            //判断采购退货单是否存在
+                            if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 2) == true){
+                                continue;
+                            }
+
                             $return_stock_order_data[$item['id']] = $item;
                             continue;
                         };
+
+
+                        //判断采购单是否存在
+                        if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 1) == true){
+                            continue;
+                        }
+
+
                         if (!isset($jingjia_data[$item['ym']])) {
                             $jingjia_data[$item['ym']] = $item['qian'];
                         } else {
@@ -498,6 +511,11 @@ class StockOrder extends AdminController
 
                     }
                     elseif ($item['zu'] == '一口价购买') {
+                        //判断采购单是否存在
+                        if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 1) == true){
+                            continue;
+                        }
+
                         if (!isset($yikoujia_data[$item['ym']])) {
                             $yikoujia_data[$item['ym']] = $item['qian'];
                         } else {
@@ -506,6 +524,10 @@ class StockOrder extends AdminController
 
                     }
                     elseif ($item['zu'] == '域名注册(券)' ) {
+                        //判断采购单是否存在
+                        if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 1) == true){
+                            continue;
+                        }
                         $quan_data[$item['ym']] = -$last_quan_price;
                     }
                     elseif($item['zu'] =='竞价活动' ){
@@ -516,10 +538,17 @@ class StockOrder extends AdminController
                                 $other_receipt_data[$item['sm']] = $item['qian'];
                                 continue;
                             }
+                            //判断采购退货单是否存在
+                            if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 2) == true){
+                                continue;
+                            }
                             $return_stock_order_data[$item['id']] = $item;
                             continue;
                         }
-
+                        //判断采购单是否存在
+                        if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 1) == true){
+                            continue;
+                        }
                         $other_receipt_data[$item['ym']] = $item['qian'];
                     }
 
@@ -528,12 +557,12 @@ class StockOrder extends AdminController
 
                 //获取同行push数据
                 $all_push_data = $this->jm_api->get_ruku_list(start_time: $start_time, end_time: $end_time);
-
                 foreach ($all_push_data as $item) {
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','资金明细')->find();
-                    if (!empty($log_data)) continue;
-
                     foreach ($item['ymlb'] as $v) {
+                        //判断采购退货单是否存在
+                        if (check_order_exist(ym: $v,time: $start_time,cate: 1) == true){
+                            continue;
+                        }
                         $push_data[$v] = 0;
                     }
                 }
@@ -548,9 +577,7 @@ class StockOrder extends AdminController
                 ];
 
 
-
                 //所有金额
-
                 $order_time = $start_time;
                 //遍历所有分类数据  插入订单
                 $supplier = '';
@@ -577,12 +604,22 @@ class StockOrder extends AdminController
                         $supplier = $this->supplier_model->where('name','=','域名注册')->find();
                         $remark = '日期：'.$start_time. ' 域名注册';
                     }
+
+                    $new_data = $data;
+                    foreach ($new_data as $ym){
+                        //如果存在过滤  并删除存在的数据
+                        if (check_order_exist(ym: $ym,time: $start_time,cate: 1) == true) {
+                            unset($data[$ym]);
+                        };
+                    }
+
+
                     if ($data == []) continue;
                     $caigou_order += 1;
                     //组装数据插入数据库
                     $insert_order = [
                         'order_time' =>$order_time,
-                        'order_batch_num' => 'GHD' . date('YmdHis'),
+                        'order_batch_num' => 'GHD' . now_time(),
                         'order_user_id' => session('admin.id'),
                         'remark' => $remark,
                         'warehouse_id' => $warehouse_data['id'],
@@ -623,10 +660,6 @@ class StockOrder extends AdminController
                 foreach ($pull_list['data']  as $item){
                     if ($item['zt_txt'] == '请求已取消'){ continue;}
 
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','收到的请求')->find();
-                    if (!empty($log_data)) continue;
-
-
 
                     //判断是调拨单还是采购单   调拨单（在自己账号下） 采购单 不属于自己账号的
                     $from_werahouse = $this->warehouse_model->where('name','=',$item['uid'])->find();
@@ -636,10 +669,20 @@ class StockOrder extends AdminController
                     if (empty($from_werahouse)){
                         $supplier = $this->supplier_model->where('name','=','同行push')->find();
                         //采购单
+
+                        $new_c_list = $c_list;
+
+                        foreach ($new_c_list as $index=>$ym){
+                            if (check_order_exist(ym: $ym,time: $start_time,cate: 1) == true){
+                                unset($c_list[$index]);
+                            }
+                        }
+                        //如果为0跳过
+                        if (count($c_list) == 0)continue;
                         $caigou_order += 1;
                         $insert_order = [
                             'order_time' =>$order_time,
-                            'order_batch_num' => 'GHD' . date('YmdHis'),
+                            'order_batch_num' => 'GHD' . now_time(),
                             'order_user_id' => session('admin.id'),
                             'remark' => '时间：'.$start_time.' 收到的请求 来自:'.$item['uid'],
                             'warehouse_id' => $warehouse_data['id'],
@@ -650,6 +693,7 @@ class StockOrder extends AdminController
                             'audit_status' => 0,//审核状态
                         ];
                         $pid = $this->order_model->insertGetId($insert_order);
+
                         foreach ($c_list as $ym){
                             $save_yikoujia_info = [
                                 'good_name' => $ym,
@@ -665,17 +709,27 @@ class StockOrder extends AdminController
                             ];
                             $this->order_info_model->insert($save_yikoujia_info);
                         }
-                    }else{
+                    }
+                    else{
                         //调拨单
                         $zy_ym_list = [];
                         foreach ($c_list as $ym){
                             $zy_ym_list[] = $ym;
                         }
+
+                        foreach ($c_list as $index=>$ym){
+                            if (check_order_exist(ym: $ym,time: $start_time,cate: 7) == true){
+                                unset($zy_ym_list[$index]);
+                            }
+                        }
+                        //如果为0跳过
                         if ($zy_ym_list ==[])continue;
+
+
                         //生成调拨单
                         $push_order = [
                             'order_time' => $order_time,
-                            'order_batch_num' => 'DBD' . date('YmdHis'),
+                            'order_batch_num' => 'DBD' . now_time(),
                             'order_user_id' => session('admin.id'),
                             'remark' => '程序批量生成 .'.$item['uid'] .' 发送到：'.$warehouse_data['name'],
                             'warehouse_id' => $warehouse_data['id'],
@@ -710,11 +764,16 @@ class StockOrder extends AdminController
 
                 //生成其它收款单
                 foreach ($other_receipt_data as $ym=>$price){
+                    if (check_order_exist(ym: $ym,time: $start_time,cate: 9) == true){
+                      continue;
+                    }
+
+
                     $other_receipt_price += $price;
                     $other_receipt_list[] = [
                         'category' => '其他收入单',
                         'unit_price' => $price,
-                        'remark' =>  '竞价活动 '.$ym,
+                        'remark' =>  '日期：'.$start_time.' 竞价活动 '.$ym,
                         'order_user_id' => session('admin.id'),
                         'account_id' => $account['id'],
                     ];
@@ -725,7 +784,7 @@ class StockOrder extends AdminController
                     $pid = $this->order_model->insertGetId(
                         [
                             'order_time' => $order_time,
-                            'order_batch_num' => 'QTSRD' . date('YmdHis') ,
+                            'order_batch_num' => 'QTSRD' . now_time() ,
                             'order_user_id' => session('admin.id'),
                             'remark' =>'程序自动生成来源:竞价活动',
                             'account_id'=>$account['id'],
@@ -749,7 +808,7 @@ class StockOrder extends AdminController
                     $pid = $this->order_model->insertGetId(
                         [
                             'order_time' =>$order_time,
-                            'order_batch_num' => 'CGTHD' . date('YmdHis'),
+                            'order_batch_num' => 'CGTHD' . now_time(),
                             'order_user_id' => session('admin.id'),
                             'remark' => '时间：'.$start_time .' 采购退货单',
                             'account_id' => $account['id'],
@@ -788,12 +847,9 @@ class StockOrder extends AdminController
 
                 }
 
-                //保存log
-                save_jvming_order_log($all_push_data,'同行push',$username,$crawl_time);
-                save_jvming_order_log($financial_data,'资金明细',$username,$crawl_time);
-                save_jvming_order_log($pull_list['data'],'收到的请求',$username,$crawl_time);
             }
-        }catch (\Exception $e){
+        }
+        catch (\Exception $e){
             $this->error($e->getLine().'行 错误:'.$e->getMessage());
         }
 

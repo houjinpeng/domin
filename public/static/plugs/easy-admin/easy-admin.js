@@ -30,6 +30,13 @@ define(["jquery", "tableSelect", "ckeditor"], function ($, tableSelect, undefine
             var y = dd.getFullYear();
             var m = dd.getMonth() + 1;//获取当前月份的日期
             var d = dd.getDate();
+            if ( m < 10){
+                m = '0'+m
+            }
+            if ( d < 10){
+                d = '0'+d
+            }
+
             return y + "-" + m + "-" + d;
         },
         config: {

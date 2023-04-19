@@ -107,7 +107,7 @@ class Purchase extends AdminController
             if ($type=='stock'){
                 $rule = [
                     'good_name|【商品信息】' => 'require',
-                    'unit_price|【购货单价】' => 'number|require',
+                    'unit_price|【购货单价】' => 'float|require',
                 ];
 
 
@@ -356,7 +356,7 @@ class Purchase extends AdminController
                 $rule = [
                     'good_name|【商品信息】' => 'require',
                     'sale_time|【销售时间】' => 'require|date',
-                    'unit_price|【购货单价】' => 'number|require',
+                    'unit_price|【购货单价】' => 'float|require',
                     'sale_user_id|【销售员】' => 'number|require',
                 ];
 

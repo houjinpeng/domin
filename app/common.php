@@ -17,6 +17,23 @@ if (!function_exists('uuid')) {
         return (string)Uuid::uuid4();
     }
 }
+
+if (!function_exists('now_time')) {
+    /**
+     * 生成当前时间 年月日时分秒毫秒
+     * @return string
+     */
+    function now_time(): string
+    {
+        list($msec, $sec) = explode(' ', microtime());
+        $msectime =  (float)sprintf('%.0f', (floatval($msec) + floatval($sec)) * 1000);
+
+        return date('YmdHis').substr($msectime, -3);
+
+
+    }
+}
+
 if (!function_exists('kill_task')) {
     /**
      * 生成UUID
@@ -400,5 +417,33 @@ if (!function_exists('format_where_datetime')) {
             $w[] = $item;
         }
         return $w;
+    }
+}
+
+if (!function_exists('check_order_exist')) {
+    /**
+     * @return mixed
+     * 检查次域名是否存在  存在不录入
+     */
+    function check_order_exist($ym,$time,$cate): mixed
+    {
+        //获取当前时间的所有订单
+        $all_order = \app\admin\model\NodOrder::whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = "'.$time.'"')->where('type','=',$cate)->select()->toArray();
+        foreach ($all_order as $item){
+            //如果存在 返回true
+            if ($cate == 9){   //其他收入单
+                $d = \app\admin\model\NodOrderInfo::where('pid','=',$item['id'])->where('remark','=','日期：'.$time.' 竞价活动 '.$ym)->find();
+            }else{
+                $d = \app\admin\model\NodOrderInfo::where('pid','=',$item['id'])->where('good_name','=',$ym)->find();
+            }
+
+            if (!empty($d)){
+                return true;
+            }
+
+        }
+        //最后直接返回flase
+        return false;
+
     }
 }

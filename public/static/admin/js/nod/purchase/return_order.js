@@ -39,7 +39,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limits: [30, 50, 100],
                 cols: [[
                     // {type: "checkbox"},
-                    {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
+                    {field: 'order_batch_num', minWidth: 220, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {field: 'order_info', minWidth: 120, title: '域名',search:'batch',searchOp:'in',templet:function (d) {
                             return d.order_info[0].good_name

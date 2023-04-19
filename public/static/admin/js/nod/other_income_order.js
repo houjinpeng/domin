@@ -40,7 +40,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limits: [15, 30, 50],
                 cols: [[
                     // {type: "checkbox"},
-                    {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
+                    {field: 'order_batch_num', minWidth: 220, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
                             if ( d.getOrderUser){
@@ -98,16 +98,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 auth: 'audit',
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
-                            },{
-                                text: '删除',
-                                title:'是否要撤销当前单据？',
-                                url: init.delete_url,
-                                method: 'request',
-                                auth: 'delete',
-                                class: 'layui-btn layui-btn-xs layui-btn-danger',
-                                extend: 'data-full="true"',
-                            },
-                                {
+                            }, {
                                     text: '撤销',
                                     title:'是否要删除当前单据？',
                                     url: init.chexiao_url,
@@ -115,7 +106,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                     auth: 'chexiao',
                                     class: 'layui-btn layui-btn-xs layui-btn-danger',
                                     extend: 'data-full="true"',
-                                }]
+                                },{
+                                text: '删除',
+                                title:'是否要撤销当前单据？',
+                                url: init.delete_url,
+                                method: 'request',
+                                auth: 'delete',
+                                class: 'layui-btn layui-btn-xs layui-btn-danger',
+                                extend: 'data-full="true"',
+                            }]
                         ]
                     }
                 ]],

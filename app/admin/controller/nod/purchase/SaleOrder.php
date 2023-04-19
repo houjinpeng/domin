@@ -181,7 +181,7 @@ class SaleOrder extends AdminController
 
 
             //单据编号自动生成   XHD+时间戳
-            $order_batch_num = 'XHD' . date('YmdHis');
+            $order_batch_num = 'XHD' .  now_time();
 
             $save_order = [
                 'order_time' => $post['order_time'],
@@ -261,8 +261,8 @@ class SaleOrder extends AdminController
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户】' => 'require',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实收金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【实收金额】' => 'float|require',
                 'sale_user_id|【销售员】' => 'number|require',
             ];
 
@@ -504,16 +504,18 @@ class SaleOrder extends AdminController
 
                 //获取出售订单
                 $all_sale_data = $this->jm_api->get_sale_ym($start_time,$end_time);
-                if ($all_sale_data['code'] ==999){
+                if ($all_sale_data['code'] == 999){
                     $this->error($all_sale_data['msg']);
                 }
 
                 $yikoujia_data = []; //一口价 销售购单
                 //获取域名竞价得标单
                 foreach ($all_sale_data['data'] as $item) {
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-已出售域名')->find();
-                    if (!empty($log_data)) continue;
-                    //判断是否在库存中 如果存在的话过滤
+
+                    //判断销售单是否存在
+                    if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 3) == true){
+                        continue;
+                    }
                     if ($item['zt_txt'] == '已出售') {
                         $yikoujia_data[$item['ym']] = $item['wtqian'];
 
@@ -525,7 +527,7 @@ class SaleOrder extends AdminController
                 //单据编号自动生成   XHD+时间戳
                 $save_order = [
                     'order_time' => $order_time,
-                    'order_batch_num' => 'XHD' . date('YmdHis'),
+                    'order_batch_num' => 'XHD' .  now_time(),
                     'order_user_id' => session('admin.id'),
                     'remark' => '销售日期为：'.$start_time .'一口价出售',
                     'account_id' => $account['id'],
@@ -558,10 +560,7 @@ class SaleOrder extends AdminController
                         $insert_all[] = $save_info;
 
                     }
-
                     $this->order_info_model->insertAll($insert_all);
-                    save_jvming_order_log($all_sale_data['data'],'销售-已出售域名',$username,$crawl_time);
-
                 }
 
 
@@ -570,17 +569,25 @@ class SaleOrder extends AdminController
                 $push_data = $this->jm_api->get_push_list($start_time,$end_time);
                 //遍历 判断是否在 自己的仓库列表中
                 foreach ($push_data['data'] as $item){
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-push域名')->find();
-                    if (!empty($log_data)) continue;
+
                     //如果在自己的仓库列表中  过滤掉
                     if ($item['zt_txt'] != '已接受')continue;
-                    if (in_array($item['puid'],$warehouse_name_list)) continue;
-                    $sale_order +=1;
 
+                    //判断是否存在
+                    $c_list = explode(',',$item['ymlbx']);
+                    $new_c_list =$c_list;
+                    foreach ($new_c_list as $index=>$ym){
+                        if (check_order_exist(ym:$ym,time: $start_time,cate: 3) == true){
+                            unset($c_list[$index]);
+                        }
+                    }
+
+                    if ($c_list == [])continue;
+                    $sale_order +=1;
                     //一行一单
                     $save_order = [
                         'order_time' => $order_time,
-                        'order_batch_num' => 'XHD' . date('YmdHis'),
+                        'order_batch_num' => 'XHD' .  now_time(),
                         'order_user_id' => session('admin.id'),
                         'remark' => '时间：'.$start_time.' PUST 发送到：'.$item['puid'],
                         'account_id' => $account['id'],
@@ -592,7 +599,7 @@ class SaleOrder extends AdminController
                     ];
 
                     $pid = $this->order_model->insertGetId($save_order);
-                    $c_list = explode(',',$item['ymlbx']);
+
                     $one_good_price = $item['qian']/count($c_list);
                     $insert_all = [];
                     foreach ($c_list as $ym) {
@@ -619,23 +626,24 @@ class SaleOrder extends AdminController
                     }
 
                 }
-                save_jvming_order_log($push_data['data'],'销售-push域名',$username,$crawl_time);
+
 
                 //获取转出域名列表
                 $zhuanchu_data = $this->jm_api->get_zhuanchu_list($start_time,$end_time);
                 //遍历
                 $insert_zhuanchu_data = [];
                 foreach ($zhuanchu_data['data'] as $item){
-                    $log_data = $this->jvming_log->where('order_id','=',$item['id'])->where('cate','=','销售-转出域名列表')->find();
-                    if (!empty($log_data)) continue;
+
                     //如果在自己的仓库列表中  过滤掉
-                    if ($item['zt_txt']!='转出成功'){
+                    if ($item['zt_txt'] !='转出成功'){
                         continue;
                     }
+                    //如果已经录入  过滤掉
+                    if (check_order_exist(ym:$item['ym'],time: $start_time,cate: 3) == true){
+                       continue;
+                    }
 
-
-
-                    $save_info = [
+                    $insert_zhuanchu_data[] = [
                         'good_name' => $item['ym'],
                         'unit_price' => 0,
                         'remark' => '时间：'.$start_time.' 转出方式：'.$item['fs'],
@@ -647,7 +655,6 @@ class SaleOrder extends AdminController
                         'sale_user_id' => session('admin.id'),//销售员
                         'order_user_id' => session('admin.id'),
                     ];
-                    $insert_zhuanchu_data[] = $save_info;
 
 
                 }
@@ -657,7 +664,7 @@ class SaleOrder extends AdminController
                     $sale_order += 1;
                     $save_order = [
                         'order_time' => $order_time,
-                        'order_batch_num' => 'XHD' . date('YmdHis'),
+                        'order_batch_num' => 'XHD' .  now_time(),
                         'order_user_id' => session('admin.id'),
                         'remark' =>  '时间：'.$start_time.' 程序生成转出域名',
                         'account_id' => $account['id'],
@@ -673,8 +680,6 @@ class SaleOrder extends AdminController
                         $item['pid'] = $pid;
                     }
                     $this->order_info_model->insertAll($insert_zhuanchu_data);
-
-                    save_jvming_order_log($zhuanchu_data['data'],'销售-转出域名列表',$username,$crawl_time);
                 }
 
 
