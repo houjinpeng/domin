@@ -372,24 +372,29 @@ class Purchase extends AdminController
                 //查询库存中的商品
                 $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
                 $ym_dict = [];
-
+                $inventory_list = [];
                 foreach ($inventory_data as $it){
+                    $inventory_list[] = $it['good_name'];
                     $ym_dict[$it['good_name']] = $it;
                 }
-
-                //如果不相等 查询差的
-                if (count($inventory_data) != count($ym_list)){
-                    $inventory_list = [];
-                    foreach ($inventory_data as $it){
-                        $ym_dict[$it['good_name']] = $it;
-                        $inventory_list[] = $it['good_name'];
-                    }
-                    $dif = array_diff($ym_list,$inventory_list);
-                    if (count($dif)!= 0){
-                        $this->error('下列商品不在库存中，请尽快入库 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
-
-                    }
+                foreach ($ym_list as $it){
+                    if (!in_array($it,$ym_list)) $this->error('此于域名不在库存中【'.$it.'】 请先入库');
                 }
+
+
+//                //如果不相等 查询差的
+//                if (count($inventory_data) != count($ym_list)){
+//                    $inventory_list = [];
+//                    foreach ($inventory_data as $it){
+//                        $ym_dict[$it['good_name']] = $it;
+//                        $inventory_list[] = $it['good_name'];
+//                    }
+//                    $dif = array_diff($ym_list,$inventory_list);
+//                    if (count($dif)!= 0){
+//                        $this->error('下列商品不在库存中，请尽快入库 共：'.count($dif).'个<br>'.join("<br>",$dif),wait: 10);
+//
+//                    }
+//                }
 
 
 

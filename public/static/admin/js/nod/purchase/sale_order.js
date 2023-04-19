@@ -452,7 +452,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             //批量修改单价
             $('#batch_set_price').click(function () {
                 layer.open({
-                    title: '采购单-表单导入单据',
+                    title: '采购单-批量修改金额',
                     skin: 'demo-class',
                     type: 1,
                     area: ['260px', '132px'],
@@ -603,7 +603,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             //批量修改单价
             $('#batch_set_price').click(function () {
                 layer.open({
-                    title: '采购单-表单导入单据',
+                    title: '批量修改金额',
                     skin: 'demo-class',
                     type: 1,
                     area: ['260px', '132px'],
