@@ -378,7 +378,7 @@ class Purchase extends AdminController
                     $ym_dict[$it['good_name']] = $it;
                 }
                 foreach ($ym_list as $it){
-                    if (!in_array($it,$ym_list)) $this->error('此于域名不在库存中【'.$it.'】 请先入库');
+                    if (!in_array($it,$inventory_list)) $this->error('此于域名不在库存中【'.$it.'】 请先入库');
                 }
 
 
