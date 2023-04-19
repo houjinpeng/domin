@@ -66,20 +66,19 @@ class SaleOrder extends AdminController
                 $list = $this->order_model->where($where)
                     ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getCustomer','getSaleUser'],'left')
                     ->order('id','desc')
+                    ->page($page,$limit)
                     ->select()->toArray();
 
                 $count = $this->order_model->where($where)->order('id','desc')->count();
             }else{
                 $list = $this->order_model->where($where)
                     ->with(['getWarehouse','getAccount','getSupplier','getOrderUser','getCustomer','getSaleUser'],'left')
-                    ->hasWhere('getOrderInfo',function($query) use ($is_search_ym) {
-                        $query->where('good_name', 'in', $is_search_ym);
-                    })                    ->order('id','desc')
+                    ->hasWhere('getOrderInfo',[['good_name', 'in', $is_search_ym]])
+                    ->order('id','desc')
+                    ->page($page,$limit)
                     ->select()->toArray();
                 $count = $this->order_model->where($where)
-                    ->hasWhere('getOrderInfo',function($query) use ($is_search_ym) {
-                        $query->where('good_name', 'in', $is_search_ym);
-                    })
+                    ->hasWhere('getOrderInfo',[['good_name', 'in', $is_search_ym]])
                     ->order('id','desc')->count();
 
             }

@@ -51,6 +51,7 @@ class StockOrder extends AdminController
             list($page, $limit, $where) = $this->buildTableParames();
 
             $where[] = ['type', '=', 1];
+
             $is_search_ym = false;
             foreach ($where as $w) {
                 if ($w[0] == 'order_info') $is_search_ym = $w[2];
@@ -62,23 +63,20 @@ class StockOrder extends AdminController
                 $list = $this->order_model->where($where)
                     ->with(['getWarehouse', 'getAccount', 'getSupplier', 'getOrderUser'], 'left')
                     ->order('id', 'desc')
+                    ->page($page,$limit)
                     ->select()->toArray();
 
                 $count = $this->order_model->where($where)->order('id', 'desc')->count();
             } else {
-                $list = $this->order_model->where($where)
 
+                $list = $this->order_model->where($where)
                     ->with(['getWarehouse', 'getAccount', 'getSupplier', 'getOrderUser'], 'left')
                     ->order('id', 'desc')
-                    ->hasWhere('getOrderInfo',function($query) use ($is_search_ym) {
-                        $query->where('good_name', 'in', $is_search_ym);
-                    })
+                    ->page($page,$limit)
+                    ->hasWhere('getOrderInfo',[['good_name', 'in', $is_search_ym]])
                     ->select()->toArray();
-
                 $count = $this->order_model->where($where)
-                    ->hasWhere('getOrderInfo',function($query) use ($is_search_ym) {
-                        $query->where('good_name', 'in', $is_search_ym);
-                    })
+                    ->hasWhere('getOrderInfo',[['good_name', 'in', $is_search_ym]])
                     ->order('id', 'desc')->count();
             }
 
