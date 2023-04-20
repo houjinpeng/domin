@@ -458,7 +458,7 @@ class StockOrder extends AdminController
                         //如果存在过滤
                         $is_exist = $this->order_model->whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = "'.$start_time.'"')
                             ->where('type','=',10)
-                            ->where('to_account','=',$account['id'])->where('remark','=',$item['zu'])->find();
+                            ->where('to_account','=',$account['id'])->where('remark','=',$item['zu'].' '.$item['sm'])->find();
                         if (!empty($is_exist)) continue;
                         $zhuanyi_order += 1;
                         //单据编号自动生成   ZCTX+时间戳
@@ -470,7 +470,7 @@ class StockOrder extends AdminController
                             'order_user_id' => session('admin.id'),
                             'practical_price' => $item['qian'],
                             'paid_price' =>  $item['qian'],
-                            'remark' => $item['zu'],
+                            'remark' => $item['zu'].' '.$item['sm'],
                             'type' => 10, //转存提现
                             'audit_status' => 0,//审核状态
                         ];
