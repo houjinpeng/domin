@@ -42,7 +42,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'order_batch_num', minWidth: 220, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {field: 'order_info', minWidth: 120, title: '域名',search:'batch',searchOp:'in',templet:function (d) {
-                        if (d.order_info !== []){
+                        if (d.order_info.length !== 0){
                             return d.order_info[0].good_name
                         }
                           return '无'

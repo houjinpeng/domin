@@ -482,17 +482,31 @@ class StockOrder extends AdminController
                     if ($item['zu'] == '域名得标') {
                         if ($item['lx_txt'] == '退款') {
                             //如果活动在sm中 开其他收入单
-                            if (strstr($item['sm'],'活动')){
-                                $other_receipt_data[$item['sm']] = $item['qian'];
-                                continue;
-                            }
+//                            if (strstr($item['sm'],'活动')){
+//                                $other_receipt_data[$item['sm']] = $item['qian'];
+//                                continue;
+//                            }
 
                             //判断采购退货单是否存在
                             if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 2) == true){
                                 continue;
                             }
 
-                            $return_stock_order_data[$item['id']] = $item;
+                            if (strstr($item['sm'],'域名')){
+                                preg_match('/域名[\w+\.]+/', $item['sm'], $matches);
+                                $good_name = explode('域名',$matches[0])[1];
+                            }else{
+                                preg_match('/得标域名[\w+\.]+/', $item['sm'], $matches);
+                                $good_name = explode('得标域名',$matches[0])[1];
+                            }
+                            //判断退货单域名是否存在
+                            if (isset($return_stock_order_data[$good_name])){
+                                $return_stock_order_data[$good_name]['price'] += $item['qian'];
+                            }else{
+                                $return_stock_order_data[$good_name] = [
+                                    'price'=>$item['qian'],'item'=>$item
+                                ];
+                            }
                             continue;
                         };
 
@@ -538,11 +552,11 @@ class StockOrder extends AdminController
                                 $other_receipt_data[$item['sm']] = $item['qian'];
                                 continue;
                             }
-                            //判断采购退货单是否存在
-                            if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 2) == true){
-                                continue;
-                            }
-                            $return_stock_order_data[$item['id']] = $item;
+//                            //判断采购退货单是否存在
+//                            if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 2) == true){
+//                                continue;
+//                            }
+//                            $return_stock_order_data[$item['id']] = $item;
                             continue;
                         }
                         //判断采购单是否存在
@@ -826,20 +840,13 @@ class StockOrder extends AdminController
                         ]
                     );
 
-                    foreach ($return_stock_order_data as $return_item){
+                    foreach ($return_stock_order_data as $good_name=>$return_item){
                         try {
-                            if (strstr($return_item['sm'],'竞价域名')){
-                                preg_match('/竞价域名[\w+\.]+/', $return_item['sm'], $matches);
-                                $good_name = explode('竞价域名',$matches[0])[1];
-                            }else{
-                                preg_match('/得标域名[\w+\.]+/', $return_item['sm'], $matches);
-                                $good_name = explode('得标域名',$matches[0])[1];
-                            }
                             //插入采购退货单数据
                             $save_info = [
                                 'good_name' =>$good_name,
-                                'unit_price' => -$return_item['qian'],
-                                'remark' => $return_item['sm'],
+                                'unit_price' => $return_item['price'],
+                                'remark' => $return_item['item']['sm'],
                                 'pid' => $pid,
                                 'category' =>'采购退货',
                                 'account_id' => $account['id'],
@@ -847,6 +854,7 @@ class StockOrder extends AdminController
                             ];
                             $this->order_info_model->insert($save_info);
                         }catch (\Exception $e){
+
                             continue;
                         }
 
