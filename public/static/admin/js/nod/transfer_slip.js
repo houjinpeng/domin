@@ -50,6 +50,20 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                         }
                     },
+                    {field: 'order_info', minWidth: 140,align:'left', title: '域名',search:'batch',searchOp:'in',templet:function (d) {
+                            return d.order_info[0].good_name
+                        }},
+                    {field: 'order_count', minWidth: 100, title: '数量',search: false,templet:function (d) {
+                            let all_data = [];
+                            d.order_info.forEach(function (item) {
+                                all_data.push(item['good_name'])
+                            })
+
+
+                            let html = '<div batch_num="'+d.order_batch_num+'" class="show_detail" goods_name = "'+all_data.join(',')+'" >'+d.order_count+'</div>'
+                            return html
+
+                        }},
                     {field: 'remark', minWidth: 280, title: '备注',align:'left'},
                     {field: 'audit_status', minWidth: 100, title: '状态',selectList:{'1':'已审核','2':'撤销','0':'未审核'},templet:function (d) {
                             if (d.audit_status === 1){
@@ -112,6 +126,28 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
                         }
 
+                    })
+
+
+                    $('[class=show_detail]').click(function () {
+                        let data = this.getAttribute('goods_name')
+                        let batch_num = this.getAttribute('batch_num')
+                        layer.open({
+                            title: '编号:'+batch_num +'  共：'+data.split(',').length+'条记录'
+                            ,area: ['500px', '300px']
+                            ,  btn: ['复制', '关闭'] //可以无限个按钮
+                            , skin: 'demo-class'
+                            ,content: data.split(',').join('<br>')
+                            ,yes: function(index, layero){
+                                //按钮【按钮一】的回调
+                                ea.copyText(data.split(',').join("\n"))
+                                // layer.msg('复制成功~',{icon:1})
+                                return false
+                            }
+                            ,btn2: function(index, layero){
+
+                            }
+                        });
                     })
                 }
             });

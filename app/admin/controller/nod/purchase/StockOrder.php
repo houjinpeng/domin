@@ -729,7 +729,7 @@ class StockOrder extends AdminController
                             'order_time' => $order_time,
                             'order_batch_num' => 'DBD' . now_time(),
                             'order_user_id' => session('admin.id'),
-                            'remark' => '程序批量生成 .'.$item['uid'] .' 发送到：'.$warehouse_data['name'],
+                            'remark' => '时间:'.$crawl_time.' 调拨单 仓库：'.$item['uid'] .' 发送到仓库：'.$warehouse_data['name'],
                             'warehouse_id' => $warehouse_data['id'],
                             'type' => 7, //调拨单
                             'audit_status' => 0,//审核状态
@@ -784,7 +784,7 @@ class StockOrder extends AdminController
                             'order_time' => $order_time,
                             'order_batch_num' => 'QTSRD' . now_time() ,
                             'order_user_id' => session('admin.id'),
-                            'remark' =>'程序自动生成来源:竞价活动',
+                            'remark' =>'时间：'.$crawl_time.' 程序自动生成来源:竞价活动',
                             'account_id'=>$account['id'],
                             'type'=>9, //其他收入单
                             'practical_price' => $other_receipt_price,

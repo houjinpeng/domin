@@ -55,6 +55,12 @@ class TransferSlip extends AdminController
                 ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
                 ->where($where)->page($page,$limit)->order('id','desc')->select()->toArray();
             $count = $this->order_model->where($where)->order('id','desc')->count();
+
+            foreach ($list as &$item){
+                $item['order_info'] = $this->order_info_model->where('pid','=',$item['id'])->select()->toArray();
+                $item['order_count'] = count($item['order_info']);
+            }
+
             $data = [
                 'code'=>0,
                 'data'=>$list,
