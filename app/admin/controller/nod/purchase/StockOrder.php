@@ -800,8 +800,8 @@ class StockOrder extends AdminController
                     );
                     foreach ($other_receipt_list as &$item){
                         $item['pid'] = $pid;
-                        $item['category_id']= empty($cate)? null: $cate['id']
-                    ;}
+                        $item['category_id']= empty($cate)? null: $cate['id'];
+                    }
 
                     $this->order_info_model->insertAll($other_receipt_list);
 
