@@ -8,7 +8,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         audit_url: 'nod.transfer_slip/audit',
         edit_url: 'nod.transfer_slip/edit',
         chexiao_url: 'nod.transfer_slip/chexiao',
-
+        delete_url: 'nod.purchase.return_order/delete',
 
     };
 
@@ -63,7 +63,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {
                         fixed: 'right',
-                        width: 180,
+                        width: 230,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
@@ -75,6 +75,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 auth: 'edit',
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
+                            }, {
+                                text: '审核',
+                                url: init.audit_url,
+                                method: 'open',
+                                auth: 'audit',
+                                class: 'layui-btn layui-btn-xs',
+                                extend: 'data-full="true"',
                             },
                                 {
                                     text: '撤销',
@@ -84,14 +91,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                     auth: 'chexiao',
                                     class: 'layui-btn layui-btn-xs layui-btn-danger',
                                     extend: 'data-full="true"',
-                                }, {
-                                text: '审核',
-                                url: init.audit_url,
-                                method: 'open',
-                                auth: 'audit',
-                                class: 'layui-btn layui-btn-xs',
+                                },{
+                                text: '删除',
+                                title:'是否要删除当前单据？',
+                                url: init.delete_url,
+                                method: 'request',
+                                auth: 'delete',
+                                class: 'layui-btn layui-btn-xs layui-btn-danger',
                                 extend: 'data-full="true"',
-                            }]
+                            },]
                         ]
                     }
                 ]],
