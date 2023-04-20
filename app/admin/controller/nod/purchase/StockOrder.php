@@ -780,7 +780,7 @@ class StockOrder extends AdminController
 
                 }
                 if ($other_receipt_list != []){
-                    $cate = $this->cate_model->where('name','=','竞价活动')->find();
+                    $cate = $this->cate_model->where('name','=','竞价奖励')->find();
 
 
                     $other_receipt_order += 1;
