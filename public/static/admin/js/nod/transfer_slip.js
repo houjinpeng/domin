@@ -51,7 +51,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
                     {field: 'order_info', minWidth: 140,align:'left', title: '域名',search:'batch',searchOp:'in',templet:function (d) {
-                            return d.order_info[0].good_name
+                            if (d.order_info.length !== 0){
+                                return d.order_info[0].good_name
+                            }
+                            return '无'
                         }},
                     {field: 'order_count', minWidth: 100, title: '数量',search: false,templet:function (d) {
                             let all_data = [];
