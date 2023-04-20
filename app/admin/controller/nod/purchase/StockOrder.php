@@ -474,7 +474,7 @@ class StockOrder extends AdminController
                             'type' => 10, //转存提现
                             'audit_status' => 0,//审核状态
                         ];
-                        $this->order_model->save($save_order);
+                        $this->order_model->insert($save_order);
 
                     }
                     if ($item['zu'] == '域名得标') {

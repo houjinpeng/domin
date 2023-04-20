@@ -66,14 +66,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
                             },{
-                                text: '删除',
-                                title:'是否要删除当前单据？',
-                                url: init.delete_url,
-                                method: 'request',
-                                auth: 'delete',
-                                class: 'layui-btn layui-btn-xs layui-btn-danger',
-                                extend: 'data-full="true"',
-                            },{
                                 text: '撤销',
                                 title:'是否要撤销当前单据？',
                                 url: init.chexiao_url,
@@ -81,7 +73,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 auth: 'chexiao',
                                 class: 'layui-btn layui-btn-xs layui-btn-danger',
                                 extend: 'data-full="true"',
-                            },]
+                            },{
+                                text: '删除',
+                                title:'是否要删除当前单据？',
+                                url: init.delete_url,
+                                method: 'request',
+                                auth: 'delete',
+                                class: 'layui-btn layui-btn-xs layui-btn-danger',
+                                extend: 'data-full="true"',
+                            }]
                         ]
                     }
                 ]],
