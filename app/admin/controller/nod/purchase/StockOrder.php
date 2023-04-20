@@ -5,6 +5,7 @@ namespace app\admin\controller\nod\purchase;
 
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
+use app\admin\model\NodCategory;
 use app\admin\model\NodInventory;
 use app\admin\model\NodJvMingOrderLog;
 use app\admin\model\NodOrder;
@@ -36,6 +37,7 @@ class StockOrder extends AdminController
         $this->order_info_model = new NodOrderInfo();
         $this->inventory_model = new NodInventory();
         $this->jvming_log = new NodJvMingOrderLog();
+        $this->cate_model = new NodCategory();
 
 
     }
@@ -778,11 +780,15 @@ class StockOrder extends AdminController
 
                 }
                 if ($other_receipt_list != []){
+                    $cate = $this->cate_model->where('name','=','竞价活动')->find();
+
+
                     $other_receipt_order += 1;
                     $pid = $this->order_model->insertGetId(
                         [
                             'order_time' => $order_time,
                             'order_batch_num' => 'QTSRD' . now_time() ,
+
                             'order_user_id' => session('admin.id'),
                             'remark' =>'时间：'.$crawl_time.' 程序自动生成来源:竞价活动',
                             'account_id'=>$account['id'],
@@ -792,7 +798,10 @@ class StockOrder extends AdminController
                             'audit_status' => 0,//审核状态
                         ]
                     );
-                    foreach ($other_receipt_list as &$item){$item['pid'] = $pid;}
+                    foreach ($other_receipt_list as &$item){
+                        $item['pid'] = $pid;
+                        $item['category_id']= empty($cate)? null: $cate['id']
+                    ;}
 
                     $this->order_info_model->insertAll($other_receipt_list);
 
