@@ -825,6 +825,13 @@ class StockOrder extends AdminController
                 //生成退货单
                 if ($return_stock_order_data != []){
                     $return_stock_order += 1;
+                    $tui_price = 0;
+                    foreach ($return_stock_order_data as $tui_item){
+                        $tui_price += $tui_item['price'];
+                        $supplier_tui = $this->supplier_model->where('name','=',$tui_item['item']['zu'])->find();
+                    }
+
+
 
                     $pid = $this->order_model->insertGetId(
                         [
@@ -833,8 +840,10 @@ class StockOrder extends AdminController
                             'order_user_id' => session('admin.id'),
                             'remark' => '时间：'.$start_time .' 采购退货单',
                             'account_id' => $account['id'],
-                            'practical_price' => 0,
-                            'paid_price' => 0,
+                            'supplier_id' => empty($supplier_tui)? null:$supplier_tui['id'],
+                            'warehouse_id' => $warehouse_data['id'],
+                            'practical_price' => $tui_price,
+                            'paid_price' => $tui_price,
                             'audit_status' => 0,//审核状态
                             'type' => 2,//采购退货单
                         ]
@@ -850,6 +859,8 @@ class StockOrder extends AdminController
                                 'pid' => $pid,
                                 'category' =>'采购退货',
                                 'account_id' => $account['id'],
+                                'supplier_id' => empty($supplier_tui)? null:$supplier_tui['id'],
+                                'warehouse_id' => $warehouse_data['id'],
                                 'order_user_id' => session('admin.id'),
                             ];
                             $this->order_info_model->insert($save_info);
