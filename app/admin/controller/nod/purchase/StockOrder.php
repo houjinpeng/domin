@@ -456,7 +456,7 @@ class StockOrder extends AdminController
                     if ($item['lx_txt'] == '充值') { //开提现转存单
 
                         //如果存在过滤
-                        $is_exist = $this->order_model->whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = '.$start_time)
+                        $is_exist = $this->order_model->whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = "'.$start_time.'"')
                             ->where('type','=',10)
                             ->where('to_account','=',$account['id'])->where('remark','=',$item['zu'])->find();
                         if (!empty($is_exist)) continue;
