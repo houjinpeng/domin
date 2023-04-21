@@ -198,47 +198,56 @@ class Transfer extends AdminController
             if ($row['audit_status'] !=0){
                 $this->error('此状态不能再次审核！');
             }
+            $this->model->startTrans();
+            try{
+                //账号扣钱 加钱
+                $row->save(['audit_status'=>1,'audit_user_id'=>session('admin.id')]);
 
-            //账号扣钱 加钱
-            $row->save(['audit_status'=>1,'audit_user_id'=>session('admin.id')]);
+
+                $from_data_balance = $from_data['balance_price']-$row['paid_price'];
+                $to_data_balance = $to_data['balance_price']+$row['paid_price'];
+
+                $from_data->save(['balance_price'=>$from_data_balance]);
+                $to_data->save(['balance_price'=>$to_data_balance]);
+
+                //保存到详情记录中
+                $this->account_info_model->insert([
+                    'sale_user_id'      => session('admin.id'),
+                    'order_user_id'     => $row['order_user_id'],
+                    'account_id'        => $row['from_account'],
+                    'order_id'          => $row['id'],
+                    'price'             =>-$row['paid_price'],
+                    'category'          => '提现转移单',
+                    'sz_type'           => 1,
+                    'type'              => 10,
+                    'operate_time'      => $row['order_time'],
+                    'remark'            => $row['remark'],
+                    'balance_price'     => $from_data_balance, //账户余额
+                    'all_balance_price' => get_total_account_price(),//总账户余额
+                ]);
+
+                $this->account_info_model->insert([
+                    'sale_user_id'      => session('admin.id'),
+                    'order_user_id'     => $row['order_user_id'],
+                    'account_id'        => $row['to_account'],
+                    'order_id'          => $row['id'],
+                    'price'             => $row['paid_price'],
+                    'category'          => '提现转移单',
+                    'sz_type'           => 1,
+                    'type'              => 10,
+                    'operate_time'      => $row['order_time'],
+                    'remark'            => $row['remark'],
+                    'balance_price'     => $to_data_balance, //账户余额
+                    'all_balance_price' => get_total_account_price(),//总账户余额
+                ]);
+
+            }catch (\Exception $e) {
+                // 回滚事务
+                $this->model->rollback();
+                $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage() .'错误文件：'.$e->getFile());
+            }
 
 
-            $from_data_balance = $from_data['balance_price']-$row['paid_price'];
-            $to_data_balance = $to_data['balance_price']+$row['paid_price'];
-
-            $from_data->save(['balance_price'=>$from_data_balance]);
-            $to_data->save(['balance_price'=>$to_data_balance]);
-
-            //保存到详情记录中
-            $this->account_info_model->insert([
-                'sale_user_id'      => session('admin.id'),
-                'order_user_id'     => $row['order_user_id'],
-                'account_id'        => $row['from_account'],
-                'order_id'          => $row['id'],
-                'price'             =>-$row['paid_price'],
-                'category'          => '提现转移单',
-                'sz_type'           => 1,
-                'type'              => 10,
-                'operate_time'      => $row['order_time'],
-                'remark'            => $row['remark'],
-                'balance_price'     => $from_data_balance, //账户余额
-                'all_balance_price' => get_total_account_price(),//总账户余额
-            ]);
-
-            $this->account_info_model->insert([
-                'sale_user_id'      => session('admin.id'),
-                'order_user_id'     => $row['order_user_id'],
-                'account_id'        => $row['to_account'],
-                'order_id'          => $row['id'],
-                'price'             => $row['paid_price'],
-                'category'          => '提现转移单',
-                'sz_type'           => 1,
-                'type'              => 10,
-                'operate_time'      => $row['order_time'],
-                'remark'            => $row['remark'],
-                'balance_price'     => $to_data_balance, //账户余额
-                'all_balance_price' => get_total_account_price(),//总账户余额
-            ]);
 
 
 

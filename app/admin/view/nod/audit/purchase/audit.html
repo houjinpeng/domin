@@ -10,7 +10,7 @@
                     <div class="layui-inline">
                         <label class="layui-form-label ">客户</label>
                         <div class="layui-input-inline" style="width: 130px;">
-                            <input readonly name="customer" required placeholder="请输客户名" value="{$data['getCustomer']['name']|default=''}" lay-verify="required" type="text" class="layui-input" >
+                            <input  name="customer" required placeholder="请输客户名" value="{$data['getCustomer']['name']|default=''}" lay-verify="required" type="text" class="layui-input" >
                         </div>
                     </div>
                 {else}
@@ -38,7 +38,13 @@
 
                     </div>
                 </div>
+                <div class="layui-inline">
 
+
+                    <a class="layui-btn layui-btn-sm" id="batch_set_price" >批量修改单价</a>
+
+
+                </div>
             </div>
 
             <table id="order_table" lay-filter="order_table"></table>

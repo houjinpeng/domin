@@ -16,6 +16,7 @@ use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
 use think\App;
+use think\facade\Db;
 
 /**
  * @ControllerAnnotation(title="资金-其他收入单")
@@ -344,84 +345,93 @@ class OtherIncomeOrder extends AdminController
                 $customer_id = $customer['id'];
             }
 
+            $this->model->startTrans();
+            try {
+                $save_order = [
+                    'remark' => $post['remark'],
+                    'customer_id' => $customer_id,#客户
+                    'practical_price' => $post['practical_price'],
+                    'paid_price' => $post['practical_price'],
+                    'audit_status' => 1,//审核状态
+                    'audit_user_id'=>session('admin.id'),
 
-
-            $save_order = [
-                'remark' => $post['remark'],
-                'practical_price' => $post['practical_price'],
-                'paid_price' => $post['practical_price'],
-                'audit_status' => 1,//审核状态
-                'audit_user_id'=>session('admin.id'),
-
-            ];
-            //保存订单详情
-            $update = $data->save($save_order);
-            $update || $this->error('审核失败~');
-            $data = $this->order_model
-                ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
-                ->find($id);
-
-            //增加账户钱
-            $account_data = $this->account_model->find($data['account_id']);
-            $balance_price = $account_data['balance_price'];
-            //利润
-            $profit_price = 0;
-            $total_profit_price = 0;
-            //获取总账户余额
-            $all_balance_price = $this->account_model->sum('balance_price');
-            foreach ($post['goods'] as $order_info){
-                $save_info = [
-                    'category_id' => $order_info['category_id'],
-                    'unit_price' => $order_info['unit_price'],
-                    'remark' => isset($order_info['remark']) ? $order_info['remark'] : '',
-                    'customer_id'=>$customer_id,
-                    'account_id' => $post['account_id'],
                 ];
-                $this->order_info_model->where('id','=',$order_info['id'])->update($save_info);
+                //保存订单详情
+                $data->save($save_order);
+                $data = $this->order_model
+                    ->with(['getWarehouse','getAccount','getSupplier','getOrderUser'],'left')
+                    ->find($id);
+
+                //增加账户钱
+                $account_data = $this->account_model->find($data['account_id']);
+                $balance_price = $account_data['balance_price'];
+                //利润
+                $profit_price = 0;
+                $total_profit_price = 0;
+                //获取总账户余额
+                $all_balance_price = $this->account_model->sum('balance_price');
+                foreach ($post['goods'] as $order_info){
+                    $save_info = [
+                        'category_id' => $order_info['category_id'],
+                        'unit_price' => $order_info['unit_price'],
+                        'remark' => isset($order_info['remark']) ? $order_info['remark'] : '',
+                        'customer_id'=>$customer_id,
+                        'account_id' => $post['account_id'],
+                    ];
+                    $this->order_info_model->where('id','=',$order_info['id'])->update($save_info);
 
 
 
 
 
-                $balance_price += intval($order_info['unit_price']);
-                $all_balance_price += intval($order_info['unit_price']);
+                    $balance_price += intval($order_info['unit_price']);
+                    $all_balance_price += intval($order_info['unit_price']);
 
-                if ($post['sale_user_id']){
-                    $profit_price = $order_info['unit_price'];
-                    //获取销售员的总利润
-                    $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
-                    $total_profit_price = $total_profit_price + $profit_price;
+                    if ($post['sale_user_id']){
+                        $profit_price = $order_info['unit_price'];
+                        //获取销售员的总利润
+                        $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
+                        $total_profit_price = $total_profit_price + $profit_price;
+                    }
+
+                    //查询客户欠咱们的钱
+                    $customer_row = $this->kehu_model->find($data['customer_id']);
+
+                    $receivable_price = empty($customer_row)? 0: $customer_row['receivable_price'];
+                    //保存交易明细表中
+                    $this->account_info_model->insert([
+                        'sale_user_id'      => $data['sale_user_id'],
+                        'order_user_id'     => $data['order_user_id'],
+                        'account_id'        => $data['account_id'],
+                        'customer_id'       => $data['customer_id'],
+                        'category_id'       => $order_info['category_id'],
+                        'order_id'          => $id,
+                        'price'             => $order_info['unit_price'],
+                        'profit_price'      => $profit_price, //利润
+                        'total_profit_price'=> $total_profit_price, //总利润
+                        'category'          => '其他收入单',
+                        'sz_type'           => 1,
+                        'type'              => 9,
+                        'operate_time'      => $data['order_time'],
+                        'remark'            => $order_info['remark'],
+                        'balance_price'     => $balance_price, //账户余额
+                        'all_balance_price' => $all_balance_price,//总账户余额
+                        'receivable_price'  => $receivable_price,//对方欠咱们的钱
+                    ]);
+
                 }
 
-                //查询客户欠咱们的钱
-                $customer_row = $this->kehu_model->find($data['customer_id']);
-                $receivable_price = $customer_row['receivable_price'];
-                //保存交易明细表中
-                $this->account_info_model->insert([
-                    'sale_user_id'      => $data['sale_user_id'],
-                    'order_user_id'     => $data['order_user_id'],
-                    'account_id'        => $data['account_id'],
-                    'customer_id'       => $data['customer_id'],
-                    'category_id'       => $order_info['category_id'],
-                    'order_id'          => $id,
-                    'price'             => $order_info['unit_price'],
-                    'profit_price'      => $profit_price, //利润
-                    'total_profit_price'=> $total_profit_price, //总利润
-                    'category'          => '其他收入单',
-                    'sz_type'           => 1,
-                    'type'              => 9,
-                    'operate_time'      => $data['order_time'],
-                    'remark'            => $order_info['remark'],
-                    'balance_price'     => $balance_price, //账户余额
-                    'all_balance_price' => $all_balance_price,//总账户余额
-                    'receivable_price'  => $receivable_price,//对方欠咱们的钱
-                ]);
+                //修改余额
+                $account_data->save(['balance_price'=>$balance_price]);
 
+            } catch (\Exception $e) {
+                // 回滚事务
+                $this->model->rollback();
+                $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage() .'错误文件：'.$e->getFile());
             }
-
-            //修改余额
-            $account_data->save(['balance_price'=>$balance_price]);
             $this->success('审核成功~');
+
+
 
         }
 

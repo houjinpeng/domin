@@ -355,37 +355,36 @@ class Purchase extends AdminController
             }
             //销货单审核
             elseif ($type =='sale'){
+                $rule = [
+                    'good_name|【商品信息】' => 'require',
+                    'sale_time|【销售时间】' => 'require|date',
+                    'unit_price|【购货单价】' => 'float|require',
+                    'sale_user_id|【销售员】' => 'number|require',
+                ];
 
-                Db::startTrans();
+
+                $ym_list = [];
+                //验证
+                foreach ($post['goods'] as $item) {
+                    $ym_list[] = $item['good_name'];
+                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                    $item['unit_price'] = intval($item['unit_price']);
+                    $this->validate($item, $rule);
+                }
+                //查询库存中的商品
+                $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
+                $ym_dict = [];
+                $inventory_list = [];
+                foreach ($inventory_data as $it){
+                    $inventory_list[] = $it['good_name'];
+                    $ym_dict[$it['good_name']] = $it;
+                }
+                foreach ($ym_list as $it){
+                    if (!in_array($it,$inventory_list)) $this->error('此于域名不在库存中【'.$it.'】 请先入库');
+                }
+
+                $this->model->startTrans();
                 try {
-
-                    $rule = [
-                        'good_name|【商品信息】' => 'require',
-                        'sale_time|【销售时间】' => 'require|date',
-                        'unit_price|【购货单价】' => 'float|require',
-                        'sale_user_id|【销售员】' => 'number|require',
-                    ];
-
-
-                    $ym_list = [];
-                    //验证
-                    foreach ($post['goods'] as $item) {
-                        $ym_list[] = $item['good_name'];
-                        intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
-                        $item['unit_price'] = intval($item['unit_price']);
-                        $this->validate($item, $rule);
-                    }
-                    //查询库存中的商品
-                    $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
-                    $ym_dict = [];
-                    $inventory_list = [];
-                    foreach ($inventory_data as $it){
-                        $inventory_list[] = $it['good_name'];
-                        $ym_dict[$it['good_name']] = $it;
-                    }
-                    foreach ($ym_list as $it){
-                        if (!in_array($it,$inventory_list)) $this->error('此于域名不在库存中【'.$it.'】 请先入库');
-                    }
 
                     //修改审核状态
                     $save_order = [
@@ -395,8 +394,7 @@ class Purchase extends AdminController
                         'audit_user_id'=>session('admin.id'),
                     ];
                     //获取pid 修改单据审核状态保存商品详情
-                    $update= $row->save($save_order);
-                    $update || $this->error('审核失败~');
+                    $row->save($save_order);
 
                     //存入库存明细表中
                     $insert_all  = [];
@@ -638,7 +636,7 @@ class Purchase extends AdminController
 
                 } catch (\Exception $e) {
                     // 回滚事务
-                    Db::rollback();
+                    $this->model->rollback();
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 

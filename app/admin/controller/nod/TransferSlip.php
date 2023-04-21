@@ -364,44 +364,51 @@ class TransferSlip extends AdminController
                 }
                 $this->error('下列域名本身就在此仓库中 请删除：'.join('<br>',$msg));
             }
-
-            $save_order = [
-                'order_time' => $post['order_time'],
-                'order_user_id' => session('admin.id'),
-                'remark' => $post['remark'],
-                'warehouse_id' => $post['warehouse_id'],
-                'audit_status' => 1,
-            ];
-            //获取pid   保存商品详情
-
-            $data->save($save_order);
-
-            $insert_all = [];
-            foreach ($post['goods'] as $item) {
-                $save_info = [
+            $this->model->startTrans();
+            try {
+                $save_order = [
                     'order_time' => $post['order_time'],
-                    'good_name' => $item['good_name'],
-                    'remark' => isset($item['remark']) ? $item['remark'] : '',
+                    'order_user_id' => session('admin.id'),
+                    'remark' => $post['remark'],
                     'warehouse_id' => $post['warehouse_id'],
+                    'audit_status' => 1,
                 ];
+                //获取pid   保存商品详情
 
-                $this->order_info_model->where('id','=',$item['id'])->update($save_info);
-                $insert_all[] = [
-                    'type'=>7,
-                    'good_category'=>7,
-                    'warehouse_id' => $post['warehouse_id'],
-                    'form_warehouse_id'=>$ym_dict[$item['good_name']]['warehouse_id'],
-                    'good_name'=>$item['good_name'],
-                    'pid'=>$id,
-                    'order_time'=>$ym_dict[$item['good_name']]['order_time'],
+                $data->save($save_order);
 
-                ];
+                $insert_all = [];
+                foreach ($post['goods'] as $item) {
+                    $save_info = [
+                        'order_time' => $post['order_time'],
+                        'good_name' => $item['good_name'],
+                        'remark' => isset($item['remark']) ? $item['remark'] : '',
+                        'warehouse_id' => $post['warehouse_id'],
+                    ];
+
+                    $this->order_info_model->where('id','=',$item['id'])->update($save_info);
+                    $insert_all[] = [
+                        'type'=>7,
+                        'good_category'=>7,
+                        'warehouse_id' => $post['warehouse_id'],
+                        'form_warehouse_id'=>$ym_dict[$item['good_name']]['warehouse_id'],
+                        'good_name'=>$item['good_name'],
+                        'pid'=>$id,
+                        'order_time'=>$ym_dict[$item['good_name']]['order_time'],
+
+                    ];
+                }
+                $this->warehouse_info_model->insertAll($insert_all);
+
+                $update_result = $this->inventory_model->where('good_name','in',$ym_list)
+                    ->update(['warehouse_id'=>$post['warehouse_id']
+                        ,'type'=>2]);
+            }catch (\Exception $e) {
+                // 回滚事务
+                $this->model->rollback();
+                $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage() .'错误文件：'.$e->getFile());
             }
-            $this->warehouse_info_model->insertAll($insert_all);
 
-            $update_result = $this->inventory_model->where('good_name','in',$ym_list)
-                ->update(['warehouse_id'=>$post['warehouse_id']
-                    ,'type'=>2]);
             $this->success('审核成功~');
 
         }
