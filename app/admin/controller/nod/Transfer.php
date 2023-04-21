@@ -191,17 +191,25 @@ class Transfer extends AdminController
         $row = $this->order_model->find($id);
         empty($row) && $this->error('次单据不存在');
         if ($this->request->isAjax()) {
+            $post = $this->request->post();
             //判断转移的账户是否有钱
-            $from_data = $this->model->where('id','=',$row['from_account'])->find();
-            $to_data = $this->model->where('id','=',$row['to_account'])->find();
-            $from_data['balance_price'] < $row['paid_price'] && $this->error('账户余额不足！不能转移');
+            $from_data = $this->model->where('id','=',$post['from_account'])->find();
+            $to_data = $this->model->where('id','=',$post['to_account'])->find();
+
+            $from_data['balance_price'] < $post['price'] && $this->error('账户余额不足！不能转移');
             if ($row['audit_status'] !=0){
                 $this->error('此状态不能再次审核！');
             }
             $this->model->startTrans();
             try{
                 //账号扣钱 加钱
-                $row->save(['audit_status'=>1,'audit_user_id'=>session('admin.id')]);
+                $row->save([
+                    'audit_status'=>1,
+                    'from_account' => $post['from_account'],
+                    'to_account' => $post['to_account'],
+                    'practical_price' => $post['price'],
+                    'paid_price' =>  $post['price'],
+                    'audit_user_id'=>session('admin.id')]);
 
 
                 $from_data_balance = $from_data['balance_price']-$row['paid_price'];
@@ -214,9 +222,9 @@ class Transfer extends AdminController
                 $this->account_info_model->insert([
                     'sale_user_id'      => session('admin.id'),
                     'order_user_id'     => $row['order_user_id'],
-                    'account_id'        => $row['from_account'],
+                    'account_id'        => $post['from_account'],
                     'order_id'          => $row['id'],
-                    'price'             =>-$row['paid_price'],
+                    'price'             =>-$post['price'],
                     'category'          => '提现转移单',
                     'sz_type'           => 1,
                     'type'              => 10,
@@ -229,9 +237,9 @@ class Transfer extends AdminController
                 $this->account_info_model->insert([
                     'sale_user_id'      => session('admin.id'),
                     'order_user_id'     => $row['order_user_id'],
-                    'account_id'        => $row['to_account'],
+                    'account_id'        => $post['to_account'],
                     'order_id'          => $row['id'],
-                    'price'             => $row['paid_price'],
+                    'price'             => $post['price'],
                     'category'          => '提现转移单',
                     'sz_type'           => 1,
                     'type'              => 10,
@@ -240,7 +248,7 @@ class Transfer extends AdminController
                     'balance_price'     => $to_data_balance, //账户余额
                     'all_balance_price' => get_total_account_price(),//总账户余额
                 ]);
-
+                $this->model->commit();
             }catch (\Exception $e) {
                 // 回滚事务
                 $this->model->rollback();
