@@ -195,8 +195,8 @@ class Transfer extends AdminController
             //判断转移的账户是否有钱
             $from_data = $this->model->where('id','=',$post['from_account'])->find();
             $to_data = $this->model->where('id','=',$post['to_account'])->find();
+            $post['from_account'] == $post['to_account'] && $this->error('不能选择相同的账户');
 
-            $from_data['balance_price'] < $post['price'] && $this->error('账户余额不足！不能转移');
             if ($row['audit_status'] !=0){
                 $this->error('此状态不能再次审核！');
             }
