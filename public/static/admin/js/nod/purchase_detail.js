@@ -36,6 +36,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     url:'/admin/nod.purchase_detail/index?type=sale',
                     limit:30,
                     page:true,
+                    height:'full-40',
                     toolbar:['refresh','add'],
                     limits:[30,50,100],
                     cols: [[
@@ -146,6 +147,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 ea.table.render({
                     init: init,
                     limit:30,
+                    height:'full-40',
                     toolbar:['refresh','add'],
                     limits:[30,50,100],
                     cols: [[

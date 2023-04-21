@@ -27,6 +27,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 init:init,
                 elem: '#currentTable',
                 limit:30,
+                height:'full-40',
                 toolbar:['refresh'],
                 limits:[30,50,100],
                 cols: [[
