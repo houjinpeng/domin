@@ -360,8 +360,8 @@ class Purchase extends AdminController
                     'sale_time|【销售时间】' => 'require|date',
                     'unit_price|【购货单价】' => 'float|require',
                     'sale_user_id|【销售员】' => 'number|require',
+                    'customer|【客户名】' => 'require',
                 ];
-
 
                 $ym_list = [];
                 //验证
@@ -382,7 +382,12 @@ class Purchase extends AdminController
                 foreach ($ym_list as $it){
                     if (!in_array($it,$inventory_list)) $this->error('此于域名不在库存中【'.$it.'】 请先入库');
                 }
-
+                //判断客户是否存在 不存在添加
+                $customer = $this->customer_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
+                if (empty($customer)){
+                    $customer_id = $this->customer_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
+                    $customer = $this->customer_model->find($customer_id);
+                }
                 $this->model->startTrans();
                 try {
 
@@ -452,7 +457,6 @@ class Purchase extends AdminController
                     $receivable_price = 0;
                     #是否计算利润
                     $is_compute_profit = $post['practical_price'] > $post['paid_price'] ? 0:1;
-                    $customer = $this->customer_model->find($row['customer_id']);
                     if ($customer['receivable_price'] > 0){
                         $is_compute_profit = 0;
                     }
