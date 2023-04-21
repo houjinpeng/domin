@@ -35,9 +35,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.table.render({
                 init: init,
-                limit: 15,
+
+                height:'full-40',
                 toolbar: ['refresh', 'add'],
-                limits: [15, 30, 50],
+                limit: 30,
+                limits: [30, 50, 100],
                 cols: [[
                     // {type: "checkbox"},
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
@@ -100,19 +102,19 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
                             },{
-                                text: '删除',
-                                title:'是否要撤销当前单据？',
-                                url: init.delete_url,
-                                method: 'request',
-                                auth: 'delete',
-                                class: 'layui-btn layui-btn-xs layui-btn-danger',
-                                extend: 'data-full="true"',
-                            },{
                                 text: '撤销',
                                 title:'是否要删除当前单据？',
                                 url: init.chexiao_url,
                                 method: 'request',
                                 auth: 'chexiao',
+                                class: 'layui-btn layui-btn-xs layui-btn-warm',
+                                extend: 'data-full="true"',
+                            },{
+                                text: '删除',
+                                title:'是否要撤销当前单据？',
+                                url: init.delete_url,
+                                method: 'request',
+                                auth: 'delete',
                                 class: 'layui-btn layui-btn-xs layui-btn-danger',
                                 extend: 'data-full="true"',
                             },]

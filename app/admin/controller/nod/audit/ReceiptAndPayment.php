@@ -128,9 +128,7 @@ class ReceiptAndPayment extends AdminController
                 'audit_status' => 1,//审核状态
                 'audit_user_id'=>session('admin.id')
             ];
-            //获取pid 修改单据审核状态保存商品详情
-            $update = $row->save($save_order);
-            $update || $this->error('审核失败~');
+
 
             //增加账户钱
             $account_data = $this->account_model->find($row['account_id']);
@@ -144,95 +142,33 @@ class ReceiptAndPayment extends AdminController
             if ($type=='receipt'){
 
                 //应收款
+                $this->order_model->startTrans();
+                try {
+                    //获取pid 修改单据审核状态保存商品详情
+                    $row->save($save_order);
+                    //获取客户id 的欠款记录 更新
+                    $customer_row = $this->customer_model->find($row['customer_id']);
+                    $receivable_price = $customer_row['receivable_price'] - $post['practical_price'];
+                    $customer_row->save(['receivable_price'=>$receivable_price]);
+                    //单据内容
+                    $item = $post['goods'][0];
 
-                //获取客户id 的欠款记录 更新
-                $customer_row = $this->customer_model->find($row['customer_id']);
-                $receivable_price = $customer_row['receivable_price'] - $post['practical_price'];
-                $customer_row->save(['receivable_price'=>$receivable_price]);
+                    $balance_price += intval($item['unit_price']);
+                    $all_balance_price += intval($item['unit_price']);
 
-                //单据内容
-                $item = $post['goods'][0];
-                $balance_price += intval($item['unit_price']);
-                $all_balance_price += intval($item['unit_price']);
-
-                //账户记录收款
-                $this->account_info_model->insert([
-                    'account_id'        => $row['account_id'],
-                    'customer_id'       => $row['customer_id'],
-                    'sale_user_id'      => $row['sale_user_id'],
-                    'order_user_id'     => $row['order_user_id'],
-                    'category_id'       => $item['category_id'],
-                    'order_id'          => $row['id'],
-                    'price'             => $item['unit_price'],
-                    'profit_price'      => 0, //利润
-                    'category'          => '收款单',
-                    'sz_type'           => 1,
-                    'type'              => 4,
-                    'operate_time'      => $row['order_time'],
-                    'remark'            => $item['remark'],
-                    'balance_price'     => $balance_price, //账户余额
-                    'all_balance_price' => $all_balance_price,//总账户余额
-                    'receivable_price'  => $receivable_price,//对方欠咱们的钱
-                ]);
-
-                //判断是否欠钱已经结清 小于等于0说明已经全部结清
-                if ($receivable_price <= 0){
-                    //查询当前客户的所有订单 计算利润及总利润
-                    $all_account_info = $this->account_info_model
-                        ->where('customer_id','=',$row['customer_id'])->where('is_compute_profit','=',0)
-                        ->select();
-                    foreach ($all_account_info as $index=>$info){
-                        if ($info['cost_price'] == 0){
-                            $info->save([
-                                'is_compute_profit'=>1,]);
-                            continue;
-                        }
-                        //获取当前销售员的所有利润
-                        $total_profit_price = $this->account_info_model->where('sale_user_id','=',$row['sale_user_id'])->sum('profit_price');
-                        $profit_price = $info['practical_price'] - $info['cost_price'];
-
-                        $info->save([
-                            'is_compute_profit'=>1,
-                            'profit_price'=>$profit_price,
-                            'total_profit_price'=>$total_profit_price+$profit_price,
-                        ]);
-
-
-                    }
-
-
-                }
-
-
-
-            }
-
-            elseif ($type=='payment'){
-
-                //获取客户id 的欠款记录 更新
-                $supplier_row = $this->supplier_model->find($row['supplier_id']);
-                $receivable_price = $supplier_row['receivable_price'] + $post['paid_price'];
-                //应收款增加
-                $supplier_row->save(['receivable_price'=>$receivable_price,]);
-
-
-                //遍历说有付款单 将每一个都放到资金明细中
-                foreach ($post['goods'] as $item){
-                    $balance_price -= intval($item['unit_price']);
-                    $all_balance_price -= intval($item['unit_price']);
-
+                    //账户记录收款
                     $this->account_info_model->insert([
+                        'account_id'        => $row['account_id'],
+                        'customer_id'       => $row['customer_id'],
                         'sale_user_id'      => $row['sale_user_id'],
                         'order_user_id'     => $row['order_user_id'],
-                        'account_id'        => $row['account_id'],
-                        'supplier_id'       => $row['supplier_id'],
                         'category_id'       => $item['category_id'],
                         'order_id'          => $row['id'],
-                        'price'             =>-$item['unit_price'],
+                        'price'             => $item['unit_price'],
                         'profit_price'      => 0, //利润
-                        'category'          => '付款单',
-                        'sz_type'           => 2,
-                        'type'              => 5,
+                        'category'          => '收款单',
+                        'sz_type'           => 1,
+                        'type'              => 4,
                         'operate_time'      => $row['order_time'],
                         'remark'            => $item['remark'],
                         'balance_price'     => $balance_price, //账户余额
@@ -240,7 +176,90 @@ class ReceiptAndPayment extends AdminController
                         'receivable_price'  => $receivable_price,//对方欠咱们的钱
                     ]);
 
+                    //判断是否欠钱已经结清 小于等于0说明已经全部结清
+                    if ($receivable_price <= 0){
+                        //查询当前客户的所有订单 计算利润及总利润
+                        $all_account_info = $this->account_info_model
+                            ->where('customer_id','=',$row['customer_id'])->where('is_compute_profit','=',0)
+                            ->select();
+                        foreach ($all_account_info as $index=>$info){
+                            if ($info['cost_price'] == 0){
+                                $info->save([
+                                    'is_compute_profit'=>1,]);
+                                continue;
+                            }
+                            //获取当前销售员的所有利润
+                            $total_profit_price = $this->account_info_model->where('sale_user_id','=',$row['sale_user_id'])->sum('profit_price');
+                            $profit_price = $info['practical_price'] - $info['cost_price'];
+
+                            $info->save([
+                                'is_compute_profit'=>1,
+                                'profit_price'=>$profit_price,
+                                'total_profit_price'=>$total_profit_price+$profit_price,
+                            ]);
+
+
+                        }
+
+
+                    }
+
+
+                    $this->order_model->commit();
+                } catch (\Exception $e) {
+                    // 回滚事务
+                    $this->order_model->rollback();
+                    $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
+
+
+
+            }
+
+            elseif ($type=='payment'){
+                $this->model->startTrans();
+                try {
+                    //获取pid 修改单据审核状态保存商品详情
+                    $row->save($save_order);
+                    //获取客户id 的欠款记录 更新
+                    $supplier_row = $this->supplier_model->find($row['supplier_id']);
+                    $receivable_price = $supplier_row['receivable_price'] + $post['paid_price'];
+                    //应收款增加
+                    $supplier_row->save(['receivable_price'=>$receivable_price,]);
+
+
+                    //遍历说有付款单 将每一个都放到资金明细中
+                    foreach ($post['goods'] as $item){
+                        $balance_price -= intval($item['unit_price']);
+                        $all_balance_price -= intval($item['unit_price']);
+
+                        $this->account_info_model->insert([
+                            'sale_user_id'      => $row['sale_user_id'],
+                            'order_user_id'     => $row['order_user_id'],
+                            'account_id'        => $row['account_id'],
+                            'supplier_id'       => $row['supplier_id'],
+                            'category_id'       => $item['category_id'],
+                            'order_id'          => $row['id'],
+                            'price'             =>-$item['unit_price'],
+                            'profit_price'      => 0, //利润
+                            'category'          => '付款单',
+                            'sz_type'           => 2,
+                            'type'              => 5,
+                            'operate_time'      => $row['order_time'],
+                            'remark'            => $item['remark'],
+                            'balance_price'     => $balance_price, //账户余额
+                            'all_balance_price' => $all_balance_price,//总账户余额
+                            'receivable_price'  => $receivable_price,//对方欠咱们的钱
+                        ]);
+
+                    }
+                    $this->model->commit();
+                } catch (\Exception $e) {
+                    // 回滚事务
+                    $this->model->rollback();
+                    $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
+                }
+
 
 
             }
@@ -248,7 +267,6 @@ class ReceiptAndPayment extends AdminController
 
             //修改账户余额
             $account_data->save(['balance_price'=>$balance_price]);
-
             $this->success('审核成功~');
 
         }

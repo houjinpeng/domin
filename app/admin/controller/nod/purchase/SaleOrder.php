@@ -571,7 +571,8 @@ class SaleOrder extends AdminController
 
                     //如果在自己的仓库列表中  过滤掉
                     if ($item['zt_txt'] != '已接受')continue;
-
+                    //如果是自己账号都过滤掉 因为都开调拨单了
+                    if (in_array($item['puid'],$warehouse_name_list)) continue;
                     //判断是否存在
                     $c_list = explode(',',$item['ymlbx']);
                     $new_c_list =$c_list;

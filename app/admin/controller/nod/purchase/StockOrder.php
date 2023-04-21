@@ -467,7 +467,7 @@ class StockOrder extends AdminController
                         $save_order = [
                             'to_account' => $account['id'],
                             'order_batch_num' => $order_batch_num,
-                            'order_time' => date('Y-m-d H:i:s'),
+                            'order_time' =>$start_time,
                             'order_user_id' => session('admin.id'),
                             'practical_price' => $item['qian'],
                             'paid_price' =>  $item['qian'],

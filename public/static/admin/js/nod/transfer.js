@@ -71,7 +71,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 url: init.chexiao_url,
                                 method: 'request',
                                 auth: 'chexiao',
-                                class: 'layui-btn layui-btn-xs layui-btn-danger',
+                                class: 'layui-btn layui-btn-xs layui-btn-warm',
                                 extend: 'data-full="true"',
                             },{
                                 text: '删除',

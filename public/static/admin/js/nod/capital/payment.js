@@ -8,7 +8,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         audit_url: 'nod.audit.receipt_and_payment/audit?type=payment',
         edit_url: 'nod.capital.payment/edit',
         chexiao_url: 'nod.capital.payment/chexiao',
-
+        delete_url: 'nod.purchase.return_order/delete',
 
     };
     function check_number(value) {
@@ -35,9 +35,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             ea.table.render({
                 init: init,
-                limit: 15,
+
+                height:'full-40',
                 toolbar: ['refresh', 'add'],
-                limits: [15, 30, 50],
+                limit: 30,
+                limits: [30, 50, 100],
                 cols: [[
                     // {type: "checkbox"},
                     {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
@@ -79,7 +81,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {
                         fixed: 'right',
-                        width: 180,
+                        width: 230,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
@@ -91,6 +93,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 auth: 'edit',
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
+                            }, {
+                                text: '审核',
+                                url: init.audit_url,
+                                method: 'open',
+                                auth: 'audit',
+                                class: 'layui-btn layui-btn-xs',
+                                extend: 'data-full="true"',
                             },
                                 {
                                     text: '撤销',
@@ -98,14 +107,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                     url: init.chexiao_url,
                                     method: 'request',
                                     auth: 'chexiao',
-                                    class: 'layui-btn layui-btn-xs layui-btn-danger',
+                                    class: 'layui-btn layui-btn-xs layui-btn-warm',
                                     extend: 'data-full="true"',
-                                }, {
-                                text: '审核',
-                                url: init.audit_url,
-                                method: 'open',
-                                auth: 'audit',
-                                class: 'layui-btn layui-btn-xs',
+                                },{
+                                text: '删除',
+                                title:'是否要撤销当前单据？',
+                                url: init.delete_url,
+                                method: 'request',
+                                auth: 'delete',
+                                class: 'layui-btn layui-btn-xs layui-btn-danger',
                                 extend: 'data-full="true"',
                             }]
                         ]
@@ -117,6 +127,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         if (v.audit_status === 1 || v.audit_status === 2){
                             // $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="编辑查看"]').removeClass('layui-btn-success').addClass('layui-btn-disabled').removeAttr('data-open')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要删除当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
                         }
 
