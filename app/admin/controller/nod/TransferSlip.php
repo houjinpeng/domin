@@ -364,7 +364,7 @@ class TransferSlip extends AdminController
                 }
                 $this->error('下列域名本身就在此仓库中 请删除：'.join('<br>',$msg));
             }
-            $this->model->startTrans();
+            $this->inventory_model->startTrans();
             try {
                 $save_order = [
                     'order_time' => $post['order_time'],
@@ -400,12 +400,12 @@ class TransferSlip extends AdminController
                 }
                 $this->warehouse_info_model->insertAll($insert_all);
 
-                $update_result = $this->inventory_model->where('good_name','in',$ym_list)
+                $this->inventory_model->where('good_name','in',$ym_list)
                     ->update(['warehouse_id'=>$post['warehouse_id'],'type'=>2]);
-                $this->model->rollback();
+                $this->inventory_model->commit();
             }catch (\Exception $e) {
                 // 回滚事务
-                $this->model->rollback();
+                $this->inventory_model->rollback();
                 $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage() .'错误文件：'.$e->getFile());
             }
 
