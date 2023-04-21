@@ -401,8 +401,8 @@ class TransferSlip extends AdminController
                 $this->warehouse_info_model->insertAll($insert_all);
 
                 $update_result = $this->inventory_model->where('good_name','in',$ym_list)
-                    ->update(['warehouse_id'=>$post['warehouse_id']
-                        ,'type'=>2]);
+                    ->update(['warehouse_id'=>$post['warehouse_id'],'type'=>2]);
+                $this->model->rollback();
             }catch (\Exception $e) {
                 // 回滚事务
                 $this->model->rollback();
