@@ -269,8 +269,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
 
             table.on('edit(order_table)', function(obj){
-                $('#practical_price').val(obj.value)
-
+                $('#practical_price').val(obj.data['unit_price'])
             });
 
             $('#reset').click(function () {
