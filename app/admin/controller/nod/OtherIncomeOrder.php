@@ -423,7 +423,7 @@ class OtherIncomeOrder extends AdminController
 
                 //修改余额
                 $account_data->save(['balance_price'=>$balance_price]);
-
+                $this->model->commit();
             } catch (\Exception $e) {
                 // 回滚事务
                 $this->model->rollback();
