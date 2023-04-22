@@ -360,7 +360,7 @@ class Purchase extends AdminController
                     'sale_time|【销售时间】' => 'require|date',
                     'unit_price|【购货单价】' => 'float|require',
                     'sale_user_id|【销售员】' => 'number|require',
-                    'customer|【客户名】' => 'require',
+
                 ];
 
                 $ym_list = [];

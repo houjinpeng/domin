@@ -79,8 +79,8 @@ class JvMing  extends AdminController
     public function login(){
 
         $login_url = 'https://www.juming.com/user_zh/p_login';
-//        $token_data = $this->client->request('GET','http://192.168.11.124:5001/get_token')->getBody()->getContents();
-//        $token_data = $this->client->request('GET','http://192.168.1.110:5001/get_token')->getBody()->getContents();
+//        $token_data = $this->client->request('GET','http://192.168.11.246:5001/get_token')->getBody()->getContents();
+//        $token_data = $this->client->request('GET','http://192.168.0.13:5001/get_token')->getBody()->getContents();
         $token_data =  $this->client->request('GET','http://127.0.0.1:5001/get_token')->getBody()->getContents();
         $token_data = json_decode($token_data,true);
         $token = $token_data['token'];
@@ -291,7 +291,7 @@ class JvMing  extends AdminController
         $all_data = [];
         for ($i=1; $i<=100; $i++)
         {
-            $url = 'https://www.juming.com/user_main/zjmx_list?page='.$i.'&limit=500&sou='.$sou.'&sj='.$sj;
+            $url = 'http://7a08c112cda6a063.juming.com:9696/user_main/zjmx_list?page='.$i.'&limit=500&sou='.$sou.'&sj='.$sj;
             $data = $this->request($url,$headers);
             if ($data['code'] == 999){
                 return $data;
@@ -339,7 +339,6 @@ class JvMing  extends AdminController
     public function get_quan_price(){
         $url = 'http://7a08c112cda6a063.juming.com:9696/user_main/zjmx_list?page=1&limit=500&lx=&zu=%E4%BC%98%E6%83%A0%E5%88%B8';
         $result = $this->request($url,$this->headers);
-
         foreach ($result['data'] as $item){
             //判断是否是购买券
             if (strstr($item['sm'],'购买')){
@@ -374,7 +373,7 @@ class JvMing  extends AdminController
         //获取每个订单中的所有信息  ['目标账户'=>['域名1','域名2']]
         $data = [];
         foreach ($result['data'] as $item){
-            $t = explode(' ',$item['jssj'])[0];
+            $t = explode(' ',$item['sj'])[0];
            //对比时间
             if ($start_time =='' || $end_time ==''){
                 $data[] = $item;
@@ -403,7 +402,7 @@ class JvMing  extends AdminController
         //获取每个订单中的所有信息  ['目标账户'=>['域名1','域名2']]
         $data = [];
         foreach ($result['data'] as $item){
-            $t = explode(' ',$item['jssj'])[0];
+            $t = explode(' ',$item['sj'])[0];
             //对比时间
             if ($start_time =='' || $end_time ==''){
                 $data[] = $item;
@@ -445,5 +444,27 @@ class JvMing  extends AdminController
         $result['data']= $data;
         return $result;
     }
+
+    //获取账户余额等信息
+    public function get_account_info(){
+        $url = 'http://7a08c112cda6a063.juming.com:9696/user_zh/islogin?_=1681644180532';
+
+        $result = $this->request($url,$this->headers);
+
+
+        return $result;
+
+    }
+
+    //获取库存
+    public function get_inventory(){
+        $url = 'http://7a08c112cda6a063.juming.com:9696/user_ym/ym_list?page=1&limit=50&gjz_cha=&ymlx=&ymzt=&zcsj_1=&zcsj_2=&gjz_cha2=&ymhz=&ymzcs=&dqsj_1=&dqsj_2=&dnsbh=&ymmb=&jgpx=&ymcd_1=&ymcd_2=';
+        $result = $this->request($url,$this->headers);
+        return $result;
+
+    }
+
+
+
 
 }
