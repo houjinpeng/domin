@@ -82,7 +82,6 @@ class Transfer extends AdminController
             $post['from_account'] == $post['to_account'] && $this->error('不能选择相同的账户');
             //判断转移的账户是否有钱
             $data = $this->model->where('id','=',$post['from_account'])->find();
-            $data['balance_price'] < $post['price'] && $this->error('账户余额不足！不能转移');
 
 
             //单据编号自动生成   ZCTX+时间戳
@@ -138,7 +137,6 @@ class Transfer extends AdminController
             $post['from_account'] == $post['to_account'] && $this->error('不能选择相同的账户');
             //判断转移的账户是否有钱
             $data = $this->model->where('id','=',$post['from_account'])->find();
-            $data['balance_price'] < $post['price'] && $this->error('账户余额不足！不能转移');
 
 
             //单据编号自动生成   ZCTX+时间戳
