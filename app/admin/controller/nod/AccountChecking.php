@@ -117,7 +117,7 @@ class AccountChecking extends AdminController
         }
         $result = [
             'code' => 1,
-            'msg' => '更新成功',
+            'msg' => '对账成功',
             'data' => $all_data
         ];
 

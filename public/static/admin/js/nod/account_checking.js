@@ -29,7 +29,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     }
                 ]],
                 cols: [[
-                    {field: 'name',minWidth: 168, title: '账号'},
+                    {field: 'name',minWidth: 168, title: '账号',fixed:'left'},
                     {field: 'my_total_inventory',minWidth: 168, title: '系统库存',templet:function (d) {
                             if (d.my_total_inventory){
                                 let html = '<div account_name ="'+d.name+'" class="show_detail" goods_name = "'+d.my_total_inventory+'" >'+d.my_total_inventory.split(',').length+'</div>'
