@@ -167,7 +167,7 @@ class Transfer extends AdminController
 
 
     /**
-     * @NodeAnotation(title="撤销调拨单数据")
+     * @NodeAnotation(title="撤销提现转存数据")
      */
     public function chexiao($id){
         if ($this->request->isAjax()){
@@ -181,7 +181,7 @@ class Transfer extends AdminController
     }
 
     /**
-     * @NodeAnotation(title="审核调拨单数据")
+     * @NodeAnotation(title="审核提现转存数据")
      */
     public function audit($id)
     {
