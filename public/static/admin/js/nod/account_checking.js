@@ -46,11 +46,19 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }
                             return 0
                         }},
-                    {field: 'cha_inventory',minWidth: 168, title: '相差库存',templet:function (d) {
+                    {field: 'cha_inventory',minWidth: 168, title: '相差库存(聚名为准)',templet:function (d) {
                             if (d.cha_inventory){
                                 let html = '<div account_name ="'+d.name+'"  class="show_detail" goods_name = "'+d.cha_inventory+'" ><font color="red">'+d.cha_inventory.split(',').length+'</font></div>'
                                 return html
                               
+                            }
+                            return 0
+                        }},
+                    {field: 'cha_my_inventory',minWidth: 168, title: '相差库存(系统为准)',templet:function (d) {
+                            if (d.cha_my_inventory){
+                                let html = '<div account_name ="'+d.name+'"  class="show_detail" goods_name = "'+d.cha_my_inventory+'" ><font color="red">'+d.cha_my_inventory.split(',').length+'</font></div>'
+                                return html
+
                             }
                             return 0
                         }},

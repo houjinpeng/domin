@@ -101,6 +101,7 @@ class AccountChecking extends AdminController
                 'my_total_inventory' => join(',', $my_total_inventory),         //我的库存
                 'jvming_total_inventory' => join(',', $all_inventory),         //聚名库存
                 'cha_inventory' => join(',', array_diff($all_inventory, $my_total_inventory)),      //相差库存
+                'cha_my_inventory' => join(',', array_diff($my_total_inventory, $all_inventory)),      //相差库存
             ];
 
             //保存数据 判断是否存在 不存在保存  存在更新
