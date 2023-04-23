@@ -458,9 +458,24 @@ class JvMing  extends AdminController
 
     //获取库存
     public function get_inventory(){
-        $url = 'http://7a08c112cda6a063.juming.com:9696/user_ym/ym_list?page=1&limit=50&gjz_cha=&ymlx=&ymzt=&zcsj_1=&zcsj_2=&gjz_cha2=&ymhz=&ymzcs=&dqsj_1=&dqsj_2=&dnsbh=&ymmb=&jgpx=&ymcd_1=&ymcd_2=';
-        $result = $this->request($url,$this->headers);
-        return $result;
+
+        $all_inventory = [];
+        for ($i=1; $i<=100; $i++)
+        {
+            $url = 'http://7a08c112cda6a063.juming.com:9696/user_ym/ym_list?page='.$i.'&limit=500&gjz_cha=&ymlx=&ymzt=&zcsj_1=&zcsj_2=&gjz_cha2=&ymhz=&ymzcs=&dqsj_1=&dqsj_2=&dnsbh=&ymmb=&jgpx=&ymcd_1=&ymcd_2=';
+            $data = $this->request($url,$this->headers);
+            if ($data['code'] == 999){
+                return $data;
+            }
+
+            $total_page = $data['count']/500;
+            foreach ($data['data'] as $item){
+                $all_inventory[] = $item['ym'];
+            }
+            if ($i > $total_page)   break;
+        }
+
+        return $all_inventory;
 
     }
 
