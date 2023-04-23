@@ -434,6 +434,7 @@ class StockOrder extends AdminController
         $zhuanyi_order =0 ;
         $other_receipt_order = 0;
         $return_stock_order = 0 ;//采购退货单
+        $cost_order = 0 ;//费用单
         try {
             foreach ($all_warehouse_data as $warehouse_data) {
                 //获取账号id
@@ -451,6 +452,7 @@ class StockOrder extends AdminController
                 $quan_data = []; //券 开采购单
                 $other_receipt_data = []; //竞价活动   开成其它收款单
                 $return_stock_order_data = []; //竞价活动 域名得标    开成退货单
+                $cost_order_data = []; //续转域名    开成费用单
                 //获取域名竞价得标单
                 foreach ($financial_data as $item) {
                     //判断是否在库存中 如果存在的话过滤
@@ -564,7 +566,13 @@ class StockOrder extends AdminController
                         }
                         $other_receipt_data[$item['ym']] = $item['qian'];
                     }
-
+                    elseif ($item['zu'] == '续转域名'){
+                        //判断费用单是否存在
+                        if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 8) == true){
+                            continue;
+                        }
+                        $cost_order_data[$item['ym']] = $item;
+                    }
                 }
 
 
@@ -872,6 +880,47 @@ class StockOrder extends AdminController
 
                 }
 
+
+
+                if ($cost_order_data != []){
+                    $practical_price = 0;
+                    $cost_order += 1;
+                    foreach ($cost_order_data as $v){
+                        $practical_price += $v['qian'];
+                    }
+                    $pid = $this->order_model->insertGetId([
+                        'order_time' => $start_time,
+                        'order_batch_num' => 'FYD' . now_time(),
+                        'order_user_id' => session('admin.id'),
+                        'remark' =>'时间：'.$start_time .' 费用单',
+
+                        'account_id'=>$account['id'],
+                        'type'=>8, //费用单
+                        'practical_price' => -$practical_price,
+                        'paid_price' => -$practical_price,
+                        'audit_status' => 0,//审核状态
+                    ]);
+
+                    $cate = $this->cate_model->where('name','=','续转域名')->find();
+
+                    foreach ($cost_order_data as $v){
+                        $save_info = [
+                            'category_id' => empty($cate)? null: $cate['id'],
+                            'category' => '费用单',
+                            'unit_price' => -$v['qian'],
+                            'remark' => $v['sm'],
+                            'pid' => $pid,
+                            'order_user_id' => session('admin.id'),
+                            'account_id' => $account['id'],
+                        ];
+                        $this->order_info_model->insert($save_info);
+                    }
+
+                }
+
+
+
+
             }
         }
         catch (\Exception $e){
@@ -882,7 +931,8 @@ class StockOrder extends AdminController
         $result_data = [
             'code'=>1,
             'data'=>[],
-            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>采购退货单：'.$return_stock_order.'个<br>调拨单：'.strval($diaobo_order).'个<br>其它收入单：'.strval($other_receipt_order).'个<br>转存提现单：'.strval($zhuanyi_order).'个'
+            'msg'=>'采集成功 采购单：'.strval($caigou_order).'个<br>采购退货单：'.$return_stock_order.'个<br>调拨单：'.strval($diaobo_order).'个<br>
+其它收入单：'.strval($other_receipt_order).'个<br>转存提现单：'.strval($zhuanyi_order).'个<br>费用单：'.$cost_order.'个'
 
         ];
         return json($result_data);

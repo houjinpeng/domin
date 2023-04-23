@@ -42,7 +42,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limits: [30, 50, 100],
                 cols: [[
                     // {type: "checkbox"},
-                    {field: 'order_batch_num', minWidth: 180, title: '单据编号'},
+                    {field: 'order_batch_num', minWidth: 220, title: '单据编号'},
                     {field: 'order_time', minWidth: 180, title: '单据时间',search: 'range'},
                     {field: 'order_user_id', minWidth: 90, title: '制单人',selectList: bulid_select(user_select_list,'username'), templet: function (d) {
                             if ( d.getOrderUser){
@@ -466,7 +466,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
             //快捷录入单据金额
             table.on('edit(order_table)', function(obj){
-                $('#practical_price').val(obj.data['unit_price'])
+                //获取所有单据数据  然后相加
+                let all_data = table.cache['order_table']
+                let total_price = 0;
+                all_data.forEach(function (item) {
+                    total_price += parseInt(item['unit_price'])
+                })
+
+
+                $('#practical_price').val(total_price)
+
             });
 
             ea.listen(function (data) {
