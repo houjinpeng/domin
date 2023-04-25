@@ -24,9 +24,7 @@ class JvMing  extends AdminController
             'accept-language'=> 'zh-CN,zh;q=0.9',
             'cache-control'=> 'no-cache',
             'content-type'=> 'application/x-www-form-urlencoded; charset=UTF-8',
-            'origin'=> 'https://www.juming.com',
             'pragma'=> 'no-cache',
-            'referer'=> 'https://www.juming.com/',
             'sec-ch-ua'=> '"Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"',
             'sec-ch-ua-mobile'=> '?0',
             'sec-ch-ua-platform'=> '"Windows"',
@@ -78,7 +76,8 @@ class JvMing  extends AdminController
      */
     public function login(){
 
-        $login_url = 'https://www.juming.com/user_zh/p_login';
+//        $login_url = 'https://www.juming.com/user_zh/p_login';
+        $login_url = 'http://7a08c112cda6a063.juming.com:9696/user_zh/p_login';
 //        $token_data = $this->client->request('GET','http://192.168.11.246:5001/get_token')->getBody()->getContents();
 //        $token_data = $this->client->request('GET','http://192.168.0.13:5001/get_token')->getBody()->getContents();
         $token_data =  $this->client->request('GET','http://127.0.0.1:5001/get_token')->getBody()->getContents();
@@ -140,7 +139,7 @@ class JvMing  extends AdminController
 
     //下载数据
     public function download_sales_ym(){
-        $url = 'https://www.juming.com/user_ym/ym_list_dc?dcfs=88&gjz_cha=&ymlx=&ymzt=&zcsj_1=&zcsj_2=&gjz_cha2=&ymhz=&ymzcs=&dqsj_1=&dqsj_2=&dnsbh=&ymmb=&jgpx=&ymcd_1=&ymcd_2=&uid=';
+        $url = 'http://7a08c112cda6a063.juming.com:9696/user_ym/ym_list_dc?dcfs=88&gjz_cha=&ymlx=&ymzt=&zcsj_1=&zcsj_2=&gjz_cha2=&ymhz=&ymzcs=&dqsj_1=&dqsj_2=&dnsbh=&ymmb=&jgpx=&ymcd_1=&ymcd_2=&uid=';
         $headers = [
             'accept'=> 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'accept-encoding'=> 'gzip, deflate, br',
@@ -208,7 +207,7 @@ class JvMing  extends AdminController
         $all_data = [];
         for ($i=1; $i<=100; $i++)
         {
-            $url = 'https://www.juming.com/user_main/zjmx_list?page='.$i.'&limit=500&sou='.$sou.'&sj=';
+            $url = 'http://7a08c112cda6a063.juming.com:9696/user_main/zjmx_list?page='.$i.'&limit=500&sou='.$sou.'&sj=';
             $data = $this->request($url,$headers);
             if ($data['code'] == 999){
                 return $data;
