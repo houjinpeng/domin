@@ -107,6 +107,26 @@ class Inventory extends AdminController
 //                $header[] = [$comment, $vo['Field']];
 //            }
 //        }
+        $w = $this->tool->build_select_where($where);
+
+        $where = [];
+        foreach ($w as $item){
+            if ($item[0] == 'dqsj'){
+                //判断大于小于
+                if ($item[1] == '>=') {
+                    $t = date("Y-m-d H:i:s", strtotime("+" . $item[2] . " Days"));
+                    $where[] = ['expiration_time', '>=', $t];
+                } else {
+                    $t = date("Y-m-d H:i:s", strtotime("+" . $item[2] . " Days"));
+                    $where[] = ['expiration_time', '<=', $t];
+                }
+                continue;
+            }elseif ($item[0] == 'register_time'){
+                $where[] = [$item[0],$item[1],date('Y-m-d H:i:s',$item[2])];
+                continue;
+            }
+            $where[] = $item;
+        }
         $list = $this->model->where($where)->with(['getWarehouse'],'left')->select()->toArray();
 
         $header = [
