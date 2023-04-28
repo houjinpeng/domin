@@ -497,8 +497,8 @@ class Purchase extends AdminController
                                     'total_profit_price'=> $total_profit_price,//总利润
                                     'account_id'        => $row['account_id'], // 账户id
                                     'sale_user_id'      => $row['sale_user_id'],//销售人员
-                                    'supplier_id'       => $ym_dict[$it['good_name']]['supplier_id'],//渠道id
-                                    'warehouse_id'      => $ym_dict[$it['good_name']]['warehouse_id'],//仓库id
+                                    'supplier_id'       => $ym_dict[$item['good_name']]['supplier_id'],//渠道id
+                                    'warehouse_id'      => $ym_dict[$item['good_name']]['warehouse_id'],//仓库id
                                     'customer_id'       => $row['customer_id'],//客户id
                                     'order_id'          => $row['id'],//订单id
                                     'practical_price'   => $item['unit_price'],
