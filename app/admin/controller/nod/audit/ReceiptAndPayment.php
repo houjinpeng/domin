@@ -91,12 +91,12 @@ class ReceiptAndPayment extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price']);
+            $post['practical_price'] = floatval($post['practical_price']);
             $post['paid_price'] = $post['practical_price'];
             //验证
             $order_info_rule = [
                 'practical_price|【实际金额】' => 'number|require',
-                'paid_price|【实付金额】' => 'number|require',
+                'paid_price|【实付金额】' => 'float|require',
             ];
             $this->validate($post, $order_info_rule);
             //检查单据金额是否与内容一样
@@ -108,18 +108,18 @@ class ReceiptAndPayment extends AdminController
             //付收款单审核
             $rule = [
                 'category_id|【收款类别】' => 'require',
-                'unit_price|【收款金额】' => 'number|require',
+                'unit_price|【收款金额】' => 'float|require',
             ];
 
             foreach ($post['goods'] as $item) {
 
                 intval($item['unit_price']) == 0 && $this->error('收款类别：【'.$item['category'].'】 总金额不能为0');
 
-                $item['unit_price'] = intval($item['unit_price']);
+                $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
             }
 
-            if ($post['practical_price'] != intval($post['goods'][0]['unit_price'])) {
+            if ($post['practical_price'] != floatval($post['goods'][0]['unit_price'])) {
                 $this->error('单据金额和项目金额不相等');
             }
             $save_order = [
