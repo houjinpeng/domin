@@ -95,7 +95,7 @@ class ReceiptAndPayment extends AdminController
             $post['paid_price'] = $post['practical_price'];
             //验证
             $order_info_rule = [
-                'practical_price|【实际金额】' => 'number|require',
+                'practical_price|【实际金额】' => 'float|require',
                 'paid_price|【实付金额】' => 'float|require',
             ];
             $this->validate($post, $order_info_rule);
