@@ -86,14 +86,14 @@ class OtherIncomeOrder extends AdminController
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户名】' => 'require',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
             ];
 
             $this->validate($post, $order_info_rule);
 
             $rule = [
                 'category_id|【付款类别】' => 'number|require',
-                'unit_price|【付款金额】' => 'number|require',
+                'unit_price|【付款金额】' => 'float|require',
             ];
 
             if (count($post['goods']) == 0 ) {
@@ -102,7 +102,7 @@ class OtherIncomeOrder extends AdminController
             $total_price = 0;
             //验证
             foreach ($post['goods'] as $item) {
-                $item['unit_price'] = intval($item['unit_price']);
+                $item['unit_price'] = floatval($item['unit_price']);
                 $item['unit_price'] == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
                 $total_price += $item['unit_price'] ;
@@ -184,12 +184,12 @@ class OtherIncomeOrder extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price'] );
+            $post['practical_price'] = floatval($post['practical_price'] );
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户名】' => 'require',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
             ];
 
             $this->validate($post, $order_info_rule);
@@ -197,7 +197,7 @@ class OtherIncomeOrder extends AdminController
 
             $rule = [
                 'category_id|【付款类别】' => 'require',
-                'unit_price|【付款金额】' => 'number|require',
+                'unit_price|【付款金额】' => 'float|require',
 
             ];
 
@@ -300,12 +300,12 @@ class OtherIncomeOrder extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price'] );
+            $post['practical_price'] = floatval($post['practical_price'] );
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户名】' => 'require',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
 
             ];
 
@@ -315,7 +315,7 @@ class OtherIncomeOrder extends AdminController
 
             $rule = [
                 'category_id|【付款类别】' => 'require',
-                'unit_price|【付款金额】' => 'number|require',
+                'unit_price|【付款金额】' => 'float|require',
 
             ];
 
