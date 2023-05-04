@@ -70,7 +70,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }
                             return 0
                         }},
-                    {field: 'create_time',minWidth: 168, title: '对比时间'},
+                    {field: 'update_time',minWidth: 168, title: '对比时间',templet:function (d) {
+                            return d.update_time ? d.update_time:d.create_time
+
+                        }},
                 ]],
                 done:function () {
                     $('[class=show_detail]').click(function () {
