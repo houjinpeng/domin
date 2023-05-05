@@ -1,16 +1,8 @@
 <link rel="stylesheet" href="__STATIC__/admin/css/login.css?v={$version}" media="all">
-<link rel="stylesheet" href="__STATIC__/admin/css/login_new.css?v={$version}">
+
 
 
 <style>
-    .dingding {
-        font-stretch: normal;
-        letter-spacing: 0;
-        color: #1391ff;
-        text-decoration: none;
-        position: absolute;
-        right: 166px;
-    }
 
     .pp {
         display: inline-block;
@@ -21,20 +13,12 @@
         color: #c2c2c2;
         padding-left: 20px;
     }
-
-    .tablogin {
-        padding-top: 10px;
-        font-size: 14px;
-        text-align: center;
-        cursor: pointer;
-        color: #9abcda;
+    body{
+        background: url("__STATIC__/admin/images/loginbg.png");
     }
 
-    .selecedspan {
-        color: #1e6aac;
-    }
 </style>
-{if empty($bind)}
+
 
 <div class="main-body uploin" style="top: 45%;left: 80%">
     <div class="login-main" style="width: 360px;">
@@ -77,149 +61,5 @@
         </form>
     </div>
 </div>
-{else}
-<div class="main-body" style="top: 45%;left: 80%;">
-    <div class="login-main" style="width: 360px;">
-        <div class="login-top"
-             style="height: 50px;line-height: 50px;background-color: #527eaba3;font-size: 16px; border-radius: 10px 10px 0 0; text-align:left;">
-            <p class="pp"><i class="fa fa-sign-in" aria-hidden="true"></i><span style="padding-left: 20px;">Welcome to 蜘蛛侠</span>
-            </p>
-        </div>
-        <form class="layui-form login-bottom"
-              style="width: 360px;height: 330px;padding-bottom: 10px; border-radius:  0 0 10px 10px;" action="bind"
-              method="post">
-            <div class="center" style="width: 290px; padding-top: 60px;">
-                <div class="item">
-                    <span class="icon icon-2"></span>
-                    <input type="text" name="username" lay-verify="required" placeholder="请输入登录账号" maxlength="24"/>
-                </div>
-                <input type="hidden" name="fs_user_id" value="{$fs_user_id}">
-                <div class="item">
-                    <span class="icon icon-3"></span>
-                    <input type="password" name="password" lay-verify="required" placeholder="请输入密码" maxlength="20">
-                    <span class="bind-password icon icon-4"></span>
-                </div>
-            </div>
-            <div class="layui-form-item" style="text-align:center; width:100%;height:100%;margin:0px;">
-                <button class="login-btn" style="background-color: #81b3d7;border-radius: 5px;"
-                        lay-submit="{:url('login/bind')}">绑定账号
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-{/if}
-{if empty($bind)}
-<div class="container">
-    <div class="fourth">
-        <ul>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-        </ul>
-    </div>
-    <div class="third">
-        <ul>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-        </ul>
-    </div>
-    <div class="second">
-        <ul>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-        </ul>
-    </div>
-    <div class="first">
-        <ul>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-        </ul>
-    </div>
-    <div class="egg">
-        <ul>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-        </ul>
-        <div class="face">
-            <div class="eyes"></div>
-            <div class="smile"></div>
-            <div class="cheeks"></div>
-            <div class="shine"></div>
-        </div>
-    </div>
-</div>
-<div class="stars">
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-    <span class="star"></span>
-</div>
-<script src="/static/plugs/logn_new.js"></script>
-<script>
-    const client_id = '{$appid}' // 这两个是钉钉扫码登录APP的AppID和Secret，可以在钉钉工作台中创建扫码登陆应用
-    const redirect_uri = '{$redirect_uri}'
-    var QRLoginObj = QRLogin({
-        id: "login_container",
-        goto: "https://www.feishu.cn/suite/passport/oauth/authorize?client_id=" + client_id + "&redirect_uri=" + redirect_uri + "&response_type=code&state=STATE",
-        style: "border:none;background-color:#FFFFFF;",
-        width: "330",
-        height: "300",
-    });
-    var handleMessage = function (event) {
-        var origin = event.origin;
-        // 使用 matchOrigin 方法来判断 message 是否来自飞书页面
-        if (QRLoginObj.matchOrigin(origin)) {
-            var loginTmpCode = event.data;
-            // 在授权页面地址上拼接上参数 tmp_code，并跳转
-            window.location.href = `https://www.feishu.cn/suite/passport/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=STATE&tmp_code=${loginTmpCode}`;
-        }
-    };
 
-    if (typeof window.addEventListener != 'undefined') {
-        window.addEventListener('message', handleMessage, false);
-    } else if (typeof window.attachEvent != 'undefined') {
-        window.attachEvent('onmessage', handleMessage);
-    }
-</script>
-        {/if}
+
