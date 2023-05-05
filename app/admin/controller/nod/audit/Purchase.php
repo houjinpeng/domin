@@ -117,7 +117,6 @@ class Purchase extends AdminController
                 $ym_list = [];
                 foreach ($post['goods'] as &$item) {
                     $ym_list[] = trim($item['good_name']);
-                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
                     $this->validate($item, $rule);
                 }
