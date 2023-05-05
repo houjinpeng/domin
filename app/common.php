@@ -325,9 +325,9 @@ if (!function_exists('check_practical_price')) {
         $price = 0;
 
         foreach ($item as $v){
-            $price += intval($v['unit_price']);
+            $price += floatval($v['unit_price']);
         }
-        return intval($practical_price) == $price;
+        return floatval($practical_price) == $price;
     }
 }
 

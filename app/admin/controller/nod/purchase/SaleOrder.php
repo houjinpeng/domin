@@ -112,7 +112,6 @@ class SaleOrder extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
 
-            $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
             if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
 
 
@@ -121,8 +120,8 @@ class SaleOrder extends AdminController
                 'order_time|【单据日期】' => 'require|date',
                 'customer|【客户】' => 'require',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实收金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【实收金额】' => 'float|require',
                 'sale_user_id|【销售员】' => 'number|require',
             ];
 
@@ -131,7 +130,7 @@ class SaleOrder extends AdminController
             check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'unit_price|【售货单价】' => 'number|require',
+                'unit_price|【售货单价】' => 'float|require',
 
             ];
 
@@ -144,7 +143,7 @@ class SaleOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+//                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -252,7 +251,6 @@ class SaleOrder extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
             $post['practical_price'] = intval($post['practical_price'] );
             $post['paid_price'] = intval($post['paid_price'] );
 
@@ -281,7 +279,6 @@ class SaleOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $item['unit_price'] = intval($item['unit_price']);
                 $this->validate($item, $rule);
             }

@@ -90,7 +90,6 @@ class Purchase extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
             $post['practical_price'] = intval($post['practical_price']);
             $post['paid_price'] = intval($post['paid_price']);
             if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
@@ -367,7 +366,6 @@ class Purchase extends AdminController
                 //验证
                 foreach ($post['goods'] as $item) {
                     $ym_list[] = $item['good_name'];
-                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                     $item['unit_price'] = intval($item['unit_price']);
                     $this->validate($item, $rule);
                 }
