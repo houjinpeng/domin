@@ -64,14 +64,14 @@ class ReturnGood extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price']);
-            $post['paid_price'] = intval($post['paid_price']);
+            $post['practical_price'] = floatval($post['practical_price']);
+            $post['paid_price'] = floatval($post['paid_price']);
             if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
 
             //验证
             $order_info_rule = [
-                'practical_price|【实际金额】' => 'number|require',
-                'paid_price|【实付金额】' => 'number|require',
+                'practical_price|【实际金额】' => 'float|require',
+                'paid_price|【实付金额】' => 'float|require',
             ];
             $this->validate($post, $order_info_rule);
 
@@ -87,7 +87,7 @@ class ReturnGood extends AdminController
 
                 $rule = [
                     'good_name|【商品信息】' => 'require',
-                    'unit_price|【退货单价】' => 'number|require',
+                    'unit_price|【退货单价】' => 'float|require',
 
                 ];
 
@@ -95,8 +95,8 @@ class ReturnGood extends AdminController
                 $all_ym_list = [];
                 foreach ($post['goods'] as $item) {
                     $all_ym_list[] = trim($item['good_name']);
-                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
-                    $item['unit_price'] = intval($item['unit_price']);
+                    floatval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                    $item['unit_price'] = floatval($item['unit_price']);
                     //验证
                     $this->validate($item, $rule);
                 }
@@ -199,12 +199,12 @@ class ReturnGood extends AdminController
 
 
                         //每次出库金额减去支付金额 如果小于0 则是应收款
-                        $paid_price -= intval($item['unit_price']);
+                        $paid_price -= floatval($item['unit_price']);
                         if ($paid_price < 0){
                             //判断差了多少钱 补一单 然后补一单应收款
-                            if (intval($item['unit_price']) != -$paid_price){
+                            if (floatval($item['unit_price']) != -$paid_price){
                                 //正常数据 收款
-                                $save_price = intval($item['unit_price']) + $paid_price;
+                                $save_price = floatval($item['unit_price']) + $paid_price;
                                 $balance_price += $save_price;
                                 $all_balance_price += $save_price;
                                 $this->account_info_model->insert( [
@@ -299,8 +299,8 @@ class ReturnGood extends AdminController
                         }
                         else{
                             //入库
-                            $balance_price += intval($item['unit_price']);
-                            $all_balance_price += intval($item['unit_price']);
+                            $balance_price += floatval($item['unit_price']);
+                            $all_balance_price += floatval($item['unit_price']);
                             $this->account_info_model->insert( [
                                 'sz_type'           => 1, //1收入 2支出
                                 'category'          => '采购退货单',
@@ -368,7 +368,7 @@ class ReturnGood extends AdminController
             elseif ($type =='sale'){
                 $rule = [
                     'good_name|【商品信息】' => 'require',
-                    'unit_price|【退货单价】' => 'number|require',
+                    'unit_price|【退货单价】' => 'float|require',
 
                 ];
 
@@ -380,8 +380,8 @@ class ReturnGood extends AdminController
                 //验证
                 foreach ($post['goods'] as $item) {
                     $ym_list[] = $item['good_name'];
-                    intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
-                    $item['unit_price'] = intval($item['unit_price']);
+                    floatval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                    $item['unit_price'] = floatval($item['unit_price']);
                     $this->validate($item, $rule);
                 }
                 $not_ym_list = [];
@@ -509,8 +509,8 @@ class ReturnGood extends AdminController
 //                            $all_balance_price = $all_balance_price - ($receivable_price - $item['unit_price']);
                             }
                         }else{
-                            $all_balance_price -= intval($item['unit_price']);
-                            $balance_price -= intval($item['unit_price']);
+                            $all_balance_price -= floatval($item['unit_price']);
+                            $balance_price -= floatval($item['unit_price']);
                         }
 
 

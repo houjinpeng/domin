@@ -118,8 +118,8 @@ class StockOrder extends AdminController
                 'warehouse_id|【仓库】' => 'require|number',
                 'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实付金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【实付金额】' => 'float|require',
             ];
 
             $this->validate($post, $order_info_rule);
@@ -128,7 +128,7 @@ class StockOrder extends AdminController
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'unit_price|【购货单价】' => 'number|require',
+                'unit_price|【购货单价】' => 'float|require',
             ];
 
             if (count($post['goods']) == 0) {
@@ -212,15 +212,15 @@ class StockOrder extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post, true));
-            $post['practical_price'] = intval($post['practical_price']);
-            $post['paid_price'] = intval($post['paid_price']);
+            $post['practical_price'] = floatval($post['practical_price']);
+            $post['paid_price'] = floatval($post['paid_price']);
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'warehouse_id|【仓库】' => 'require|number',
                 'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实付金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【实付金额】' => 'float|require',
             ];
 
             $this->validate($post, $order_info_rule);
@@ -237,7 +237,7 @@ class StockOrder extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                $item['unit_price'] = intval($item['unit_price']);
+                $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
             }
 

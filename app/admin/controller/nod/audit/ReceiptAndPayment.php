@@ -113,7 +113,7 @@ class ReceiptAndPayment extends AdminController
 
             foreach ($post['goods'] as $item) {
 
-                intval($item['unit_price']) == 0 && $this->error('收款类别：【'.$item['category'].'】 总金额不能为0');
+                floatval($item['unit_price']) == 0 && $this->error('收款类别：【'.$item['category'].'】 总金额不能为0');
 
                 $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
@@ -153,8 +153,8 @@ class ReceiptAndPayment extends AdminController
                     //单据内容
                     $item = $post['goods'][0];
 
-                    $balance_price += intval($item['unit_price']);
-                    $all_balance_price += intval($item['unit_price']);
+                    $balance_price += floatval($item['unit_price']);
+                    $all_balance_price += floatval($item['unit_price']);
 
                     //账户记录收款
                     $this->account_info_model->insert([
@@ -230,8 +230,8 @@ class ReceiptAndPayment extends AdminController
 
                     //遍历说有付款单 将每一个都放到资金明细中
                     foreach ($post['goods'] as $item){
-                        $balance_price -= intval($item['unit_price']);
-                        $all_balance_price -= intval($item['unit_price']);
+                        $balance_price -= floatval($item['unit_price']);
+                        $all_balance_price -= floatval($item['unit_price']);
 
                         $this->account_info_model->insert([
                             'sale_user_id'      => $row['sale_user_id'],

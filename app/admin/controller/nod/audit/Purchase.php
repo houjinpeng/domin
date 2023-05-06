@@ -90,14 +90,14 @@ class Purchase extends AdminController
             $post = $this->request->post();
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
-            $post['practical_price'] = intval($post['practical_price']);
-            $post['paid_price'] = intval($post['paid_price']);
+            $post['practical_price'] = floatval($post['practical_price']);
+            $post['paid_price'] = floatval($post['paid_price']);
             if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
 
             //验证
             $order_info_rule = [
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实付金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【实付金额】' => 'float|require',
             ];
             $this->validate($post, $order_info_rule);
             //检查单据金额是否与内容一样
@@ -117,7 +117,7 @@ class Purchase extends AdminController
                 $ym_list = [];
                 foreach ($post['goods'] as &$item) {
                     $ym_list[] = trim($item['good_name']);
-                    $item['unit_price'] = intval($item['unit_price']);
+                    $item['unit_price'] = floatval($item['unit_price']);
                     $this->validate($item, $rule);
                 }
                 //查询商品是否在库存中
@@ -211,16 +211,16 @@ class Purchase extends AdminController
                     $total_supplier_receivable_price = get_total_receivable_price();
 
                     //每次入库金额减去支付金额 如果小于0 则是应付款
-                    $paid_price -= intval($item['unit_price']);
+                    $paid_price -= floatval($item['unit_price']);
                     // 1 -100 = -99
                     // 支付 单据 = 结果
                     if ($paid_price < 0){
                         //判断差了多少钱 补一单 然后补一单应收款
-                        if (intval($item['unit_price']) != -$paid_price){
+                        if (floatval($item['unit_price']) != -$paid_price){
                             //正常数据 收款
-                            $save_price = intval($item['unit_price']) + $paid_price;
+                            $save_price = floatval($item['unit_price']) + $paid_price;
                             $balance_price -= $save_price;
-                            $all_balance_price -= intval($save_price);
+                            $all_balance_price -= floatval($save_price);
 
                             //增加渠道的应付款金额
                             $supplier_receivable_price = $supplier_row['receivable_price'] + ($paid_price);
@@ -317,7 +317,7 @@ class Purchase extends AdminController
                     //全部正常采购单
                     else{
                         $balance_price -= $item['unit_price'];
-                        $all_balance_price -= intval($item['unit_price']);
+                        $all_balance_price -= floatval($item['unit_price']);
                         $this->account_info_model->insert( [
                             'sz_type'           => 2, //1收入 2支出
                             'category'          => '采购单',
@@ -365,7 +365,7 @@ class Purchase extends AdminController
                 //验证
                 foreach ($post['goods'] as $item) {
                     $ym_list[] = $item['good_name'];
-                    $item['unit_price'] = intval($item['unit_price']);
+                    $item['unit_price'] = floatval($item['unit_price']);
                     $this->validate($item, $rule);
                 }
                 //查询库存中的商品
@@ -472,13 +472,13 @@ class Purchase extends AdminController
                         //获取销售员的总利润
                         $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
                         //每次出库金额减去支付金额 如果小于0 则是应收款
-                        $paid_price -= intval($item['unit_price']);
+                        $paid_price -= floatval($item['unit_price']);
 
                         if ($paid_price < 0){
                             //判断差了多少钱 补一单 然后补一单应收款
-                            if (intval($item['unit_price']) != -$paid_price){
+                            if (floatval($item['unit_price']) != -$paid_price){
                                 //正常数据 收款
-                                $save_price = intval($item['unit_price']) + $paid_price;
+                                $save_price = floatval($item['unit_price']) + $paid_price;
                                 $balance_price += $save_price;
                                 $all_balance_price += $save_price;
                                 $this->account_info_model->insert( [
@@ -589,8 +589,8 @@ class Purchase extends AdminController
                         }
                         else{
                             //入库
-                            $balance_price += intval($item['unit_price']);
-                            $all_balance_price += intval($item['unit_price']);
+                            $balance_price += floatval($item['unit_price']);
+                            $all_balance_price += floatval($item['unit_price']);
                             $this->account_info_model->insert( [
                                 'sz_type'           => 1, //1收入 2支出
                                 'category'          => '销售单',

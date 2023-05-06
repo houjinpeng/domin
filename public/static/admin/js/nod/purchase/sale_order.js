@@ -337,7 +337,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['unit_price'])
+                    total_pirce = parseFloat((total_pirce + parseFloat(item['unit_price'])).toFixed(2))
                 })
 
                 $('#practical_price').val(total_pirce)
@@ -583,7 +583,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 let all_data = table.cache['order_table']
                 let total_pirce = 0
                 all_data.forEach(function (item) {
-                    total_pirce += parseInt(item['unit_price'])
+                    total_pirce = parseFloat((total_pirce + parseFloat(item['unit_price'])).toFixed(2))
                 })
 
                 $('#practical_price').val(total_pirce)

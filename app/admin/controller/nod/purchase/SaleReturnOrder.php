@@ -110,8 +110,8 @@ class SaleReturnOrder extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price'] );
-            $post['paid_price'] = intval($post['paid_price'] );
+            $post['practical_price'] = floatval($post['practical_price'] );
+            $post['paid_price'] = floatval($post['paid_price'] );
             if ($post['practical_price'] != $post['paid_price']) $this->error('实际金额和单据金额不等！');
 
 
@@ -121,15 +121,15 @@ class SaleReturnOrder extends AdminController
                 'sale_user_id|【销售员】' => 'require',
                 'account_id|【账户】' => 'require|number',
                 'warehouse_id|【仓库】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实退金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【实退金额】' => 'float|require',
             ];
 
             $this->validate($post, $order_info_rule);
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'unit_price|【退货单价】' => 'number|require',
+                'unit_price|【退货单价】' => 'float|require',
             ];
 
             if (count($post['goods']) == 0) {
@@ -141,8 +141,8 @@ class SaleReturnOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
-                $item['unit_price'] = intval($item['unit_price']);
+                floatval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
             }
 
@@ -267,8 +267,8 @@ class SaleReturnOrder extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price'] );
-            $post['paid_price'] = intval($post['paid_price'] );
+            $post['practical_price'] = floatval($post['practical_price'] );
+            $post['paid_price'] = floatval($post['paid_price'] );
             if ($post['practical_price'] != $post['paid_price']) $this->error('实际金额不能大于单据金额！');
 
             $order_info_rule = [
@@ -276,8 +276,8 @@ class SaleReturnOrder extends AdminController
                 'customer|【客户】' => 'require',
                 'account_id|【账户】' => 'require|number',
                 'warehouse_id|【仓库】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【实收金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【实收金额】' => 'float|require',
                 'sale_user_id|【销售员】' => 'require',
             ];
 
@@ -285,7 +285,7 @@ class SaleReturnOrder extends AdminController
 
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'unit_price|【退货单价】' => 'number|require',
+                'unit_price|【退货单价】' => 'float|require',
 
             ];
 
@@ -296,8 +296,8 @@ class SaleReturnOrder extends AdminController
             //验证
             foreach ($post['goods'] as $item) {
                 $ym_list[] = $item['good_name'];
-                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
-                $item['unit_price'] = intval($item['unit_price']);
+                floatval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
             }
 

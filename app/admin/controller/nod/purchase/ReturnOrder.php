@@ -115,8 +115,8 @@ class ReturnOrder extends AdminController
                 'warehouse_id|【仓库】' => 'require|number',
                 'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【退款金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【退款金额】' => 'float|require',
             ];
 
             $this->validate($post, $order_info_rule);
@@ -124,7 +124,7 @@ class ReturnOrder extends AdminController
             check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'unit_price|【退货单价】' => 'number|require',
+                'unit_price|【退货单价】' => 'float|require',
 
             ];
 
@@ -136,7 +136,7 @@ class ReturnOrder extends AdminController
 
             foreach ($post['goods'] as $item) {
                 $all_ym_list[] = trim($item['good_name']);
-                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                floatval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
                 $this->validate($item, $rule);
             }
 
@@ -237,15 +237,15 @@ class ReturnOrder extends AdminController
             $post = (json_decode($post,true));
             $post['paid_price'] == '0'&& $this->error('实付金额不能为0');
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price'] );
-            $post['paid_price'] = intval($post['paid_price'] );
+            $post['practical_price'] = floatval($post['practical_price'] );
+            $post['paid_price'] = floatval($post['paid_price'] );
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
                 'warehouse_id|【仓库】' => 'require|number',
                 'supplier_id|【来源渠道】' => 'require|number',
                 'account_id|【账户】' => 'require|number',
-                'practical_price|【单据金额】' => 'number|require',
-                'paid_price|【退款金额】' => 'number|require',
+                'practical_price|【单据金额】' => 'float|require',
+                'paid_price|【退款金额】' => 'float|require',
             ];
 
             $this->validate($post, $order_info_rule);
@@ -253,7 +253,7 @@ class ReturnOrder extends AdminController
             check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
             $rule = [
                 'good_name|【商品信息】' => 'require',
-                'unit_price|【退货单价】' => 'number|require',
+                'unit_price|【退货单价】' => 'float|require',
 
             ];
 
@@ -265,8 +265,8 @@ class ReturnOrder extends AdminController
             foreach ($post['goods'] as $item) {
 
                 $all_ym_list[] = trim($item['good_name']);
-                intval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
-                $item['unit_price'] = intval($item['unit_price']);
+                floatval($item['unit_price']) == 0 && $this->error('域名：【'.$item['good_name'].'】 总金额不能为0');
+                $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
             }
 
