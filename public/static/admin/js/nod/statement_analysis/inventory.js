@@ -75,7 +75,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                 ]],
                 done:function (data) {
-                    $('#layui-table-page1').append('     <font color="red">当前库存数量: '+data['count']+'条  库存总金额:'+data['total_price']+'元</font>')
+                    $('#layui-table-page1').append('     <font color="red" style="font-size: 18px">当前库存数量: '+data['count']+'条  库存总金额:'+data['total_price']+'元</font>')
                 }
             });
 
