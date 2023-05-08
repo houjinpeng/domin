@@ -69,7 +69,10 @@ class Inventory extends AdminController
                 ->where($where)
                 ->page($page,$limit)
                 ->order('id','desc')->select()->toArray();
-
+            $total_price = 0;
+            foreach ($list as $item){
+                $total_price += $item['unit_price'];
+            }
 
 
             $count = $this->model->where($where)->count();
@@ -77,16 +80,14 @@ class Inventory extends AdminController
                 'code'=>0,
                 'data'=>$list,
                 'count'=>$count,
+                'total_price'=>$total_price,
                 'msg'=>''
             ];
             return json($data);
 
         }
 
-        $total_price = $this->model->sum('unit_price');
-        $total_count = $this->model->count();
-        $this->assign('total_price',$total_price);
-        $this->assign('total_count',$total_count);
+
         return $this->fetch();
     }
 

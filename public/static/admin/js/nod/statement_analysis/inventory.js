@@ -74,8 +74,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     // {field: 'create_time', minWidth: 180, title: '操作时间',search: 'range'},
 
                 ]],
-                done:function () {
-                    $('#layui-table-page1').append('     <font color="red">当前库存数量: '+$('#total_count').val()+'条  库存总金额:'+$('#total_price').val()+'元</font>')
+                done:function (data) {
+                    $('#layui-table-page1').append('     <font color="red">当前库存数量: '+data['count']+'条  库存总金额:'+data['total_price']+'元</font>')
                 }
             });
 
