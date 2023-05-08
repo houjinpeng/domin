@@ -85,6 +85,7 @@ class SaleUserStatistic extends AdminController
         $profit_price_list = [];
         $sale_count_list = [];
         $sale_user_list = [];
+        $t[1] = explode(' ',$t[1])[0].' 23:59:59';
         foreach ($all_sale_user as $user){
             $sale_user_list[] = $user['username'];
             //获取销售员的销售条数及利润
