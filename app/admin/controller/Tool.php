@@ -186,7 +186,39 @@ class Tool
     }
 
 
+    public function bulid_remark($data){
 
+        try {
+            if ($data['type'] === 1){
+                return 'ID:'. $data['getAccount']['name'].' 购买域名:【'.$data['good_name'].'】 价格:'.-$data['price'].'元';
+            }
+            elseif ($data['type'] === 2){
+                return '退款 ID:'. $data['getAccount']['name'].' 购买域名:【'.$data['good_name'].'】 价格:'.$data['price'].'元';
+            }
+            elseif ($data['type'] === 3){
+                return 'ID:'. $data['getAccount']['name'].' 出售域名:【'.$data['good_name'].'】 价格:'.$data['price'].'元';
+            }
+            elseif ($data['type'] === 4 || $data['type'] === 9){
+                return 'ID:'. $data['getAccount']['name'].' 收到客户【'.$data['getCustomer']['name'].'】 '.$data['getCategory']['name'].'  '.$data['price'].'元 ';
+            }
+            elseif ($data['type'] === 5 || $data['type'] === 8){
+                return 'ID:'. $data['getAccount']['name'].' 付款给客户【'.$data['getCustomer']['name'].'】'.$data['getCategory']['name'].'  '.-$data['price'].'元 ';
+            }
+            elseif ($data['type'] === 6){
+                return '退款 ID:'. $data['getAccount']['name'].' 出售域名:【'.$data['good_name'].'】 价格:'.-$data['price'].'元';
+            }
+
+            elseif ($data['type'] === 10){
+                return 'ID:'. $data['getAccount']['name'].' 收到转移 '.$data['price'].'元 ';
+            }
+        }catch (\Exception $e){
+            return '无';
+        }
+
+
+
+
+    }
 
 
 }

@@ -4,6 +4,15 @@ define(["jquery", "easy-admin"], function ($, ea) {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
         index_url: 'nod.purchase_detail/index',
+        export_url: 'nod.purchase_detail/export',
+
+
+    };
+    var sale_init = {
+        table_elem: '#currentTable',
+        table_render_id: 'currentTableRenderId',
+        index_url: 'nod.purchase_detail/index',
+        export_url: 'nod.purchase_detail/export?type=sale',
 
 
     };
@@ -32,15 +41,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
             }
             if ($('#type').val() === 'sale'){
                 ea.table.render({
-                    init: init,
+                    init: sale_init,
                     url:'/admin/nod.purchase_detail/index?type=sale',
                     limit:30,
                     page:true,
                     height:'full-40',
-                    toolbar:['refresh','add'],
+                    toolbar:['refresh','export'],
                     limits:[30,50,100],
                     cols: [[
                         {field: 'operate_time', search:'range',minWidth: 168, fixed:'left', title: '操作时间'},
+                        {field: 'good_name', search:'batch', searchOp:'in',minWidth: 168, title: '域名'},
                         {field: 'order_user_id', minWidth: 110, title: '经手人',selectList: bulid_select(user_select_list,'username'),templet:function (d) {
                                 if (d.getOrderUser){
                                     return d.getOrderUser.username
@@ -148,10 +158,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     init: init,
                     limit:30,
                     height:'full-40',
-                    toolbar:['refresh','add'],
+                    toolbar:['refresh','export'],
                     limits:[30,50,100],
                     cols: [[
                         {field: 'operate_time', search:'range',minWidth: 168, fixed:'left', title: '操作时间'},
+                        {field: 'good_name',hide:true, search:'batch', searchOp:'in',minWidth: 168, title: '域名'},
+
                         {field: 'order_user_id', minWidth: 110, title: '经手人',selectList: bulid_select(user_select_list,'username'),templet:function (d) {
                                 if (d.getOrderUser){
                                     return d.getOrderUser.username

@@ -5,6 +5,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
         index_url: 'nod.statement_analysis.capital_info/index',
+        export_url: 'nod.statement_analysis.capital_info/export',
 
     };
 
@@ -29,9 +30,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 align:'left',
                 height:'full-40',
                 limits:[50,100,200],
-                toolbar:['refresh'],
+                toolbar:['refresh','export'],
                 cols: [[
                     {field: 'operate_time', search:'range',minWidth: 168, fixed:'left', title: '操作时间'},
+                    {field: 'good_name',hide:true, search:'batch', searchOp:'in',minWidth: 168, title: '域名'},
 
                     {field: 'order_user_id', minWidth: 110, title: '经手人',selectList: bulid_select(admin_list,'username'),templet:function (d) {
                             if ( d.getOrderUser){
