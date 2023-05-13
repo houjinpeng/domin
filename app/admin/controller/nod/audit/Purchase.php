@@ -625,11 +625,43 @@ class Purchase extends AdminController
                     //修改余额
                     $account_data->save(['balance_price'=>$balance_price]);
 
+
+
+
 //
 //                    Db::table('ym_nod_order')->where('id',$id)->update($save_order);
 //
 //                    // 提交事务
                     Db::commit();
+
+                    //判断是否欠钱已经结清 小于等于0说明已经全部结清
+                    $customer_data = $this->customer_model->find($customer['id']);
+                    if ($customer_data['receivable_price'] <= 0){
+                        //查询当前客户的所有订单 计算利润及总利润
+                        $all_account_info = $this->account_info_model
+                            ->where('customer_id','=',$customer['id'])->where('is_compute_profit','=',0)
+                            ->select();
+                        foreach ($all_account_info as $index=>$info){
+                            if ($info['cost_price'] == 0){
+                                $info->save([
+                                    'is_compute_profit'=>1,]);
+                                continue;
+                            }
+                            //获取当前销售员的所有利润
+                            $total_profit_price = $this->account_info_model->where('sale_user_id','=',$row['sale_user_id'])->sum('profit_price');
+                            $profit_price = $info['practical_price'] - $info['cost_price'];
+
+                            $info->save([
+                                'is_compute_profit'=>1,
+                                'profit_price'=>$profit_price,
+                                'total_profit_price'=>$total_profit_price+$profit_price,
+                            ]);
+
+
+                        }
+
+
+                    }
 
 
 
