@@ -145,6 +145,7 @@ class SaleReturnOrder extends AdminController
                 $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
             }
+            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
 
 
             $not_ym_list = [];
@@ -269,7 +270,7 @@ class SaleReturnOrder extends AdminController
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
             $post['practical_price'] = floatval($post['practical_price'] );
             $post['paid_price'] = floatval($post['paid_price'] );
-            if ($post['practical_price'] != $post['paid_price']) $this->error('实际金额不能大于单据金额！');
+            if ($post['practical_price'] != $post['paid_price']) $this->error('实际金额与单据金额不等！');
 
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
@@ -300,6 +301,7 @@ class SaleReturnOrder extends AdminController
                 $item['unit_price'] = floatval($item['unit_price']);
                 $this->validate($item, $rule);
             }
+            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
 
             //查找域名是否已经被销售
             $not_ym_list = [];

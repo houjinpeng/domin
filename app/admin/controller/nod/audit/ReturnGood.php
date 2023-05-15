@@ -404,8 +404,6 @@ class ReturnGood extends AdminController
                     $ym_xiaoshou_data[$ym_sale_data['good_name']] = $ym_sale_data->toArray();
                 }
 
-
-
                 if (count($not_ym_list) != 0){
                     $this->error('下列商品没有出售过不能退货~ 共：'.count($not_ym_list).'个<br>'.join("<br>",$not_ym_list),wait: 10);
                 }
@@ -421,6 +419,12 @@ class ReturnGood extends AdminController
                         $this->error('域名【'.$item['good_name'].'】销售价:'.$ym_xiaoshou_data[$item['good_name']]['practical_price'].'退货价:'.$item['unit_price'].'  退货价与销售价不相等！');
                     }
                 }
+                check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
+                isset($post['sale_user_id']) || $this->error('销售员不能为空！');
+                //获取总利润
+                $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
+
+
                 $this->model->startTrans();
                 try {
                     //修改审核状态
@@ -512,7 +516,9 @@ class ReturnGood extends AdminController
                             $all_balance_price -= floatval($item['unit_price']);
                             $balance_price -= floatval($item['unit_price']);
                         }
-
+                        if (isset($post['sale_user_id'])){
+                            $total_profit_price -= $item['unit_price']-$ym_caigou_data[$item['good_name']]['price'];
+                        }
 
                         $this->account_info_model->insert( [
                             'sz_type'           => 2, //1收入 2支出
@@ -520,6 +526,9 @@ class ReturnGood extends AdminController
                             'type'              => 6, //1 采购单 2 采购退货单 3销货单 4收款单 5付款单 6销售退货单 7 调拨单
                             'good_name'         => $item['good_name'], //商品名称
                             'remark'            => $item['remark'], //备注
+                            'cost_price'        => $ym_xiaoshou_data[$item['good_name']]['price'], //成本价
+                            'profit_price'      => $item['unit_price']-$ym_caigou_data[$item['good_name']]['price'],//利润
+                            'total_profit_price'=> isset($post['sale_user_id'])? $total_profit_price :0,//总利润
                             'price'             => -$item['unit_price'], //实际付款价格
                             'practical_price'   => $item['unit_price'],//单据实际价格
                             'account_id'        => $row['account_id'], // 账户id
