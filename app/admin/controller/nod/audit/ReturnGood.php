@@ -517,7 +517,7 @@ class ReturnGood extends AdminController
                             $balance_price -= floatval($item['unit_price']);
                         }
                         if (isset($post['sale_user_id'])){
-                            $total_profit_price -= $item['unit_price']-$ym_caigou_data[$item['good_name']]['price'];
+                            $total_profit_price -=  $ym_xiaoshou_data[$item['good_name']]['cost_price']-$ym_caigou_data[$item['good_name']]['price'];
                         }
 
                         $this->account_info_model->insert( [
@@ -527,7 +527,7 @@ class ReturnGood extends AdminController
                             'good_name'         => $item['good_name'], //商品名称
                             'remark'            => $item['remark'], //备注
                             'cost_price'        => $ym_xiaoshou_data[$item['good_name']]['price'], //成本价
-                            'profit_price'      => $item['unit_price']-$ym_caigou_data[$item['good_name']]['price'],//利润
+                            'profit_price'      => $ym_xiaoshou_data[$item['good_name']]['cost_price']-$ym_caigou_data[$item['good_name']]['price'],//利润
                             'total_profit_price'=> isset($post['sale_user_id'])? $total_profit_price :0,//总利润
                             'price'             => -$item['unit_price'], //实际付款价格
                             'practical_price'   => $item['unit_price'],//单据实际价格
