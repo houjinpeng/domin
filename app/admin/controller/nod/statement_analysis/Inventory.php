@@ -71,7 +71,7 @@ class Inventory extends AdminController
                 ->order('id','desc')->select()->toArray();
             $total_price = 0;
             foreach ($list as $item){
-                $total_price += $item['unit_price'];
+                $total_price += floatval($item['unit_price']);
             }
 
 
@@ -148,9 +148,11 @@ class Inventory extends AdminController
             ['到期天数','dqts'],
             ['渠道','supplier'],
             ['仓库','warehouse'],
+            ['注册商','zcs'],
             ['备案','beian'],
             ['百度','baidu'],
             ['搜狗','sogou'],
+            ['备注','remark'],
         ];
         $new_list = [];
         foreach ($list as $item){
@@ -162,6 +164,8 @@ class Inventory extends AdminController
                 'warehouse'=>$item['getWarehouse']?$item['getWarehouse']['name']:'',
                 'supplier'=>$item['getSupplier']?$item['getSupplier']['name']:'',
                 'dqts'=>$item['dqts'],
+                'zcs'=>$item['zcs'],
+                'remark'=>$item['remark'],
                 'beian'=>$item['beian']?$item['beian']: '',
                 'baidu'=>$item['baidu']?$item['baidu']: '',
                 'sogou'=>$item['sogou']?$item['sogou']: '',
