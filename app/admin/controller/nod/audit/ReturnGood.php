@@ -530,7 +530,7 @@ class ReturnGood extends AdminController
                             'profit_price'      => $ym_xiaoshou_data[$item['good_name']]['cost_price']-$ym_caigou_data[$item['good_name']]['price'],//利润
                             'total_profit_price'=> isset($post['sale_user_id'])? $total_profit_price :0,//总利润
                             'price'             => -$item['unit_price'], //实际付款价格
-                            'practical_price'   => $item['unit_price'],//单据实际价格
+                            'practical_price'   => $ym_xiaoshou_data[$item['good_name']]['cost_price'],//单据实际价格
                             'account_id'        => $row['account_id'], // 账户id
                             'sale_user_id'      => $row['sale_user_id'],//销售人员
                             'supplier_id'       => $ym_caigou_data[$item['good_name']]['supplier_id'],//渠道id
