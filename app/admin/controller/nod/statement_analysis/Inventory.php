@@ -128,13 +128,25 @@ class Inventory extends AdminController
             }
             $where[] = $item;
         }
-        $list = $this->model->where($where)->with(['getWarehouse'],'left')->select()->toArray();
+        $list = $this->model->where($where)->with(['getWarehouse','getSupplier'],'left')->select()->toArray();
+        $now = date('Y-m-d');
+        foreach ($list as &$item){
+            if ($item['expiration_time']){
+                $date=(strtotime($now)-strtotime($item['expiration_time']))/86400;
+                $item['dqts'] = $date;
+            }else{
+                $item['dqts'] = '';
+            }
+
+        }
 
         $header = [
             ['商品名称','good_name'],
             ['成本价','unit_price'],
             ['注册时间','register_time'],
             ['过期时间','expiration_time'],
+            ['到期天数','dqts'],
+            ['渠道','supplier'],
             ['仓库','warehouse'],
             ['备案','beian'],
             ['百度','baidu'],
@@ -148,6 +160,8 @@ class Inventory extends AdminController
                 'register_time'=>$item['register_time']?$item['register_time']: '',
                 'expiration_time'=>$item['expiration_time']?$item['expiration_time']: '',
                 'warehouse'=>$item['getWarehouse']?$item['getWarehouse']['name']:'',
+                'supplier'=>$item['getSupplier']?$item['getSupplier']['name']:'',
+                'dqts'=>$item['dqts'],
                 'beian'=>$item['beian']?$item['beian']: '',
                 'baidu'=>$item['baidu']?$item['baidu']: '',
                 'sogou'=>$item['sogou']?$item['sogou']: '',
