@@ -132,7 +132,7 @@ class Inventory extends AdminController
         $now = date('Y-m-d');
         foreach ($list as &$item){
             if ($item['expiration_time']){
-                $date=(strtotime($now)-strtotime($item['expiration_time']))/86400;
+                $date=(strtotime($item['expiration_time'])-strtotime($now))/86400;
                 $item['dqts'] = $date;
             }else{
                 $item['dqts'] = '';
