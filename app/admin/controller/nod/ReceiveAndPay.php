@@ -13,6 +13,7 @@ use app\admin\model\NodOrderInfo;
 use app\admin\model\NodSupplier;
 use app\admin\model\NodWarehouse;
 use app\admin\model\NodWarehouseInfo;
+use app\admin\model\SystemAdmin;
 use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
@@ -31,6 +32,7 @@ class ReceiveAndPay extends AdminController
         parent::__construct($app);
         $this->model = new NodCustomerManagement();
         $this->supplier_model = new NodSupplier();
+        $this->admin_model = new SystemAdmin();
 
 
     }
@@ -51,6 +53,11 @@ class ReceiveAndPay extends AdminController
                 ->order($this->sort)
                 ->select()->toArray();
 
+            foreach ($list1 as &$item){
+                $list1['sale_user'] = $this->admin_model->field('username')->where('id','=',$item['user_id'])->find();
+            }
+
+
             $list2 = $this->supplier_model
                 ->where($where)
                 ->page($page, $limit)
@@ -62,7 +69,7 @@ class ReceiveAndPay extends AdminController
             foreach ($list1 as $item){
                 if ($item['receivable_price'] == 0) continue;
                 $list[] = [
-                    'name'=>'客户 '.$item['name'],
+                    'name'=>$item['name'],
                     'receivable_price'=>$item['receivable_price'],
 
                 ];
