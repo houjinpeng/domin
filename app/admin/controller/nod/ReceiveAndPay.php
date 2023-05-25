@@ -69,6 +69,7 @@ class ReceiveAndPay extends AdminController
             foreach ($list1 as $item){
                 if ($item['receivable_price'] == 0) continue;
                 $list[] = [
+                    'sale_user'=>empty($item['sale_user'])?'':$item['sale_user']['username'],
                     'name'=>$item['name'],
                     'receivable_price'=>$item['receivable_price'],
 

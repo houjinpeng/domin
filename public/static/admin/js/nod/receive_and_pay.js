@@ -18,12 +18,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 toolbar:['refresh'],
                 limits:[30,50,100],
                 cols: [[
-                    {field: 'sale_user', minWidth: 180, title: '销售员',templet:function (d) {
-                            if (d.sale_user){
-                                return d.sale_user.username
-                            }
-                            return ''
-                        }},
+                    {field: 'sale_user', minWidth: 180, title: '销售员'},
                     {field: 'name', minWidth: 180, title: '渠道|名字'},
                     {field: 'receivable_price', minWidth: 180, title: '应收款',templet:function (d) {
                             if (d.receivable_price < 0){
