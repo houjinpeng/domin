@@ -54,9 +54,8 @@ class ReceiveAndPay extends AdminController
                 ->select()->toArray();
 
             foreach ($list1 as &$item){
-                $list1['sale_user'] = $this->admin_model->field('username')->where('id','=',$item['user_id'])->find();
+                $item['sale_user'] = $this->admin_model->field('username')->where('id','=',$item['user_id'])->find();
             }
-
 
             $list2 = $this->supplier_model
                 ->where($where)
