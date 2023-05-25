@@ -33,6 +33,7 @@ class ReceiveAndPay extends AdminController
         $this->model = new NodCustomerManagement();
         $this->supplier_model = new NodSupplier();
         $this->admin_model = new SystemAdmin();
+        $this->account_info_model = new NodAccountInfo();
 
 
     }
@@ -54,7 +55,11 @@ class ReceiveAndPay extends AdminController
                 ->select()->toArray();
 
             foreach ($list1 as &$item){
-                $item['sale_user'] = $this->admin_model->field('username')->where('id','=',$item['user_id'])->find();
+                $c = $this->account_info_model->where('customer_id','=',$item['id'])->find();
+                if (!empty($c)){
+                    $item['sale_user'] = $this->admin_model->field('username')->where('id','=',$c['sale_user_id'])->find();
+                }
+
             }
 
             $list2 = $this->supplier_model
