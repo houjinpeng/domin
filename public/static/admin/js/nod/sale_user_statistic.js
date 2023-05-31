@@ -14,7 +14,22 @@ define(["jquery", "easy-admin", "echarts"], function ($, ea, echarts) {
             var laydate = layui.laydate
 
 
+            var element = layui.element;
+
+            //获取hash来切换选项卡，假设当前地址的hash为lay-id对应的值
+            var layid = location.hash.replace(/^#test1=/, '');
+            element.tabChange('test1', layid); //假设当前地址为：http://a.com#test1=222，那么选项卡会自动切换到“发送消息”这一项
+
+            //监听Tab切换，以改变地址hash值
+            element.on('tab(test1)', function(){
+                location.hash = 'test1='+ this.getAttribute('lay-id');
+            });
+
+
             var myChart = echarts.init(document.getElementById('main'));
+            var changku = echarts.init(document.getElementById('changku'));
+            var qvdao = echarts.init(document.getElementById('qvdao'));
+            var kehu = echarts.init(document.getElementById('kehu'));
             var user_list = JSON.parse($('#user_list').val())
             var sale_count_list = JSON.parse($('#sale_count_list').val())
             var profit_price_list = JSON.parse($('#profit_price_list').val())
@@ -122,6 +137,21 @@ define(["jquery", "easy-admin", "echarts"], function ($, ea, echarts) {
                     url: 'get_sale_user_profit?time=' + t,
                 }, function (resp) {
                     myChart.setOption(set_chart(resp.data.sale_user_list, resp.data.sale_count_list, resp.data.profit_price_list));
+                })
+                ea.request.get({
+                    url: 'get_store_profit?time=' + t,
+                }, function (resp) {
+                    changku.setOption(set_chart(resp.data.name_list, resp.data.sale_count_list, resp.data.profit_price_list));
+                })
+                ea.request.get({
+                    url: 'get_supplier_profit?time=' + t,
+                }, function (resp) {
+                    qvdao.setOption(set_chart(resp.data.name_list, resp.data.sale_count_list, resp.data.profit_price_list));
+                })
+                ea.request.get({
+                    url: 'get_customer_profit?time=' + t,
+                }, function (resp) {
+                    kehu.setOption(set_chart(resp.data.name_list, resp.data.sale_count_list, resp.data.profit_price_list));
                 })
 
 

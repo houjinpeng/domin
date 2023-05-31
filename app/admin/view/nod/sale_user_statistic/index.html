@@ -1,6 +1,6 @@
-<input id="user_list"  value="{$user_list}" hidden="hidden">
-<input id="sale_count_list"  value="{$sale_count_list}" hidden="hidden">
-<input id="profit_price_list"  value="{$profit_price_list}" hidden="hidden">
+<input id="user_list" value="{$user_list}" hidden="hidden">
+<input id="sale_count_list" value="{$sale_count_list}" hidden="hidden">
+<input id="profit_price_list" value="{$profit_price_list}" hidden="hidden">
 
 
 <div class="layuimini-container" style="min-height: 10px">
@@ -15,21 +15,57 @@
         </div>
 
         <div class="layui-inline">
-            <button  class="layui-btn layui-btn-sm" id="search">搜索</button>
+            <button class="layui-btn layui-btn-sm" id="search">搜索</button>
         </div>
 
     </div>
 
 
+</div>
+
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">销售员</li>
+        <li>商店（仓库）</li>
+        <li>渠道</li>
+        <li>客户</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="layuimini-main" style="text-align: center;display: table">
+
+                <div id="main" style="width: 800px;height:600px;"></div>
+            </div>
+        </div>
 
 
-    </div>
+        <div class="layui-tab-item">
+            <div class="layui-tab-item layui-show">
+                <div class="layuimini-main" style="text-align: center;display: table">
 
+                    <div id="changku" style="width: 800px;height:600px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-tab-item layui-show">
+                <div class="layuimini-main" style="text-align: center;display: table">
 
-    <div class="layuimini-main" style="text-align: center;display: table">
+                    <div id="qvdao" style="width: 800px;height:600px;"></div>
+                </div>
+            </div>
 
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-tab-item layui-show">
+                <div class="layuimini-main" style="text-align: center;display: table">
 
-        <div id="main" style="width: 800px;height:600px;"></div>
-
+                    <div id="kehu" style="width: 800px;height:600px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+
+

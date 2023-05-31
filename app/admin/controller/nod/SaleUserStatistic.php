@@ -7,6 +7,7 @@ use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
 use app\admin\model\NodAccountInfo;
 use app\admin\model\NodCategory;
+use app\admin\model\NodCustomerManagement;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
 use app\admin\model\NodOrderInfo;
@@ -34,6 +35,9 @@ class SaleUserStatistic extends AdminController
         $this->model = new SystemAdmin();
         $this->account_info_model = new NodAccountInfo();
         $this->category_model = new NodCategory();
+        $this->warehouse_model = new NodWarehouse();
+        $this->supplier_model = new NodSupplier();
+        $this->customer_model = new NodCustomerManagement();
 
 
     }
@@ -82,6 +86,9 @@ class SaleUserStatistic extends AdminController
         return $this->fetch();
     }
 
+    /**
+     * @NodeAnotation(title="销售员利润数据")
+     */
     public function get_sale_user_profit($time){
 
         $t = explode(' - ',$time);
@@ -130,6 +137,189 @@ class SaleUserStatistic extends AdminController
             'data'=>['profit_price_list'=>$profit_price_list,
                 'sale_count_list'=>$sale_count_list,
                 'sale_user_list'=>$sale_user_list,]
+        ];
+        return json($data);
+    }
+
+    /**
+     * @NodeAnotation(title="仓库利润数据")
+     */
+    public function get_store_profit($time){
+
+        $t = explode(' - ',$time);
+
+        //获取所有仓库信息
+        $all_warehouse_data = $this->warehouse_model->select()->toArray();
+        $profit_price_list = [];
+        $warehouse_count_list = [];
+        $warehouse_name_list = [];
+        $t[1] = explode(' ',$t[1])[0].' 23:59:59';
+        foreach ($all_warehouse_data as $warehouse){
+            $warehouse_name_list[] = $warehouse['name'];
+
+
+            //获取销售员的销售条数及利润
+            $count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('warehouse_id','=',$warehouse['id'])
+                ->where('type','=','3')->group('good_name')->count();//销售单
+
+            $th_count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('warehouse_id','=',$warehouse['id'])
+                ->where('type','=','6')->count();//退货单销售单
+
+
+            $warehouse_count_list[] = $count-$th_count;
+
+            $cate = $this->category_model->where('name','=','销售费用')->find();
+            if (!empty($cate)){
+
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('warehouse_id','=',$warehouse['id'])
+                    ->whereRaw('(type=3 or type=6 or type=9  or type=8 or category_id='.$cate['id'].')')->sum('profit_price');//销售单
+            }else{
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('warehouse_id','=',$warehouse['id'])
+                    ->whereRaw('(type=3 or type=6 or type=9  or type=8)')->sum('profit_price');//销售单
+            }
+
+
+            $profit_price_list[] = $profit_price;
+
+        }
+
+        $data = [
+            'code'=>1,
+            'data'=>['profit_price_list'=>$profit_price_list,
+                'sale_count_list'=>$warehouse_count_list,
+                'name_list'=>$warehouse_name_list,]
+        ];
+        return json($data);
+    }
+
+    /**
+     * @NodeAnotation(title="渠道利润数据")
+     */
+    public function get_supplier_profit($time){
+
+        $t = explode(' - ',$time);
+
+        //获取所有仓库信息
+        $all_data = $this->supplier_model->select()->toArray();
+        $profit_price_list = [];
+        $count_list = [];
+        $name_list = [];
+        $t[1] = explode(' ',$t[1])[0].' 23:59:59';
+        foreach ($all_data as $item){
+            $name_list[] = $item['name'];
+
+
+            //获取销售员的销售条数及利润
+            $count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('supplier_id','=',$item['id'])
+                ->where('type','=','3')->group('good_name')->count();//销售单
+
+            $th_count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('supplier_id','=',$item['id'])
+                ->where('type','=','6')->count();//退货单销售单
+
+
+            $count_list[] = $count-$th_count;
+
+            $cate = $this->category_model->where('name','=','销售费用')->find();
+            if (!empty($cate)){
+
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('supplier_id','=',$item['id'])
+                    ->whereRaw('(type=3 or type=6 or type=9  or type=8 or category_id='.$cate['id'].')')->sum('profit_price');//销售单
+            }else{
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('supplier_id','=',$item['id'])
+                    ->whereRaw('(type=3 or type=6 or type=9  or type=8)')->sum('profit_price');//销售单
+            }
+
+
+            $profit_price_list[] = $profit_price;
+
+        }
+
+        $data = [
+            'code'=>1,
+            'data'=>['profit_price_list'=>$profit_price_list,
+                'sale_count_list'=>$count_list,
+                'name_list'=>$name_list]
+        ];
+        return json($data);
+    }
+
+    /**
+     * @NodeAnotation(title="客户利润数据")
+     */
+    public function get_customer_profit($time){
+
+        $t = explode(' - ',$time);
+
+        //获取所有仓库信息
+        $all_data = $this->customer_model->select()->toArray();
+        $profit_price_list = [];
+        $count_list = [];
+        $name_list = [];
+        $t[1] = explode(' ',$t[1])[0].' 23:59:59';
+        foreach ($all_data as $item){
+
+
+            //获取销售员的销售条数及利润
+            $count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('customer_id','=',$item['id'])
+                ->where('type','=','3')->group('good_name')->count();//销售单
+
+            $th_count = $this->account_info_model
+                ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                ->where('customer_id','=',$item['id'])
+                ->where('type','=','6')->count();//退货单销售单
+
+            if ($count-$th_count == 0){
+                continue;
+            }
+            $count_list[] = $count-$th_count;
+            $name_list[] = $item['name'];
+
+            $cate = $this->category_model->where('name','=','销售费用')->find();
+            if (!empty($cate)){
+
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('customer_id','=',$item['id'])
+                    ->whereRaw('(type=3 or type=6 or type=9  or type=8 or category_id='.$cate['id'].')')->sum('profit_price');//销售单
+            }else{
+                //计算利润
+                $profit_price = $this->account_info_model
+                    ->where('operate_time','BETWEEN',[$t[0],$t[1]])
+                    ->where('customer_id','=',$item['id'])
+                    ->whereRaw('(type=3 or type=6 or type=9  or type=8)')->sum('profit_price');//销售单
+            }
+            $profit_price_list[] = $profit_price;
+
+        }
+
+        $data = [
+            'code'=>1,
+            'data'=>['profit_price_list'=>$profit_price_list,
+                'sale_count_list'=>$count_list,
+                'name_list'=>$name_list]
         ];
         return json($data);
     }
