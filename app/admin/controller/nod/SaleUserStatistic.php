@@ -59,7 +59,7 @@ class SaleUserStatistic extends AdminController
             //获取销售员的销售条数及利润
             $count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
-                ->where('sale_user_id','=',$user['id'])->where('type','=','3')->group('good_name')->count();//销售单
+                ->where('sale_user_id','=',$user['id'])->where('type','=','3')->count();//销售单
             $th_count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
                 ->where('sale_user_id','=',$user['id'])->where('type','=','6')->count();//退货单销售单
@@ -104,7 +104,7 @@ class SaleUserStatistic extends AdminController
             //获取销售员的销售条数及利润
             $count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
-                ->where('sale_user_id','=',$user['id'])->where('type','=','3')->group('good_name')->count();//销售单
+                ->where('sale_user_id','=',$user['id'])->where('type','=','3')->count();//销售单
             $th_count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
                 ->where('sale_user_id','=',$user['id'])
@@ -162,7 +162,7 @@ class SaleUserStatistic extends AdminController
             $count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
                 ->where('warehouse_id','=',$warehouse['id'])
-                ->where('type','=','3')->group('good_name')->count();//销售单
+                ->where('type','=','3')->count();//销售单
 
             $th_count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
@@ -223,7 +223,7 @@ class SaleUserStatistic extends AdminController
             $count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
                 ->where('supplier_id','=',$item['id'])
-                ->where('type','=','3')->group('good_name')->count();//销售单
+                ->where('type','=','3')->count();//销售单
 
             $th_count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
@@ -283,7 +283,7 @@ class SaleUserStatistic extends AdminController
             $count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])
                 ->where('customer_id','=',$item['id'])
-                ->where('type','=','3')->group('good_name')->count();//销售单
+                ->where('type','=','3')->count();//销售单
 
             $th_count = $this->account_info_model
                 ->where('operate_time','BETWEEN',[$t[0],$t[1]])

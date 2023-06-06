@@ -110,6 +110,18 @@ define(["jquery", "easy-admin", "echarts"], function ($, ea, echarts) {
                 }
             }
 
+            $('#main_t').empty()
+            $('#main_t').append('总利润:'+jisuan(profit_price_list)+'元   总销售数:'+jisuan(sale_count_list)+'条')
+
+            function jisuan(data_list){
+                let total = 0;
+                data_list.forEach(function (item) {
+                    total+= item
+                })
+                return total
+            }
+
+
             var date = new Date();
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
@@ -137,20 +149,30 @@ define(["jquery", "easy-admin", "echarts"], function ($, ea, echarts) {
                     url: 'get_sale_user_profit?time=' + t,
                 }, function (resp) {
                     myChart.setOption(set_chart(resp.data.sale_user_list, resp.data.sale_count_list, resp.data.profit_price_list));
+                    $('#main_t').empty()
+                    $('#main_t').append('总利润:'+jisuan(resp.data.profit_price_list)+'元   总销售数:'+jisuan(resp.data.sale_count_list)+'条')
+
+
                 })
                 ea.request.get({
                     url: 'get_store_profit?time=' + t,
                 }, function (resp) {
+                    $('#changku_t').empty()
+                    $('#changku_t').append('总利润:'+jisuan(resp.data.profit_price_list)+'元   总销售数:'+jisuan(resp.data.sale_count_list)+'条')
                     changku.setOption(set_chart(resp.data.name_list, resp.data.sale_count_list, resp.data.profit_price_list));
                 })
                 ea.request.get({
                     url: 'get_supplier_profit?time=' + t,
                 }, function (resp) {
+                    $('#qvdao_t').empty()
+                    $('#qvdao_t').append('总利润:'+jisuan(resp.data.profit_price_list)+'元   总销售数:'+jisuan(resp.data.sale_count_list)+'条')
                     qvdao.setOption(set_chart(resp.data.name_list, resp.data.sale_count_list, resp.data.profit_price_list));
                 })
                 ea.request.get({
                     url: 'get_customer_profit?time=' + t,
                 }, function (resp) {
+                    $('#kehu_t').empty()
+                    $('#kehu_t').append('总利润:'+jisuan(resp.data.profit_price_list)+'元   总销售数:'+jisuan(resp.data.sale_count_list)+'条')
                     kehu.setOption(set_chart(resp.data.name_list, resp.data.sale_count_list, resp.data.profit_price_list));
                 })
 
