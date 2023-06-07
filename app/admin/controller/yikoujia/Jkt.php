@@ -834,6 +834,7 @@ class Jkt extends AdminController
             unset($item['id']);
             $item['main_filter_id'] = $pid;
             $item['title'] = $item['title'].' 复制';
+            $item['spider_status'] = 3;
 
 
             $this->filter_model->insert($item);
