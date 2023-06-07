@@ -3,6 +3,22 @@
     <form class="layui-form layuimini-form">
 
         <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" required>分组名称</label>
+                <div class="layui-input-block">
+                    <select name="group_id"  lay-verify="required">
+                        <option value="0"></option>
+                        {foreach all_group_list as $item}
+                            <option value="{$item['id']}" {if $row['group_id'] == $item['id'] }selected{/if}>{$item['name']}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="layui-form-item">
             <label class="layui-form-label required">名称</label>
             <div class="layui-input-block">
                 <input type="text" value="{$row.title}" name="title" lay-verify="required" placeholder="请输入设置名称"

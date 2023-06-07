@@ -5,6 +5,7 @@ namespace app\admin\controller\yikoujia;
 
 
 use app\admin\controller\Tool;
+use app\admin\model\DomainGroup;
 use app\admin\model\SystemAdmin;
 use app\admin\model\YikoujiaAccountPool;
 use app\admin\model\YikoujiaBuy;
@@ -43,6 +44,7 @@ class Jkt extends AdminController
         $this->account_pool_model = new YikoujiaAccountPool();
         $this->buy_model = new YikoujiaBuy();
         $this->logs_model = new YikouLogs();
+        $this->yikoujia_group_model = new DomainGroup();
     }
 
     /**
@@ -127,6 +129,10 @@ class Jkt extends AdminController
 
         }
         $this->assign('row', $row);
+        $all_group_list = $this->yikoujia_group_model->select()->toArray();
+
+        $this->assign('all_group_list',$all_group_list);
+
         return $this->fetch();
     }
 
