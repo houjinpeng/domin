@@ -827,7 +827,19 @@ class Jkt extends AdminController
         $row['create_time'] = date('Y-m-d h:i:s');
         $row['spider_status'] = 3;
         unset($row['id']);
-        $this->model->insert($row);
+        $pid = $this->model->insertGetId($row);
+        $all_data = $this->filter_model->where('main_filter_id','=',$id)->select()->toArray();
+        foreach ($all_data as $item){
+            unset($item['create_time']);
+            unset($item['id']);
+            $item['main_filter_id'] = $pid;
+            $item['title'] = $item['title'].' 复制';
+
+
+            $this->filter_model->insert($item);
+        }
+
+
         $this->success('复制成功');
 
 
