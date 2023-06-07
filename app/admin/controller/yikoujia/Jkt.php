@@ -92,6 +92,9 @@ class Jkt extends AdminController
             $save ? $this->success('保存成功') : $this->error('保存失败');
 
         }
+        $all_group_list = $this->yikoujia_group_model->select()->toArray();
+
+        $this->assign('all_group_list',$all_group_list);
         $filters = $this->filter_model->field('id,title')->select()->toArray();
         $searchs = $this->model->field('id,title')->select()->toArray();
         $this->assign('filters', $filters);
