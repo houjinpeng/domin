@@ -56,7 +56,9 @@ class Jkt extends AdminController
         if ($this->request->isAjax()) {
             list($page, $limit, $where) = $this->buildTableParames();
             $start_time = time();
-            $list = $this->model->where('cate','=','一口价')
+            $list = $this->model
+                ->withJoin('getGroup','left')
+                ->where('cate','=','一口价')
                 ->where($where)->page($page, $limit)->select()->toArray();
             foreach ($list as $index => &$item) {
                 $item['zhixian'] = $this->filter_model->where('main_filter_id', $item['id'])

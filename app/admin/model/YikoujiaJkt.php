@@ -20,5 +20,8 @@ class YikoujiaJkt extends TimeModel
 
     protected $name = "yikoujia_jkt";
 
+    public function getGroup(){
+        return $this->belongsTo(DomainGroup::class, 'group_id', 'id');
 
+    }
 }

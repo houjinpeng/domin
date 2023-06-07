@@ -92,6 +92,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'id', title: 'ID'},
                     {field: 'title',minWidth:180, title: '名称',align:'left'},
                     {field: 'group_id',minWidth:100, title: '分组名',hide:true,selectOp:'=',selectList:bulid_select(group_list)},
+                    {field: 'group_name',minWidth:100, title: '分组名',search: false,templet:function (d) {
+                            if (d.getGroup){
+                                return d.getGroup.name
+                            }
+                            return ''
+                        }},
                     {field: 'spider_status',minWidth: 95,search:false, title: '状态',templet:function (d) {
                             if (d.spider_status === 1){
                                 return '<button class="layui-btn layui-btn-xs layui-btn-primary"><i style="color: #d0544c;" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop" style="display: inline-block"></i>进行中</button>'
