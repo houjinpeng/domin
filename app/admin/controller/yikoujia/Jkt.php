@@ -815,7 +815,25 @@ class Jkt extends AdminController
 
     }
 
+    /**
+     *@NodeAnotation(title="复制模型")
+     */
+    public function copy_model($id){
 
+        $row = $this->model->find($id);
+        empty($row)&& $this->error('没有此模型，复制失败');
+        $row = $row->toArray();
+        $row['title'] = $row['title'].'复制';
+        $row['create_time'] = date('Y-m-d h:i:s');
+        $row['spider_status'] = 3;
+        unset($row['id']);
+        $this->model->insert($row);
+        $this->success('复制成功');
+
+
+
+
+    }
 
 
 }

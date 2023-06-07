@@ -248,7 +248,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     },
                     {
                         fixed: 'right',
-                        width: 450,
+                        width: 470,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [[{
@@ -263,6 +263,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             url: 'yikoujia.jkt/check_status?type=zhu',
                             method: 'request',
                             auth: 'check_status',
+                            class: 'layui-btn  layui-btn-xs layui-btn-warm',
+
+                        },{
+                            text: '复制',
+                            title:'是否复制模型？',
+                            url: 'yikoujia.jkt/copy_model',
+                            method: 'request',
+                            auth: 'copy_model',
                             class: 'layui-btn  layui-btn-xs layui-btn-warm',
 
                         },{
