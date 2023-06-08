@@ -42,6 +42,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'order_user_id', minWidth: 180, title: '操作人',templet:function (d) {
                             return d.getOrderUser.username
                         }},
+                    {field: 'remark', minWidth: 200, title: '备注'},
 
                     {
                         fixed: 'right',
