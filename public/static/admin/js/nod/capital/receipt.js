@@ -84,7 +84,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {
                         fixed: 'right',
-                        width: 280,
+                        width: 240,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
@@ -104,22 +104,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
                             }, {
-                                    text: '撤销',
-                                    title:'是否要撤销当前单据？',
-                                    url: init.chexiao_url,
+                                    text: '撤回',
+                                    title:'是否要回滚当前单据？ 慎重选择',
+                                    url: init.rollback_order_url,
                                     method: 'request',
-                                    auth: 'chexiao',
+                                    auth: 'rollback_order_url',
                                     class: 'layui-btn layui-btn-xs layui-btn-warm',
                                     extend: 'data-full="true"',
                                 },{
-                                text: '回滚',
-                                title:'是否要回滚当前单据？ 慎重选择',
-                                url: init.rollback_order_url,
-                                method: 'request',
-                                auth: 'rollback_order_url',
-                                class: 'layui-btn layui-btn-xs layui-btn-danger',
-                                extend: 'data-full="true"',
-                            },{
                                 text: '删除',
                                 title:'是否要删除当前单据？',
                                 url: init.delete_url,
