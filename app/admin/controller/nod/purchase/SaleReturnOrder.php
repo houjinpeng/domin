@@ -186,12 +186,9 @@ class SaleReturnOrder extends AdminController
             }
 
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
-            }else{
-                $customer_id = $customer['id'];
-            }
+            $customer = get_customer_data($post['customer']);
+            $customer_id = $customer['id'];
+
 
 
             //单据编号自动生成   XHD+时间戳
@@ -343,12 +340,9 @@ class SaleReturnOrder extends AdminController
 
 
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
-            }else{
-                $customer_id = $customer['id'];
-            }
+            $customer = get_customer_data($post['customer']);
+            $customer_id = $customer['id'];
+
             //获取pid   保存商品详情
             $save_order = [
                 'order_time' => $post['order_time'],

@@ -113,12 +113,9 @@ class ExpenseList extends AdminController
                 $this->error('单据金额和项目金额不相等');
             }
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
-            }else{
-                $customer_id = $customer['id'];
-            }
+            $customer = get_customer_data($post['customer']);
+            $customer_id = $customer['id'];
+
 
             //单据编号自动生成   FYD+时间戳
             $order_batch_num = 'FYD' . date('YmdHis');
@@ -221,12 +218,9 @@ class ExpenseList extends AdminController
             }
 
             //判断客户是否存在 不存在添加
-            $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
-            if (empty($customer)){
-                $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
-            }else{
-                $customer_id = $customer['id'];
-            }
+            $customer = get_customer_data($post['customer']);
+            $customer_id = $customer['id'];
+
 
 
             $save_order = [
@@ -340,13 +334,10 @@ class ExpenseList extends AdminController
 
             $this->model->startTrans();
             try {
+
                 //判断客户是否存在 不存在添加
-                $customer = $this->kehu_model->where('user_id','=',session('admin.id'))->where('name','=',$post['customer'])->find();
-                if (empty($customer)){
-                    $customer_id = $this->kehu_model->insertGetId(['name'=>$post['customer'],'user_id'=>session('admin.id')]);
-                }else{
-                    $customer_id = $customer['id'];
-                }
+                $customer = get_customer_data($post['customer']);
+                $customer_id = $customer['id'];
 
                 $save_order = [
                     'remark' => $post['remark'],

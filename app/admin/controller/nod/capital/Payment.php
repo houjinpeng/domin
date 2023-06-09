@@ -250,7 +250,7 @@ class Payment extends AdminController
                         'unit_price' => $item['unit_price'],
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'pid' => $id,
-                        'customer_id'=>$customer_id,
+//                        'customer_id'=>$customer_id,
                         'sale_user_id'=>$post['sale_user_id'],
                         'account_id' => $post['account_id'],
                         'order_user_id' => session('admin.id'),

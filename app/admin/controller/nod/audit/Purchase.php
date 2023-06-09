@@ -379,12 +379,10 @@ class Purchase extends AdminController
                 foreach ($ym_list as $it){
                     if (!in_array($it,$inventory_list)) $this->error('此于域名不在库存中【'.$it.'】 请先入库');
                 }
+
                 //判断客户是否存在 不存在添加
-                $customer = $this->customer_model->where('user_id','=',$row['order_user_id'])->where('name','=',$post['customer'])->find();
-                if (empty($customer)){
-                    $customer_id = $this->customer_model->insertGetId(['name'=>$post['customer'],'user_id'=>$row['order_user_id']]);
-                    $customer = $this->customer_model->find($customer_id);
-                }
+                $customer = get_customer_data($post['customer']);
+
                 $this->model->startTrans();
                 try {
 

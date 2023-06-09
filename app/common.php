@@ -447,3 +447,20 @@ if (!function_exists('check_order_exist')) {
 
     }
 }
+
+
+if (!function_exists('get_customer_data')) {
+    /**
+     * @return mixed
+     * 获取客户id
+     */
+    function get_customer_data($name): mixed
+    {
+        $customer = NodCustomerManagement::where('name','=',$name)->find();
+        if (empty($customer)){
+            $customer_id = NodCustomerManagement::insertGetId(['name'=>$name,'user_id'=>session('admin.id')]);
+            $customer = NodCustomerManagement::find($customer_id);
+        }
+        return $customer;
+    }
+}
