@@ -270,20 +270,6 @@ class Receipt extends AdminController
 
     }
 
-    /**
-     * @NodeAnotation(title="撤销收款单数据")
-     */
-    public function chexiao($id)
-    {
-        if ($this->request->isAjax()) {
-            $row = $this->order_model->find($id);
-            if ($row['audit_status'] !== 0) {
-                $this->error('当前状态不能撤销');
-            }
-            $row->save(['audit_status' => 2]);
-            $this->success('撤销成功~ 请重新提交采购数据！');
-        }
-    }
 
     /**
      * @NodeAnotation(title="订单回滚")

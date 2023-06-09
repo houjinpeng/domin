@@ -7,7 +7,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
         add_url: 'nod.capital.receipt/add',
         audit_url: 'nod.audit.receipt_and_payment/audit?type=receipt',
         edit_url: 'nod.capital.receipt/edit',
-        chexiao_url: 'nod.capital.receipt/chexiao',
         delete_url: 'nod.purchase.return_order/delete',
         rollback_order_url: 'nod.capital.receipt/rollback_order',
 
@@ -103,15 +102,17 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 auth: 'audit',
                                 class: 'layui-btn layui-btn-xs',
                                 extend: 'data-full="true"',
-                            }, {
-                                    text: '撤回',
-                                    title:'是否要回滚当前单据？ 慎重选择',
-                                    url: init.rollback_order_url,
-                                    method: 'request',
-                                    auth: 'rollback_order_url',
-                                    class: 'layui-btn layui-btn-xs layui-btn-warm',
-                                    extend: 'data-full="true"',
-                                },{
+                            },
+                                // {
+                                //     text: '撤回',
+                                //     title:'是否要回滚当前单据？ 慎重选择',
+                                //     url: init.rollback_order_url,
+                                //     method: 'request',
+                                //     auth: 'rollback_order_url',
+                                //     class: 'layui-btn layui-btn-xs layui-btn-warm',
+                                //     extend: 'data-full="true"',
+                                // },
+                                {
                                 text: '删除',
                                 title:'是否要删除当前单据？',
                                 url: init.delete_url,
@@ -132,14 +133,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                         }
                         if (v.audit_status === 1){
-                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要删除当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
 
                         }
 
                         if (v.audit_status === 3){
-                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要删除当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要回滚当前单据？ 慎重选择"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')

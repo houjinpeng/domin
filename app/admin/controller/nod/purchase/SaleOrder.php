@@ -364,19 +364,7 @@ class SaleOrder extends AdminController
 
     }
 
-    /**
-     * @NodeAnotation(title="撤销销货单数据")
-     */
-    public function chexiao($id){
-        if ($this->request->isAjax()){
-            $row = $this->order_model->find($id);
-            if ($row['audit_status'] !==0){
-                $this->error('当前状态不能撤销');
-            }
-            $row->save(['audit_status'=>2]);
-            $this->success('撤销成功~ 请重新提交采购数据！');
-        }
-    }
+
 
 
     /**
@@ -689,4 +677,122 @@ class SaleOrder extends AdminController
 //        $this->success('采集成功,请刷新页面~');
 
     }
+
+//    /**
+//     * @NodeAnotation(title="订单回滚")
+//     */
+//    public function rollback_order($id)
+//    {
+//        $row = $this->order_model->find($id);
+//        if ($this->request->isAjax()) {
+//            empty($row) && $this->error('无法找到此订单~');
+//            $row['audit_status'] != 1 && $this->error('此状态不能回滚订单');
+//            //判断订单类型
+//            $row['type'] != 3 && $this->error('订单类型不对，不能回滚订单');
+//            //将订单审核状态修改为回滚 3
+//            //获取收款数据   将所有数据退回
+//
+//            $ym_caigou_data = [];//采购数据
+//
+//
+//            //获取订单下的数据
+//            $all_order_info = $this->order_info_model->where('order_id','=',$id)->select()->toArray();
+//            count($all_order_info) == 0 && $this->error('没有订单内容，不能回滚订单');
+//
+//            //判断域名是否已经在库存中
+//            $ym_list = [];
+//            foreach ($all_order_info as $item){
+//                $ym_list[] = $item['good_name'];
+//                //查询域名成本价
+//                $ym_data = $this->account_info_model->where('good_name','=',$item['good_name'])->where('type','=',3)->order('id','desc')->find();
+//
+//                if (empty($ym_data) || empty($ym_sale_data)){
+//                    continue;
+//                }
+//                //域名采购时的数据
+//                $ym_caigou_data[$ym_data['good_name']] = $ym_data->toArray();
+//                //域名销售数据
+//                $ym_xiaoshou_data[$ym_sale_data['good_name']] = $ym_sale_data->toArray();
+//
+//            }
+//
+//
+//
+//            $in_inventory_count = $this->inventory_model->where('good_name','in',$ym_list)->count() != 0 ;
+//            $in_inventory_count != 0 && $this->error('库存中有此商品，不能再次退货！');
+//
+//            //判断客户是否钱咱们钱 如果欠钱不能回滚
+//
+//
+//            //退实付金额  然后客户的应收款 - （单据金额-实付金额）
+//
+//
+//
+//            //计算回退金额
+//            $return_price = 0;
+//            foreach ($all_order_info as $item){
+//                $return_price += $item['price'];
+//            }
+//
+//            //计算账户总余额
+//            $all_balance_price = $this->account_model->sum('balance_price')-$return_price;
+//
+//            //获取单账户的余额
+//            $balance_price_data = $this->account_model->find($row['account_id']);
+//
+//            //开启事务
+//            $this->model->startTrans();
+//            try {
+//
+//                $balance_price = $balance_price_data['balance_price']-$return_price;
+//                //将金额减退款金额
+//                $balance_price_data->save(['balance_price'=>$balance_price]);
+//
+//                //将客户应收款还原
+//                $customer_data = $this->kehu_model->find($row['customer_id']);
+//
+//                $receivable_price = $customer_data['receivable_price'] + $return_price;
+//                $customer_data->save(['receivable_price'=>$receivable_price]);
+//
+//                //账户记录收款
+//                $this->account_info_model->insert([
+//                    'account_id'        => $row['account_id'],
+//                    'customer_id'       => $row['customer_id'],
+//                    'sale_user_id'      => $row['sale_user_id'],
+//                    'order_user_id'     => $row['order_user_id'],
+//                    'order_id'          => $id,
+//                    'price'             => $return_price,
+//                    'profit_price'      => 0, //利润
+//                    'category'          => '收款单回滚',
+//                    'sz_type'           => 1,
+//                    'type'              => 4,
+//                    'operate_time'      => $row['order_time'],
+//                    'remark'            => $item['remark'],
+//                    'balance_price'     => $balance_price, //账户余额
+//                    'all_balance_price' => $all_balance_price,//总账户余额
+//                    'receivable_price'  => $receivable_price,//对方欠咱们的钱
+//                ]);
+//
+//
+//                $row->save(['audit_status'=>3,'user_id'=>session('admin.id')]);
+//
+//                $this->model->commit();
+//            }catch (\Exception $e){
+//                $this->model->rollback();
+//                $this->error('第【'.$e->getLine().'】行 回滚错误：'.$e->getMessage());
+//            }
+//
+//            $this->model->commit();
+//
+//            $this->success('回滚成功~');
+//
+//
+//        }
+//
+//
+//    }
+
+
+
+
 }
