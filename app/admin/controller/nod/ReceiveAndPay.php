@@ -50,6 +50,7 @@ class ReceiveAndPay extends AdminController
             $list1 = $this->model
                 ->where($where)
                 ->order($this->sort)
+                ->where('receivable_price','<>',0)
                 ->select()->toArray();
             foreach ($list1 as &$item){
                 $c = $this->account_info_model->where('customer_id','=',$item['id'])->find();
@@ -61,13 +62,14 @@ class ReceiveAndPay extends AdminController
 
             $list2 = $this->supplier_model
                 ->where($where)
+                ->where('receivable_price','<>',0)
                 ->order($this->sort)
                 ->select()->toArray();
 
 
             $list = [];
+            unset($item);
             foreach ($list1 as $item){
-                if ($item['receivable_price'] == 0) continue;
                 $list[] = [
                     'sale_user'=>empty($item['sale_user'])?'':$item['sale_user']['username'],
                     'name'=>$item['name'],
@@ -76,14 +78,12 @@ class ReceiveAndPay extends AdminController
                 ];
             }
             foreach ($list2 as $item){
-                if ($item['receivable_price'] == 0) continue;
                 $list[] = [
                     'name'=>'渠道 '.$item['name'],
                     'receivable_price'=>$item['receivable_price'],
 
                 ];
             }
-
 
             $data = [
                 'code'  => 0,
