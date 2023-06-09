@@ -517,7 +517,7 @@ class ReturnGood extends AdminController
                             $balance_price -= floatval($item['unit_price']);
                         }
                         if (isset($post['sale_user_id'])){
-                            $total_profit_price -=  $ym_xiaoshou_data[$item['good_name']]['cost_price']-$ym_caigou_data[$item['good_name']]['price'];
+                            $total_profit_price +=  $ym_xiaoshou_data[$item['good_name']]['cost_price']-$ym_caigou_data[$item['good_name']]['price'];
                         }
 
                         $this->account_info_model->insert( [
