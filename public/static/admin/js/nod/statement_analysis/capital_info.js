@@ -50,6 +50,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }else if (d.type === 5){
                                 return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
                             }else if (d.type === 4){
+                                if (d.category.indexOf('回滚') !== -1){
+                                    return 'ID:'+ d.getAccount.name+' 返回客户【'+d.getCustomer.name+'】 '+d.category+' '+d.price+'元 '
+                                }
+
+
                                 return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
                             }else if (d.type === 2){
                                 return '退款 ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+d.price+'元'

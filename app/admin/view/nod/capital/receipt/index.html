@@ -2,10 +2,13 @@
     <div class="layuimini-main">
         <table id="currentTable" class="layui-table layui-hide"
 
-               data-auth-add="{:auth('nod.purchase.stock_order/add')}"
-               data-auth-edit="{:auth('nod.purchase.stock_order/edit')}"
+
                data-auth-audit="{:auth('nod.audit.purchase/audit')}"
-               data-auth-chexiao="{:auth('nod.purchase.stock_order/chexiao')}"
+               data-auth-chexiao="{:auth('nod.audit.purchase/chexiao')}"
+               data-auth-delete="{:auth('nod.purchase.return_order/delete')}"
+               data-auth-rollback_order="{:auth('nod.capital.receipt/rollback_order')}"
+               data-auth-add="{:auth('nod.capital.receipt/add')}"
+               data-auth-edit="{:auth('nod.capital.receipt/edit')}"
                lay-filter="currentTable">
         </table>
     </div>

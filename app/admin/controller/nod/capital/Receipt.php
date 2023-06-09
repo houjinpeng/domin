@@ -5,6 +5,7 @@ namespace app\admin\controller\nod\capital;
 
 use app\admin\controller\JvMing;
 use app\admin\model\NodAccount;
+use app\admin\model\NodAccountInfo;
 use app\admin\model\NodCustomerManagement;
 use app\admin\model\NodInventory;
 use app\admin\model\NodOrder;
@@ -15,6 +16,7 @@ use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
 use think\App;
+use think\facade\Db;
 
 /**
  * @ControllerAnnotation(title="资金-收款单")
@@ -31,6 +33,7 @@ class Receipt extends AdminController
         $this->supplier_model = new NodSupplier();
         $this->warehouse_model = new NodWarehouse();
         $this->account_model = new NodAccount();
+        $this->account_info_model = new NodAccountInfo();
         $this->order_model = new NodOrder();
         $this->order_info_model = new NodOrderInfo();
         $this->inventory_model = new NodInventory();
@@ -49,7 +52,7 @@ class Receipt extends AdminController
             list($page, $limit, $where) = $this->buildTableParames();
 
             $where[] = ['type', '=', 4];
-            $where = format_where_datetime($where,'order_time');
+            $where = format_where_datetime($where, 'order_time');
 
 
             $list = $this->order_model
@@ -90,7 +93,7 @@ class Receipt extends AdminController
             ];
             $this->validate($post, $order_info_rule);
             //检查单据金额是否与内容一样
-            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
+            check_practical_price($post['practical_price'], $post['goods']) || $this->error('单据中的内容与单据金额不付~ 请重新计算');
             $rule = [
                 'category_id|【收款类别】' => 'number|require',
                 'unit_price|【收款金额】' => 'float|require',
@@ -193,7 +196,7 @@ class Receipt extends AdminController
             $this->validate($post, $order_info_rule);
 
             //检查单据金额是否与内容一样
-            check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
+            check_practical_price($post['practical_price'], $post['goods']) || $this->error('单据中的内容与单据金额不付~ 请重新计算');
             $rule = [
                 'category_id|【收款类别】' => 'number|require',
                 'unit_price|【收款金额】' => 'float|require',
@@ -218,7 +221,6 @@ class Receipt extends AdminController
             //判断客户是否存在 不存在添加
             $customer = get_customer_data($post['customer']);
             $customer_id = $customer['id'];
-
 
 
             $save_order = [
@@ -281,6 +283,89 @@ class Receipt extends AdminController
             $row->save(['audit_status' => 2]);
             $this->success('撤销成功~ 请重新提交采购数据！');
         }
+    }
+
+    /**
+     * @NodeAnotation(title="订单回滚")
+     */
+    public function rollback_order($id)
+    {
+        $row = $this->order_model->find($id);
+        if ($this->request->isAjax()) {
+            empty($row) && $this->error('无法找到此订单~');
+            $row['audit_status'] != 1 && $this->error('此状态不能回滚订单');
+            //判断订单类型
+            $row['type'] != 4 && $this->error('订单类型不对，不能回滚订单');
+
+            //将订单审核状态修改为回滚 3
+            //获取收款数据   将所有数据退回
+
+            //获取订单下的数据
+            $all_order_info = $this->account_info_model->where('order_id','=',$id)->select()->toArray();
+            count($all_order_info) == 0 && $this->error('没有订单内容，不能回滚订单');
+
+            //计算回退金额
+            $return_price = 0;
+            foreach ($all_order_info as $item){
+                $return_price += $item['price'];
+            }
+
+            //计算账户总余额
+            $all_balance_price = $this->account_model->sum('balance_price')-$return_price;
+
+            //获取单账户的余额
+            $balance_price_data = $this->account_model->find($row['account_id']);
+
+            //开启事务
+            $this->model->startTrans();
+            try {
+
+                $balance_price = $balance_price_data['balance_price']-$return_price;
+                //将金额减退款金额
+                $balance_price_data->save(['balance_price'=>$balance_price]);
+
+                //将客户应收款还原
+                $customer_data = $this->kehu_model->find($row['customer_id']);
+
+                $receivable_price = $customer_data['receivable_price'] + $return_price;
+                $customer_data->save(['receivable_price'=>$receivable_price]);
+
+                //账户记录收款
+                $this->account_info_model->insert([
+                    'account_id'        => $row['account_id'],
+                    'customer_id'       => $row['customer_id'],
+                    'sale_user_id'      => $row['sale_user_id'],
+                    'order_user_id'     => $row['order_user_id'],
+                    'order_id'          => $id,
+                    'price'             => $return_price,
+                    'profit_price'      => 0, //利润
+                    'category'          => '收款单回滚',
+                    'sz_type'           => 1,
+                    'type'              => 4,
+                    'operate_time'      => $row['order_time'],
+                    'remark'            => $item['remark'],
+                    'balance_price'     => $balance_price, //账户余额
+                    'all_balance_price' => $all_balance_price,//总账户余额
+                    'receivable_price'  => $receivable_price,//对方欠咱们的钱
+                ]);
+
+
+                $row->save(['audit_status'=>3,'user_id'=>session('admin.id')]);
+
+                $this->model->commit();
+            }catch (\Exception $e){
+                $this->model->rollback();
+                $this->error('第【'.$e->getLine().'】行 回滚错误：'.$e->getMessage());
+            }
+
+            $this->model->commit();
+
+            $this->success('回滚成功~');
+
+
+        }
+
+
     }
 
 

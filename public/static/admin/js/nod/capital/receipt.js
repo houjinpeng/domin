@@ -9,6 +9,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         edit_url: 'nod.capital.receipt/edit',
         chexiao_url: 'nod.capital.receipt/chexiao',
         delete_url: 'nod.purchase.return_order/delete',
+        rollback_order_url: 'nod.capital.receipt/rollback_order',
 
     };
     function check_number(value) {
@@ -83,7 +84,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }},
                     {
                         fixed: 'right',
-                        width: 230,
+                        width: 280,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [
@@ -111,8 +112,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                     class: 'layui-btn layui-btn-xs layui-btn-warm',
                                     extend: 'data-full="true"',
                                 },{
+                                text: '回滚',
+                                title:'是否要回滚当前单据？ 慎重选择',
+                                url: init.rollback_order_url,
+                                method: 'request',
+                                auth: 'rollback_order_url',
+                                class: 'layui-btn layui-btn-xs layui-btn-danger',
+                                extend: 'data-full="true"',
+                            },{
                                 text: '删除',
-                                title:'是否要撤销当前单据？',
+                                title:'是否要删除当前单据？',
                                 url: init.delete_url,
                                 method: 'request',
                                 auth: 'delete',
@@ -125,11 +134,29 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 done:function (data) {
                     //将抓取过的抓取按钮变灰色
                     $.each(data.data,function (k,v){
-                        if (v.audit_status === 1 || v.audit_status === 2){
-                            // $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="编辑查看"]').removeClass('layui-btn-success').addClass('layui-btn-disabled').removeAttr('data-open')
+
+                        if (v.audit_status === 0){
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要回滚当前单据？ 慎重选择"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
+
+                        }
+                        if (v.audit_status === 1){
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要删除当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
                             $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
+
+                        }
+
+                        if (v.audit_status === 3){
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要撤销当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要删除当前单据？"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要回滚当前单据？ 慎重选择"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-request')
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="审核"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
+
+                        }
+
+                        if ( v.audit_status === 2){
+                            $('div[lay-id="currentTableRenderId"]').find('tr[data-index="'+k+'"]').find('a[data-title="是否要回滚当前单据？ 慎重选择"]').removeClass('layui-btn-danger').addClass('layui-btn-disabled').removeAttr('data-open')
+
                         }
 
                     })
