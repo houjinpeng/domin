@@ -47,13 +47,10 @@ class ReceiveAndPay extends AdminController
             list($page, $limit, $where) = $this->buildTableParames();
 
 
-
             $list1 = $this->model
                 ->where($where)
-                ->page($page, $limit)
                 ->order($this->sort)
                 ->select()->toArray();
-
             foreach ($list1 as &$item){
                 $c = $this->account_info_model->where('customer_id','=',$item['id'])->find();
                 if (!empty($c)){
@@ -64,7 +61,6 @@ class ReceiveAndPay extends AdminController
 
             $list2 = $this->supplier_model
                 ->where($where)
-                ->page($page, $limit)
                 ->order($this->sort)
                 ->select()->toArray();
 
