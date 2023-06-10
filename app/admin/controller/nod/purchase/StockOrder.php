@@ -540,6 +540,19 @@ class StockOrder extends AdminController
                         }
                         $quan_data[$item['ym']] = 0;
                     }
+                    elseif ($item['zu'] == '域名注册' ) {
+                        //判断采购单是否存在
+                        if (check_order_exist(ym: $item['ym'],time: $start_time,cate: 1) == true){
+                            continue;
+                        }
+
+                        if (!isset($quan_data[$item['ym']])) {
+                            $quan_data[$item['ym']] = $item['qian'];
+                        } else {
+                            $quan_data[$item['ym']] += $item['qian'];
+                        }
+
+                    }
                     elseif($item['zu'] =='竞价活动' ){
                         //如果是退款单  跳过
                         if ($item['lx_txt'] == '退款') {
@@ -591,8 +604,6 @@ class StockOrder extends AdminController
                     '券'=>$quan_data,
 
                 ];
-
-
                 //所有金额
                 $order_time = $start_time;
                 //遍历所有分类数据  插入订单
