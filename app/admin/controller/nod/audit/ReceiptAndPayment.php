@@ -129,7 +129,7 @@ class ReceiptAndPayment extends AdminController
                 'audit_user_id'=>session('admin.id')
             ];
 
-
+            $row->save(['audit_status'=>1]);
             //增加账户钱
             $account_data = $this->account_model->find($row['account_id']);
 
@@ -209,6 +209,7 @@ class ReceiptAndPayment extends AdminController
                 } catch (\Exception $e) {
                     // 回滚事务
                     $this->order_model->rollback();
+                    $row->save(['audit_status'=>0]);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 
@@ -257,6 +258,7 @@ class ReceiptAndPayment extends AdminController
                 } catch (\Exception $e) {
                     // 回滚事务
                     $this->model->rollback();
+                    $row->save(['audit_status'=>0]);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 

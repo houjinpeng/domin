@@ -106,6 +106,7 @@ class Purchase extends AdminController
             if (count($post['goods']) == 0) {
                 $this->error('不能一个也不提交吧~');
             }
+            $row->save(['audit_status'=>1]);
             //采购单审核
             if ($type=='stock'){
                 $rule = [
@@ -668,6 +669,7 @@ class Purchase extends AdminController
                 } catch (\Exception $e) {
                     // 回滚事务
                     $this->model->rollback();
+                    $row->save(['audit_status'=>0]);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 

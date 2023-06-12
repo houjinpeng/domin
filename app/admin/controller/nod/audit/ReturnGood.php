@@ -67,7 +67,7 @@ class ReturnGood extends AdminController
             $post['practical_price'] = floatval($post['practical_price']);
             $post['paid_price'] = floatval($post['paid_price']);
             if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
-
+            $row->save(['audit_status'=>1]);
             //验证
             $order_info_rule = [
                 'practical_price|【实际金额】' => 'float|require',
@@ -358,6 +358,7 @@ class ReturnGood extends AdminController
                 }catch (\Exception $e) {
                     // 回滚事务
                     $this->model->rollback();
+                    $row->save(['audit_status'=>0]);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 
@@ -725,9 +726,10 @@ class ReturnGood extends AdminController
                 }catch (\Exception $e) {
                     // 回滚事务
                     $this->model->rollback();
+                    $row->save(['audit_status'=>0]);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
-                }
 
+                }
 
             }
 
