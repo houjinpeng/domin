@@ -316,6 +316,9 @@ class Jkt extends AdminController
                 $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
                 $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
 
+                if (isset($post['jvzi_lang'])){
+                    $data['jvzi']['jvzi_lang'] = $post['jvzi_lang'];
+                }
 
 
             }
@@ -476,7 +479,9 @@ class Jkt extends AdminController
                 $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
                 $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
 
-
+                if (isset($post['jvzi_lang'])){
+                    $data['jvzi']['jvzi_lang'] = $post['jvzi_lang'];
+                }
             }
 
             //爱站

@@ -186,6 +186,40 @@
                     </select>
                 </div>
             </div>
+            <div class="layui-input-inline">
+                <label class="layui-form-label">语言</label>
+                <div class="layui-input-block"  style="width: 100px;">
+                    <select name="jvzi_lang">
+                        {if isset($data['jvzi'])}
+                             {if isset($data['jvzi']['jvzi_lang'])}
+                                <option value="" ></option>
+                                <option value="中文" {if $data['jvzi']['jvzi_lang']== '中文'} selected {/if}>中文</option>
+                                <option value="日语"  {if $data['jvzi']['jvzi_lang']== '日语'} selected {/if}>日语</option>
+                                <option value="繁体中文"  {if $data['jvzi']['jvzi_lang']== '繁体中文'} selected {/if}>繁体中文</option>
+                                <option value="英语"  {if $data['jvzi']['jvzi_lang']== '英语'} selected {/if}>英语</option>
+                            {else}
+                                <option value="" selected></option>
+                                <option value="中文" >中文</option>
+                                <option value="日语" >日语</option>
+                                <option value="繁体中文">繁体中文</option>
+                                <option value="英语" >英语</option>
+                            {/if}
+
+
+                        {else}
+                            <option value="" selected></option>
+                            <option value="中文" >中文</option>
+                            <option value="日语" >日语</option>
+                            <option value="繁体中文">繁体中文</option>
+                            <option value="英语" >英语</option>
+                        {/if}
+
+
+
+                    </select>
+                </div>
+            </div>
+
 
             <div class="layui-inline">
                 <label class="layui-form-label">对比年龄</label>
