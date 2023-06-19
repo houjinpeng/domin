@@ -337,7 +337,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
             let table = layui.table
             table.render({
                 elem: '#show_zhi',
-
+                limit: 10000,
                 search: false,
                 toolbar: '#toolbarDemo',
                 cols: [[
@@ -373,7 +373,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         }
                     },
 
-                    {align: 'center', toolbar: '#barDemo7', title: '操作',width:380},
+                    {align: 'center', toolbar: '#barDemo7', title: '操作',width:450},
                 ]],
                 data: JSON.parse($('#filter_data').val())
             });
@@ -395,8 +395,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         ea.request.post({
                             url: '/admin/yikoujia.jkt/delete_zhi?id=' +data['id'],
                             ok:function (resp) {
-
-
                             }
                         })
                         setTimeout(function (){
@@ -404,7 +402,24 @@ define(["jquery", "easy-admin"], function ($, ea) {
                                 parent.layui.table.reload('currentTableRenderId')},500,
                             )
                     });
-                } else if (obj.event === 'stop_task') {
+                }
+                else if (obj.event === 'copy') {
+                    layer.confirm('确定要复制此条支线任务么 ', function (index) {
+                        //do something
+                        ea.request.post({
+                            url: '/admin/yikoujia.jkt/copy_model?id=' +data['id']+'&type=zhi',
+                            ok:function (resp) {
+
+
+                            }
+                        })
+                        // setTimeout(function (){
+                        //     parent.layer.closeAll()
+                        //     parent.layui.table.reload('currentTableRenderId')},500,
+                        // )
+                    });
+                }
+                else if (obj.event === 'stop_task') {
                     layer.confirm('确定要停止任务么？重新开始任务会继续哦~ ', function (index) {
                         //do something
                         ea.request.get({
@@ -416,7 +431,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         setTimeout(function (){ location.reload()},500)
 
                     });
-                } else if (obj.event === 'start_task') {
+                }
+                else if (obj.event === 'start_task') {
                     layer.confirm('确定要重新启动任务么 ', function (index) {
                         //do something
                         ea.request.get({
@@ -428,7 +444,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         setTimeout(function (){ location.reload()},500)
                     });
 
-                }else if (obj.event === 'check_task') {
+                }
+                else if (obj.event === 'check_task') {
                     layer.confirm('是否要检测程序运行状态~ ', function (index) {
                         ea.request.get({
                             url:'check_status?type=zhi&id='+data['id']
@@ -438,7 +455,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             }
                         })
                     });
-                }else if (obj.event === 'del_list') {
+                }
+                else if (obj.event === 'del_list') {
                     layer.confirm('是否要清空列表中数据~ ', function (index) {
                         ea.request.get({
                             url:'delete_buy_list?type=zhi&id='+data['id']

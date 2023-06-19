@@ -825,26 +825,40 @@ class Jkt extends AdminController
      */
     public function copy_model($id){
 
-        $row = $this->model->find($id);
-        empty($row)&& $this->error('没有此模型，复制失败');
-        $row = $row->toArray();
-        $row['title'] = $row['title'].'复制';
-        $row['create_time'] = date('Y-m-d h:i:s');
-        $row['spider_status'] = 3;
-        unset($row['id']);
-        $pid = $this->model->insertGetId($row);
-        $all_data = $this->filter_model->where('main_filter_id','=',$id)->select()->toArray();
-        foreach ($all_data as $item){
-            unset($item['create_time']);
-            unset($item['id']);
-            $item['main_filter_id'] = $pid;
-            $item['title'] = $item['title'].' 复制';
-            $item['spider_status'] = 3;
+        $get = $this->request->get();
+        if (isset($get['type'])){
+            $row = $this->filter_model->find($id);
+            $row = $row->toArray();
+            $row['title'] = $row['title'].'复制';
+            $row['create_time'] = date('Y-m-d h:i:s');
+            $row['spider_status'] = 3;
+            unset($row['id']);
+
+            $save= $this->filter_model->insert($row);
+            dd(2,$save);
+        }else{
+            $row = $this->model->find($id);
+            empty($row)&& $this->error('没有此模型，复制失败');
+            $row = $row->toArray();
+            $row['title'] = $row['title'].'复制';
+            $row['create_time'] = date('Y-m-d h:i:s');
+            $row['spider_status'] = 3;
+            unset($row['id']);
+            $pid = $this->model->insertGetId($row);
+            $all_data = $this->filter_model->where('main_filter_id','=',$id)->select()->toArray();
+            foreach ($all_data as $item){
+                unset($item['create_time']);
+                unset($item['id']);
+                $item['main_filter_id'] = $pid;
+                $item['title'] = $item['title'].' 复制';
+                $item['spider_status'] = 3;
 
 
-            $this->filter_model->insert($item);
+                $this->filter_model->insert($item);
+            }
         }
 
+        dd(1);
 
         $this->success('复制成功');
 
