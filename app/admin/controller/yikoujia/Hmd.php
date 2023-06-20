@@ -49,6 +49,14 @@ class Hmd extends AdminController
         if ($this->request->isAjax()) {
             $post = $this->request->post();
 
+            $hmd_data = $this->model->where('name','=','history_word')->find();
+            if (empty($hmd_data)){
+                $this->model->insert(['name'=>'history_word','value'=>$post['history_word'],'remark'=>'历史过滤']);
+            }else{
+                $hmd_data->save(['value'=>$post['history_word']]);
+            }
+
+
             $hmd_data = $this->model->where('name','=','hmd')->find();
             if (empty($hmd_data)){
                 $this->model->insert(['name'=>'hmd','value'=>$post['hmd'],'remark'=>'一口价店铺黑名单']);
@@ -59,6 +67,9 @@ class Hmd extends AdminController
         }
         $row = $this->model->where('name','=','hmd')->find();
         empty($row) ? $this->assign('row',['value'=>'']):$this->assign('row',$row);
+
+        $row = $this->model->where('name','=','history_word')->find();
+        empty($row) ? $this->assign('history_word',['value'=>'']):$this->assign('history_word',$row);
 
         return $this->fetch();
     }
