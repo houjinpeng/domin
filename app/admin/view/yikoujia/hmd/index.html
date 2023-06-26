@@ -3,9 +3,10 @@
     <form class="layui-form layuimini-form">
 
         <div class="layui-form-item layui-form-text">
-            <label class="layui-form-label">黑名单</label>
+            <label class="layui-form-label">店铺黑名单</label>
             <div class="layui-input-block">
                 <textarea name="hmd" placeholder="店铺ID 多个请换行" class="layui-textarea">{$row.value}</textarea>
+                <tip>用于过滤购买店铺，包含跳过。</tip>
             </div>
         </div>
 
@@ -13,6 +14,15 @@
             <label class="layui-form-label">历史过滤词</label>
             <div class="layui-input-block">
                 <textarea name="history_word" placeholder="历史过滤词" class="layui-textarea">{$history_word.value}</textarea>
+                <tip>用于历史标题，包含跳过。</tip>
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">灰词</label>
+            <div class="layui-input-block">
+                <textarea name="min_gan_word" placeholder="请输入灰词" class="layui-textarea">{$min_gan_word.value}</textarea>
+                <tip>用于过滤百度、搜狗、历史标题，包含跳过。</tip>
             </div>
         </div>
 

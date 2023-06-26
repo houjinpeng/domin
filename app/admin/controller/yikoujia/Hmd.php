@@ -48,7 +48,7 @@ class Hmd extends AdminController
     {
         if ($this->request->isAjax()) {
             $post = $this->request->post();
-
+            //历史过滤词
             $hmd_data = $this->model->where('name','=','history_word')->find();
             if (empty($hmd_data)){
                 $this->model->insert(['name'=>'history_word','value'=>$post['history_word'],'remark'=>'历史过滤']);
@@ -56,13 +56,21 @@ class Hmd extends AdminController
                 $hmd_data->save(['value'=>$post['history_word']]);
             }
 
-
+            //店铺黑名单
             $hmd_data = $this->model->where('name','=','hmd')->find();
             if (empty($hmd_data)){
                 $this->model->insert(['name'=>'hmd','value'=>$post['hmd'],'remark'=>'一口价店铺黑名单']);
             }else{
                 $hmd_data->save(['value'=>$post['hmd']]);
             }
+            //灰词 敏感词
+            $hmd_data = $this->model->where('name','=','history_word')->find();
+            if (empty($hmd_data)){
+                $this->model->insert(['name'=>'history_word','value'=>$post['history_word'],'remark'=>'灰词']);
+            }else{
+                $hmd_data->save(['value'=>$post['history_word']]);
+            }
+
             $this->success('保存成功');
         }
         $row = $this->model->where('name','=','hmd')->find();
@@ -70,6 +78,9 @@ class Hmd extends AdminController
 
         $row = $this->model->where('name','=','history_word')->find();
         empty($row) ? $this->assign('history_word',['value'=>'']):$this->assign('history_word',$row);
+
+        $row = $this->model->where('name','=','min_gan_word')->find();
+        empty($row) ? $this->assign('min_gan_word',['value'=>'']):$this->assign('min_gan_word',$row);
 
         return $this->fetch();
     }
