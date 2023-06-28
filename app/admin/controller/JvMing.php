@@ -17,7 +17,7 @@ class JvMing  extends AdminController
         $this->username = $username;
         $this->password = $password;
         $this->cookie = $cookie;
-        $this->client = new Client();
+        $this->client = new Client(['cookies' => true]);
         $this->headers = [
             'accept'=> 'application/json, text/javascript, */*; q=0.01',
             'accept-encoding'=> 'gzip, deflate, br',
@@ -78,8 +78,8 @@ class JvMing  extends AdminController
 
 //        $login_url = 'https://www.juming.com/user_zh/p_login';
         $login_url = 'http://7a08c112cda6a063.juming.com:9696/user_zh/p_login';
-//        $token_data = $this->client->request('GET','http://192.168.11.246:5001/get_token')->getBody()->getContents();
-//        $token_data = $this->client->request('GET','http://192.168.0.13:5001/get_token')->getBody()->getContents();
+//        $token_data = $this->client->request('GET','http://192.168.12.232:5001/get_token')->getBody()->getContents();
+//        $token_data = $this->client->request('GET','http://192.168.12.48:5001/get_token')->getBody()->getContents();
         $token_data =  $this->client->request('GET','http://127.0.0.1:5001/get_token')->getBody()->getContents();
         $token_data = json_decode($token_data,true);
         $token = $token_data['token'];
@@ -109,8 +109,10 @@ class JvMing  extends AdminController
             'user-agent'=> 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
             'x-requested-with'=> 'XMLHttpRequest',
         ];
+        $jar = new \GuzzleHttp\Cookie\CookieJar;
 
         $resp = $this->client->request('POST',$login_url,[
+            'cookie'=>$jar,
             'form_params'=>[
                 'token'=>$token,
                 'sid'=>$sid,
@@ -123,6 +125,27 @@ class JvMing  extends AdminController
         ]);
         $result = json_decode($resp->getBody()->getContents(),true);
 
+        //生成加密密码
+        $pws = md5('[jiami'.$this->password.'mima]');
+        //取19位
+        $password_md5 = md5($result['token'].substr($pws,0,19));
+        $password_md5 = substr($password_md5,0,19);
+
+        $form_params = [
+            'token'=>$token,
+            'sid'=>$sid,
+            'sig'=>$sig,
+            're_mm'=>$password_md5,
+            're_yx'=>$this->username,
+            'fs'=>'tl',
+            'dltoken'=>$result['token']
+        ];
+        $resp = $this->client->request('POST',$login_url,[
+            'cookie'=>$jar,
+            'form_params'=>$form_params,
+            'headers'=>$headers
+        ]);
+        $result = json_decode($resp->getBody()->getContents(),true);
         if (strstr($result['msg'],'登陆成功')) {
             $cookie = explode(';',$resp->getHeaders()['Set-Cookie'][0])[0];
             NodWarehouse::where('account','=',$this->username)->where('password','=',$this->password)->update(['cookie'=>$cookie]);
