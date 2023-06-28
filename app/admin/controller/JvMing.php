@@ -76,6 +76,7 @@ class JvMing  extends AdminController
      */
     public function login(){
 
+        $uuid = uuid();
 //        $login_url = 'https://www.juming.com/user_zh/p_login';
         $login_url = 'http://7a08c112cda6a063.juming.com:9696/user_zh/p_login';
 //        $token_data = $this->client->request('GET','http://192.168.12.232:5001/get_token')->getBody()->getContents();
@@ -97,9 +98,7 @@ class JvMing  extends AdminController
             'accept-language'=> 'zh-CN,zh;q=0.9',
             'cache-control'=> 'no-cache',
             'content-type'=> 'application/x-www-form-urlencoded; charset=UTF-8',
-            'origin'=> 'https://www.juming.com',
             'pragma'=> 'no-cache',
-            'referer'=> 'https://www.juming.com/',
             'sec-ch-ua'=> '"Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"',
             'sec-ch-ua-mobile'=> '?0',
             'sec-ch-ua-platform'=> '"Windows"',
@@ -108,8 +107,17 @@ class JvMing  extends AdminController
             'sec-fetch-site'=> 'same-origin',
             'user-agent'=> 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
             'x-requested-with'=> 'XMLHttpRequest',
+            'cookie'=>'PHPSESSID='.$uuid
+        ];
+        $headers_index = [
+            'accept'=> 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+
+            'user-agent'=> 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
         ];
         $jar = new \GuzzleHttp\Cookie\CookieJar;
+        $resp = $this->client->request('GET','http://7a08c112cda6a063.juming.com:9696/',['headers'=>$headers_index]);
+
+        $cookie = explode(';',$resp->getHeaders()['Set-Cookie'][0])[0];
 
         $resp = $this->client->request('POST',$login_url,[
             'cookie'=>$jar,
@@ -124,7 +132,6 @@ class JvMing  extends AdminController
             'headers'=>$headers
         ]);
         $result = json_decode($resp->getBody()->getContents(),true);
-
         //生成加密密码
         $pws = md5('[jiami'.$this->password.'mima]');
         //取19位
@@ -147,7 +154,9 @@ class JvMing  extends AdminController
         ]);
         $result = json_decode($resp->getBody()->getContents(),true);
         if (strstr($result['msg'],'登陆成功')) {
-            $cookie = explode(';',$resp->getHeaders()['Set-Cookie'][0])[0];
+//            $cookie = explode(';',$resp->getHeaders()['Set-Cookie'][0])[0];
+//            $cookie = 'PHPSESSID='.$uuid;
+//            dd($cookie,$jar,$resp->getHeaders()['Set-Cookie']);
             NodWarehouse::where('account','=',$this->username)->where('password','=',$this->password)->update(['cookie'=>$cookie]);
             return $cookie;
 
