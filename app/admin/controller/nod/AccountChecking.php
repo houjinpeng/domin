@@ -79,6 +79,7 @@ class AccountChecking extends AdminController
             $jvming_account_info = $this->jm_api->get_account_info();
 
             $account = $this->model->where('name', '=', $warehouse_data['name'])->find();
+            if (empty($account))continue;
             $zj = isset($jvming_account_info['qian']['zqian']) ? $jvming_account_info['qian']['zqian'] : 0;
             $djje = isset($jvming_account_info['qian']['kjsqian']) ? $jvming_account_info['qian']['kjsqian'] : 0;
 

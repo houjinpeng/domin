@@ -17,7 +17,7 @@ class JvMing  extends AdminController
         $this->username = $username;
         $this->password = $password;
         $this->cookie = $cookie;
-        $this->client = new Client(['cookies' => true]);
+        $this->client = new Client(['cookies' => true,'allow_redirects' => true,]);
         $this->headers = [
             'accept'=> 'application/json, text/javascript, */*; q=0.01',
             'accept-encoding'=> 'gzip, deflate, br',
@@ -75,18 +75,15 @@ class JvMing  extends AdminController
      * 登陆聚名 获取cookie
      */
     public function login(){
-
-        $uuid = uuid();
+        $uuid = str_replace('-','',uuid());
 //        $login_url = 'https://www.juming.com/user_zh/p_login';
         $login_url = 'http://7a08c112cda6a063.juming.com:9696/user_zh/p_login';
-//        $token_data = $this->client->request('GET','http://192.168.12.232:5001/get_token')->getBody()->getContents();
 //        $token_data = $this->client->request('GET','http://192.168.12.48:5001/get_token')->getBody()->getContents();
         $token_data =  $this->client->request('GET','http://127.0.0.1:5001/get_token')->getBody()->getContents();
         $token_data = json_decode($token_data,true);
         $token = $token_data['token'];
         $sid = $token_data['session'];
         $sig = $token_data['auth'];
-
         //生成加密密码
         $pws = md5('[jiami'.$this->password.'mima]');
         //取19位
@@ -111,16 +108,13 @@ class JvMing  extends AdminController
         ];
         $headers_index = [
             'accept'=> 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-
             'user-agent'=> 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+            'cookie'=>'PHPSESSID='.$uuid
         ];
         $jar = new \GuzzleHttp\Cookie\CookieJar;
-        $resp = $this->client->request('GET','http://7a08c112cda6a063.juming.com:9696/',['headers'=>$headers_index]);
-
-        $cookie = explode(';',$resp->getHeaders()['Set-Cookie'][0])[0];
-
+        $resp1 = $this->client->request('POST','http://7a08c112cda6a063.juming.com:9696/user_zh/wxdl_ewm',['headers'=>$headers]);
         $resp = $this->client->request('POST',$login_url,[
-            'cookie'=>$jar,
+//            'cookies'=>$jar,
             'form_params'=>[
                 'token'=>$token,
                 'sid'=>$sid,
@@ -131,6 +125,10 @@ class JvMing  extends AdminController
             ],
             'headers'=>$headers
         ]);
+
+//        dd($resp->getHeaders()['Set-Cookie'],$resp1->getHeaders()['Set-Cookie']);
+        $cookie = explode(';',$resp1->getHeaders()['Set-Cookie'][0])[0];
+
         $result = json_decode($resp->getBody()->getContents(),true);
         //生成加密密码
         $pws = md5('[jiami'.$this->password.'mima]');
@@ -148,7 +146,7 @@ class JvMing  extends AdminController
             'dltoken'=>$result['token']
         ];
         $resp = $this->client->request('POST',$login_url,[
-            'cookie'=>$jar,
+//            'cookies'=>$jar,
             'form_params'=>$form_params,
             'headers'=>$headers
         ]);
@@ -156,14 +154,24 @@ class JvMing  extends AdminController
         if (strstr($result['msg'],'登陆成功')) {
 //            $cookie = explode(';',$resp->getHeaders()['Set-Cookie'][0])[0];
 //            $cookie = 'PHPSESSID='.$uuid;
-//            dd($cookie,$jar,$resp->getHeaders()['Set-Cookie']);
-            NodWarehouse::where('account','=',$this->username)->where('password','=',$this->password)->update(['cookie'=>$cookie]);
+//            dd( $this->client->getConfig('cookies'));
+            foreach ($this->client->getConfig('cookies') as $item){
+                if ($item->getName() == 'PHPSESSID'){
+                    $cookie = 'PHPSESSID='.$item->getValue();
+                    NodWarehouse::where('account','=',$this->username)->where('password','=',$this->password)->update(['cookie'=>$cookie]);
+
+                }
+            }
+
+//            dd( $this->client,$result,$cookie,$jar,$resp->getHeaders()['Set-Cookie']);
+//            dd($cookie);
             return $cookie;
 
         }
         if (strstr($result['msg'],'帐户或密码错误!')){
             return '帐户或密码错误!';
         }
+        dd($result['msg'],1);
         return  $this->login();
 
     }
