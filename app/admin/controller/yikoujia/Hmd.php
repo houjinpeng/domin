@@ -64,11 +64,11 @@ class Hmd extends AdminController
                 $hmd_data->save(['value'=>$post['hmd']]);
             }
             //灰词 敏感词
-            $hmd_data = $this->model->where('name','=','history_word')->find();
+            $hmd_data = $this->model->where('name','=','min_gan_word')->find();
             if (empty($hmd_data)){
-                $this->model->insert(['name'=>'history_word','value'=>$post['history_word'],'remark'=>'灰词']);
+                $this->model->insert(['name'=>'min_gan_word','value'=>$post['min_gan_word'],'remark'=>'灰词']);
             }else{
-                $hmd_data->save(['value'=>$post['history_word']]);
+                $hmd_data->save(['value'=>$post['min_gan_word']]);
             }
 
             $this->success('保存成功');
