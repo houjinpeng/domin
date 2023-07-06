@@ -374,6 +374,21 @@
                     </select>
                 </div>
             </div>
+          <div class="layui-input-inline">
+                    <label class="layui-form-label">是否二次对比过滤词库</label>
+                    <div class="layui-input-block" style="width: 100px;">
+                        <select name="history_is_com_erci_word" lay-verify="required">
+                            {if isset($data['history']['history_is_com_erci_word'])}
+                            <option value="0" {if $data['history']['history_is_com_erci_word'] =='0'} selected {/if}>否</option>
+                            <option value="1" {if $data['history']['history_is_com_erci_word'] =='1'} selected {/if}>是</option>
+                            {else}
+                            <option value="0" selected>否</option>
+                            <option value="1">是</option>
+                            {/if}
+
+                        </select>
+                    </div>
+                </div>
 
 
             <div class="layui-inline">
