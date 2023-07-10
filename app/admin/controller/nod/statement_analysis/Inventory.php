@@ -155,6 +155,7 @@ class Inventory extends AdminController
             ['备注','remark'],
         ];
         $new_list = [];
+        unset($item);
         foreach ($list as $item){
             $new_list[] = [
                 'good_name'=>$item['good_name']? $item['good_name']:'',
