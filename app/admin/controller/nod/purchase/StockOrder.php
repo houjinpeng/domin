@@ -404,6 +404,7 @@ class StockOrder extends AdminController
      * @NodeAnotation(title="抓取所有订单数据")
      */
     public function crawl_all_order($crawl_time)
+
     {
 
         $rule = [
@@ -482,13 +483,18 @@ class StockOrder extends AdminController
 //                                $other_receipt_data[$item['sm']] = $item['qian'];
 //                                continue;
 //                            }
-                            if (strstr($item['sm'],'域名')){
-                                preg_match('/域名[\w+\.]+/', $item['sm'], $matches);
-                                $good_name = explode('域名',$matches[0])[1];
-                            }else{
-                                preg_match('/得标域名[\w+\.]+/', $item['sm'], $matches);
-                                $good_name = explode('得标域名',$matches[0])[1];
-                            }
+//                            if (strstr($item['sm'],'域名')){
+//                                preg_match('/域名[\w+\.]+/', $item['sm'], $matches);
+//                                $good_name = explode('域名',$matches[0])[1];
+//                            }else{
+//                                preg_match('/得标域名[\w+\.]+/', $item['sm'], $matches);
+//                                $good_name = explode('得标域名',$matches[0])[1];
+//                            }
+                            $pattern = "/(?:http[s]?:\/\/)?(?:[a-zA-Z0-9_-]+\.)+[a-zA-Z]{2,6}/";
+                            preg_match($pattern,  $item['sm'], $matches);
+                            $good_name = $matches[0];
+
+
                             //判断采购退货单是否存在
                             if (check_order_exist(ym: $good_name,time: $start_time,cate: 2) == true){
                                 continue;

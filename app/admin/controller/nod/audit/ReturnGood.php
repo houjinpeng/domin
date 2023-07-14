@@ -67,7 +67,7 @@ class ReturnGood extends AdminController
             $post['practical_price'] = floatval($post['practical_price']);
             $post['paid_price'] = floatval($post['paid_price']);
             if ($post['practical_price'] < $post['paid_price']) $this->error('实际金额不能大于单据金额！');
-            $row->save(['audit_status'=>1]);
+
             //验证
             $order_info_rule = [
                 'practical_price|【实际金额】' => 'float|require',
@@ -123,6 +123,7 @@ class ReturnGood extends AdminController
                 }
                 $this->model->startTrans();
                 try {
+                    $row->save(['audit_status'=>1]);
                     $save_order = [
                         'practical_price'=>$post['practical_price'],
                         'paid_price'=>$post['paid_price'],
@@ -427,7 +428,9 @@ class ReturnGood extends AdminController
 
 
                 $this->model->startTrans();
+
                 try {
+                    $row->save(['audit_status'=>1]);
                     //修改审核状态
                     $save_order = [
                         'practical_price'=>$post['practical_price'],
