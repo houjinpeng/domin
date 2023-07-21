@@ -106,7 +106,6 @@ class Purchase extends AdminController
             if (count($post['goods']) == 0) {
                 $this->error('不能一个也不提交吧~');
             }
-            $row->save(['audit_status'=>1]);
             //采购单审核
             if ($type=='stock'){
                 $rule = [
