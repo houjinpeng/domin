@@ -83,7 +83,9 @@ define(["jquery", "easy-admin"], function ($, ea) {
                             return '<a target="_blank" href="' + d.url + '">' + d.name + '</a>'
                         }
                     },
-                    {field: 'store_cate', minWidth: 150, title: '店铺类型',selectList:{'个人':'个人',"企业":"企业","未签约":"未签约"}},
+                    {field: 'store_cate', minWidth: 150, title: '店铺类型',selectList:{'个人':'个人',"企业":"企业","未签约":"未签约"},templet:function (d) {
+                            return d.store_cate?d.store_cate:'暂无类型'
+                        }},
                     {field: 'register_time', minWidth: 170, title: '注册时间'},
                     {field: 'yunying_num', minWidth: 100,search: false, title: '运营天数',templet:function (d) {
                             var targetDate = new Date(d.register_time);
