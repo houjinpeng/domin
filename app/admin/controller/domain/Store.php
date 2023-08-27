@@ -5,6 +5,8 @@
 namespace app\admin\controller\domain;
 
 
+use app\admin\controller\JvMingApi;
+use app\admin\model\DomainCrawlStore;
 use app\admin\model\DomainStore;
 use app\admin\model\SystemAdmin;
 use app\admin\service\TriggerService;
@@ -34,6 +36,7 @@ class Store extends AdminController
     {
         parent::__construct($app);
         $this->model = new DomainStore();
+        $this->crawl_store_model = new DomainCrawlStore();
 
     }
 
@@ -222,4 +225,89 @@ class Store extends AdminController
         return $this->fetch();
     }
 
+
+    /**
+     * @NodeAnotation(title="批量更新店铺")
+     */
+    public function refresh_store($id){
+
+        $all_store = $this->model->field('store_id')->where('id','in',$id)->select()->toArray();
+        foreach ($all_store as $item){
+            $this->crawl_store_model->insert(['store_id'=>$item['store_id']]);
+
+        }
+        $this->success('已经加入到更新队列，请耐心等待~ 2分钟运行一次哦！');
+
+    }
+
+    /**
+     * @NodeAnotation(title="批量全部店铺")
+     */
+    public function refresh_all_store(){
+        $all_store = $this->model->field('store_id')->select()->toArray();
+        $insertall= [];
+        foreach ($all_store as $item){
+            $insertall[] = ['store_id'=>$item['store_id']];
+        }
+        $this->crawl_store_model->insertAll($insertall);
+
+        $this->success('已经加入到更新队列，请耐心等待~ 2分钟运行一次哦！');
+    }
+
+
+
+    /**
+     * @NodeAnotation(title="抓取店铺信息")
+     */
+    public function crawl_store(){
+
+        $this->jm_api = new JvMingApi();
+        //获取全部要抓取的店铺
+        $all_crawl_store = $this->crawl_store_model->select()->toArray();
+        foreach ($all_crawl_store as $item){
+
+            $data = $this->jm_api->get_store_data($item['store_id']);
+            if (strstr('不开放店铺,您无法查看该店铺出售信息',$data['msg']) || $data['msg'] == '对不起,店铺不存在!'){
+                $this->crawl_store_model->where('id','=',$item['id'])->delete();
+                continue;
+            }
+            try {
+                $result = $data['data'];
+            }catch (\Exception $e){
+                dd($data ,$e->getMessage());
+            }
+
+            $store_cate = '未签约';
+            if ($result['lxtxt'] == '企业签约店铺'){
+                $store_cate = '企业';
+            }
+            elseif ($result['lxtxt'] == '个人签约店铺'){
+                $store_cate = '个人';
+            }
+
+            //查询库存
+            $form_params = [
+                'tao'=>$item['store_id'],
+                'psize'=>50,
+            ];
+            $sale_data = $this->jm_api->get_yikoujia_list($form_params);
+
+            //要更新的数据
+            $save_data = [
+                'name'=>$result['dpmc'],
+                'register_time'=>$result['sj'],
+                'brief_introduction'=>$result['dpgg'], //简介
+                'sales'=>$result['m_xinyong']=='已隐藏'?-1:$result['m_xinyong'],//销量
+                'repertory'=>$sale_data['count'],//库存
+                'store_cate'=>$store_cate, //店铺类型
+                'crawl_time'=>date('Y-m-d H:i:s'), //店铺类型
+
+            ];
+            //更新数据
+            $this->model->where('store_id','=',$item['store_id'])->update($save_data);
+            //删除更新过的
+            $this->crawl_store_model->where('id','=',$item['id'])->delete();
+        }
+        $this->success('全部更新完毕');
+    }
 }

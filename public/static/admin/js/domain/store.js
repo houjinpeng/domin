@@ -10,6 +10,8 @@ define(["jquery", "easy-admin"], function ($, ea) {
         export_url: 'domain.store/export',
         add_like_url: 'domain.store/add_like',
         batch_edit_url: 'domain.store/batch_edit',
+        refresh_store_url: 'domain.store/refresh_store',
+        refresh_all_store_url: 'domain.store/refresh_all_store',
 
     };
 
@@ -42,6 +44,21 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         method: 'request',
                         auth: 'add_like',
                         class: 'layui-btn layui-btn-normal layui-btn-sm',
+                    }, {
+                        checkbox:true,
+                        text:'批量更新',
+                        title:'是否要更新选中店铺数据！',
+                        url: init.refresh_store_url,
+                        method: 'request',
+                        auth: 'refresh_store',
+                        class: 'layui-btn layui-btn-warm layui-btn-sm',
+                    },{
+                        text:'全部更新',
+                        title:'是否要更新全部店铺数据！',
+                        url: init.refresh_all_store_url,
+                        method: 'request',
+                        auth: 'refresh_all_store',
+                        class: 'layui-btn layui-btn-warm layui-btn-sm',
                     },{
                         checkbox:true,
                         text:'批量编辑',
@@ -62,21 +79,35 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'store_id', width: 80, title: '店铺ID', search:'batch'},
                     {
-                        field: 'name', minWidth: 80, title: '店铺名称',templet: function (d) {
+                        field: 'name', minWidth: 200, title: '店铺名称',align:'left',templet: function (d) {
                             return '<a target="_blank" href="' + d.url + '">' + d.name + '</a>'
                         }
                     },
-                    {field: 'register_time', minWidth: 80, title: '注册时间'},
-                    {field: 'yunying_num', minWidth: 80, title: '运营天数'},
-                    {field: 'brief_introduction', minWidth: 80, title: '简介'},
-                    {field: 'sales', minWidth: 80, title: '销量'},
-                    {field: 'repertory', minWidth: 80, title: '库存'},
-                    {field: 'store_cate_analyse', minWidth: 80, title: '店铺品类分析'},
-                    {field: 'phone', minWidth: 80, title: '联系方式'},
-                    {field: 'team', minWidth: 80, title: '所属团队'},
-                    {field: 'individual_opinion', minWidth: 80, title: '个人意见'},
-
-                   {fixed: 'right', width:250,title:'操作', toolbar: '#barDemo'} //这里的toolbar值是模板元素的选择器
+                    {field: 'store_cate', minWidth: 150, title: '店铺类型',selectList:{'个人':'个人',"企业":"企业","未签约":"未签约"}},
+                    {field: 'register_time', minWidth: 170, title: '注册时间'},
+                    {field: 'yunying_num', minWidth: 100,search: false, title: '运营天数',templet:function (d) {
+                            var targetDate = new Date(d.register_time);
+                            // 获取当前日期
+                            var currentDate = new Date();
+                            // 将日期转换为毫秒数
+                            var targetTime = targetDate.getTime();
+                            var currentTime = currentDate.getTime();
+                            // 计算时间差
+                            var timeDiff = targetTime - currentTime;
+                            // 将时间差转换为天数
+                            return  -Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                        }},
+                    {field: 'brief_introduction', minWidth: 250, title: '简介',align:'left'},
+                    {field: 'sales', minWidth: 80, title: '销量',templet:function (d) {
+                        return d.sales === -1 ? '已隐藏':d.sales
+                        }},
+                    // {field: 'repertory', search: 'section',minWidth: 80, title: '库存'},
+                    {field: 'repertory', search: false,minWidth: 80, title: '库存'},
+                    {field: 'store_cate_analyse', minWidth: 145, title: '店铺品类分析'},
+                    {field: 'phone', minWidth: 150, title: '联系方式'},
+                    {field: 'team', minWidth: 145, title: '所属团队'},
+                    {field: 'individual_opinion', minWidth: 145, title: '个人意见'},
+                    {fixed: 'right', width:250,title:'操作', toolbar: '#barDemo'} //这里的toolbar值是模板元素的选择器
 
                     //
                     // {

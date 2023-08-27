@@ -27,7 +27,8 @@ return [
         'website.refresh/index',
         'website.refresh/refresh',
         'website.refresh_visitor/index',
-        'website.charts_data/index'
+        'website.charts_data/index',
+        'domain.store/crawl_store'
     ],
 
     // 不需要验证权限的控制器
@@ -39,7 +40,8 @@ return [
         'website.task',
         'website.refresh',
         'website.refresh_visitor',
-        'website.charts_data'
+        'website.charts_data',
+        'domain.store/crawl_store'
     ],
 
     // 不需要验证权限的节点
@@ -52,6 +54,7 @@ return [
         'website.refresh/index',
         'website.refresh/refresh',
         'website.refresh_visitor/index',
-        'website.charts_data/index'
+        'website.charts_data/index',
+        'domain.store/crawl_store'
     ],
 ];
