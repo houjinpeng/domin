@@ -308,6 +308,7 @@ class Store extends AdminController
             //删除更新过的
             $this->crawl_store_model->where('id','=',$item['id'])->delete();
         }
-        $this->success('全部更新完毕');
+
+        return '更新成功';
     }
 }
