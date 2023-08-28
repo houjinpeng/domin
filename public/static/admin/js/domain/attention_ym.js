@@ -105,7 +105,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '出售状态',
                         selectList: {'已删除': '已删除', '出售中': '出售中', '已出售': '已出售',"未知":"未知","其他":"其他"}
                     },
-                    {field: 'channel', width: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库"}},
+                    {field: 'channel', width: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库","其他":"其他"}},
                     {field: 'zcs', width: 120, title: '注册商', search: false},
                     {
                         fixed: 'right',
