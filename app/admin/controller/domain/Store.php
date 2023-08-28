@@ -181,7 +181,7 @@ class Store extends AdminController
             $item['brief_introduction'] = str_ireplace('=','+',$item['brief_introduction']);
             $download_data[] = $item;
         }
-        $header = [['店铺ID','store_id'],['店铺名称','name'],['店铺链接','url'],['注册时间','register_time'],['运营天数','yunying_num'],['简介','brief_introduction'],['销量','sales']
+        $header = [['店铺ID','store_id'],['店铺名称','name'],['店铺类型','store_cate'],['店铺链接','url'],['注册时间','register_time'],['运营天数','yunying_num'],['简介','brief_introduction'],['销量','sales']
             ,['库存','repertory'],['店铺品类分析','store_cate_analyse'],['联系方式','phone'],['所属团队','team'],['个人信息','individual_opinion']];
         $fileName = '店铺信息'.time();
 
