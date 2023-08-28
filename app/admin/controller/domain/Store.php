@@ -312,4 +312,15 @@ class Store extends AdminController
 
         return '更新成功';
     }
+
+
+    /**
+     * @NodeAnotation(title="查询更新剩余任务")
+     */
+    public function select_refresh_num(){
+        $count = $this->crawl_store_model->count();
+        $this->success("剩余任务:$count");
+        
+    }
+
 }

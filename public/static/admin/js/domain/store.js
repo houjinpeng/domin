@@ -12,6 +12,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         batch_edit_url: 'domain.store/batch_edit',
         refresh_store_url: 'domain.store/refresh_store',
         refresh_all_store_url: 'domain.store/refresh_all_store',
+        select_refresh_num_url: 'domain.store/select_refresh_num',
 
     };
 
@@ -72,6 +73,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         text:'复制选中店铺ID',
                         method: 'open',
                         auth: 'add_like',
+                        class: 'layui-btn  layui-btn-sm layui-btn-warm',
+                    },{
+                        text:'查询更新进度',
+                        method: 'request',
+                        url: init.select_refresh_num_url,
+                        auth: 'select_refresh_num',
                         class: 'layui-btn  layui-btn-sm layui-btn-warm',
                     }
                 ]],
