@@ -92,6 +92,14 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [[{
+                            text: '查看',
+                            url: 'domain.jk/show?type=sale',
+                            method: 'open',
+                            field:'store_id',
+                            auth: 'add_like',
+                            class: 'layui-btn  layui-btn-xs layui-btn-warm',
+                            extend: 'data-full="true"',
+                        },{
                             text: '关注',
                             url: init.add_like_url,
                             method: 'request',

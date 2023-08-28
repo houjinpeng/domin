@@ -96,7 +96,6 @@ class Jk extends AdminController
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
             $store_id = $this->request->get('store_id');
-
             $count = $this->model_sales
                 ->where('store_id','=',$store_id)
                 ->count();
@@ -115,9 +114,14 @@ class Jk extends AdminController
             return json($data);
 
         }
-        $id = $this->request->get('id');
-        $row = $this->model->find($id);
-        $this->assign('store_id',$row['store_id']);
+        if ($this->request->get('type') == 'sale'){
+            $this->assign('store_id',$this->request->get('store_id') );
+        }else{
+            $id = $this->request->get('id');
+            $row = $this->model->find($id);
+            $this->assign('store_id',$row['store_id']);
+        }
+
         return $this->fetch();
     }
 
