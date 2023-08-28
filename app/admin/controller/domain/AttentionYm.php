@@ -296,7 +296,9 @@ class AttentionYm extends AdminController
         $all_ym = array_map(function ($x) {
             return $x['ym'];
         }, $all_data);
-
+        if ($all_ym==[]){
+            return '更新成功';
+        }
         //所有账户
         $all_account = $this->account_model->where('status', '=', 1)->select()->toArray();
         foreach ($all_account as $account) {
