@@ -37,7 +37,7 @@ class Store extends AdminController
         parent::__construct($app);
         $this->model = new DomainStore();
         $this->crawl_store_model = new DomainCrawlStore();
-
+        $this->jm_api = new JvMingApi();
     }
 
     /**
@@ -232,13 +232,72 @@ class Store extends AdminController
     public function refresh_store($id){
 
         $all_store = $this->model->field('store_id')->where('id','in',$id)->select()->toArray();
-        foreach ($all_store as $item){
-            $this->crawl_store_model->insert(['store_id'=>$item['store_id']]);
+        if (count($all_store) <= 30){
+            foreach ($all_store as $item){
+                $this->update_store_func($item['store_id']);
+            }
+            $this->success('更新成功');
+        }else{
+            foreach ($all_store as $item){
+                $this->crawl_store_model->insert(['store_id'=>$item['store_id']]);
 
+            }
         }
+
+
+
         $this->success('已经加入到更新队列，请耐心等待~ 2分钟运行一次哦！');
 
     }
+
+    /**
+     * @NodeAnotation(title="更新店铺方法")
+     */
+    public function update_store_func($store_id){
+        $data = $this->jm_api->get_store_data($store_id);
+        if (strstr('不开放店铺,您无法查看该店铺出售信息',$data['msg']) || $data['msg'] == '对不起,店铺不存在!'){
+            $this->model->where('store_id','=',$store_id)->update(['name'=>'此店已关闭']);
+            return 'success';
+        }
+        try {
+            $result = $data['data'];
+        }catch (\Exception $e){
+            return 'error';
+            dd($data ,$e->getMessage());
+        }
+
+        $store_cate = '未签约';
+        if ($result['lxtxt'] == '企业签约店铺'){
+            $store_cate = '企业';
+        }
+        elseif ($result['lxtxt'] == '个人签约店铺'){
+            $store_cate = '个人';
+        }
+
+        //查询库存
+        $form_params = [
+            'tao'=>$store_id,
+            'psize'=>50,
+        ];
+        $sale_data = $this->jm_api->get_yikoujia_list($form_params);
+
+        //要更新的数据
+        $save_data = [
+            'name'=>$result['dpmc'],
+            'register_time'=>$result['sj'],
+            'brief_introduction'=>$result['dpgg'], //简介
+            'sales'=>$result['m_xinyong']=='已隐藏'?-1:$result['m_xinyong'],//销量
+            'repertory'=>$sale_data['count'],//库存
+            'store_cate'=>$store_cate, //店铺类型
+            'crawl_time'=>date('Y-m-d H:i:s'), //店铺类型
+
+        ];
+        //更新数据
+        $this->model->where('store_id','=',$store_id)->update($save_data);
+        //删除更新过的
+        return 'success';
+    }
+
 
     /**
      * @NodeAnotation(title="批量全部店铺")
@@ -261,53 +320,11 @@ class Store extends AdminController
      */
     public function crawl_store(){
 
-        $this->jm_api = new JvMingApi();
+
         //获取全部要抓取的店铺
         $all_crawl_store = $this->crawl_store_model->select()->toArray();
         foreach ($all_crawl_store as $item){
-
-            $data = $this->jm_api->get_store_data($item['store_id']);
-            if (strstr('不开放店铺,您无法查看该店铺出售信息',$data['msg']) || $data['msg'] == '对不起,店铺不存在!'){
-                $this->crawl_store_model->where('id','=',$item['id'])->delete();
-                $this->model->where('store_id','=',$item['store_id'])->update(['name'=>'此店已关闭']);
-                continue;
-            }
-            try {
-                $result = $data['data'];
-            }catch (\Exception $e){
-                continue;
-                dd($data ,$e->getMessage());
-            }
-
-            $store_cate = '未签约';
-            if ($result['lxtxt'] == '企业签约店铺'){
-                $store_cate = '企业';
-            }
-            elseif ($result['lxtxt'] == '个人签约店铺'){
-                $store_cate = '个人';
-            }
-
-            //查询库存
-            $form_params = [
-                'tao'=>$item['store_id'],
-                'psize'=>50,
-            ];
-            $sale_data = $this->jm_api->get_yikoujia_list($form_params);
-
-            //要更新的数据
-            $save_data = [
-                'name'=>$result['dpmc'],
-                'register_time'=>$result['sj'],
-                'brief_introduction'=>$result['dpgg'], //简介
-                'sales'=>$result['m_xinyong']=='已隐藏'?-1:$result['m_xinyong'],//销量
-                'repertory'=>$sale_data['count'],//库存
-                'store_cate'=>$store_cate, //店铺类型
-                'crawl_time'=>date('Y-m-d H:i:s'), //店铺类型
-
-            ];
-            //更新数据
-            $this->model->where('store_id','=',$item['store_id'])->update($save_data);
-            //删除更新过的
+            $this->update_store_func($item['store_id']);
             $this->crawl_store_model->where('id','=',$item['id'])->delete();
         }
 
