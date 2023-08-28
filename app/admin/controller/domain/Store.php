@@ -257,7 +257,7 @@ class Store extends AdminController
 
 
     /**
-     * @NodeAnotation(title="抓取店铺信息")
+     * @NodeAnotation(title="抓取店铺信息定时任务")
      */
     public function crawl_store(){
 
@@ -274,6 +274,7 @@ class Store extends AdminController
             try {
                 $result = $data['data'];
             }catch (\Exception $e){
+                continue;
                 dd($data ,$e->getMessage());
             }
 
