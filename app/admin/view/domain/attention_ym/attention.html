@@ -1,0 +1,36 @@
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">域名</label>
+                <div class="layui-input-block">
+                    <textarea id="ym" name="ym" placeholder="请输入域名 多个请换行" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <a class="layui-btn layui-btn-sm" id="submit" >搜索域名</a>
+                    <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+        <form class="layui-form" lay-filter="formTable">
+            <table id="currentTable" class="layui-table layui-hide"
+
+                   lay-filter="currentTable">
+            </table>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <a class="layui-btn layui-btn-sm" id="submit_gz" >立即关注</a>
+{/*                    <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo">立即关注</button>*/}
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+

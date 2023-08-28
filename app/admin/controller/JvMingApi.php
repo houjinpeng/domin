@@ -58,5 +58,21 @@ class JvMingApi
     }
 
 
+    /**
+     * 获取域名详情
+     * @param $ym string 域名
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function get_ykj_info($ym){
+        $form_params = [
+            'ym'=>$ym
+        ];
+        $post_data = $this->bulid_data($form_params);
+        $result = json_decode($this->client->post("$this->domain/newapi/ykj_info",['form_params'=>$post_data])->getBody()->getContents(),true);
+
+        return $result;
+    }
+
 
 }
