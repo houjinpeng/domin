@@ -28,7 +28,9 @@ return [
         'website.refresh/refresh',
         'website.refresh_visitor/index',
         'website.charts_data/index',
-        'domain.store/crawl_store'
+        'domain.store/crawl_store',
+        'domain.attention_ym/crawl_attention_channel',
+        'domain.attention_ym/crawl_attention_data',
     ],
 
     // 不需要验证权限的控制器
@@ -41,7 +43,9 @@ return [
         'website.refresh',
         'website.refresh_visitor',
         'website.charts_data',
-        'domain.store/crawl_store'
+        'domain.store/crawl_store',
+        'domain.attention_ym/crawl_attention_channel',
+        'domain.attention_ym/crawl_attention_data',
     ],
 
     // 不需要验证权限的节点
@@ -55,6 +59,8 @@ return [
         'website.refresh/refresh',
         'website.refresh_visitor/index',
         'website.charts_data/index',
-        'domain.store/crawl_store'
+        'domain.store/crawl_store',
+        'domain.attention_ym/crawl_attention_channel',
+        'domain.attention_ym/crawl_attention_data',
     ],
 ];
