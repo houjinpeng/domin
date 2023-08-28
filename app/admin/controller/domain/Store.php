@@ -269,6 +269,7 @@ class Store extends AdminController
             $data = $this->jm_api->get_store_data($item['store_id']);
             if (strstr('不开放店铺,您无法查看该店铺出售信息',$data['msg']) || $data['msg'] == '对不起,店铺不存在!'){
                 $this->crawl_store_model->where('id','=',$item['id'])->delete();
+                $this->model->where('store_id','=',$item['store_id'])->update(['name'=>'此店已关闭']);
                 continue;
             }
             try {
@@ -320,7 +321,7 @@ class Store extends AdminController
     public function select_refresh_num(){
         $count = $this->crawl_store_model->count();
         $this->success("剩余任务:$count");
-        
+
     }
 
 }
