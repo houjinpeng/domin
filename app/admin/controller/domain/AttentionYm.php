@@ -162,6 +162,7 @@ class AttentionYm extends AdminController
                         'sale_status' => $data['zt_txt'],//出售状态
                         'sale_price' => $data['qian'],//价格
                         'account' => $data['account'],//账户
+                        'crawl_status' => 0,//爬虫状态修改为0
                     ]);
                     continue;
                 }
