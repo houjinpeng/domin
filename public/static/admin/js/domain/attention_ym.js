@@ -5,6 +5,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         table_render_id: 'currentTableRenderId',
         index_url: 'domain.attention_ym/index',
         edit_url: 'domain.attention_ym/edit',
+        batch_edit_url: 'domain.attention_ym/batch_edit',
         export_url: 'domain.attention_ym/export',
         crawl_url: 'domain.attention_ym/crawl',
         cancel_like_url: 'domain.attention_ym/cancel_like',
@@ -54,12 +55,11 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         class: 'layui-btn layui-btn-sm layui-btn-success',
                     },
                     {
-                        checkbox: true,
                         text: '批量编辑',
-                        url: init.edit_url,
+                        url: init.batch_edit_url,
                         method: 'open',
                         auth: 'edit',
-                        field: 'ym_id',
+                        field: 'batch_edit',
                         class: 'layui-btn layui-btn-sm layui-btn-normal',
                     },
                     {
@@ -137,6 +137,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
         },
 
         edit: function () {
+            ea.listen()
+        },
+
+        batch_edit: function () {
             ea.listen()
         },
 

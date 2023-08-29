@@ -104,6 +104,54 @@ class AttentionYm extends AdminController
 
 
     /**
+     * @NodeAnotation(title="批量编辑")
+     */
+    public function batch_edit()
+    {
+
+
+        if ($this->request->isAjax()) {
+            $post = $this->request->post();
+
+            //先获取修改批量修改备注数据
+            $all_remark = explode("\n",htmlspecialchars_decode($post['batch_remark']));
+            foreach ($all_remark as $remark){
+                if (trim($remark) == '') continue;
+                $remark = explode("|",$remark);
+                //修改备注信息
+                $this->model->where('ym','=',$remark[0])->update(['remark'=>$remark[1]]);
+            }
+
+            //修改成本价信息
+            $all_cost_price = explode("\n",htmlspecialchars_decode($post['batch_cost_price']));
+
+            foreach ($all_cost_price as $data){
+                if (trim($data) == '') continue;
+                $data = explode("|",$data);
+
+                $row = $this->model->where('ym','=',$data[0])->find();
+                if (empty($row)) continue;
+                //修改成本价信息
+                $row->save([
+                    'cost_price' => $data[1],//成本价
+                    'profit_cost' => $row['sale_price'] - intval($data[1]),//利润
+                    'profit_cost_lv' => ($row['sale_price'] - intval($data[1]))/$row['sale_price'] *100,//利润率
+                ]);
+            }
+
+
+            $this->success('修改成功');
+
+        }
+
+        return $this->fetch();
+
+
+    }
+
+
+
+    /**
      * @NodeAnotation(title="导出")
      */
     public function export()
