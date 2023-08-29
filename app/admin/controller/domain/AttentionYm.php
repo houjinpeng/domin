@@ -104,6 +104,35 @@ class AttentionYm extends AdminController
 
 
     /**
+     * @NodeAnotation(title="导出")
+     */
+    public function export()
+    {
+        list($page, $limit, $where) = $this->buildTableParames();
+        $tableName = $this->model->getName();
+        $tableName = CommonTool::humpToLine(lcfirst($tableName));
+        $prefix = config('database.connections.mysql.prefix');
+        $dbList = Db::query("show full columns from {$prefix}{$tableName}");
+        $header = [];
+        foreach ($dbList as $vo) {
+            $comment = !empty($vo['Comment']) ? $vo['Comment'] : $vo['Field'];
+            if (!in_array($vo['Field'], $this->noExportFields)) {
+                $header[] = [$comment, $vo['Field']];
+            }
+        }
+        $list = $this->model
+            ->where($where)
+            ->limit(100000)
+            ->order('id', 'desc')
+            ->select()
+            ->toArray();
+        $fileName = '关注域名'.time();
+        return Excel::exportData($list, $header, $fileName, 'xlsx');
+    }
+
+
+
+    /**
      * @NodeAnotation(title="更新所有关注数据")
      */
     public function crawl()
@@ -129,7 +158,7 @@ class AttentionYm extends AdminController
                 if (!empty($ym_row)) {
                     $ym_row->save([
                         'update_time' => $data['gxsj'], //更新时间
-                        'remark' => $data['bz'], //备注
+                        'remark' => $ym_row['remark']??$data['bz'], //备注
                         'sale_status' => $data['zt_txt'],//出售状态
                         'sale_price' => $data['qian'],//价格
                         'account' => $data['account'],//账户
@@ -296,6 +325,13 @@ class AttentionYm extends AdminController
         $all_ym = array_map(function ($x) {
             return $x['ym'];
         }, $all_data);
+
+        //获取所有域名售价
+        $sale_price = [];
+        foreach ($all_data as $data){
+            $sale_price[$data['ym']] = $data['sale_price'];
+        }
+
         if ($all_ym==[]){
             return '更新成功';
         }
@@ -312,6 +348,8 @@ class AttentionYm extends AdminController
                 $update = [
                     'get_time' => $item['jssj'],//结束时间
                     'cost_price' => $item['sj_qian'],//成本价
+                    'profit_cost' => $sale_price[$item['ym']] - $item['sj_qian'],//利润
+                    'profit_cost_lv' => ($sale_price[$item['ym']] - $item['sj_qian'])/$sale_price[$item['ym']] *100,//利润率
                     'crawl_status' => 1,//已抓取 为1
                 ];
                 $this->model->where('ym', '=', $item['ym'])->update($update);
@@ -333,6 +371,8 @@ class AttentionYm extends AdminController
                 $update = [
                     'get_time' => $item[0]['sj'],//结束时间
                     'cost_price' =>$cost_price,//成本价
+                    'profit_cost' => $sale_price[$item['ym']] - $item['sj_qian'],//利润
+                    'profit_cost_lv' => ($sale_price[$item['ym']] - $item['sj_qian'])/$sale_price[$item['ym']] *100,//利润率
                     'crawl_status' => 1,//已抓取 为1
                 ];
                 $this->model->where('ym', '=', $ym)->update($update);

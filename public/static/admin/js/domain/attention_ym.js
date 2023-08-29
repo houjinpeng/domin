@@ -5,6 +5,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         table_render_id: 'currentTableRenderId',
         index_url: 'domain.attention_ym/index',
         edit_url: 'domain.attention_ym/edit',
+        export_url: 'domain.attention_ym/export',
         crawl_url: 'domain.attention_ym/crawl',
         cancel_like_url: 'domain.attention_ym/cancel_like',
         cancel_like_batch_url: 'domain.attention_ym/cancel_like_batch',
@@ -33,7 +34,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limit: 50,
 
                 limits: [50, 100, 200, 500],
-                toolbar: ['refresh', [{
+                toolbar: ['refresh','export' ,[{
                     title: '关注域名',
                     text: "关注域名",
                     url: init.attention_url,
@@ -82,19 +83,22 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'cost_price', width: 120, title: '成本', search: false},
                     {
                         field: 'profit_cost', width: 120, title: '利润', search: false, templet: function (d) {
-                            if (d.cost_price) {
-                                return (d.sale_price - d.cost_price).toFixed(2)
-                            }
-                            return ''
+                            return d.profit_cost??''
+                            // if (d.cost_price) {
+                            //     return (d.sale_price - d.cost_price).toFixed(2)
+                            // }
+                            // return ''
 
                         }
                     },
                     {
                         field: 'profit_cost_lv', width: 120, title: '利润率', search: false, templet: function (d) {
-                            if (d.cost_price) {
-                                return ((d.sale_price - d.cost_price) / d.sale_price * 100).toFixed(2) + "%"
-                            }
-                            return ''
+
+                            return d.profit_cost_lv??''
+                            // if (d.cost_price) {
+                            //     return ((d.sale_price - d.cost_price) / d.sale_price * 100).toFixed(2) + "%"
+                            // }
+                            // return ''
                         }
                     },
                     {field: 'store_id', width: 120, title: '卖家id', search: 'batch'},
@@ -105,7 +109,10 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '出售状态',
                         selectList: {'已删除': '已删除', '出售中': '出售中', '已出售': '已出售',"未知":"未知","其他":"其他"}
                     },
-                    {field: 'channel', width: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库","其他":"其他"}},
+                    {field: 'channel', width: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库","其他":"其他"},templet:function (d) {
+                            // return d.channel?d.channel:''
+                            return d.channel??''
+                        }},
                     {field: 'zcs', width: 120, title: '注册商', search: false},
                     {
                         fixed: 'right',
