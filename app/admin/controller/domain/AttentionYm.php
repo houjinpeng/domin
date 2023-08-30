@@ -417,13 +417,22 @@ class AttentionYm extends AdminController
                 }else{
                     $cost_price =  $item[1]['zqian'] - $item[0]['zqian'];
                 }
-                $update = [
-                    'get_time' => $item[0]['sj'],//结束时间
-                    'cost_price' =>$cost_price,//成本价
-                    'profit_cost' => $sale_price[$item[0]['ym']] - $cost_price,//利润
-                    'profit_cost_lv' => ($sale_price[$item[0]['ym']] - $cost_price)/$sale_price[$item[[0]]['ym']] *100,//利润率
-                    'crawl_status' => 1,//已抓取 为1
-                ];
+                try{
+                    if (!isset($item[0]['sj'])){
+                        dd($item);
+                        return ;
+                    }
+                    $update = [
+                        'get_time' => $item[0]['sj'],//结束时间
+                        'cost_price' =>$cost_price,//成本价
+                        'profit_cost' => $sale_price[$item[0]['ym']] - $cost_price,//利润
+                        'profit_cost_lv' => ($sale_price[$item[0]['ym']] - $cost_price)/$sale_price[$item[0]['ym']] *100,//利润率
+                        'crawl_status' => 1,//已抓取 为1
+                    ];
+                }catch (\Exception $e){
+                    dd($e->getMessage(),$item);
+                }
+
                 $this->model->where('ym', '=', $ym)->update($update);
             }
 
