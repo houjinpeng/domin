@@ -393,6 +393,7 @@ class AttentionYm extends AdminController
             //对比竞价列表中的数据
             $have_ym = [];
             foreach ($result['data'] as $item) {
+                if (!isset($sale_price[$item['ym']])) continue;
                 $have_ym[] = $item['ym'];
                 $update = [
                     'get_time' => $item['jssj'],//结束时间
