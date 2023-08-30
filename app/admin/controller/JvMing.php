@@ -83,9 +83,9 @@ class JvMing extends AdminController
         $uuid = str_replace('-', '', uuid());
 //        $login_url = 'https://www.juming.com/user_zh/p_login';
         $login_url = 'http://7a08c112cda6a063.juming.com:9696/user_zh/p_login';
-        $token_data = $this->client->request('GET','http://192.168.4.50:5001/get_token')->getBody()->getContents();
+//        $token_data = $this->client->request('GET','http://192.168.4.50:5001/get_token')->getBody()->getContents();
 //        $token_data = $this->client->request('GET','http://192.168.0.15:5001/get_token')->getBody()->getContents();
-//        $token_data = $this->client->request('GET', 'http://127.0.0.1:5001/get_token')->getBody()->getContents();
+        $token_data = $this->client->request('GET', 'http://127.0.0.1:5001/get_token')->getBody()->getContents();
         $token_data = json_decode($token_data, true);
         $token = $token_data['token'];
         $sid = $token_data['session'];
