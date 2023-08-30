@@ -420,8 +420,8 @@ class AttentionYm extends AdminController
                 $update = [
                     'get_time' => $item[0]['sj'],//结束时间
                     'cost_price' =>$cost_price,//成本价
-                    'profit_cost' => $sale_price[$item['ym']] - $item['sj_qian'],//利润
-                    'profit_cost_lv' => ($sale_price[$item['ym']] - $item['sj_qian'])/$sale_price[$item['ym']] *100,//利润率
+                    'profit_cost' => $sale_price[$item[0]['ym']] - $cost_price,//利润
+                    'profit_cost_lv' => ($sale_price[$item[0]['ym']] - $cost_price)/$sale_price[$item[[0]]['ym']] *100,//利润率
                     'crawl_status' => 1,//已抓取 为1
                 ];
                 $this->model->where('ym', '=', $ym)->update($update);
