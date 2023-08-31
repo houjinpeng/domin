@@ -109,7 +109,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         title: '出售状态',
                         selectList: {'已删除': '已删除', '已下架': '已下架','出售中': '出售中', '已出售': '已出售',"未知":"未知","其他":"其他"}
                     },
-                    {field: 'channel', width: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库","其他":"其他"},templet:function (d) {
+                    {field: 'channel', width: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库","其他":"其他","未知":"未知"},templet:function (d) {
                             // return d.channel?d.channel:''
                             return d.channel??''
                         }},
