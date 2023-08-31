@@ -139,13 +139,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
         edit: function () {
 
-            var laydate = layui.laydate;
 
-            //执行一个laydate实例
-            laydate.render({
-                elem: '#test1', //指定元素
-                name:'get_time'
-            });
 
             ea.listen()
         },

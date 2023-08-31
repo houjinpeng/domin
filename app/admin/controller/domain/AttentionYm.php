@@ -135,7 +135,6 @@ class AttentionYm extends AdminController
                     'cost_price' => $data[1],//成本价
                     'profit_cost' => $row['sale_price'] - intval($data[1]),//利润
                     'profit_cost_lv' => ($row['sale_price'] - intval($data[1]))/$row['sale_price'] *100,//利润率
-                    'get_time' => isset($data[2])?$data[2]:date('Y-m-d h:i:s')
                 ]);
             }
 
@@ -462,17 +461,18 @@ class AttentionYm extends AdminController
                 $data->save(['channel'=>'未知']);
                 continue;
             }
+
             if (strstr($ym_data['data']['dbsjsm'],'新增')){
-                $data->save(['channel'=>'注册']);
+                $data->save(['channel'=>'注册','get_time'=>$ym_data['data']['dbsj']]);
             }
 
             elseif(strstr($ym_data['data']['dbsjsm'],'得标')){
-                $data->save(['channel'=>'竞价']);
+                $data->save(['channel'=>'竞价','get_time'=>$ym_data['data']['dbsj']]);
             }
             elseif (strstr($ym_data['data']['dbsjsm'],'入库')){
-                $data->save(['channel'=>'入库']);
+                $data->save(['channel'=>'入库','get_time'=>$ym_data['data']['dbsj']]);
             }else{
-                $data->save(['channel'=>'其他']);
+                $data->save(['channel'=>'其他','get_time'=>$ym_data['data']['dbsj']]);
             }
 
 
