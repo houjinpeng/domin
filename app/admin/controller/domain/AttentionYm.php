@@ -67,11 +67,32 @@ class AttentionYm extends AdminController
                 ->page($page, $limit)
                 ->order($this->sort)
                 ->select();
+
+            //获取所有数据过滤掉成本价为0的
+            $cost_price = $this->model
+                ->where($where)
+                ->where('cost_price','<>',0)
+                ->select();
+
+            $all_sale_price = 0;
+            $all_cost_price = 0;
+            $all_lirun_price = 0;
+            foreach ($cost_price as $item){
+                $all_sale_price += $item['sale_price'];
+                $all_cost_price += $item['cost_price'];
+                $all_lirun_price += round($item['sale_price']-$item['cost_price'],2);
+            }
+            $all_lirun_lv = round(($all_sale_price-$all_cost_price)/$all_sale_price*100,2);
+
             $data = [
                 'code' => 0,
                 'msg' => '',
                 'count' => $count,
                 'data' => $list,
+                'all_sale_price' => $all_sale_price,
+                'all_cost_price' => $all_cost_price,
+                'all_lirun_price' => $all_lirun_price,
+                'all_lirun_lv' => $all_lirun_lv,
             ];
             return json($data);
         }
@@ -205,10 +226,15 @@ class AttentionYm extends AdminController
                 //判断域名是否存在 如果存在更新 不插入
                 $ym_row = $this->model->where('ym', '=', $data['ym'])->find();
                 if (!empty($ym_row)) {
+                    //判断是否有改变   出售价格  出售状态  更新时间  备注 店铺id
+
+
+
                     $ym_row->save([
                         'update_time' => $data['gxsj'], //更新时间
                         'remark' => $ym_row['remark']??$data['bz'], //备注
                         'sale_status' => $data['zt_txt'],//出售状态
+                        'store_id' => $data['uid'],
                         'sale_price' => $data['qian'],//价格
                         'account' => $data['account'],//账户
                         'crawl_status' => 0,//爬虫状态修改为0
