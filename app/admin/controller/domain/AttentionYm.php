@@ -109,7 +109,6 @@ class AttentionYm extends AdminController
     public function batch_edit()
     {
 
-
         if ($this->request->isAjax()) {
             $post = $this->request->post();
 
@@ -136,6 +135,7 @@ class AttentionYm extends AdminController
                     'cost_price' => $data[1],//成本价
                     'profit_cost' => $row['sale_price'] - intval($data[1]),//利润
                     'profit_cost_lv' => ($row['sale_price'] - intval($data[1]))/$row['sale_price'] *100,//利润率
+                    'get_time' => isset($data[2])?$data[2]:date('Y-m-d h:i:s')
                 ]);
             }
 
@@ -368,7 +368,7 @@ class AttentionYm extends AdminController
     {
         //获取需要更新的数据
         $all_data = $this->model->where('crawl_status','=',0)
-            ->where('cost_price', '=', null)
+            ->where('cost_price', '=', 0)
             ->limit(500)->select()->toArray();
         //获取所有域名列表
         $all_ym = array_map(function ($x) {
@@ -402,6 +402,7 @@ class AttentionYm extends AdminController
                     'profit_cost_lv' => ($sale_price[$item['ym']] - $item['sj_qian'])/$sale_price[$item['ym']] *100,//利润率
                     'crawl_status' => 1,//已抓取 为1
                 ];
+//                dd($update,1);
                 $this->model->where('ym', '=', $item['ym'])->update($update);
 
             }
@@ -414,9 +415,9 @@ class AttentionYm extends AdminController
             foreach ($result as $ym=>$item){
                 $have_ym[] =$ym;
                 if (count($item) == 1){
-                    $cost_price = $item[0]['zqian'];
+                    $cost_price = $item[0]['qian'];
                 }else{
-                    $cost_price =  $item[1]['zqian'] - $item[0]['zqian'];
+                    $cost_price = abs( $item[1]['qian'] - $item[0]['qian']);
                 }
                 try{
                     if (!isset($item[0]['sj'])){
@@ -433,7 +434,7 @@ class AttentionYm extends AdminController
                 }catch (\Exception $e){
                     dd($e->getMessage(),$item);
                 }
-
+//                dd($update,2,$item);
                 $this->model->where('ym', '=', $ym)->update($update);
             }
 
