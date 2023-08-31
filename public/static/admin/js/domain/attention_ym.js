@@ -35,15 +35,16 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 limit: 50,
 
                 limits: [50, 100, 200, 500],
-                toolbar: ['refresh','export' ,[{
-                    title: '关注域名',
-                    text: "关注域名",
-                    url: init.attention_url,
-                    method: 'open',
-                    auth: 'attention',
-                    class: 'layui-btn layui-btn-sm layui-btn-warm',
-
-                },
+                toolbar: ['refresh','export' ,[
+                //     {
+                //     title: '关注域名',
+                //     text: "关注域名",
+                //     url: init.attention_url,
+                //     method: 'open',
+                //     auth: 'attention',
+                //     class: 'layui-btn layui-btn-sm layui-btn-warm',
+                //
+                // },
                     {
                         checkbox: true,
                         text: '批量取关',
@@ -131,6 +132,20 @@ define(["jquery", "easy-admin"], function ($, ea) {
                         ]
                     }
                 ]],
+
+                done:function (resp) {
+                    let all_sale_price = resp['all_sale_price'];
+                    let all_cost_price = resp['all_cost_price'];
+                    let all_lirun_price = resp['all_lirun_price'];
+                    let all_lirun_lv = resp['all_lirun_lv'];
+
+                    $('#layui-table-page1').append('<font color="red">总销售额:'+all_sale_price+'  | 总成本:'+all_cost_price+'  | 总利润:'+all_lirun_price+' | 利润率:'+all_lirun_lv+'%</font>')
+
+
+
+
+                }
+
             });
 
 
