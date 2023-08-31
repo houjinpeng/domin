@@ -57,6 +57,8 @@ class AttentionYm extends AdminController
     {
         if ($this->request->isAjax()) {
             list($page, $limit, $where) = $this->buildTableParames();
+            $where = format_where_datetime($where,'update_time');
+            $where = format_where_datetime($where,'get_time');
             $count = $this->model
                 ->where($where)
                 ->count();
