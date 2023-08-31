@@ -463,16 +463,16 @@ class AttentionYm extends AdminController
             }
 
             if (strstr($ym_data['data']['dbsjsm'],'新增')){
-                $data->save(['channel'=>'注册','get_time'=>$ym_data['data']['dbsj']]);
+                $data->save(['channel'=>'注册','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
             }
 
             elseif(strstr($ym_data['data']['dbsjsm'],'得标')){
-                $data->save(['channel'=>'竞价','get_time'=>$ym_data['data']['dbsj']]);
+                $data->save(['channel'=>'竞价','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
             }
             elseif (strstr($ym_data['data']['dbsjsm'],'入库')){
-                $data->save(['channel'=>'入库','get_time'=>$ym_data['data']['dbsj']]);
+                $data->save(['channel'=>'入库','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
             }else{
-                $data->save(['channel'=>'其他','get_time'=>$ym_data['data']['dbsj']]);
+                $data->save(['channel'=>'其他','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
             }
 
 
