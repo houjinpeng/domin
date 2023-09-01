@@ -528,5 +528,33 @@ class AttentionYm extends AdminController
     }
 
 
+    /**
+     * @NodeAnotation(title="分析报表")
+     */
+    public function fx_data($id){
+
+        $row = $this->model->find($id);
+        empty($row)&& $this->error('没有此域名的信息');
+
+        $update_time_list = [];
+        $price_list = [];
+        $all_data = $this->model_log->where('ym','=',$row['ym'])->select()->toArray();
+        foreach ($all_data as $item){
+            $update_time_list[] = $item['update_time'];
+            $price_list[] = $item['sale_price'];
+        }
+        $update_time_list[] = $row['update_time'];
+        $price_list[] = $row['sale_price'];
+
+
+        $this->assign('update_time_list',json_encode($update_time_list));
+        $this->assign('price_list',json_encode($price_list));
+
+        return $this->fetch();
+
+
+
+    }
+
 
 }

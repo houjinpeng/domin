@@ -1,4 +1,4 @@
-define(["jquery", "easy-admin"], function ($, ea) {
+define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
 
     var init = {
         table_elem: '#currentTable',
@@ -11,6 +11,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         cancel_like_url: 'domain.attention_ym/cancel_like',
         cancel_like_batch_url: 'domain.attention_ym/cancel_like_batch',
         attention_url: 'domain.attention_ym/attention',
+        fx_data_url: 'domain.attention_ym/fx_data',
 
     };
 
@@ -123,10 +124,18 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'zcs', width: 120, title: '注册商', search: false},
                     {
                         fixed: 'right',
-                        width: 150,
+                        width: 200,
                         title: '操作',
                         templet: ea.table.tool,
-                        operat: [ 'edit',[{
+                        operat: [ 'edit',[
+                            {
+                                text: '分析报表',
+                                url: init.fx_data_url,
+                                method: 'open',
+                                auth: 'fx_data',
+                                class: 'layui-btn layui-btn-warm layui-btn-xs',
+                            },
+                            {
                             text: '取消关注',
                             url: init.cancel_like_url,
                             method: 'request',
@@ -249,6 +258,41 @@ define(["jquery", "easy-admin"], function ($, ea) {
             })
 
 
+            ea.listen()
+        },
+
+
+        fx_data:function () {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+
+            var update_time_list = JSON.parse($('#update_time_list').val())
+            var price_list = JSON.parse($('#price_list').val())
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '分析报表'
+                },
+                tooltip: {},
+                legend: {
+                    data: ['价格']
+                },
+                xAxis: {
+                    data: update_time_list
+                },
+                yAxis: {},
+                series: [
+                    {
+                        name: '价格',
+                        type: 'line',
+                        data: price_list
+                    }
+                ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
             ea.listen()
         }
 
