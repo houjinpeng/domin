@@ -7,6 +7,7 @@ namespace app\admin\controller\domain;
 use app\admin\controller\JvMing;
 use app\admin\controller\JvMingApi;
 use app\admin\model\DomainAttentionYm;
+use app\admin\model\DomainAttentionYmLog;
 use app\admin\model\DomainCrawlStore;
 use app\admin\model\DomainStore;
 use app\admin\model\NodAccount;
@@ -41,6 +42,7 @@ class AttentionYm extends AdminController
         parent::__construct($app);
 
         $this->model = new DomainAttentionYm();
+        $this->model_log = new DomainAttentionYmLog();
         //账户表
         $this->account_model = new NodWarehouse();
         //聚名API
@@ -63,6 +65,7 @@ class AttentionYm extends AdminController
                 ->where($where)
                 ->count();
             $list = $this->model
+                ->with('getLog','left')
                 ->where($where)
                 ->page($page, $limit)
                 ->order($this->sort)
@@ -77,12 +80,16 @@ class AttentionYm extends AdminController
             $all_sale_price = 0;
             $all_cost_price = 0;
             $all_lirun_price = 0;
+            $all_lirun_lv = 0;
             foreach ($cost_price as $item){
                 $all_sale_price += $item['sale_price'];
                 $all_cost_price += $item['cost_price'];
                 $all_lirun_price += round($item['sale_price']-$item['cost_price'],2);
             }
-            $all_lirun_lv = round(($all_sale_price-$all_cost_price)/$all_sale_price*100,2);
+            if ($all_cost_price != 0){
+                $all_lirun_lv = round(($all_sale_price-$all_cost_price)/$all_sale_price*100,2);
+            }
+
 
             $data = [
                 'code' => 0,
@@ -219,18 +226,27 @@ class AttentionYm extends AdminController
 
             }
 
+
+            $all_data_array =  $this->model->select();
+            $all_ym_detail = [];
+            foreach ($all_data_array as $item){
+                $all_ym_detail[$item['ym']] = $item;
+            }
+
             $insert_data = [];
             $ym_list = [];
             foreach ($all_data as $data) {
                 $ym_list[] = $data['ym'];
                 //判断域名是否存在 如果存在更新 不插入
-                $ym_row = $this->model->where('ym', '=', $data['ym'])->find();
-                if (!empty($ym_row)) {
-                    //判断是否有改变   出售价格  出售状态  更新时间  备注 店铺id
 
-
-
-                    $ym_row->save([
+                if (isset($all_ym_detail[$data['ym']])) {
+                    //判断是否有改变   出售价格 店铺id
+                    if ($all_ym_detail[$data['ym']]['sale_price'] != $data['qian'] ||$all_ym_detail[$data['ym']]['store_id'] != $data['uid']){
+                        $c = $all_ym_detail[$data['ym']]->toArray();
+                        unset($c['id']);
+                        DomainAttentionYmLog::insert($c);
+                    }
+                    $all_ym_detail[$data['ym']]->save([
                         'update_time' => $data['gxsj'], //更新时间
                         'remark' => $ym_row['remark']??$data['bz'], //备注
                         'sale_status' => $data['zt_txt'],//出售状态
@@ -241,22 +257,17 @@ class AttentionYm extends AdminController
                     ]);
                     continue;
                 }
+
                 $insert_data[] = [
                     'account' => $data['account'],
                     'ym' => $data['ym'],
                     'ym_id' => $data['id'],
                     'like_time' => $like_time,
-//                    'get_time'=>$data['gxsj'],
                     'update_time' => $data['gxsj'],
                     'sale_price' => $data['qian'],
-//                    'cost_price'=>'', //成本
-//                    'profit_cost'=>'',//利润
-//                    'profit_cost_lv'=>'',//利润率
                     'store_id' => $data['uid'],
                     'remark' => $data['bz'],
                     'sale_status' => $data['zt_txt'],
-//                    'channel'=>'',  //注册    竟价  和入库
-//                    'zcs'=>'',  //注册商
 
                 ];
             }
@@ -266,6 +277,12 @@ class AttentionYm extends AdminController
             $this->model->where('ym', 'not in', $ym_list)->delete();
 
             $this->success('添加成功，2分钟后自动补全任务启动~ 请耐心等待！');
+            try {
+
+            }catch (\Exception $e){
+                $this->error('更新失败 '.$e->getMessage());
+            }
+
 
         }
         return $this->fetch();

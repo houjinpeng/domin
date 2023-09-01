@@ -15,13 +15,10 @@ namespace app\admin\model;
 
 use app\common\model\TimeModel;
 
-class DomainAttentionYm extends TimeModel
+class DomainAttentionYmLog extends TimeModel
 {
 
-    protected $name = "domain_attention_ym";
+    protected $name = "domain_attention_ym_log";
 
-    public function getLog(){
-        return $this->belongsTo(DomainAttentionYmLog::class, 'ym', 'ym');
 
-    }
 }

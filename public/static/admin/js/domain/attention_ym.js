@@ -77,7 +77,12 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'account', width: 110, title: '账号', selectList: bulid_select(customer_select_list, 'name')},
                     {field: 'like_time', width: 177, title: '关注日期', search: 'range'},
-                    {field: 'ym', width: 160, align: 'left', title: '域名', search: 'batch'},
+                    {field: 'ym', width: 160, align: 'left', title: '域名', search: 'batch',templet:function (d) {
+                            if (d.getLog){
+                                return '<font color="red">'+d.ym+'</font>'
+                            }
+                            return d.ym
+                        }},
                     {field: 'get_time', width: 177, title: '拿货日期', search: 'range'},
                     {field: 'update_time', width: 177, title: '更新时间', search: 'range'},
                     {field: 'sale_price', width: 120, title: '售价', search: false},
