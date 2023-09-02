@@ -135,7 +135,10 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                             let list = []
                             if (d.logs !== []){
                                 d.logs.forEach(function (item) {
-                                    list.push(item['store_id'])
+                                    if (list[list.length - 1] !== item['store_id']) {
+                                        list.push(item['store_id'])
+
+                                    }
                                 })
 
 
