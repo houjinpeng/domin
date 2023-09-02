@@ -146,11 +146,11 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                             return list.join('->')
                         }},
                     {field: 'team', minWidth: 120, title: '团队介绍', search: false,templet:function (d) {
-                            if ( d.getStore=== null){
-                                return '无'
+                            if ( d.getStore === null){
+                                return ''
                             }
-                            if ( d.getStore.team == null){
-                                return '无'
+                            if ( d.getStore.team == null || d.getStore.team ===''){
+                                return ''
                             } else{
                                 return d.getStore.team
                             }
