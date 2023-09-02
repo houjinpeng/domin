@@ -126,7 +126,18 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                             // return ''
                         }
                     },
-                    {field: 'store_id', minWidth: 120, title: '卖家id', search: 'batch'},
+                    {field: 'store_id', minWidth: 200, title: '卖家id', search: 'batch',templet:function (d) {
+                            let list = []
+                            if (d.logs !== []){
+                                d.logs.forEach(function (item) {
+                                    list.push(item['store_id'])
+                                })
+
+
+                            }
+                            list.push(d.store_id)
+                            return list.join('->')
+                        }},
                     {field: 'team', minWidth: 120, title: '团队介绍', search: false,templet:function (d) {
                             return d.getStore ? d.getStore.team:'无'
                         }},
