@@ -65,11 +65,17 @@ class AttentionYm extends AdminController
                 ->where($where)
                 ->count();
             $list = $this->model
-                ->with('getLog', 'left')
                 ->where($where)
+                ->withJoin('getStore','left')
                 ->page($page, $limit)
                 ->order($this->sort)
                 ->select();
+            $new_list = [];
+            foreach ($list as &$item){
+                $c = $item->toArray();
+                $c['logs']= $item->getLogs()->select()->toArray();
+                $new_list[] = $c;
+            }
 
             //获取所有数据过滤掉成本价为0的
             $cost_price = $this->model
@@ -81,6 +87,7 @@ class AttentionYm extends AdminController
             $all_cost_price = 0;
             $all_lirun_price = 0;
             $all_lirun_lv = 0;
+            unset($item);
             foreach ($cost_price as $item) {
                 $all_sale_price += $item['sale_price'];
                 $all_cost_price += $item['cost_price'];
@@ -95,7 +102,7 @@ class AttentionYm extends AdminController
                 'code' => 0,
                 'msg' => '',
                 'count' => $count,
-                'data' => $list,
+                'data' => $new_list,
                 'all_sale_price' => $all_sale_price,
                 'all_cost_price' => $all_cost_price,
                 'all_lirun_price' => $all_lirun_price,

@@ -24,4 +24,14 @@ class DomainAttentionYm extends TimeModel
         return $this->belongsTo(DomainAttentionYmLog::class, 'ym', 'ym');
 
     }
+
+    public function getLogs(){
+        return $this->hasMany(DomainAttentionYmLog::class, 'ym','ym');
+
+    }
+
+    public function getStore(){
+        return $this->belongsTo(DomainStore::class, 'store_id', 'store_id');
+
+    }
 }

@@ -45,15 +45,6 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
 
                 limits: [50, 100, 200, 500],
                 toolbar: ['refresh','export' ,[
-                //     {
-                //     title: '关注域名',
-                //     text: "关注域名",
-                //     url: init.attention_url,
-                //     method: 'open',
-                //     auth: 'attention',
-                //     class: 'layui-btn layui-btn-sm layui-btn-warm',
-                //
-                // },
                     {
                         checkbox: true,
                         text: '批量取关',
@@ -80,30 +71,43 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         auth: 'crawl',
                         class: 'layui-btn layui-btn-sm',
 
-                    },  {
-                        text: '分析报表',
-                        url: init.fx_data_url,
-                        method: 'open',
-                        auth: 'fx_data',
-                        class: 'layui-btn layui-btn-warm layui-btn-sm',
-                    }
+                    },
+                    // {
+                    //     text: '分析报表',
+                    //     url: init.fx_data_url,
+                    //     method: 'open',
+                    //     auth: 'fx_data',
+                    //     class: 'layui-btn layui-btn-warm layui-btn-sm',
+                    // }
                 ]],
                 cols: [[
                     {type: "checkbox"},
-                    {field: 'account', width: 110, title: '账号', selectList: bulid_select(customer_select_list, 'name')},
-                    {field: 'like_time', width: 177, title: '关注日期', search: 'range'},
-                    {field: 'ym', width: 160, align: 'left', title: '域名', search: 'batch',templet:function (d) {
-                            if (d.getLog){
+                    {field: 'account', minWidth: 110, title: '账号', selectList: bulid_select(customer_select_list, 'name')},
+                    {field: 'like_time', minWidth: 177, title: '关注日期', search: 'range'},
+                    {field: 'ym', minWidth: 190, align: 'left', title: '域名', search: 'batch',templet:function (d) {
+                            if (d.logs.length !== 0){
                                 return '<font color="red">'+d.ym+'</font>'
                             }
                             return d.ym
                         }},
-                    {field: 'get_time', width: 177, title: '拿货日期', search: 'range'},
-                    {field: 'update_time', width: 177, title: '更新时间', search: 'range'},
-                    {field: 'sale_price', width: 120, title: '售价', search: false},
-                    {field: 'cost_price', width: 120, title: '成本', search: false},
+                    {field: 'get_time', minWidth: 177, title: '拿货日期', search: 'range'},
+                    {field: 'update_time', minWidth: 177, title: '更新时间', search: 'range'},
+                    {field: 'sale_price', minWidth: 200, title: '售价', search: false,templet:function (d) {
+                        let sale_price_list = []
+                        if (d.logs !== []){
+                            d.logs.forEach(function (item) {
+                                sale_price_list.push(item['sale_price'])
+                            })
+
+
+                        }
+                        sale_price_list.push(d.sale_price)
+                        return sale_price_list.join('->')
+
+                        }},
+                    {field: 'cost_price', minWidth: 120, title: '成本', search: false},
                     {
-                        field: 'profit_cost', width: 120, title: '利润', search: false, templet: function (d) {
+                        field: 'profit_cost', minWidth: 120, title: '利润', search: false, templet: function (d) {
                             return d.profit_cost??''
                             // if (d.cost_price) {
                             //     return (d.sale_price - d.cost_price).toFixed(2)
@@ -113,7 +117,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         }
                     },
                     {
-                        field: 'profit_cost_lv', width: 120, title: '利润率', search: false, templet: function (d) {
+                        field: 'profit_cost_lv', minWidth: 120, title: '利润率', search: false, templet: function (d) {
 
                             return d.profit_cost_lv??''
                             // if (d.cost_price) {
@@ -122,23 +126,26 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                             // return ''
                         }
                     },
-                    {field: 'store_id', width: 120, title: '卖家id', search: 'batch'},
-                    {field: 'remark', width: 120, title: '备注'},
+                    {field: 'store_id', minWidth: 120, title: '卖家id', search: 'batch'},
+                    {field: 'team', minWidth: 120, title: '团队介绍', search: false,templet:function (d) {
+                            return d.getStore ? d.getStore.team:'无'
+                        }},
+                    {field: 'remark', minWidth: 120, title: '备注'},
                     {
                         field: 'sale_status',
                         width: 120,
                         title: '出售状态',
                         selectList: {'已删除': '已删除', '已下架': '已下架','出售中': '出售中', '已出售': '已出售',"未知":"未知","其他":"其他"}
                     },
-                    {field: 'channel', width: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库","其他":"其他","未知":"未知"},templet:function (d) {
+                    {field: 'channel', minWidth: 120, title: '来源渠道', selectList: {"竞价":"竞价","注册":"注册","入库":"入库","其他":"其他","未知":"未知"},templet:function (d) {
                             // return d.channel?d.channel:''
                             return d.channel??''
                         }},
-                    {field: 'cost_price', width: 120, title: '成本价', selectList: {"0":"无"}},
-                    {field: 'zcs', width: 120, title: '注册商', search: false},
+                    {field: 'cost_price', minWidth: 120, title: '成本价', selectList: {"0":"无"}},
+                    {field: 'zcs', minWidth: 120, title: '注册商', search: false},
                     {
                         fixed: 'right',
-                        width: 200,
+                        width: 150,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [ 'edit',[
