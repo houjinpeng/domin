@@ -543,7 +543,9 @@ class AttentionYm extends AdminController
                 ->group('ym')
                 ->count();
             //先分组查询
-            $all_ym = $this->model_log->field('ym')->where($where)->group('ym')->select()->toArray();
+            $all_ym = $this->model_log->field('ym')->where($where)->group('ym')
+                ->page($page,$limit)
+                ->select()->toArray();
             //查询所有
             $all_data = [];
             foreach ($all_ym as $item){

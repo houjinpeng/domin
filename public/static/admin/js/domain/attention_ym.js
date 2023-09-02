@@ -275,7 +275,8 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
             ea.table.render({
                 init: fx_init,
                 height: 'full-40',
-                page: false,
+                limit:50,
+                limits:[50,80,100],
                 toolbar: ['refresh'],
                 cols: [[
                     {type: "numbers"},
