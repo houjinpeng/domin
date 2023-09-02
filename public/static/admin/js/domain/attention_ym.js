@@ -90,7 +90,12 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                             }
                             return d.ym
                         }},
-                    {field: 'get_time', minWidth: 177, title: '拿货日期', search: 'range'},
+                    {field: 'get_time', minWidth: 177, title: '拿货日期', search: 'range',templet:function (d){
+                        if (d.get_time){
+                            return  d.get_time.split(' ')[0]
+                        }
+                       return  ''
+                        }},
                     {field: 'update_time', minWidth: 177, title: '更新时间', search: 'range'},
                     {field: 'sale_price', minWidth: 200, title: '售价', search: false,templet:function (d) {
                         let sale_price_list = []
