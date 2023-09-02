@@ -166,7 +166,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                             // return d.channel?d.channel:''
                             return d.channel??''
                         }},
-                    {field: 'cost_price', minWidth: 120, title: '成本价', selectList: {"0":"无"}},
+                    {field: 'cost_price', minWidth: 120, title: '成本价', selectList: {"0":"无"},hide:true},
                     {field: 'zcs', minWidth: 120, title: '注册商', search: false},
                     {
                         fixed: 'right',
