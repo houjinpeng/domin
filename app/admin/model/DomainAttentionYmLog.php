@@ -19,6 +19,14 @@ class DomainAttentionYmLog extends TimeModel
 {
 
     protected $name = "domain_attention_ym_log";
+    public function getNowData(){
+        return $this->belongsTo(DomainAttentionYm::class, 'ym', 'ym');
 
+    }
+
+    public function getStore(){
+        return $this->belongsTo(DomainStore::class, 'store_id', 'store_id');
+
+    }
 
 }

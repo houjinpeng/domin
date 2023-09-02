@@ -15,6 +15,14 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
 
     };
 
+    var fx_init = {
+        table_elem: '#currentTable',
+        table_render_id: 'currentTableRenderId',
+        index_url: 'domain.attention_ym/fx_data',
+
+
+    };
+
     var Controller = {
 
         index: function () {
@@ -72,7 +80,13 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         auth: 'crawl',
                         class: 'layui-btn layui-btn-sm',
 
-                    },
+                    },  {
+                        text: '分析报表',
+                        url: init.fx_data_url,
+                        method: 'open',
+                        auth: 'fx_data',
+                        class: 'layui-btn layui-btn-warm layui-btn-sm',
+                    }
                 ]],
                 cols: [[
                     {type: "checkbox"},
@@ -128,13 +142,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [ 'edit',[
-                            {
-                                text: '分析报表',
-                                url: init.fx_data_url,
-                                method: 'open',
-                                auth: 'fx_data',
-                                class: 'layui-btn layui-btn-warm layui-btn-xs',
-                            },
+
                             {
                             text: '取消关注',
                             url: init.cancel_like_url,
@@ -263,36 +271,22 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
 
 
         fx_data:function () {
-            // 基于准备好的dom，初始化echarts实例
-            var myChart = echarts.init(document.getElementById('main'));
+            console.log(123)
+            ea.table.render({
+                init: fx_init,
+                height: 'full-40',
+                page: false,
+                toolbar: ['refresh'],
+                cols: [[
+                    {type: "numbers"},
+                    {field: 'ym', minWidth: 160, align: 'left', title: '域名', search: 'batch'},
+                    {field: 'store_id', minWidth: 120, title: '卖家id', search: false},
+                    {field: 'team', minWidth: 120, title: '团队简介', search: false},
+                    {field: 'sale_price', minWidth: 120, title: '售价', search: false},
 
-            var update_time_list = JSON.parse($('#update_time_list').val())
-            var price_list = JSON.parse($('#price_list').val())
+                ]],
 
-            // 指定图表的配置项和数据
-            var option = {
-                title: {
-                    text: '分析报表'
-                },
-                tooltip: {},
-                legend: {
-                    data: ['价格']
-                },
-                xAxis: {
-                    data: update_time_list
-                },
-                yAxis: {},
-                series: [
-                    {
-                        name: '价格',
-                        type: 'line',
-                        data: price_list
-                    }
-                ]
-            };
-
-            // 使用刚指定的配置项和数据显示图表。
-            myChart.setOption(option);
+            });
             ea.listen()
         }
 

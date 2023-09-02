@@ -1,9 +1,17 @@
+
+
 <div class="layuimini-container">
     <div class="layuimini-main">
-        <input hidden="hidden" id="update_time_list" value="{$update_time_list}">
-        <input hidden="hidden" id="price_list" value="{$price_list}">
-        <div id="main" style="width: 600px;height:400px;"></div>
+        <table id="currentTable" class="layui-table layui-hide"
+               data-auth-cancel_like_batch="{:auth('domain.attention_ym/cancel_like_batch')}"
+               data-auth-cancel_like="{:auth('domain.attention_ym/cancel_like')}"
+               data-auth-crawl="{:auth('domain.attention_ym/crawl')}"
+               data-auth-batch_edit="{:auth('domain.attention_ym/batch_edit')}"
+               data-auth-edit="{:auth('domain.attention_ym/edit')}"
+               data-auth-export="{:auth('domain.attention_ym/export')}"
 
+               lay-filter="currentTable">
+        </table>
     </div>
 </div>
 

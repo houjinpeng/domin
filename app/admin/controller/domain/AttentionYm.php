@@ -59,13 +59,13 @@ class AttentionYm extends AdminController
     {
         if ($this->request->isAjax()) {
             list($page, $limit, $where) = $this->buildTableParames();
-            $where = format_where_datetime($where,'update_time');
-            $where = format_where_datetime($where,'get_time');
+            $where = format_where_datetime($where, 'update_time');
+            $where = format_where_datetime($where, 'get_time');
             $count = $this->model
                 ->where($where)
                 ->count();
             $list = $this->model
-                ->with('getLog','left')
+                ->with('getLog', 'left')
                 ->where($where)
                 ->page($page, $limit)
                 ->order($this->sort)
@@ -74,20 +74,20 @@ class AttentionYm extends AdminController
             //获取所有数据过滤掉成本价为0的
             $cost_price = $this->model
                 ->where($where)
-                ->where('cost_price','<>',0)
+                ->where('cost_price', '<>', 0)
                 ->select();
 
             $all_sale_price = 0;
             $all_cost_price = 0;
             $all_lirun_price = 0;
             $all_lirun_lv = 0;
-            foreach ($cost_price as $item){
+            foreach ($cost_price as $item) {
                 $all_sale_price += $item['sale_price'];
                 $all_cost_price += $item['cost_price'];
-                $all_lirun_price += round($item['sale_price']-$item['cost_price'],2);
+                $all_lirun_price += round($item['sale_price'] - $item['cost_price'], 2);
             }
-            if ($all_cost_price != 0){
-                $all_lirun_lv = round(($all_sale_price-$all_cost_price)/$all_sale_price*100,2);
+            if ($all_cost_price != 0) {
+                $all_lirun_lv = round(($all_sale_price - $all_cost_price) / $all_sale_price * 100, 2);
             }
 
 
@@ -112,19 +112,19 @@ class AttentionYm extends AdminController
      */
     public function edit($id)
     {
-        $row = $this->model->where('id','in',$id)->select();
+        $row = $this->model->where('id', 'in', $id)->select();
         empty($row) && $this->error('没有关注改域名');
 
         if ($this->request->isAjax()) {
             $post = $this->request->post();
-            $this->model->where('id','in',$id)->update($post);
+            $this->model->where('id', 'in', $id)->update($post);
             $this->success('修改成功');
 
         }
-        if (count(explode(',',$id))> 1){
-            $this->assign('type','batch');
-        }else{
-            $this->assign('type','one');
+        if (count(explode(',', $id)) > 1) {
+            $this->assign('type', 'batch');
+        } else {
+            $this->assign('type', 'one');
         }
         $this->assign('row', $row[0]);
         return $this->fetch();
@@ -143,28 +143,28 @@ class AttentionYm extends AdminController
             $post = $this->request->post();
 
             //先获取修改批量修改备注数据
-            $all_remark = explode("\n",htmlspecialchars_decode($post['batch_remark']));
-            foreach ($all_remark as $remark){
+            $all_remark = explode("\n", htmlspecialchars_decode($post['batch_remark']));
+            foreach ($all_remark as $remark) {
                 if (trim($remark) == '') continue;
-                $remark = explode("|",$remark);
+                $remark = explode("|", $remark);
                 //修改备注信息
-                $this->model->where('ym','=',$remark[0])->update(['remark'=>$remark[1]]);
+                $this->model->where('ym', '=', $remark[0])->update(['remark' => $remark[1]]);
             }
 
             //修改成本价信息
-            $all_cost_price = explode("\n",htmlspecialchars_decode($post['batch_cost_price']));
+            $all_cost_price = explode("\n", htmlspecialchars_decode($post['batch_cost_price']));
 
-            foreach ($all_cost_price as $data){
+            foreach ($all_cost_price as $data) {
                 if (trim($data) == '') continue;
-                $data = explode("|",$data);
+                $data = explode("|", $data);
 
-                $row = $this->model->where('ym','=',$data[0])->find();
+                $row = $this->model->where('ym', '=', $data[0])->find();
                 if (empty($row)) continue;
                 //修改成本价信息
                 $row->save([
                     'cost_price' => $data[1],//成本价
                     'profit_cost' => $row['sale_price'] - intval($data[1]),//利润
-                    'profit_cost_lv' => ($row['sale_price'] - intval($data[1]))/$row['sale_price'] *100,//利润率
+                    'profit_cost_lv' => ($row['sale_price'] - intval($data[1])) / $row['sale_price'] * 100,//利润率
                 ]);
             }
 
@@ -179,13 +179,14 @@ class AttentionYm extends AdminController
     }
 
 
-
     /**
      * @NodeAnotation(title="导出")
      */
     public function export()
     {
         list($page, $limit, $where) = $this->buildTableParames();
+        $where = format_where_datetime($where, 'update_time');
+        $where = format_where_datetime($where, 'get_time');
         $tableName = $this->model->getName();
         $tableName = CommonTool::humpToLine(lcfirst($tableName));
         $prefix = config('database.connections.mysql.prefix');
@@ -203,10 +204,9 @@ class AttentionYm extends AdminController
             ->order('id', 'desc')
             ->select()
             ->toArray();
-        $fileName = '关注域名'.time();
+        $fileName = '关注域名' . time();
         return Excel::exportData($list, $header, $fileName, 'xlsx');
     }
-
 
 
     /**
@@ -227,9 +227,9 @@ class AttentionYm extends AdminController
             }
 
 
-            $all_data_array =  $this->model->select();
+            $all_data_array = $this->model->select();
             $all_ym_detail = [];
-            foreach ($all_data_array as $item){
+            foreach ($all_data_array as $item) {
                 $all_ym_detail[$item['ym']] = $item;
             }
 
@@ -241,14 +241,14 @@ class AttentionYm extends AdminController
 
                 if (isset($all_ym_detail[$data['ym']])) {
                     //判断是否有改变   出售价格 店铺id
-                    if ($all_ym_detail[$data['ym']]['sale_price'] != $data['qian'] ||$all_ym_detail[$data['ym']]['store_id'] != $data['uid']){
+                    if ($all_ym_detail[$data['ym']]['sale_price'] != $data['qian'] || $all_ym_detail[$data['ym']]['store_id'] != $data['uid']) {
                         $c = $all_ym_detail[$data['ym']]->toArray();
                         unset($c['id']);
                         DomainAttentionYmLog::insert($c);
                     }
                     $all_ym_detail[$data['ym']]->save([
                         'update_time' => $data['gxsj'], //更新时间
-                        'remark' => $ym_row['remark']??$data['bz'], //备注
+                        'remark' => $ym_row['remark'] ?? $data['bz'], //备注
                         'sale_status' => $data['zt_txt'],//出售状态
                         'store_id' => $data['uid'],
                         'sale_price' => $data['qian'],//价格
@@ -279,8 +279,8 @@ class AttentionYm extends AdminController
             $this->success('添加成功，2分钟后自动补全任务启动~ 请耐心等待！');
             try {
 
-            }catch (\Exception $e){
-                $this->error('更新失败 '.$e->getMessage());
+            } catch (\Exception $e) {
+                $this->error('更新失败 ' . $e->getMessage());
             }
 
 
@@ -411,7 +411,7 @@ class AttentionYm extends AdminController
     public function crawl_attention_data()
     {
         //获取需要更新的数据
-        $all_data = $this->model->where('crawl_status','=',0)
+        $all_data = $this->model->where('crawl_status', '=', 0)
             ->where('cost_price', '=', 0)
             ->limit(500)->select()->toArray();
         //获取所有域名列表
@@ -421,11 +421,11 @@ class AttentionYm extends AdminController
 
         //获取所有域名售价
         $sale_price = [];
-        foreach ($all_data as $data){
+        foreach ($all_data as $data) {
             $sale_price[$data['ym']] = $data['sale_price'];
         }
 
-        if ($all_ym==[]){
+        if ($all_ym == []) {
             return '更新成功';
         }
         //所有账户
@@ -443,7 +443,7 @@ class AttentionYm extends AdminController
                     'get_time' => $item['jssj'],//结束时间
                     'cost_price' => $item['sj_qian'],//成本价
                     'profit_cost' => $sale_price[$item['ym']] - $item['sj_qian'],//利润
-                    'profit_cost_lv' => ($sale_price[$item['ym']] - $item['sj_qian'])/$sale_price[$item['ym']] *100,//利润率
+                    'profit_cost_lv' => ($sale_price[$item['ym']] - $item['sj_qian']) / $sale_price[$item['ym']] * 100,//利润率
                     'crawl_status' => 1,//已抓取 为1
                 ];
 //                dd($update,1);
@@ -454,29 +454,29 @@ class AttentionYm extends AdminController
             $all_ym = array_diff($all_ym, $have_ym);
             //查询资金明细
             $result = $this->jvming_api->get_financial_details($all_ym);
-            if (!$result)continue;
+            if (!$result) continue;
             $have_ym = [];
-            foreach ($result as $ym=>$item){
-                $have_ym[] =$ym;
-                if (count($item) == 1){
+            foreach ($result as $ym => $item) {
+                $have_ym[] = $ym;
+                if (count($item) == 1) {
                     $cost_price = $item[0]['qian'];
-                }else{
-                    $cost_price = abs( $item[1]['qian'] - $item[0]['qian']);
+                } else {
+                    $cost_price = abs($item[1]['qian'] - $item[0]['qian']);
                 }
-                try{
-                    if (!isset($item[0]['sj'])){
+                try {
+                    if (!isset($item[0]['sj'])) {
                         dd($item);
-                        return ;
+                        return;
                     }
                     $update = [
                         'get_time' => $item[0]['sj'],//结束时间
-                        'cost_price' =>$cost_price,//成本价
+                        'cost_price' => $cost_price,//成本价
                         'profit_cost' => $sale_price[$item[0]['ym']] - $cost_price,//利润
-                        'profit_cost_lv' => ($sale_price[$item[0]['ym']] - $cost_price)/$sale_price[$item[0]['ym']] *100,//利润率
+                        'profit_cost_lv' => ($sale_price[$item[0]['ym']] - $cost_price) / $sale_price[$item[0]['ym']] * 100,//利润率
                         'crawl_status' => 1,//已抓取 为1
                     ];
-                }catch (\Exception $e){
-                    dd($e->getMessage(),$item);
+                } catch (\Exception $e) {
+                    dd($e->getMessage(), $item);
                 }
 //                dd($update,2,$item);
                 $this->model->where('ym', '=', $ym)->update($update);
@@ -487,37 +487,34 @@ class AttentionYm extends AdminController
 
         }
         //将没找到的都改外已抓取
-        $this->model->where('ym','in',$all_ym)->update(['crawl_status'=>1]);
+        $this->model->where('ym', 'in', $all_ym)->update(['crawl_status' => 1]);
 
         return '更新成功';
     }
 
 
-
     /**
      * @NodeAnotation(title="定时任务 更新关注域名渠道")
      */
-    public function crawl_attention_channel(){
+    public function crawl_attention_channel()
+    {
         $all_data = $this->model->where('channel', '=', null)->limit(500)->select();
-        foreach ($all_data as $data){
+        foreach ($all_data as $data) {
             $ym_data = $this->jm_api->get_ykj_info($data['ym']);
             //如果未在出售中   渠道为未知
-            if ($ym_data['code'] == -1){
-                $data->save(['channel'=>'未知']);
+            if ($ym_data['code'] == -1) {
+                $data->save(['channel' => '未知']);
                 continue;
             }
 
-            if (strstr($ym_data['data']['dbsjsm'],'新增')){
-                $data->save(['channel'=>'注册','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
-            }
-
-            elseif(strstr($ym_data['data']['dbsjsm'],'得标')){
-                $data->save(['channel'=>'竞价','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
-            }
-            elseif (strstr($ym_data['data']['dbsjsm'],'入库')){
-                $data->save(['channel'=>'入库','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
-            }else{
-                $data->save(['channel'=>'其他','get_time'=>$ym_data['data']['dbsj'],'zcs'=>$ym_data['data']['zcs']]);
+            if (strstr($ym_data['data']['dbsjsm'], '新增')) {
+                $data->save(['channel' => '注册', 'get_time' => $ym_data['data']['dbsj'], 'zcs' => $ym_data['data']['zcs']]);
+            } elseif (strstr($ym_data['data']['dbsjsm'], '得标')) {
+                $data->save(['channel' => '竞价', 'get_time' => $ym_data['data']['dbsj'], 'zcs' => $ym_data['data']['zcs']]);
+            } elseif (strstr($ym_data['data']['dbsjsm'], '入库')) {
+                $data->save(['channel' => '入库', 'get_time' => $ym_data['data']['dbsj'], 'zcs' => $ym_data['data']['zcs']]);
+            } else {
+                $data->save(['channel' => '其他', 'get_time' => $ym_data['data']['dbsj'], 'zcs' => $ym_data['data']['zcs']]);
             }
 
 
@@ -531,27 +528,66 @@ class AttentionYm extends AdminController
     /**
      * @NodeAnotation(title="分析报表")
      */
-    public function fx_data($id){
+    public function fx_data()
+    {
+        //查询log中的所有数据
 
-        $row = $this->model->find($id);
-        empty($row)&& $this->error('没有此域名的信息');
+//        $all_log = $this->model_log->select()->toArray();
+//        foreach ()
 
-        $update_time_list = [];
-        $price_list = [];
-        $all_data = $this->model_log->where('ym','=',$row['ym'])->select()->toArray();
-        foreach ($all_data as $item){
-            $update_time_list[] = $item['update_time'];
-            $price_list[] = $item['sale_price'];
+        if ($this->request->isAjax()){
+
+            list($page, $limit, $where) = $this->buildTableParames();
+            $count = $this->model_log
+                ->where($where)
+                ->group('ym')
+                ->count();
+            //先分组查询
+            $all_ym = $this->model_log->field('ym')->where($where)->group('ym')->select()->toArray();
+            //查询所有
+            $all_data = [];
+            foreach ($all_ym as $item){
+                $ym_data = $this->model_log->where('ym_domain_attention_ym_log.ym',$item['ym'])
+                    ->withJoin(['getStore'=>['team'],'getNowData'=>['sale_price','store_id']],'left')
+                    ->select()->toArray();
+                $data = [
+                    'ym'=>$item['ym'],
+                    'sale_price'=>[],
+                    'store_id'=>[],
+                    'team'=>[],
+                ];
+                foreach ($ym_data as $ym){
+                    $data['store_id'][] = $ym['store_id'];
+                    $data['sale_price'][] = $ym['sale_price'];
+                    $data['team'][] = isset($ym['getStore']['team'])? $ym['getStore']['team']:'无';
+                }
+                $data['store_id'][] =  isset($ym_data[0]['getNowData']['store_id'])? $ym_data[0]['getNowData']['store_id']:'无';;
+                $data['sale_price'][] = $ym_data[0]['getNowData']['sale_price'];
+
+
+                $data['sale_price'] = join('->',$data['sale_price']);
+                $data['store_id'] = join('->',$data['store_id']);
+                $data['team'] = join('->',$data['team']);
+                $all_data[] = $data;
+
+            }
+
+
+            $data = [
+                'code' => 0,
+                'msg' => '',
+                'count' => $count,
+                'data' => $all_data,
+            ];
+            return json($data);
+
+
+
         }
-        $update_time_list[] = $row['update_time'];
-        $price_list[] = $row['sale_price'];
 
 
-        $this->assign('update_time_list',json_encode($update_time_list));
-        $this->assign('price_list',json_encode($price_list));
 
         return $this->fetch();
-
 
 
     }
