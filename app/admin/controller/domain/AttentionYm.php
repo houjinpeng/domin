@@ -198,24 +198,69 @@ class AttentionYm extends AdminController
         $tableName = CommonTool::humpToLine(lcfirst($tableName));
         $prefix = config('database.connections.mysql.prefix');
         $dbList = Db::query("show full columns from {$prefix}{$tableName}");
-        $header = [];
+
         foreach ($dbList as $vo) {
             $comment = !empty($vo['Comment']) ? $vo['Comment'] : $vo['Field'];
             if (!in_array($vo['Field'], $this->noExportFields)) {
                 $header[] = [$comment, $vo['Field']];
             }
         }
-        $header[] = ['更新时间', 'update_time'];
-        $header[] = ['所属团队', 'getStore.team'];
+        $header = [];
+        $header[] = ['id', 'id'];
+        $header[] = ['账号名称', 'account'];
+        $header[] = ['域名', 'ym'];
+
+
         $list = $this->model
             ->withJoin('getStore','left')
             ->where($where)
             ->limit(100000)
             ->order('id', 'desc')
-            ->select()
-            ->toArray();
+            ->select();
+
+        $sales = 1;
+        $new_list = [];
+        foreach ($list as &$item){
+            $c = $item->toArray();
+            $c['logs']= $item->getLogs()->select()->toArray();
+            $c['sale_price1'] = $item['sale_price'];
+            $c['store_id1'] = $item['store_id'];
+
+            if (count($c['logs']) > 0){
+                $sales = count($c['logs'] )+ 1;
+                foreach ($c['logs'] as $index=>$l){
+                    $c['sale_price'.$index+1] = $l['sale_price'];
+                    $c['store_id'.$index+1] = $l['store_id'];
+                }
+
+
+            }
+
+            $new_list[] = $c;
+        }
+
+
+        for ($i = 1; $i <= $sales; $i++) {
+            $header[] = ['售价'.$i, 'sale_price'.$i];
+
+        }
+        for ($i = 1; $i <= $sales; $i++) {
+            $header[] = ['卖家'.$i, 'store_id'.$i];
+        }
+        $header[] = ['关注日期', 'like_time'];
+        $header[] = ['拿货日期', 'get_time'];
+        $header[] = ['更新时间', 'update_time'];
+        $header[] = ['成本价', 'cost_price'];
+        $header[] = ['利润', 'profit_cost'];
+        $header[] = ['利润率', 'profit_cost_lv'];
+        $header[] = ['备注', 'remark'];
+        $header[] = ['出售状态', 'sale_status'];
+        $header[] = ['渠道', 'channel'];
+        $header[] = ['注册商', 'zcs'];
+        $header[] = ['所属团队', 'getStore.team'];
+
         $fileName = '关注域名' . time();
-        return Excel::exportData($list, $header, $fileName, 'xlsx');
+        return Excel::exportData($new_list, $header, $fileName, 'xlsx');
     }
 
 
