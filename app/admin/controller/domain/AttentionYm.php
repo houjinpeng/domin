@@ -224,79 +224,75 @@ class AttentionYm extends AdminController
      */
     public function crawl()
     {
-        if ($this->request->isPost()) {
-            $like_time = date('Y-m-d H:s:i');
-            $all_data = [];
-            //获取全部账号
-            $all_account = $this->account_model->where('status', '=', 1)->select()->toArray();
-            foreach ($all_account as $account) {
-                $this->jvming_api = new JvMing($account['account'], $account['password'], $account['cookie']);
-                $data = $this->jvming_api->get_gzlist();
-                $all_data = array_merge($all_data, $data);
-
-            }
-
-
-            $all_data_array = $this->model->select();
-            $all_ym_detail = [];
-            foreach ($all_data_array as $item) {
-                $all_ym_detail[$item['ym']] = $item;
-            }
-
-            $insert_data = [];
-            $ym_list = [];
-            foreach ($all_data as $data) {
-                $ym_list[] = $data['ym'];
-                //判断域名是否存在 如果存在更新 不插入
-
-                if (isset($all_ym_detail[$data['ym']])) {
-                    //判断是否有改变   出售价格 店铺id
-                    if ($all_ym_detail[$data['ym']]['sale_price'] != $data['qian'] || $all_ym_detail[$data['ym']]['store_id'] != $data['uid']) {
-                        $c = $all_ym_detail[$data['ym']]->toArray();
-                        unset($c['id']);
-                        DomainAttentionYmLog::insert($c);
-                    }
-                    $all_ym_detail[$data['ym']]->save([
-                        'update_time' => $data['gxsj'], //更新时间
-                        'remark' => $ym_row['remark'] ?? $data['bz'], //备注
-                        'sale_status' => $data['zt_txt'],//出售状态
-                        'store_id' => $data['uid'],
-                        'ym_id' => $data['id'], //域名id
-                        'sale_price' => $data['qian'],//价格
-                        'account' => $data['account'],//账户
-                        'crawl_status' => 0,//爬虫状态修改为0
-                    ]);
-                    continue;
-                }
-
-                $insert_data[] = [
-                    'account' => $data['account'],
-                    'ym' => $data['ym'],
-                    'ym_id' => $data['id'],
-                    'like_time' => $like_time,
-                    'update_time' => $data['gxsj'],
-                    'sale_price' => $data['qian'],
-                    'store_id' => $data['uid'],
-                    'remark' => $data['bz'],
-                    'sale_status' => $data['zt_txt'],
-
-                ];
-            }
-            $this->model->insertAll($insert_data);
-
-            //删除不在列表中的域名
-            $this->model->where('ym', 'not in', $ym_list)->delete();
-
-            $this->success('添加成功，2分钟后自动补全任务启动~ 请耐心等待！');
-            try {
-
-            } catch (\Exception $e) {
-                $this->error('更新失败 ' . $e->getMessage());
-            }
-
+        $like_time = date('Y-m-d H:s:i');
+        $all_data = [];
+        //获取全部账号
+        $all_account = $this->account_model->where('status', '=', 1)->select()->toArray();
+        foreach ($all_account as $account) {
+            $this->jvming_api = new JvMing($account['account'], $account['password'], $account['cookie']);
+            $data = $this->jvming_api->get_gzlist();
+            $all_data = array_merge($all_data, $data);
 
         }
-        return $this->fetch();
+
+
+        $all_data_array = $this->model->select();
+        $all_ym_detail = [];
+        foreach ($all_data_array as $item) {
+            $all_ym_detail[$item['ym']] = $item;
+        }
+
+        $insert_data = [];
+        $ym_list = [];
+        foreach ($all_data as $data) {
+            $ym_list[] = $data['ym'];
+            //判断域名是否存在 如果存在更新 不插入
+
+            if (isset($all_ym_detail[$data['ym']])) {
+                //判断是否有改变   出售价格 店铺id
+                if ($all_ym_detail[$data['ym']]['sale_price'] != $data['qian'] || $all_ym_detail[$data['ym']]['store_id'] != $data['uid']) {
+                    $c = $all_ym_detail[$data['ym']]->toArray();
+                    unset($c['id']);
+                    DomainAttentionYmLog::insert($c);
+                }
+                $all_ym_detail[$data['ym']]->save([
+                    'update_time' => $data['gxsj'], //更新时间
+                    'remark' => $ym_row['remark'] ?? $data['bz'], //备注
+                    'sale_status' => $data['zt_txt'],//出售状态
+                    'store_id' => $data['uid'],
+                    'ym_id' => $data['id'], //域名id
+                    'sale_price' => $data['qian'],//价格
+                    'account' => $data['account'],//账户
+                    'crawl_status' => 0,//爬虫状态修改为0
+                ]);
+                continue;
+            }
+
+            $insert_data[] = [
+                'account' => $data['account'],
+                'ym' => $data['ym'],
+                'ym_id' => $data['id'],
+                'like_time' => $like_time,
+                'update_time' => $data['gxsj'],
+                'sale_price' => $data['qian'],
+                'store_id' => $data['uid'],
+                'remark' => $data['bz'],
+                'sale_status' => $data['zt_txt'],
+
+            ];
+        }
+        $this->model->insertAll($insert_data);
+
+        //删除不在列表中的域名
+        $this->model->where('ym', 'not in', $ym_list)->delete();
+
+        $this->success('添加成功，2分钟后自动补全任务启动~ 请耐心等待！');
+        try {
+
+        } catch (\Exception $e) {
+            $this->error('更新失败 ' . $e->getMessage());
+        }
+
     }
 
 
