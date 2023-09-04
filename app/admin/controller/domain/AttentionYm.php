@@ -281,7 +281,10 @@ class AttentionYm extends AdminController
 
             ];
         }
-        $this->model->insertAll($insert_data);
+        if (count($insert_data) != 0){
+            $this->model->insertAll($insert_data);
+
+        }
 
         //删除不在列表中的域名
         $this->model->where('ym', 'not in', $ym_list)->delete();
