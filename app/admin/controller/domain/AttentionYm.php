@@ -240,11 +240,10 @@ class AttentionYm extends AdminController
         }
 
 
-        for ($i = 1; $i <= $sales; $i++) {
+        for ($i = $sales; $i >= 1; $i--) {
             $header[] = ['售价'.$i, 'sale_price'.$i];
-
         }
-        for ($i = 1; $i <= $sales; $i++) {
+        for ($i = $sales; $i >= 1; $i--) {
             $header[] = ['卖家'.$i, 'store_id'.$i];
         }
         $header[] = ['关注日期', 'like_time'];
