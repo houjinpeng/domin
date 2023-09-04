@@ -205,7 +205,10 @@ class AttentionYm extends AdminController
                 $header[] = [$comment, $vo['Field']];
             }
         }
+        $header[] = ['更新时间', 'update_time'];
+        $header[] = ['所属团队', 'getStore.team'];
         $list = $this->model
+            ->withJoin('getStore','left')
             ->where($where)
             ->limit(100000)
             ->order('id', 'desc')
@@ -258,6 +261,7 @@ class AttentionYm extends AdminController
                         'remark' => $ym_row['remark'] ?? $data['bz'], //备注
                         'sale_status' => $data['zt_txt'],//出售状态
                         'store_id' => $data['uid'],
+                        'ym_id' => $data['id'], //域名id
                         'sale_price' => $data['qian'],//价格
                         'account' => $data['account'],//账户
                         'crawl_status' => 0,//爬虫状态修改为0

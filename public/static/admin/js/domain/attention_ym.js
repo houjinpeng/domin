@@ -45,16 +45,16 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
 
                 limits: [50, 100, 200, 500],
                 toolbar: ['refresh','export' ,[
-                    {
-                        checkbox: true,
-                        text: '批量取关',
-                        title: '确定要更取消关注选择的域名么？',
-                        url: init.cancel_like_batch_url,
-                        method: 'request',
-                        auth: 'cancel_like_batch',
-                        field: 'ym_id',
-                        class: 'layui-btn layui-btn-sm layui-btn-success',
-                    },
+                    // {
+                    //     checkbox: true,
+                    //     text: '批量取关',
+                    //     title: '确定要更取消关注选择的域名么？',
+                    //     url: init.cancel_like_batch_url,
+                    //     method: 'request',
+                    //     auth: 'cancel_like_batch',
+                    //     field: 'ym_id',
+                    //     class: 'layui-btn layui-btn-sm layui-btn-success',
+                    // },
                     {
                         text: '批量编辑',
                         url: init.batch_edit_url,
@@ -101,12 +101,14 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         let sale_price_list = []
                         if (d.logs !== []){
                             d.logs.forEach(function (item) {
-                                sale_price_list.push(item['sale_price'])
+                                if (sale_price_list[sale_price_list.length - 1] !== item['sale_price']) {
+                                    sale_price_list.push(item['sale_price'])
+                                }
                             })
-
-
                         }
-                        sale_price_list.push(d.sale_price)
+                        if (sale_price_list[sale_price_list.length - 1] !== d.sale_price) {
+                            sale_price_list.push(d.sale_price)
+                        }
                         return sale_price_list.join('->')
 
                         }},
@@ -170,19 +172,20 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                     {field: 'zcs', minWidth: 120, title: '注册商', search: false},
                     {
                         fixed: 'right',
-                        width: 150,
+                        width: 100,
                         title: '操作',
                         templet: ea.table.tool,
                         operat: [ 'edit',[
 
-                            {
-                            text: '取消关注',
-                            url: init.cancel_like_url,
-                            method: 'request',
-                            field: 'ym_id',
-                            auth: 'cancel_like',
-                            class: 'layui-btn layui-btn-danger layui-btn-xs',
-                        }],
+                        //     {
+                        //     text: '取消关注',
+                        //     url: init.cancel_like_url,
+                        //     method: 'request',
+                        //     field: 'ym_id',
+                        //     auth: 'cancel_like',
+                        //     class: 'layui-btn layui-btn-danger layui-btn-xs',
+                        // }
+                        ],
                         ]
                     }
                 ]],
