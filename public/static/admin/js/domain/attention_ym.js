@@ -198,7 +198,10 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
 
                     $('#layui-table-page1').append('<font color="red">总销售额:'+all_sale_price+'  | 总成本:'+all_cost_price+'  | 总利润:'+all_lirun_price+' | 利润率:'+all_lirun_lv+'%</font>')
 
-
+                    $('[data-title="确定要更新所有账号下的关注域名么？"]').click(function () {
+                        window.open('/admin/domain.attention_ym/crawl')
+                        return false
+                    })
 
 
                 }
