@@ -425,23 +425,60 @@ if (!function_exists('check_order_exist')) {
      * @return mixed
      * 检查次域名是否存在  存在不录入
      */
-    function check_order_exist($ym,$time,$cate): mixed
+    function check_order_exist($ym,$time,$cate,$all_order=[],$all_order_info_array=[]): mixed
     {
         //获取当前时间的所有订单
-        $all_order = \app\admin\model\NodOrder::whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = "'.$time.'"')->where('type','=',$cate)->select()->toArray();
-        foreach ($all_order as $item){
-            //如果存在 返回true
-            if ($cate == 9){   //其他收入单
-                $d = \app\admin\model\NodOrderInfo::where('pid','=',$item['id'])->where('remark','=','日期：'.$time.' 竞价活动 '.$ym)->find();
-            }else{
-                $d = \app\admin\model\NodOrderInfo::where('pid','=',$item['id'])->where('good_name','=',$ym)->find();
+        if ($all_order==[]){
+            $all_order = \app\admin\model\NodOrder::whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = "'.$time.'"')->where('type','=',$cate)->select()->toArray();
+        }
+
+        if ($all_order_info_array == []){
+            foreach ($all_order as $item){
+                //如果存在 返回true
+                if ($cate == 9){   //其他收入单
+                    $d = \app\admin\model\NodOrderInfo::where('pid','=',$item['id'])->where('remark','=','日期：'.$time.' 竞价活动 '.$ym)->find();
+                }else{
+                    $d = \app\admin\model\NodOrderInfo::where('pid','=',$item['id'])->where('good_name','=',$ym)->find();
+                }
+
+                if (!empty($d)){
+                    return true;
+                }
+
+            }
+        }else{
+            foreach ($all_order as $item){
+                //如果不存在直接返回false
+                if (!isset($all_order_info_array[$item['id']])){
+                    return false;
+                }
+
+                //如果存在 返回true
+                if ($cate == 9){   //其他收入单
+                   foreach ($all_order_info_array[$item['id']] as $d){
+                       if ($d['remark'] == '日期：'.$time.' 竞价活动 '.$ym){
+                           return true;
+                       }
+                    }
+
+                }
+                else{
+                    foreach ($all_order_info_array[$item['id']] as $d){
+                        if ($d['good_name'] == $ym){
+                            return true;
+                        }
+                    }
+                }
             }
 
-            if (!empty($d)){
-                return true;
-            }
+
 
         }
+
+
+
+
+
         //最后直接返回flase
         return false;
 

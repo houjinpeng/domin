@@ -455,7 +455,7 @@ class SaleOrder extends AdminController
 
 
         //获取所有账户名字
-        $all_warehouse_data = $this->warehouse_model->select();
+        $all_warehouse_data = $this->warehouse_model->where('status','=',1)->select();
         //获取每个账户的资金明细  查询指定日期购买的域名 按照类型分类
         $sale_order = 0;
         $warehouse_name_list = [];
@@ -540,6 +540,21 @@ class SaleOrder extends AdminController
 
                 //获取发送的域名
                 $push_data = $this->jm_api->get_push_list($start_time,$end_time);
+                $all_order = \app\admin\model\NodOrder::whereRaw('DATE_FORMAT(order_time,"%Y-%m-%d") = "'.$start_time.'"')
+                    ->where('type','=',3)->select()->toArray();
+                #获取所有订单
+                $all_order_info_array = [];
+                foreach ($all_order as $item){
+                    $all_order_info = \app\admin\model\NodOrderInfo::where('pid','=',$item['id'])->select()->toArray();
+                    foreach ($all_order_info as $info){
+                        if (!isset($all_order_info_array[$item['id']])){
+                            $all_order_info_array[$item['id']] = [];
+                        }
+                        $all_order_info_array[$item['id']][$info['good_name']] = $info;
+                    }
+                }
+
+
                 //遍历 判断是否在 自己的仓库列表中
                 foreach ($push_data['data'] as $item){
 
@@ -551,12 +566,13 @@ class SaleOrder extends AdminController
                     $c_list = explode(',',$item['ymlbx']);
                     $new_c_list =$c_list;
                     foreach ($new_c_list as $index=>$ym){
-                        if (check_order_exist(ym:$ym,time: $start_time,cate: 3) == true){
+                        if (check_order_exist(ym:$ym,time: $start_time,cate: 3,all_order: $all_order,all_order_info_array:$all_order_info_array) == true){
                             unset($c_list[$index]);
                         }
                     }
 
                     if ($c_list == [])continue;
+//                    dd($c_list);
                     $sale_order +=1;
                     //一行一单
                     $save_order = [
