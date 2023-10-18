@@ -123,6 +123,10 @@ class ReturnGood extends AdminController
                 }
                 $this->model->startTrans();
                 try {
+                    //判断订单是否正在审核
+                    check_audit_lock() &&  $this->error('有其他项目正在审核，请稍后重试~');
+                    #设置审核锁状态锁住
+                    set_audit_lock(1);
                     $row->save(['audit_status'=>1]);
                     $save_order = [
                         'practical_price'=>$post['practical_price'],
@@ -360,6 +364,7 @@ class ReturnGood extends AdminController
                     // 回滚事务
                     $this->model->rollback();
                     $row->save(['audit_status'=>0]);
+                    set_audit_lock(0);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 
@@ -423,6 +428,7 @@ class ReturnGood extends AdminController
                 }
                 check_practical_price($post['practical_price'],$post['goods'])|| $this->error('单据中的内容与单据金额不付~ 请重新计算');
                 isset($post['sale_user_id']) || $this->error('销售员不能为空！');
+
                 //获取总利润
                 $total_profit_price = $this->account_info_model->where('sale_user_id','=',$post['sale_user_id'])->sum('profit_price');
 
@@ -430,6 +436,10 @@ class ReturnGood extends AdminController
                 $this->model->startTrans();
 
                 try {
+                    //判断订单是否正在审核
+                    check_audit_lock() &&  $this->error('有其他项目正在审核，请稍后重试~');
+                    #设置审核锁状态锁住
+                    set_audit_lock(1);
                     $row->save(['audit_status'=>1]);
                     //修改审核状态
                     $save_order = [
@@ -730,13 +740,14 @@ class ReturnGood extends AdminController
                     // 回滚事务
                     $this->model->rollback();
                     $row->save(['audit_status'=>0]);
+                    set_audit_lock(0);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
 
                 }
 
             }
 
-
+            set_audit_lock(0);
             $this->success('审核成功~');
 
         }

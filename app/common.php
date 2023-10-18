@@ -501,3 +501,28 @@ if (!function_exists('get_customer_data')) {
         return $customer;
     }
 }
+
+
+if (!function_exists('check_audit_lock')) {
+    /**
+     * @return mixed
+     * 判断是否审核在上锁
+     */
+    function check_audit_lock(): mixed
+    {
+        return Cache::get("audit_lock") == '1';
+    }
+}
+
+if (!function_exists('set_audit_lock')) {
+    /**
+     * @return mixed
+     * 设置审核锁状态
+     */
+    function set_audit_lock($value): mixed
+    {
+        return Cache::tag('sysconfig')->set("audit_lock", $value, 120);
+
+    }
+}
+

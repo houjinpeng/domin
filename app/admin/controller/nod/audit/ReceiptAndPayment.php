@@ -144,6 +144,10 @@ class ReceiptAndPayment extends AdminController
                 //应收款
                 $this->order_model->startTrans();
                 try {
+                    //判断订单是否正在审核
+                    check_audit_lock() &&  $this->error('有其他项目正在审核，请稍后重试~');
+                    #设置审核锁状态锁住
+                    set_audit_lock(1);
                     //获取pid 修改单据审核状态保存商品详情
                     $row->save($save_order);
                     //获取客户id 的欠款记录 更新
@@ -210,6 +214,7 @@ class ReceiptAndPayment extends AdminController
                     // 回滚事务
                     $this->order_model->rollback();
                     $row->save(['audit_status'=>0]);
+                    set_audit_lock(0);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 
@@ -220,6 +225,10 @@ class ReceiptAndPayment extends AdminController
             elseif ($type=='payment'){
                 $this->model->startTrans();
                 try {
+                    //判断订单是否正在审核
+                    check_audit_lock() &&  $this->error('有其他项目正在审核，请稍后重试~');
+                    #设置审核锁状态锁住
+                    set_audit_lock(1);
                     //获取pid 修改单据审核状态保存商品详情
                     $row->save($save_order);
                     //获取客户id 的欠款记录 更新
@@ -259,6 +268,7 @@ class ReceiptAndPayment extends AdminController
                     // 回滚事务
                     $this->model->rollback();
                     $row->save(['audit_status'=>0]);
+                    set_audit_lock(0);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 
@@ -269,6 +279,7 @@ class ReceiptAndPayment extends AdminController
 
             //修改账户余额
             $account_data->save(['balance_price'=>$balance_price]);
+            set_audit_lock(0);
             $this->success('审核成功~');
 
         }

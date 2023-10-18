@@ -18,6 +18,7 @@ use app\common\controller\AdminController;
 use EasyAdmin\annotation\ControllerAnnotation;
 use EasyAdmin\annotation\NodeAnotation;
 use think\App;
+use think\facade\Cache;
 use think\facade\Db;
 
 /**
@@ -83,8 +84,6 @@ class Purchase extends AdminController
 
         if ($this->request->isAjax()){
 
-
-
             $row['audit_status'] == 1 && $this->error('已审核~');
 
             $post = $this->request->post();
@@ -126,6 +125,11 @@ class Purchase extends AdminController
 
                 if (count($exist)!== 0) $this->error('有商品已经在库存中~ 不能再次添加 审核失败！');
 
+                //判断订单是否正在审核
+                check_audit_lock() &&  $this->error('有其他项目正在审核，请稍后重试~');
+                #设置审核锁状态锁住
+                set_audit_lock(1);
+
 
                 $save_order = [
                     'practical_price'=>$post['practical_price'],
@@ -135,7 +139,11 @@ class Purchase extends AdminController
                 ];
                 //获取pid 修改单据审核状态保存商品详情
                 $update = $row->save($save_order);
-                $update || $this->error('审核失败~');
+                if ($update == 0){
+                    #解锁
+                    set_audit_lock(0);
+                    $this->error('审核失败~');
+                }
 
 
                 //商品入库
@@ -385,6 +393,10 @@ class Purchase extends AdminController
 
                 $this->model->startTrans();
                 try {
+                    //判断订单是否正在审核
+                    check_audit_lock() &&  $this->error('有其他项目正在审核，请稍后重试~');
+                    #设置审核锁状态锁住
+                    set_audit_lock(1);
 
                     //修改审核状态
                     $save_order = [
@@ -669,10 +681,14 @@ class Purchase extends AdminController
                     // 回滚事务
                     $this->model->rollback();
                     $row->save(['audit_status'=>0]);
+                    set_audit_lock(0);
                     $this->error('第【'.$e->getLine().'】行 审核错误：'.$e->getMessage());
                 }
 
             }
+
+            #解锁
+            set_audit_lock(0);
             $this->success('审核成功~');
 
         }
