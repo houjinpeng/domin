@@ -340,7 +340,7 @@ class TransferSlip extends AdminController
             $inventory_data = $this->inventory_model->where('good_name','in',$ym_list)->select()->toArray();
             $ym_dict = [];
             foreach ($inventory_data as $it){
-                $ym_dict[$it['good_name']] = $it;
+                $ym_dict[strtolower($it['good_name'])] = $it;
             }
 
 
@@ -381,7 +381,7 @@ class TransferSlip extends AdminController
                 foreach ($post['goods'] as $item) {
                     $save_info = [
                         'order_time' => $post['order_time'],
-                        'good_name' => $item['good_name'],
+                        'good_name' => strtolower($item['good_name']),
                         'remark' => isset($item['remark']) ? $item['remark'] : '',
                         'warehouse_id' => $post['warehouse_id'],
                     ];
@@ -391,10 +391,10 @@ class TransferSlip extends AdminController
                         'type'=>7,
                         'good_category'=>7,
                         'warehouse_id' => $post['warehouse_id'],
-                        'form_warehouse_id'=>$ym_dict[$item['good_name']]['warehouse_id'],
+                        'form_warehouse_id'=>$ym_dict[strtolower($item['good_name'])]['warehouse_id'],
                         'good_name'=>$item['good_name'],
                         'pid'=>$id,
-                        'order_time'=>$ym_dict[$item['good_name']]['order_time'],
+                        'order_time'=>$ym_dict[strtolower($item['good_name'])]['order_time'],
 
                     ];
                 }
