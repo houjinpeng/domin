@@ -214,7 +214,7 @@ class AttentionYm extends AdminController
         $list = $this->model
             ->withJoin('getStore','left')
             ->where($where)
-            ->limit(100000)
+            ->limit(10000)
             ->order('id', 'desc')
             ->select();
 
