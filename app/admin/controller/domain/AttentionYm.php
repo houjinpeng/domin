@@ -289,6 +289,7 @@ class AttentionYm extends AdminController
         $insert_data = [];
         $ym_list = [];
         foreach ($all_data as $data) {
+
             $ym_list[] = $data['ym'];
             //判断域名是否存在 如果存在更新 不插入
 
@@ -299,7 +300,8 @@ class AttentionYm extends AdminController
                     unset($c['id']);
                     DomainAttentionYmLog::insert($c);
                 }
-                $all_ym_detail[$data['ym']]->save([
+
+                $all_ym_detail[$data['ym']]->where('ym','=',$data['ym'])->update([
                     'update_time' => $data['gxsj'], //更新时间
                     'remark' => $ym_row['remark'] ?? $data['bz'], //备注
                     'sale_status' => $data['zt_txt'],//出售状态
