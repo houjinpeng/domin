@@ -1,0 +1,28 @@
+<div class="layuimini-container">
+    当前显示1万条数据<br>
+    <a class="layui-btn layui-btn-sm" target="_blank" href="download_ym?id={$main_id}">点击下载所有数据</a><br>
+    查询sql语句：{$sql}
+    <br>
+    <div class="layuimini-main">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+            <ul class="layui-tab-title">
+
+                {foreach $all_data as $time=>$data}
+                <li >{$time}</li>
+                {/foreach}
+
+            </ul>
+            <div class="layui-tab-content">
+                {foreach $all_data as $time=>$data}
+                <div class="layui-tab-item layui-show">
+                    {foreach $data as $ym}
+                            {$ym}<br>
+                    {/foreach}
+                </div>
+                {/foreach}
+
+            </div>
+        </div>
+
+    </div>
+</div>

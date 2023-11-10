@@ -220,9 +220,24 @@ class AttentionYm extends AdminController
 
         $sales = 1;
         $new_list = [];
+        $ym_list = [];
+        foreach ($list as $item){
+            $ym_list[] = $item['ym'];
+        }
+        //获取所有历史信息域名
+        $logs_list = $this->model_log->where('ym','in',$ym_list)->select()->toArray();
+        $ym_log_dict = [];
+        foreach ($logs_list as $item){
+            if (!isset($ym_log_dict[$item['ym']])){
+                $ym_log_dict[$item['ym']] = [];
+            }
+            $ym_log_dict[$item['ym']][] = $item;
+        }
+
+        //开始获取数据
         foreach ($list as &$item){
             $c = $item->toArray();
-            $c['logs']= $item->getLogs()->select()->toArray();
+            $c['logs']= isset($ym_log_dict[$item['ym']])?$ym_log_dict[$item['ym']]:[];
             $c['sale_price1'] = $item['sale_price'];
             $c['store_id1'] = $item['store_id'];
 

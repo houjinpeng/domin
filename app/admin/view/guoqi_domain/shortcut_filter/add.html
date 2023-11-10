@@ -1,0 +1,55 @@
+<div class="layuimini-container">
+
+    <form class="layui-form layuimini-form">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" required>分组名称</label>
+                <div class="layui-input-block">
+                    <select name="group_id"  lay-verify="required">
+                        <option value="0"></option>
+                        {foreach all_group_list as $item}
+                        <option value="{$item['id']}">{$item['name']}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">名称</label>
+            <div class="layui-input-block">
+                <input type="text" value="" name="title" lay-verify="required" placeholder="请输入监控名称" autocomplete="off"
+                       class="layui-input">
+                <tip>为了方便查找 起个名字吧~</tip>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="text-align: center">
+            <h3>主条件设置</h3>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">主条件</label>
+            <div class="layui-input-block">
+                <input type="radio" name="main_filter" value="备案" title="备案" checked>
+                <input type="radio" name="main_filter" value="百度" title="百度">
+                <input type="radio" name="main_filter" value="历史" title="历史">
+                <input type="radio" name="main_filter" value="搜狗" title="搜狗">
+                <input type="radio" name="main_filter" value="360" title="360">
+                <input type="radio" name="main_filter" value="爱站" title="爱站">
+                <input type="radio" name="main_filter" value="无" title="无">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo">添加</button>
+                <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+            </div>
+        </div>
+
+
+    </form>
+
+</div>
