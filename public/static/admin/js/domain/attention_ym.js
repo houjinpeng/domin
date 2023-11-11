@@ -213,6 +213,7 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         let result_url = $('#result_url').val()
                         if (result_url){
                             window.open(result_url)
+                            return false
                         }
                         layer.msg('没有结果可导出',{icon:2})
                         return false
