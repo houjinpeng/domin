@@ -110,6 +110,9 @@ class AttentionYm extends AdminController
             ];
             return json($data);
         }
+
+        $result_url = sysconfig('spider','attention');
+        $this->assign('result_url',$result_url);
         return $this->fetch();
     }
 

@@ -23,6 +23,7 @@ return [
         'login/index',
         'login/out',
         'ajax/send_fs_msg',
+        'ajax/upload_file',
         'website.task/index',
         'website.refresh/index',
         'website.refresh/refresh',

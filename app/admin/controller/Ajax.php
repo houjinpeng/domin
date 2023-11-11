@@ -14,6 +14,7 @@ namespace app\admin\controller;
 
 use app\admin\model\CommentCenter;
 use app\admin\model\CommentPro;
+use app\admin\model\SystemConfig;
 use app\admin\model\SystemGroup;
 use app\admin\model\SystemUploadfile;
 use app\admin\model\WebsiteShopCategory;
@@ -375,6 +376,58 @@ class Ajax extends AdminController
         $tool = new Tool;
         $tree_data = $tool->get_tree_data_add($all_group,0);
         return json($tree_data);
+    }
+
+
+
+    /**
+     * 上传文件
+     */
+    public function upload_file()
+    {
+        if ($this->request->header('token') !='jinpeng'){
+            $this->error('文件错误');
+        }
+
+        $data = [
+            'upload_type' => $this->request->post('upload_type'),
+            'file'        => $this->request->file('file'),
+        ];
+        $uploadConfig = sysconfig('upload');
+
+        empty($data['upload_type']) && $data['upload_type'] = $uploadConfig['upload_type'];
+        $rule = [
+            'upload_type|指定上传类型有误' => "in:{$uploadConfig['upload_allow_type']}",
+            'file|文件'              => "require|file|fileExt:{$uploadConfig['upload_allow_ext']}|fileSize:{$uploadConfig['upload_allow_size']}",
+        ];
+        $this->validate($data, $rule);
+        try {
+            $upload = Uploadfile::instance()
+                ->setUploadType($data['upload_type'])
+                ->setUploadConfig($uploadConfig)
+                ->setFile($data['file'])
+                ->save();
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+        }
+        if ($upload['save'] == true) {
+            $row =  SystemConfig::where('name','=','attention')->where('group','=','spider')->find();
+            if (empty($row)){
+                SystemConfig::insert([
+                    'name'=>'attention',
+                    'group'=>'spider',
+                    'value'=> $upload['url']
+                ]);
+            }else{
+                $row->save([
+                    'value'=> $upload['url']
+                ]);
+            }
+
+            $this->success($upload['msg'], ['url' => $upload['url']]);
+        } else {
+            $this->error($upload['msg']);
+        }
     }
 
 }

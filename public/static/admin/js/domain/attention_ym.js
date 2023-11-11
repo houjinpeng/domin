@@ -71,6 +71,13 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                         auth: 'crawl',
                         class: 'layui-btn layui-btn-sm',
 
+                    }, {
+                        text: '全部导出',
+                        title: '全部导出么？',
+                        url: '',
+                        method: "open",
+                        class: 'layui-btn layui-btn-sm',
+
                     },
                     // {
                     //     text: '分析报表',
@@ -200,6 +207,14 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
 
                     $('[data-title="确定要更新所有账号下的关注域名么？"]').click(function () {
                         window.open('/admin/domain.attention_ym/crawl')
+                        return false
+                    })
+                    $('[data-title="全部导出么？"]').click(function () {
+                        let result_url = $('#result_url').val()
+                        if (result_url){
+                            window.open(result_url)
+                        }
+                        layer.msg('没有结果可导出',{icon:2})
                         return false
                     })
 
