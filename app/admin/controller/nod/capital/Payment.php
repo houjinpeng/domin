@@ -103,11 +103,11 @@ class Payment extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                $item['unit_price'] = intval($item['unit_price']);
+                $item['unit_price'] = floatval($item['unit_price']);
                 $item['unit_price'] == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
-            if ($post['practical_price'] != intval($post['goods'][0]['unit_price'])) {
+            if ($post['practical_price'] != floatval($post['goods'][0]['unit_price'])) {
                 $this->error('单据金额和项目金额不相等');
             }
 
@@ -181,7 +181,7 @@ class Payment extends AdminController
             $post = htmlspecialchars_decode($post['data']);
             $post = (json_decode($post,true));
             $post['practical_price'] == '0'&& $this->error('单据金额不能为0');
-            $post['practical_price'] = intval($post['practical_price'] );
+            $post['practical_price'] = floatval($post['practical_price'] );
             $post['paid_price'] = $post['practical_price'];
             $order_info_rule = [
                 'order_time|【单据日期】' => 'require|date',
@@ -206,12 +206,12 @@ class Payment extends AdminController
             }
             //验证
             foreach ($post['goods'] as $item) {
-                $item['unit_price'] = intval($item['unit_price']);
+                $item['unit_price'] = floatval($item['unit_price']);
 
                 $item['unit_price'] == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
-            if ($post['practical_price'] != intval($post['goods'][0]['unit_price'])) {
+            if ($post['practical_price'] != floatval($post['goods'][0]['unit_price'])) {
                 $this->error('单据金额和项目金额不相等');
             }
 

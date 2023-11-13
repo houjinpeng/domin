@@ -105,7 +105,7 @@ class Receipt extends AdminController
 
             //验证
             foreach ($post['goods'] as $item) {
-                intval($item['unit_price']) == 0 && $this->error('总金额不能为0');
+                floatval($item['unit_price']) == 0 && $this->error('总金额不能为0');
                 $this->validate($item, $rule);
             }
             if ($post['practical_price'] != floatval($post['goods'][0]['unit_price'])) {
