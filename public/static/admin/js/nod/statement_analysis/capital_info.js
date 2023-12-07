@@ -43,29 +43,33 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {field: 'type', minWidth: 120, title: '类型',selectList:{'1':'采购单','2':'采购退货单','3':'销售单','4':'付款单','5':'收款单','6':'销售退货单','9':'其他收入单'
                             ,'8':'费用单','10':'提现转移单'}},
                     {field: 'sm', minWidth: 400, title: '说明',search: false,align:'left',templet:function (d) {
+                            let getAccount = d.getAccount?d.getAccount.name:'无'
+                            let getCustomer = d.getCustomer?d.getCustomer.name:'无'
+                            let getCategory = d.getCategory?d.getCategory.name:'无'
+
                             if (d.type === 1){
-                                return 'ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+-d.price+'元'
+                                return 'ID:'+getAccount+' 购买域名:【'+d.good_name+'】 价格:'+-d.price+'元'
                             }else if (d.type === 3){
-                                return 'ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+d.price+'元'
+                                return 'ID:'+ getAccount+' 出售域名:【'+d.good_name+'】 价格:'+d.price+'元'
                             }else if (d.type === 5){
-                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
+                                return 'ID:'+ getAccount+' 付款给客户【'+getCustomer+'】'+getCategory+'  '+-d.price+'元 '
                             }else if (d.type === 4){
                                 if (d.category.indexOf('回滚') !== -1){
-                                    return 'ID:'+ d.getAccount.name+' 返回客户【'+d.getCustomer.name+'】 '+d.category+' '+d.price+'元 '
+                                    return 'ID:'+ getAccount+' 返回客户【'+getCustomer+'】 '+d.category+' '+d.price+'元 '
                                 }
 
 
-                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                                return 'ID:'+ getAccount+' 收到客户【'+getCustomer+'】 '+getCategory+'  '+d.price+'元 '
                             }else if (d.type === 2){
-                                return '退款 ID:'+ d.getAccount.name+' 购买域名:【'+d.good_name+'】 价格:'+d.price+'元'
+                                return '退款 ID:'+ getAccount+' 购买域名:【'+d.good_name+'】 价格:'+d.price+'元'
                             }else if (d.type === 6){
-                                return '退款 ID:'+ d.getAccount.name+' 出售域名:【'+d.good_name+'】 价格:'+-d.price+'元'
+                                return '退款 ID:'+ getAccount+' 出售域名:【'+d.good_name+'】 价格:'+-d.price+'元'
                             }else if (d.type === 8){
-                                return 'ID:'+ d.getAccount.name+' 付款给客户【'+d.getCustomer.name+'】'+d.getCategory.name+'  '+-d.price+'元 '
+                                return 'ID:'+ getAccount+' 付款给客户【'+getCustomer+'】'+getCategory+'  '+-d.price+'元 '
                             }else if (d.type === 9){
-                                return 'ID:'+ d.getAccount.name+' 收到客户【'+d.getCustomer.name+'】 '+d.getCategory.name+'  '+d.price+'元 '
+                                return 'ID:'+ getAccount+' 收到客户【'+getCustomer+'】 '+getCategory+'  '+d.price+'元 '
                             }else if (d.type === 10){
-                                return 'ID:'+ d.getAccount.name+' 收到转移 '+d.price+'元 '
+                                return 'ID:'+ getAccount+' 收到转移 '+d.price+'元 '
                             }
                         }},
                     {field: 'price', minWidth: 152, title: '变动',search: false,templet:function (d) {
