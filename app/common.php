@@ -521,8 +521,38 @@ if (!function_exists('set_audit_lock')) {
      */
     function set_audit_lock($value): mixed
     {
-        return Cache::tag('sysconfig')->set("audit_lock", $value, 120);
+        return Cache::tag('sysconfig')->set("audit_lock", $value, 600);
 
     }
 }
 
+
+if (!function_exists('build_select_where')) {
+    /**
+     * @return mixed
+     * 构建where条件  是min max类型的
+     */
+    function build_select_where($where): mixed
+    {
+        //先把where弄成array
+        $ar = [];
+        foreach ($where as $index => $item) {
+            if (strstr($item[0], 'max')) {
+                $k = str_replace("_max", "", $item[0]);
+                $ar[] = [$k, '<=', $item[2]];
+                continue;
+            } elseif (strstr($item[0], 'min')) {
+                $k = str_replace("_min", "", $item[0]);
+                $ar[] = [$k, '>=', $item[2]];
+                continue;
+            } elseif ($item[0] == 'user_id' && $item[2] == '0') {
+                $ar[] = [$item[0], '<>', 'null'];
+            } else {
+                $ar[] = $item;
+            }
+
+        };
+
+        return $ar;
+    }
+}
