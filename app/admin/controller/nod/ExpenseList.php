@@ -231,6 +231,7 @@ class ExpenseList extends AdminController
                 'account_id' => $post['account_id'],
                 'practical_price' => $post['practical_price'],
                 'paid_price' => $post['paid_price'],
+                'sale_user_id' => $post['sale_user_id'],//审核状态
 
             ];
             //获取pid   保存商品详情
