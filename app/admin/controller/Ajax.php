@@ -12,8 +12,10 @@
 
 namespace app\admin\controller;
 
+use app\admin\controller\domain\Sales;
 use app\admin\model\CommentCenter;
 use app\admin\model\CommentPro;
+use app\admin\model\DomainSalse;
 use app\admin\model\SystemConfig;
 use app\admin\model\SystemGroup;
 use app\admin\model\SystemUploadfile;
@@ -435,6 +437,18 @@ class Ajax extends AdminController
     public function test_login(){
         $jv = new JvMing('3198', 'yydd10010','');
         $jv->login();
+
+    }
+
+    //定时刷新数据
+    public function refresh_sale_ym_count(){
+        $sale_model = new DomainSalse();
+        $start_time = time();
+        $all_ym = $sale_model->field('ym,count(*) as sale_count')->group('ym')->having('count(*) > 1')->select()->toArray();
+        foreach ($all_ym as $item){
+            $sale_model->where('ym','=',$item['ym'])->update(['sale_count'=>$item['sale_count']]);
+        }
+        return 'success  耗时：'.time()-$start_time;
 
     }
 

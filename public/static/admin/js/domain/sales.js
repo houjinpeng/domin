@@ -43,7 +43,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
                 cols: [[
                     {type: "checkbox"},
                     {field: 'ym', width: 180, title: '域名',search:'batch',templet:function (d) {
-                            if (d.count > 1){
+                            if (d.sale_count > 1){
                                 return '<a target="_blank" href="http://7a08c112cda6a063.juming.com:9696/ykj/'+d.ym_id+'"><font color="red">'+d.ym+'</font></a>'
                             }
                             return '<a target="_blank" href="http://7a08c112cda6a063.juming.com:9696/ykj/'+d.ym_id+'">'+d.ym+'</a>'

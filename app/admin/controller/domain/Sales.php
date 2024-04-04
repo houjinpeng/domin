@@ -83,9 +83,9 @@ class Sales extends AdminController
                 ->page($page, $limit)
                 ->order($this->sort)
                 ->select();
-            foreach ($list as $index=>&$item){
-                $item['count'] = $this->model->where('ym','=',$item['ym'])->count();
-            }
+//            foreach ($list as $index=>&$item){
+//                $item['count'] = $this->model->where('ym','=',$item['ym'])->count();
+//            }
 
             $data = [
                 'code'  => 0,

@@ -24,6 +24,7 @@ return [
         'login/out',
         'ajax/send_fs_msg',
         'ajax/upload_file',
+        'ajax/refresh_sale_ym_count',
         'website.task/index',
         'website.refresh/index',
         'website.refresh/refresh',
@@ -37,6 +38,7 @@ return [
     // 不需要验证权限的控制器
     'no_auth_controller'  => [
         'ajax',
+        'ajax/refresh_sale_ym_count',
         'login',
         'index',
         'api',
@@ -53,6 +55,7 @@ return [
     'no_auth_node'        => [
         'login/index',
         'login/out',
+        'ajax/refresh_sale_ym_count',
         'tool/get_group_user_id',
         'tool/get_current_group_id',
         'website.task/index',
