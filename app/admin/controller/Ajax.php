@@ -430,4 +430,12 @@ class Ajax extends AdminController
         }
     }
 
+
+
+    public function test_login(){
+        $jv = new JvMing('3198', 'yydd10010','');
+        $jv->login();
+
+    }
+
 }

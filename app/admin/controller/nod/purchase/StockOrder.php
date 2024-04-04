@@ -435,7 +435,6 @@ class StockOrder extends AdminController
             foreach ($all_warehouse_data as $warehouse_data) {
                 //获取账号id
                 $account = $this->account_model->where('name','=',$warehouse_data['name'])->find();
-
                 $username = $warehouse_data['account'];
                 $password = $warehouse_data['password'];
                 $cookie = $warehouse_data['cookie'];

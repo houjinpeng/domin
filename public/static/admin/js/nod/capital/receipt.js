@@ -324,6 +324,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
 
                 data['goods'] = new_data
+                console.log(data)
                 return {data: JSON.stringify(data)}
 
             });

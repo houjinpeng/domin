@@ -121,7 +121,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
 
                                 let href = all_a[i].getAttribute('href')
                                 all_a[i].setAttribute('href','http://7a08c112cda6a063.juming.com:9696'+href)
-                                console.log(href)
                             }
 
                             // console.log(all_a)
