@@ -190,6 +190,20 @@ define(["jquery", "easy-admin","echarts"], function ($, ea,echarts) {
                 // 使用刚指定的配置项和数据显示图表。
                 sales6.setOption(option, true);
                 sales6.resize();
+                sales6.on('click', function (params) {
+                    console.log(params);
+                    // 获取浏览器窗口的宽度和高度
+                    var winWidth = $(window).width();
+                    var winHeight = $(window).height();
+
+                    layer.open({
+                        type: 2,
+                        maxmin :true,
+                        area: [winWidth + 'px', winHeight + 'px'],
+
+                        content:'/admin/domain.jk/show?type=sale&store_id='+params['name']
+                    })
+                });
             }
 
             //每日销量走势

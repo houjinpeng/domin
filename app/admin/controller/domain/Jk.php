@@ -96,10 +96,17 @@ class Jk extends AdminController
         if ($this->request->isAjax()){
             list($page, $limit, $where) = $this->buildTableParames();
             $store_id = $this->request->get('store_id');
+            foreach ($where as $index=>$item){
+                if ($item[0] == 'fixture_date'){
+                    $where[$index][2] = date('Y-m-d H:i:s',$item[2]);
+                }
+            }
             $count = $this->model_sales
+                ->where($where)
                 ->where('store_id','=',$store_id)
                 ->count();
             $list = $this->model_sales
+                ->where($where)
                 ->with('getSalesData')
                 ->where('store_id','=',$store_id)
                 ->page($page, $limit)
@@ -141,5 +148,52 @@ class Jk extends AdminController
 
 
     }
+
+    /**
+     * @NodeAnotation(title="导出")
+     */
+    public function export()
+    {
+        list($page, $limit, $where) = $this->buildTableParames();
+        $store_id = $this->request->get('store_id');
+        foreach ($where as $index=>$item){
+            if ($item[0] == 'fixture_date'){
+                $where[$index][2] = date('Y-m-d H:i:s',$item[2]);
+            }
+        }
+        $count = $this->model_sales
+            ->where($where)
+            ->where('store_id','=',$store_id)
+            ->count();
+        $list = $this->model_sales
+            ->where($where)
+            ->with('getSalesData')
+            ->where('store_id','=',$store_id)
+            ->order('fixture_date','desc')
+            ->select()->toArray();
+        foreach ($list as $index=>$item){
+            if ($item['getSalesData']){
+                $list[$index]['team'] = $item['getSalesData']['team'];
+                $list[$index]['yijian'] = $item['getSalesData']['individual_opinion'];
+
+
+            }
+        }
+        $header = [
+            ['域名','ym'],
+            ['长度','len'],
+            ['域名简介','jj'],
+            ['卖家简介','mj_jj'],
+            ['卖家ID','store_id'],
+            ['成交日期','fixture_date'],
+            ['价格','price'],
+            ['所属团队','team'],
+            ['个人意见','yijian'],
+        ];
+
+        $fileName = $store_id.'_店铺销售数据_'.time();
+        return Excel::exportData($list, $header, $fileName, 'xlsx');
+    }
+
 
 }

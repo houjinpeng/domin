@@ -16,6 +16,7 @@ define(["jquery", "easy-admin"], function ($, ea) {
         table_elem: '#showTable',
         table_render_id: 'currentTableRenderId',
         index_url: '/admin/domain.jk/show',
+        export_url: '/admin/domain.jk/export',
         refresh_store_url: 'domain.jk/refresh_store',
     };
 
@@ -105,34 +106,33 @@ define(["jquery", "easy-admin"], function ($, ea) {
             ea.listen()
         },
         show: function () {
-
+            show_init.export_url = 'domain.jk/export'+'?store_id='+$('#store_id').val(),
             ea.table.render({
                 init: show_init,
                 elem: '#showTable',
                 url:show_init.index_url+'?store_id='+$('#store_id').val(),
                 height: 'full-40',
-                search:false,
                 limit:50,
                 limits:[50,100,200,500],
-                toolbar:['refresh'],
+                toolbar:['refresh','export'],
                 cols: [[
                     {field: 'ym', width: 180, title: '域名'},
                     {field: 'len', minWidth: 80, title: '长度',sort:true},
-                    {field: 'hz', minWidth: 80, title: '后缀',hide:true},
-                    {field: 'jj', minWidth: 80, title: '域名简介'},
-                    {field: 'mj_jj', minWidth: 80, title: '卖家简介'},
-                    {field: 'store_id', minWidth: 80, title: '卖家ID'},
-                    {field: 'fixture_date', minWidth: 80, title: '成交日期',sort:true},
-                    {field: 'price', minWidth: 80, title: '价格',sort:true},
+                    {field: 'hz', minWidth: 80, title: '后缀',hide:true,search: false},
+                    {field: 'jj', minWidth: 80, title: '域名简介',search: false},
+                    {field: 'mj_jj', minWidth: 80, title: '卖家简介',search: false},
+                    {field: 'store_id', minWidth: 80, title: '卖家ID',search: false},
+                    {field: 'fixture_date', minWidth: 80, title: '成交日期',sort:true,search:'range'},
+                    {field: 'price', minWidth: 80, title: '价格',sort:true,searchOp:'='},
                     {field: 'team', minWidth: 80, title: '所属团队',search: false,templet:function (d) {
                             if (d.getSalesData){
-                                return d.getSalesData.individual_opinion
+                                return d.getSalesData.team
                             }
                             return ''
                         }},
                     {field: 'yj', minWidth: 80, title: '个人意见',search: false,templet:function (d) {
                             if (d.getSalesData){
-                                return d.getSalesData.team
+                                return d.getSalesData.individual_opinion
                             }
                             return ''
                         }},
