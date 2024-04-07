@@ -399,6 +399,18 @@
                 </div>
             </div>
 
+            <div class="layui-inline">
+                <label class="layui-form-label">发布时间</label>
+                <div class="layui-input-block">
+                    <select name="jm_pxsj" >
+                        <option value="0"  {if $row['jm_pxsj'] =='0' }selected{/if}>不限</option>
+                        <option value="1"  {if $row['jm_pxsj'] =='1' }selected{/if}>今日发布</option>
+                        <option value="2"  {if $row['jm_pxsj'] =='2' }selected{/if}>昨日发布</option>
+                        <option value="7"  {if $row['jm_pxsj'] =='3' }selected{/if}>7天内发布</option>
+                        <option value="30"  {if $row['jm_pxsj'] =='4' }selected{/if}>30天内发布</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="layui-form-item" style="text-align: center">
