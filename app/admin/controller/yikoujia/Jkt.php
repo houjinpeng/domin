@@ -298,7 +298,16 @@ class Jkt extends AdminController
             //桔子
             if ($post['is_com_jvzi'] == '1') {
 
-                if ($post['jvzi_age_1'] == '0' && $post['jvzi_age_2'] == '0' && $post['jvzi_five_1'] == '0' && $post['jvzi_five_2']== '0'  && $post['jvzi_five_lianxu_1'] == '0' && $post['jvzi_five_lianxu_2']== '0'&& $post['jvzi_lianxu_1'] == '0' && $post['jvzi_lianxu_2']== '0' && $post['jvzi_tongyidu_1'] == '0' && $post['jvzi_tongyidu_2']== '0' ) {
+                if ($post['jvzi_age_1'] == '0'
+                    && $post['jvzi_age_2'] == '0'
+                    && $post['jvzi_five_1'] == '0'
+                    && $post['jvzi_five_2']== '0'
+                    && $post['jvzi_five_lianxu_1'] == '0'
+                    && $post['jvzi_five_lianxu_2']== '0'
+                    && $post['jvzi_lianxu_1'] == '0'
+                    && $post['jvzi_lianxu_2']== '0'
+                    && $post['jvzi_tongyidu_1'] == '0'
+                    && $post['jvzi_tongyidu_2']== '0' ) {
                     $this->error('请完善桔子信息~');
                 }
                 $data['jvzi']['jvzi_age_1'] = $post['jvzi_age_1'];
@@ -322,6 +331,7 @@ class Jkt extends AdminController
                 $data['jvzi']['jvzi_title_mingan'] = $post['jvzi_title_mingan'];
                 $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
                 $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
+                $data['jvzi']['jvzi_baidu_history_mingan'] = $post['jvzi_baidu_history_mingan'];
 
                 if (isset($post['jvzi_lang'])){
                     $data['jvzi']['jvzi_lang'] = $post['jvzi_lang'];
@@ -493,6 +503,8 @@ class Jkt extends AdminController
                 $data['jvzi']['jvzi_title_mingan'] = $post['jvzi_title_mingan'];
                 $data['jvzi']['jvzi_neirong_mingan'] = $post['jvzi_neirong_mingan'];
                 $data['jvzi']['jvzi_soulu_mingan'] = $post['jvzi_soulu_mingan'];
+                $data['jvzi']['jvzi_baidu_history_mingan'] = $post['jvzi_baidu_history_mingan'];
+
 
                 if (isset($post['jvzi_lang'])){
                     $data['jvzi']['jvzi_lang'] = $post['jvzi_lang'];
