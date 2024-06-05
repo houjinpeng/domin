@@ -223,9 +223,13 @@
                 <label class="layui-form-label">百度认证</label>
                 <div class="layui-input-block">
                     <select name="jm_bdrz">
-                        <option value="0" {if $row['jm_bdrz'] ==2 }selected{/if}>不限</option>
-                        <option value="1" {if $row['jm_bdrz'] ==1 }selected{/if}>已认证</option>
-                        <option value="2" {if $row['jm_bdrz'] ==2 }selected{/if}>未认证</option>
+                        <option value="0" {if $row['jm_bdrz'] ==0 }selected{/if}>不限</option>
+                        <option value="1" {if $row['jm_bdrz'] ==1 }selected{/if}>有V标</option>
+                        <option value="2" {if $row['jm_bdrz'] ==2 }selected{/if}>没V标</option>
+                        <option value="3" {if $row['jm_bdrz'] ==3 }selected{/if}>是熊掌号</option>
+                        <option value="4" {if $row['jm_bdrz'] ==4 }selected{/if}>非熊掌号</option>
+                        <option value="5" {if $row['jm_bdrz'] ==5 }selected{/if}>V标+熊掌号</option>
+                        <option value="99" {if $row['jm_bdrz'] ==99 }selected{/if}>还未检测</option>
                     </select>
                 </div>
             </div>
