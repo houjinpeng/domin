@@ -325,7 +325,13 @@ define(["jquery", "easy-admin"], function ($, ea) {
         },
 
         add_zhi: function () {
-
+            var laydate = layui.laydate
+            laydate.render({
+                elem: '#test1' //指定元素
+            });
+            laydate.render({
+                elem: '#test2' //指定元素
+            });
             ea.listen()
         },
 

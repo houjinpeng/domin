@@ -239,6 +239,11 @@ class Jkt extends AdminController
 
             }
 
+            //渠道
+            if ($post['qd_include'] != '') {
+                $data['qd']['qd_include'] = $post['qd_include'];
+            }
+
             //历史
             if ($post['is_com_history'] == '1') {
 
@@ -437,7 +442,10 @@ class Jkt extends AdminController
                 $data['zcs']['zcs_include'] = $post['zcs_include'];
 
             }
-
+            //渠道
+            if ($post['qd_include'] != '') {
+                $data['qd']['qd_include'] = $post['qd_include'];
+            }
             //历史
             if ($post['is_com_history'] == '1') {
 
