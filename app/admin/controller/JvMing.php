@@ -14,12 +14,14 @@ use think\facade\Db;
 class JvMing extends AdminController
 {
 
-    public function __construct($username, $password, $cookie)
+    public function __construct($username='', $password='', $cookie='')
     {
+        $this->redis = new \Redis();
         $this->username = $username;
         $this->password = $password;
         $this->cookie = $cookie;
-        $this->client = new Client(['cookies' => true, 'allow_redirects' => true,]);
+//        $this->client = new Client(['cookies' => true, 'allow_redirects' => true,]);
+        $this->client = new Client(['cookies' => false, 'allow_redirects' => true,]);
         $this->headers = [
             'accept' => 'application/json, text/javascript, */*; q=0.01',
             'accept-encoding' => 'gzip, deflate, br',
@@ -33,8 +35,10 @@ class JvMing extends AdminController
             'sec-fetch-dest' => 'empty',
             'sec-fetch-mode' => 'cors',
             'sec-fetch-site' => 'same-origin',
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
             'x-requested-with' => 'XMLHttpRequest',
+            'origin' => 'http://7a08c112cda6a063.juming.com:9696',
+            'referer' => 'http://7a08c112cda6a063.juming.com:9696',
         ];
 
     }
@@ -42,26 +46,40 @@ class JvMing extends AdminController
     public function request($url, $headers,$query='')
     {
 //        '登录超时'
+//        $headers['cookie'] = 'PHPSESSID=h6ahrbvj7orpic74hf37ta8577';
         $headers['cookie'] = $this->cookie;
         try {
             $opt = [
                 'headers' => $headers
             ];
             empty($query)||$opt['query'] = $query;
-            $resp = $this->client->request('GET', $url, $opt)->getBody()->getContents();
+            $result = $this->client->request('GET', $url, $opt)->getBody()->getContents();
 
-            $resp = json_decode($resp, true);
-
-            if (strstr($resp['msg'], '登录超时')) {
-                $this->cookie = $this->login();
-                if ($this->cookie == '帐户或密码错误!') {
-                    $data = ['code' => 999, 'msg' => '账号【' . $this->username . '】帐户或密码错误!'];
-                    return $data;
+            $resp = json_decode($result, true);
+            if ($resp == null){
+                if (strstr($result, '登录超时')) {
+                    $this->cookie = $this->login();
+                    if ($this->cookie == '帐户或密码错误!') {
+                        $data = ['code' => 999, 'msg' => '账号【' . $this->username . '】帐户或密码错误!'];
+                        return $data;
+                    }
+                    return $this->request($url, $headers);
                 }
+            }else{
+                if (strstr($resp['msg'], '登录超时') || strstr($resp['msg'], '请先登录')) {
+                    $this->cookie = $this->login();
+                    if ($this->cookie == '帐户或密码错误!') {
+                        $data = ['code' => 999, 'msg' => '账号【' . $this->username . '】帐户或密码错误!'];
+                        return $data;
+                    }
 
 
-                return $this->request($url, $headers);
+                    return $this->request($url, $headers);
+                }
             }
+
+
+
 
             return $resp;
 
@@ -80,12 +98,25 @@ class JvMing extends AdminController
      */
     public function login()
     {
+        $client = new Client(['cookies' => true, 'allow_redirects' => true,]);
+
         $uuid = str_replace('-', '', uuid());
 //        $login_url = 'https://www.juming.com/user_zh/p_login';
         $login_url = 'http://7a08c112cda6a063.juming.com:9696/user_zh/p_login';
-//        $token_data = $this->client->request('GET','http://192.168.4.50:5001/get_token')->getBody()->getContents();
-//        $token_data = $this->client->request('GET','http://192.168.0.15:5001/get_token')->getBody()->getContents();
-        $token_data = $this->client->request('GET', 'http://127.0.0.1:5001/get_token')->getBody()->getContents();
+        // 设置 Redis 服务器地址和端口号
+        $host = '127.0.0.1';
+        $port = 6379;
+        $this->redis->connect($host, $port);
+        $this->redis->select(13);
+        $randomKey = $this->redis->randomKey();
+
+        if (!empty($randomKey)) {
+            // 根据随机 key 获取对应的 value
+            $token_data = $this->redis->get($randomKey);
+        } else {
+            return false;
+        }
+
         $token_data = json_decode($token_data, true);
         $token = $token_data['token'];
         $sid = $token_data['session'];
@@ -118,8 +149,8 @@ class JvMing extends AdminController
             'cookie' => 'PHPSESSID=' . $uuid
         ];
         $jar = new \GuzzleHttp\Cookie\CookieJar;
-        $resp1 = $this->client->request('POST', 'http://7a08c112cda6a063.juming.com:9696/user_zh/wxdl_ewm', ['headers' => $headers]);
-        $resp = $this->client->request('POST', $login_url, [
+        $resp1 = $client->request('POST', 'http://7a08c112cda6a063.juming.com:9696/user_zh/wxdl_ewm', ['headers' => $headers]);
+        $resp = $client->request('POST', $login_url, [
 //            'cookies'=>$jar,
             'form_params' => [
                 'token' => $token,
@@ -151,26 +182,20 @@ class JvMing extends AdminController
             'fs' => 'tl',
             'dltoken' => $result['token']
         ];
-        $resp = $this->client->request('POST', $login_url, [
+        $resp = $client->request('POST', $login_url, [
 //            'cookies'=>$jar,
             'form_params' => $form_params,
             'headers' => $headers
         ]);
         $result = json_decode($resp->getBody()->getContents(), true);
         if (strstr($result['msg'], '登陆成功')) {
-//            $cookie = explode(';',$resp->getHeaders()['Set-Cookie'][0])[0];
-//            $cookie = 'PHPSESSID='.$uuid;
-//            dd( $this->client->getConfig('cookies'));
-            foreach ($this->client->getConfig('cookies') as $item) {
+            foreach ($client->getConfig('cookies') as $item) {
                 if ($item->getName() == 'PHPSESSID') {
                     $cookie = 'PHPSESSID=' . $item->getValue();
                     NodWarehouse::where('account', '=', $this->username)->where('password', '=', $this->password)->update(['cookie' => $cookie]);
 
                 }
             }
-
-//            dd( $this->client,$result,$cookie,$jar,$resp->getHeaders()['Set-Cookie']);
-//            dd($cookie);
             return $cookie;
 
         }
@@ -207,6 +232,8 @@ class JvMing extends AdminController
             $this->cookie = $this->login($this->username, $this->password);
             if ($this->cookie == '帐户或密码错误!') {
                 return '帐户或密码错误!';
+            }elseif ($this->cookie == false){
+                return 'token 不足';
             }
             return $this->download_sales_ym();
 
@@ -238,16 +265,14 @@ class JvMing extends AdminController
             'accept-language' => 'zh-CN,zh;q=0.9',
             'cache-control' => 'no-cache',
             'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
-            'origin' => 'https://www.juming.com',
             'pragma' => 'no-cache',
-            'referer' => 'https://www.juming.com/',
             'sec-ch-ua' => '"Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"',
             'sec-ch-ua-mobile' => '?0',
             'sec-ch-ua-platform' => '"Windows"',
             'sec-fetch-dest' => 'empty',
             'sec-fetch-mode' => 'cors',
             'sec-fetch-site' => 'same-origin',
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
             'x-requested-with' => 'XMLHttpRequest',
         ];
 
@@ -281,9 +306,9 @@ class JvMing extends AdminController
             'accept-language' => 'zh-CN,zh;q=0.9',
             'cache-control' => 'no-cache',
             'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
-            'origin' => 'https://www.juming.com',
+//            'origin' => 'https://www.juming.com',
             'pragma' => 'no-cache',
-            'referer' => 'https://www.juming.com/',
+//            'referer' => 'https://www.juming.com/',
             'sec-ch-ua' => '"Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"',
             'sec-ch-ua-mobile' => '?0',
             'sec-ch-ua-platform' => '"Windows"',
@@ -312,16 +337,16 @@ class JvMing extends AdminController
             'accept-language' => 'zh-CN,zh;q=0.9',
             'cache-control' => 'no-cache',
             'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
-            'origin' => 'https://www.juming.com',
+//            'origin' => 'https://www.juming.com',
             'pragma' => 'no-cache',
-            'referer' => 'https://www.juming.com/',
+//            'referer' => 'https://www.juming.com/',
             'sec-ch-ua' => '"Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"',
             'sec-ch-ua-mobile' => '?0',
             'sec-ch-ua-platform' => '"Windows"',
             'sec-fetch-dest' => 'empty',
             'sec-fetch-mode' => 'cors',
             'sec-fetch-site' => 'same-origin',
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
             'x-requested-with' => 'XMLHttpRequest',
         ];
         $sj = '';
@@ -352,8 +377,18 @@ class JvMing extends AdminController
     //获取外部入库列表 同行push列表
     public function get_ruku_list($start_time = '', $end_time = '')
     {
-        $url = 'http://7a08c112cda6a063.juming.com:9696/user_rk/ruku_list?page=1&limit=500&field=tjsj';
-        $result = $this->request($url, $this->headers);
+        $headers =[
+            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language' => 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'Pragma' => 'no-cache',
+            'Upgrade-Insecure-Requests' => '1',
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        ];
+
+        $url = 'http://7a08c112cda6a063.juming.com:9696/user_rk/ruku_list?page=1&limit=500&field=tjsj&order=desc';
+        $result = $this->request($url, $headers);
         //判断时间范围
         $data = [];
         foreach ($result['data'] as $item) {
@@ -406,11 +441,10 @@ class JvMing extends AdminController
     public function get_push_list($start_time = '', $end_time = '')
     {
         $url = 'http://7a08c112cda6a063.juming.com:9696/user_ym/push_list?page=1&limit=500';
-        $result = $this->request($url, $this->headers);
+        $result = $this->request($url,$this->headers);
         if ($result['code'] == 999) {
             return $result;
         }
-
         //获取每个订单中的所有信息  ['目标账户'=>['域名1','域名2']]
         $data = [];
         foreach ($result['data'] as $item) {
@@ -607,7 +641,76 @@ class JvMing extends AdminController
     }
 
 
+    //查询域名
+    public function get_ym_list($ym){
+        $url = "http://7a08c112cda6a063.juming.com:9696/user_ym/ym_list";
+        $params = [
+            "page"=> "1",
+            "limit"=> "500",
+            "gjz_cha"=> $ym,
+            "ymlx"=> "",
+            "ymzt"=> "",
+            "zcsj_1"=> "",
+            "zcsj_2"=> "",
+            "gjz_cha2"=> "",
+            "ymhz"=> "",
+            "ymzcs"=> "",
+            "dqsj_1"=> "",
+            "dqsj_2"=> "",
+            "dnsbh"=> "",
+            "ymmb"=> "",
+            "jgpx"=> "",
+            "ymcd_1"=> "",
+            "ymcd_2"=> ""
+        ];
+        $headers = [
+            'cookie'=> $this->cookie,
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        ];
+        $result = $this->request($url,$headers,$params);
+        return $result;
 
 
+
+    }
+
+    //添加抢注域名
+
+    /***
+     * @param $ymlb string  域名多个,分割
+     * @param $ydfs string  通道
+     * @param string $bzsm   备注
+     * @param string $ys    预算
+     */
+    public function add_ym(string $ymlb, $ydfs, string $bzsm='', string $ys=''){
+        $url = "http://7a08c112cda6a063.juming.com:9696/qiang/add";
+        $data = [
+            'chkagreement'=>1,
+            'bzsm'=>$bzsm,
+            'ydfs'=>$ydfs,
+            'fenzu'=>'',
+            'ymlb'=>$ymlb,
+            'ys'=>$ys
+        ];
+
+        $headers = [
+            'cookie'=> $this->cookie,
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        ];
+
+        $result = $this->client->post($url,['form_params'=>$data,'headers'=>$headers])->getBody()->getContents();
+        $result = json_decode($result,true);
+        if ($result['msg'] == '请先登录!'){
+            $this->cookie = $this->login();
+            if ($this->cookie == '帐户或密码错误!') {
+                $data = ['code' => 999, 'msg' => '账号【' . $this->username . '】帐户或密码错误!'];
+                return $data;
+            }
+            return $this->add_ym($ymlb, $ydfs,$bzsm,$ys);
+        }
+
+        return $result;
+
+    }
 
 }

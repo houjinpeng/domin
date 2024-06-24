@@ -1,0 +1,67 @@
+<div class="layuimini-container">
+    <form id="app-form" class="layui-form layuimini-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">任务名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" required  lay-verify="required" placeholder="请输入任务名称" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">账号</label>
+            <div class="layui-input-block">
+                <select name="warehouse_id" lay-verify="required">
+                    {foreach $warehouse as $item}
+                    <option value="{$item.id}">{$item.name}</option>
+
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">域名</label>
+            <div class="layui-input-block">
+                <textarea name="ym" class="layui-textarea" placeholder="多个请换行"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea name="remark" class="layui-textarea" placeholder="备注"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">通道</label>
+            <div class="layui-input-block">
+                <select name="fs" lay-verify="required">
+                    <option value="8">通道1</option>
+                    <option value="13">通道2</option>
+                    <option value="6">通道3</option>
+                    <option value="9">通道4</option>
+                    <option value="5">通道5</option>
+                    <option value="12">通道6</option>
+                    <option value="4">通道7</option>
+                    <option value="3">通道8</option>
+                    <option value="14">通道9</option>
+                    <option value="16">通道10</option>
+                    <option value="17">通道11</option>
+                    <option value="18">通道12</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">脚本执行时间</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input" id="test1" name="start_script_time">
+            </div>
+        </div>
+        <div class="hr-line"></div>
+        <div class="layui-form-item text-center">
+            <button type="submit" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit>确认</button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+        </div>
+
+    </form>
+</div>
