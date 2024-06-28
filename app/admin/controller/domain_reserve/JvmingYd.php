@@ -162,17 +162,23 @@ class JvmingYd extends AdminController
                 }
                 $ym_ll[] = $ym;
                 //判断是否存在，存在更新，不存在插入
-                $ym_row = $this->model_domain->where('ym','=',$ym)->where('batch_id','=',$id)->find();
+                $ym_row = $this->model_domain->where('ym','=',$ym)
+                    ->where('batch_id','=',$id)->find();
                 if (empty($ym_row)){
+
                     $this->model_domain->insert(['ym'=>$ym,'remark'=>$remark,'fs'=>$post['fs'],'batch_id'=>$id]);
                 }else{
-                    $ym_row->save(['remark'=>$remark,'fs'=>$post['fs']]);
+                    //判断 如果是提交成功的 不允许修改
+                    if ($ym_row['status'] == 2){
+                        continue;
+                    }
+                    $ym_row->save(['remark'=>$remark,'fs'=>$post['fs'],'status'=>0]);
                 }
 
 
             }
-            //删除不在域名列表的此批次数据
-            $this->model_domain->where('ym','not in',$ym_ll)->where('batch_id','=',$id)->delete();
+            //删除不在域名列表的此批次数据  但是成功的不允许删除
+            $this->model_domain->where('ym','not in',$ym_ll)->where('batch_id','=',$id)->where('status','<>',2)->delete();
             $this->success('编辑成功');
 
         }
