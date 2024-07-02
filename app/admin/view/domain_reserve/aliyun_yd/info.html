@@ -1,0 +1,14 @@
+<input value="{$domain_list}" id="domain_list" hidden="hidden">
+<input value="{$batch_id}" id="batch_id" hidden="hidden">
+
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <table id="currentTable" class="layui-table layui-hide"
+               data-auth-add="{:auth('nod.config.account/add')}"
+               data-auth-edit="{:auth('nod.config.account/edit')}"
+               data-auth-delete="{:auth('nod.config.account/delete')}"
+               data-auth-info_url="{:auth('nod.statement_analysis.capital_info/index')}"
+               lay-filter="currentTable">
+        </table>
+    </div>
+</div>
