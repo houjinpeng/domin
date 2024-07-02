@@ -18,7 +18,6 @@ return array(
     'DOMDocumentWrapper' => $vendorDir . '/jaeger/phpquery-single/phpQuery.php',
     'DOMEvent' => $vendorDir . '/jaeger/phpquery-single/phpQuery.php',
     'ICallbackNamed' => $vendorDir . '/jaeger/phpquery-single/phpQuery.php',
-    'Normalizer' => $vendorDir . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
     'PhpToken' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
     'ReturnTypeWillChange' => $vendorDir . '/symfony/polyfill-php81/Resources/stubs/ReturnTypeWillChange.php',
     'Stringable' => $vendorDir . '/myclabs/php-enum/stubs/Stringable.php',

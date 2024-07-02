@@ -32,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '2fab661d553028d17e9e1d596b8420eec96dc905',
+    'reference' => '20ceff066834000454fb2488253ad9269f6bde79',
     'name' => 'topthink/think',
   ),
   'versions' => 
@@ -156,12 +156,39 @@ private static $installed = array (
     ),
     'brick/math' => 
     array (
-      'pretty_version' => '0.11.0',
-      'version' => '0.11.0.0',
+      'pretty_version' => '0.9.3',
+      'version' => '0.9.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0ad82ce168c82ba30d1c01ec86116ab52f589478',
+      'reference' => 'ca57d18f028f84f777b2168cd1911b0dee2343ae',
+    ),
+    'cache/adapter-common' => 
+    array (
+      'pretty_version' => '1.3.0',
+      'version' => '1.3.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '8788309be72aa7be69b88cdc0687549c74a7d479',
+    ),
+    'cache/filesystem-adapter' => 
+    array (
+      'pretty_version' => '1.2.0',
+      'version' => '1.2.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'f1faaae40aaa696ef899cef6f6888aedb90b419b',
+    ),
+    'cache/tag-interop' => 
+    array (
+      'pretty_version' => '1.1.0',
+      'version' => '1.1.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'b062b1d735357da50edf8387f7a8696f3027d328',
     ),
     'clagiordano/weblibs-configmanager' => 
     array (
@@ -211,57 +238,66 @@ private static $installed = array (
     ),
     'guzzlehttp/command' => 
     array (
-      'pretty_version' => '1.0.0',
-      'version' => '1.0.0.0',
+      'pretty_version' => '1.3.1',
+      'version' => '1.3.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => '2aaa2521a8f8269d6f5dfc13fe2af12c76921034',
+      'reference' => '0eebc653784f4902b3272e826fe8e88743d14e77',
     ),
     'guzzlehttp/guzzle' => 
     array (
-      'pretty_version' => '6.5.8',
-      'version' => '6.5.8.0',
+      'pretty_version' => '7.8.1',
+      'version' => '7.8.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'a52f0440530b54fa079ce76e8c5d196a42cad981',
+      'reference' => '41042bc7ab002487b876a0683fc8dce04ddce104',
     ),
     'guzzlehttp/guzzle-services' => 
     array (
-      'pretty_version' => '1.1.3',
-      'version' => '1.1.3.0',
+      'pretty_version' => '1.4.1',
+      'version' => '1.4.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => '9e3abf20161cbf662d616cbb995f2811771759f7',
+      'reference' => 'bcab7c0d61672b606510a6fe5af3039d04968c0f',
     ),
     'guzzlehttp/promises' => 
     array (
-      'pretty_version' => '1.5.3',
-      'version' => '1.5.3.0',
+      'pretty_version' => '2.0.2',
+      'version' => '2.0.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => '67ab6e18aaa14d753cc148911d273f6e6cb6721e',
+      'reference' => 'bbff78d96034045e58e13dedd6ad91b5d1253223',
     ),
     'guzzlehttp/psr7' => 
     array (
-      'pretty_version' => '1.9.1',
-      'version' => '1.9.1.0',
+      'pretty_version' => '2.6.2',
+      'version' => '2.6.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'e4490cabc77465aaee90b20cfc9a770f8c04be6b',
+      'reference' => '45b30f99ac27b5ca93cb4831afe16285f57b8221',
+    ),
+    'guzzlehttp/uri-template' => 
+    array (
+      'pretty_version' => 'v1.0.3',
+      'version' => '1.0.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'ecea8feef63bd4fef1f037ecb288386999ecc11c',
     ),
     'jaeger/g-http' => 
     array (
-      'pretty_version' => 'V1.5.0',
-      'version' => '1.5.0.0',
+      'pretty_version' => 'V1.7.3',
+      'version' => '1.7.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'd1474c72846a1a28a72770d580e209aa59bf10b4',
+      'reference' => '035fe0ff6e3e0390769647ce14694875bf02cf22',
     ),
     'jaeger/phpquery-single' => 
     array (
@@ -274,12 +310,30 @@ private static $installed = array (
     ),
     'jaeger/querylist' => 
     array (
-      'pretty_version' => 'V4.4.0',
-      'version' => '4.4.0.0',
+      'pretty_version' => 'V4.2.8',
+      'version' => '4.2.8.0',
       'aliases' => 
       array (
       ),
-      'reference' => '6492f1512a0206a2f144658d91aaae8957f1c1a3',
+      'reference' => '39dc0ca9c668bec7a793e20472ccd7d26ef89ea4',
+    ),
+    'jianyan74/php-excel' => 
+    array (
+      'pretty_version' => '1.0.2',
+      'version' => '1.0.2.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '347e80c98a39d9743c9d7582497f891b90d5e5cf',
+    ),
+    'league/flysystem' => 
+    array (
+      'pretty_version' => '1.0.46',
+      'version' => '1.0.46.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'f3e0d925c18b92cf3ce84ea5cc58d62a1762a2b2',
     ),
     'lizhichao/one-sm' => 
     array (
@@ -289,6 +343,15 @@ private static $installed = array (
       array (
       ),
       'reference' => '687a012a44a5bfd4d9143a0234e1060543be455a',
+    ),
+    'markbaker/complex' => 
+    array (
+      'pretty_version' => '1.5.0',
+      'version' => '1.5.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'c3131244e29c08d44fefb49e0dd35021e9e39dd2',
     ),
     'mtdowling/jmespath.php' => 
     array (
@@ -308,14 +371,30 @@ private static $installed = array (
       ),
       'reference' => 'a867478eae49c9f59ece437ae7f9506bfaa27483',
     ),
-    'psr/cache' => 
+    'phpoffice/phpspreadsheet' => 
     array (
-      'pretty_version' => '3.0.0',
-      'version' => '3.0.0.0',
+      'pretty_version' => '1.5.2',
+      'version' => '1.5.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'aa5030cfa5405eccfdcb1083ce040c2cb8d253bf',
+      'reference' => 'cd60531c44f580fbdfbd55dfb935af791f09be5d',
+    ),
+    'psr/cache' => 
+    array (
+      'pretty_version' => '1.0.1',
+      'version' => '1.0.1.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'd11b50ad223250cf17b86e38383413f5a6764bf8',
+    ),
+    'psr/cache-implementation' => 
+    array (
+      'provided' => 
+      array (
+        0 => '^1.0',
+      ),
     ),
     'psr/container' => 
     array (
@@ -325,6 +404,38 @@ private static $installed = array (
       array (
       ),
       'reference' => '513e0666f7216c7459170d56df27dfcefe1689ea',
+    ),
+    'psr/http-client' => 
+    array (
+      'pretty_version' => '1.0.3',
+      'version' => '1.0.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'bb5906edc1c324c9a05aa0873d40117941e5fa90',
+    ),
+    'psr/http-client-implementation' => 
+    array (
+      'provided' => 
+      array (
+        0 => '1.0',
+      ),
+    ),
+    'psr/http-factory' => 
+    array (
+      'pretty_version' => '1.1.0',
+      'version' => '1.1.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '2b4765fddfe3b508ac62f829e852b1501d3f6e8a',
+    ),
+    'psr/http-factory-implementation' => 
+    array (
+      'provided' => 
+      array (
+        0 => '1.0',
+      ),
     ),
     'psr/http-message' => 
     array (
@@ -359,6 +470,13 @@ private static $installed = array (
       array (
       ),
       'reference' => '408d5eafb83c57f6365a3ca330ff23aa4a5fa39b',
+    ),
+    'psr/simple-cache-implementation' => 
+    array (
+      'provided' => 
+      array (
+        0 => '^1.0',
+      ),
     ),
     'qcloud/cos-sdk-v5' => 
     array (
@@ -398,19 +516,28 @@ private static $installed = array (
     ),
     'ramsey/uuid' => 
     array (
-      'pretty_version' => '4.7.6',
-      'version' => '4.7.6.0',
+      'pretty_version' => '4.2.3',
+      'version' => '4.2.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => '91039bc1faa45ba123c4328958e620d382ec7088',
+      'reference' => 'fc9bb7fb5388691fd7373cd44dcb4d63bbcf24df',
     ),
     'rhumsaa/uuid' => 
     array (
       'replaced' => 
       array (
-        0 => '4.7.6',
+        0 => '4.2.3',
       ),
+    ),
+    'symfony/deprecation-contracts' => 
+    array (
+      'pretty_version' => 'v2.5.3',
+      'version' => '2.5.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '80d075412b557d41002320b96a096ca65aa2c98d',
     ),
     'symfony/polyfill-ctype' => 
     array (
@@ -420,24 +547,6 @@ private static $installed = array (
       array (
       ),
       'reference' => '0424dff1c58f028c451efff2045f5d92410bd540',
-    ),
-    'symfony/polyfill-intl-idn' => 
-    array (
-      'pretty_version' => 'v1.30.0',
-      'version' => '1.30.0.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'a6e83bdeb3c84391d1dfe16f42e40727ce524a5c',
-    ),
-    'symfony/polyfill-intl-normalizer' => 
-    array (
-      'pretty_version' => 'v1.30.0',
-      'version' => '1.30.0.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'a95281b0be0d9ab48050ebd988b967875cdb9fdb',
     ),
     'symfony/polyfill-mbstring' => 
     array (
@@ -493,6 +602,15 @@ private static $installed = array (
       ),
       'reference' => '02c1859112aa779d9ab394ae4f3381911d84052b',
     ),
+    'tightenco/collect' => 
+    array (
+      'pretty_version' => 'v8.83.27',
+      'version' => '8.83.27.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '07eed6cf7441c7a69c379fdcb118eec1a1fdd0e6',
+    ),
     'topthink/framework' => 
     array (
       'pretty_version' => 'v6.1.4',
@@ -509,7 +627,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '2fab661d553028d17e9e1d596b8420eec96dc905',
+      'reference' => '20ceff066834000454fb2488253ad9269f6bde79',
     ),
     'topthink/think-captcha' => 
     array (

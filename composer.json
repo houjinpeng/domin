@@ -3,7 +3,6 @@
     "description": "the new thinkphp framework",
     "type": "project",
     "require": {
-        "php": ">=8.0",
         "topthink/framework": "^6.0.0",
         "topthink/think-orm": "^2.0",
         "topthink/think-multi-app": "^1.0",
@@ -14,11 +13,12 @@
         "qcloud/cos-sdk-v5": "^2.0",
         "qiniu/php-sdk": "^7.2",
         "alibabacloud/client": "^1.5",
-        "jianyan74/php-excel": "^1.0",
+
         "ramsey/uuid": "^4.2",
         "jaeger/querylist": "^4.2",
         "alibabacloud/domain-20180129": "3.14.12",
-        "alibabacloud/domain-20180208": "^1.2"
+        "alibabacloud/domain-20180208": "^1.2",
+        "jianyan74/php-excel": "^1.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.2",
