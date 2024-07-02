@@ -35,11 +35,10 @@ use think\initializer\RegisterService;
  * @property Cookie     $cookie
  * @property Session    $session
  * @property Validate   $validate
- * @property Filesystem $filesystem
  */
 class App extends Container
 {
-    const VERSION = '6.0.12LTS';
+    const VERSION = '6.1.4';
 
     /**
      * 应用调试模式
@@ -152,7 +151,6 @@ class App extends Container
         'session'                 => Session::class,
         'validate'                => Validate::class,
         'view'                    => View::class,
-        'filesystem'              => Filesystem::class,
         'think\DbManager'         => Db::class,
         'think\LogManager'        => Log::class,
         'think\CacheManager'      => Cache::class,
@@ -547,7 +545,7 @@ class App extends Container
         // 应用调试模式
         if (!$this->appDebug) {
             $this->appDebug = $this->env->get('app_debug') ? true : false;
-            ini_set('display_errors', 'On');
+            ini_set('display_errors', 'Off');
         }
 
         if (!$this->runningInConsole()) {

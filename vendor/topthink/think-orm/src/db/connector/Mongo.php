@@ -158,11 +158,8 @@ class Mongo extends Connection
                 $this->config['pk'] = 'id';
             }
 
-//            if (empty($config['dsn'])) {
-//                $config['dsn'] = 'mongodb://' . ($config['username'] ? "{$config['username']}" : '') . ($config['password'] ? ":{$config['password']}@" : '') . $config['hostname'] . ($config['hostport'] ? ":{$config['hostport']}" : '');
-//            }
             if (empty($config['dsn'])) {
-                $config['dsn'] = 'mongodb://' . ($config['username'] ? "{$config['username']}" : '') . ($config['password'] ? ":{$config['password']}@" : '') . $config['hostname'] .($config['hostport'] ? ":{$config['hostport']}" : ''). ($config['database'] ? "/{$config['database']}" : '');
+                $config['dsn'] = 'mongodb://' . ($config['username'] ? "{$config['username']}" : '') . ($config['password'] ? ":{$config['password']}@" : '') . $config['hostname'] . ($config['hostport'] ? ":{$config['hostport']}" : '');
             }
 
             $startTime = microtime(true);

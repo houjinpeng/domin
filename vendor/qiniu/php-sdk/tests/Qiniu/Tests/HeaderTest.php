@@ -1,9 +1,11 @@
 <?php
 namespace Qiniu\Tests;
 
+use PHPUnit\Framework\TestCase;
+
 use Qiniu\Http\Header;
 
-class HeaderTest extends \PHPUnit_Framework_TestCase
+class HeaderTest extends TestCase
 {
     protected $heads = array(
         ':status' => array('200'),
@@ -137,6 +139,21 @@ class HeaderTest extends \PHPUnit_Framework_TestCase
         $hasException = false;
         try {
             foreach ($header as $k => $v) {
+                $hasException = !isset($header[$k]);
+            }
+        } catch (\Exception $e) {
+            $hasException = true;
+        }
+        $this->assertFalse($hasException);
+    }
+
+    public function testEmptyHeaderIterator()
+    {
+        $emptyHeader = new Header();
+
+        $hasException = false;
+        try {
+            foreach ($emptyHeader as $k => $v) {
                 $hasException = !isset($header[$k]);
             }
         } catch (\Exception $e) {

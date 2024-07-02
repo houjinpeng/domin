@@ -3,18 +3,18 @@ define(["jquery", "easy-admin"], function ($, ea) {
     var init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'domain_reserve.jvming_yd/index',
-        add_url: 'domain_reserve.jvming_yd/add',
-        edit_url: 'domain_reserve.jvming_yd/edit',
-        delete_url: 'domain_reserve.jvming_yd/delete',
-        info_url: 'domain_reserve.jvming_yd/info',
+        index_url: 'domain_reserve.aliyun_yd/index',
+        add_url: 'domain_reserve.aliyun_yd/add',
+        edit_url: 'domain_reserve.aliyun_yd/edit',
+        delete_url: 'domain_reserve.aliyun_yd/delete',
+        info_url: 'domain_reserve.aliyun_yd/info',
 
     };
 
     var info_init = {
         table_elem: '#currentTable',
         table_render_id: 'currentTableRenderId',
-        index_url: 'domain_reserve.jvming_yd/info',
+        index_url: 'domain_reserve.aliyun_yd/info',
     };
 
 
@@ -31,9 +31,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'id', width: 80, title: '编号'},
                     {field: 'title', minWidth: 123, title: '名称'},
-                    {field: 'warehouse_id', minWidth: 123, title: '仓库',search: false,templet:function (d) {
-                            return d.warehouse ? d.warehouse.name:''
-                        }},
                     {field: 'admin', minWidth: 123, title: '操作人',search:false,templet: function (d) {
                             return d.admin ? d.admin.username: ''
                         }},
@@ -102,7 +99,6 @@ define(["jquery", "easy-admin"], function ($, ea) {
                     {type: "checkbox"},
                     {field: 'id', width: 80, title: '编号'},
                     {field: 'ym', minWidth: 123, title: '域名'},
-                    {field: 'fs', minWidth: 123, title: '通道'},
                     {field: 'remark', minWidth: 123, title: '备注'},
                     {field: 'status', minWidth: 123, title: '状态',selectList:{0:'待运行',1:'运行中',2:'已添加',3:'失败'},templet:function (d) {
                             if (d.status==0){

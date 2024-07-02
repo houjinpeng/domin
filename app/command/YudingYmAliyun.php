@@ -40,11 +40,16 @@ class YudingYmAliyun extends Command
     }
 
 
-    public function do_request($client,$ym){
-
-        $request = new ReserveDomainRequest(['channels'=>'','domainName'=>$ym]);
-        $result = $client->reserveDomain($request);
-
+    public function do_request($client,$ym,$count=0){
+        try {
+            $request = new ReserveDomainRequest(['channels'=>'','domainName'=>$ym]);
+            $result = $client->reserveDomain($request);
+        }catch (\Exception $e){
+            if ($count > 5){
+                return [];
+            }
+            return  $this->do_request($client,$ym,$count+1);
+        }
         return $result;
 
     }
@@ -59,8 +64,6 @@ class YudingYmAliyun extends Command
         }
         $client = $this->get_client();
         $domain_model = new DomainReserveDomain();
-
-        $batch_data = DomainReserveBatch::find($batch_id);
 
         //修改没有备案的数据状态为3
         $domain_model->where('batch_id','=',$batch_id)
@@ -80,12 +83,13 @@ class YudingYmAliyun extends Command
 
         foreach ($domain_list as $domain){
             $result = $this->do_request($client,$domain);
+            print('域名：'.$domain.' '.json_encode($result)."\n");
             if ($result){
                 $domain_model->where('ym','=',$domain)->where('batch_id','=',$batch_id)
                     ->update(['status'=>2]);
             }else{
                 $domain_model->where('ym','=',$domain)->where('batch_id','=',$batch_id)
-                    ->update(['status'=>3,'error_msg'=>'']);
+                    ->update(['status'=>3,'error_msg'=>'抢注失败']);
             }
 
         }
